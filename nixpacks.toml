@@ -1,0 +1,74 @@
+providers = ["node"]
+
+[variables]
+NODE_ENV = "production"
+CI = "true"
+ASTRO_TELEMETRY_DISABLED = "1"
+NIXPACKS_PATH = "/usr/local/bin"
+
+[phases.setup]
+nixPkgs = ["curl", "unzip", "xz"]
+
+[phases.install]
+dependsOn = ["setup"]
+cmds = [
+  "curl -fsSL https://nodejs.org/dist/v24.18.0/node-v24.18.0-linux-x64.tar.xz -o /tmp/node-v24.18.0-linux-x64.tar.xz",
+  "echo '55aa7153f9d88f28d765fcdad5ae6945b5c0f98a36881703817e4c450fa76742  /tmp/node-v24.18.0-linux-x64.tar.xz' | sha256sum --check --strict",
+  "tar -xJf /tmp/node-v24.18.0-linux-x64.tar.xz -C /usr/local --strip-components=1",
+  "curl -fsSL https://github.com/oven-sh/bun/releases/download/bun-v1.3.11/bun-linux-x64.zip -o /tmp/bun-linux-x64.zip",
+  "echo '8611ba935af886f05a6f38740a15160326c15e5d5d07adef966130b4493607ed  /tmp/bun-linux-x64.zip' | sha256sum --check --strict",
+  "unzip -q /tmp/bun-linux-x64.zip -d /tmp",
+  "install -m 0755 /tmp/bun-linux-x64/bun /usr/local/bin/bun",
+  "/usr/local/bin/bun install --cwd versions/organique --frozen-lockfile",
+]
+cacheDirectories = ["/root/.bun/install/cache"]
+paths = []
+
+[phases.build]
+dependsOn = ["install"]
+cmds = [
+  "/usr/local/bin/bun scripts/materialize-deploy-links.ts organique",
+  "PATH=/usr/local/bin:$PATH /usr/local/bin/bun run --cwd versions/organique build",
+  "mkdir -p .deploy",
+  "curl -fsSL https://github.com/caddyserver/caddy/releases/download/v2.11.4/caddy_2.11.4_linux_amd64.tar.gz -o /tmp/caddy_2.11.4_linux_amd64.tar.gz",
+  "echo '527fbf917c39189a1e3b31d34fa955601680b2d5c8055d2a87b8b9588dec7bb9  /tmp/caddy_2.11.4_linux_amd64.tar.gz' | sha256sum --check --strict",
+  "tar -xzf /tmp/caddy_2.11.4_linux_amd64.tar.gz -C .deploy caddy",
+  "cp /assets/Caddyfile .deploy/Caddyfile",
+]
+
+[staticAssets]
+"Caddyfile" = '''
+{
+	auto_https off
+	servers {
+		protocols h1
+	}
+}
+
+:{$PORT:3000} {
+	root * /app/versions/organique/dist
+	encode zstd gzip
+
+	header {
+		-Server
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Frame-Options "SAMEORIGIN"
+	}
+
+	@immutable path /_astro/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	file_server
+
+	handle_errors {
+		rewrite * /404.html
+		file_server
+	}
+}
+'''
+
+[start]
+cmd = "/app/.deploy/caddy run --config /app/.deploy/Caddyfile --adapter caddyfile"
+runImage = "ubuntu:24.04"
+onlyIncludeFiles = [".deploy", "versions/organique/dist"]
