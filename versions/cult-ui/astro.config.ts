@@ -144,6 +144,7 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
+      filter: (page) => !page.endsWith("/landing/french/"),
       i18n: {
         defaultLocale: "fr",
         locales: {

@@ -141,6 +141,7 @@ export default defineConfig({
     mdx(),
     katexAssets(FEATURES.math),
     sitemap({
+      filter: (page) => !page.endsWith("/landing/french/"),
       i18n: {
         defaultLocale: "fr",
         locales: {

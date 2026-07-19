@@ -24,6 +24,7 @@ const files = [
   ["shared/routes/en/index.astro", "src/pages/en/index.astro"],
   ["shared/routes/en/rss.xml.ts", "src/pages/en/rss.xml.ts"],
   ["shared/routes/en/tags/index.astro", "src/pages/en/tags/index.astro"],
+  ["shared/routes/fr/index.astro", "src/pages/landing/french/index.astro"],
   ["shared/routes/index.astro", "src/pages/index.astro"],
   ["shared/routes/tags/index.astro", "src/pages/tags/index.astro"],
 ] as const;

@@ -2,9 +2,10 @@
 import ThemeToggle from "@/components/ThemeToggle.astro";
 import AccentPicker from "@/components/AccentPicker.astro";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
-import { SITE } from "@/site.config";
+import { FEATURES, SITE } from "@/site.config";
 import { localeUrl, t, type Locale } from "@/i18n/ui";
 import { cn } from "@/lib/utils";
+import { getPublishedPosts } from "@/lib/posts";
 
 interface Props {
   locale: Locale;
@@ -13,10 +14,19 @@ interface Props {
 
 const { locale, alternates } = Astro.props;
 const dict = t(locale);
+const hasSeries = FEATURES.series && (await getPublishedPosts(locale)).some(
+  (post) => Boolean(post.data.series),
+);
 
 const navItems = [
   { href: localeUrl(locale, "blog"), label: dict.nav.blog },
   { href: localeUrl(locale, "tags"), label: dict.nav.tags },
+  ...(FEATURES.archives
+    ? [{ href: localeUrl(locale, "archives"), label: dict.nav.archives }]
+    : []),
+  ...(hasSeries
+    ? [{ href: localeUrl(locale, "series"), label: dict.nav.series }]
+    : []),
   { href: localeUrl(locale, "about"), label: dict.nav.about },
 ];
 

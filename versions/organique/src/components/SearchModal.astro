@@ -1,6 +1,7 @@
 ---
 import { FEATURES } from "@/site.config";
 import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts } from "@/lib/posts";
 
 interface Props {
   locale: Locale;
@@ -9,6 +10,9 @@ interface Props {
 const { locale } = Astro.props;
 const dict = t(locale);
 const palette = FEATURES.commandPalette;
+const hasSeries = FEATURES.series && (await getPublishedPosts(locale)).some(
+  (post) => Boolean(post.data.series),
+);
 
 const actions = [
   { cmd: "theme", label: dict.palette.toggleTheme, keywords: "theme dark light sombre clair mode" },
@@ -25,7 +29,7 @@ const navLinks = [
     label: dict.palette.goArchives,
     keywords: "archives timeline historique",
   },
-  FEATURES.series && {
+  hasSeries && {
     href: localeUrl(locale, "series"),
     label: dict.series.listTitle,
     keywords: "series serie dossiers",

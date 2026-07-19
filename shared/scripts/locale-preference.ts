@@ -2,6 +2,11 @@ import { navigate } from "astro:transitions/client";
 
 type Locale = "fr" | "en";
 
+const landingSourcePath: Record<Locale, string> = {
+  fr: "/landing/french/",
+  en: "/?lisible-locale=en",
+};
+
 function preferredLocale(): Locale {
   const stored = localStorage.getItem("lisible-locale");
   if (stored === "fr" || stored === "en") return stored;
@@ -23,8 +28,68 @@ let navigating = false;
 let scheduled = false;
 let waitingForLoad = false;
 
+function currentLocale(): Locale {
+  return document.documentElement.lang === "fr" ? "fr" : "en";
+}
+
+function isLandingPath(): boolean {
+  return location.pathname === "/" || location.pathname === "/landing/french/";
+}
+
+function revealLanding(): void {
+  document.documentElement.style.removeProperty("visibility");
+}
+
+function normalizeLandingUrl(): void {
+  if (location.pathname !== "/" || location.search === "?lisible-locale=en") {
+    history.replaceState(history.state, "", "/");
+  }
+  const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  const rootUrl = new URL("/", canonical?.href ?? location.origin).toString();
+  canonical?.setAttribute("href", rootUrl);
+  document.querySelector<HTMLMetaElement>('meta[property="og:url"]')?.setAttribute("content", rootUrl);
+}
+
+function switchLanding(locale: Locale, persist = false): void {
+  if (persist) localStorage.setItem("lisible-locale", locale);
+
+  if (currentLocale() === locale && location.pathname === "/") {
+    normalizeLandingUrl();
+    revealLanding();
+    return;
+  }
+  if (navigating) return;
+
+  navigating = true;
+  void navigate(landingSourcePath[locale], { history: "replace" })
+    .then(() => {
+      if (currentLocale() !== locale) return;
+      normalizeLandingUrl();
+      revealLanding();
+    })
+    .catch(() => revealLanding())
+    .finally(() => {
+      navigating = false;
+    });
+}
+
+function syncLanding(): boolean {
+  if (!isLandingPath()) return false;
+
+  const preferred = preferredLocale();
+  if (currentLocale() !== preferred) {
+    switchLanding(preferred);
+    return true;
+  }
+
+  normalizeLandingUrl();
+  revealLanding();
+  return true;
+}
+
 function syncLocale(): void {
   if (navigating || document.querySelector("[data-not-found-root]")) return;
+  if (syncLanding()) return;
   const targetPath = pathFor(preferredLocale());
   if (!targetPath) return;
 
@@ -36,6 +101,10 @@ function syncLocale(): void {
 }
 
 function scheduleLocaleSync(): void {
+  if (isLandingPath()) {
+    syncLocale();
+    return;
+  }
   if (document.readyState !== "complete") {
     if (waitingForLoad) return;
     waitingForLoad = true;
@@ -57,6 +126,18 @@ function scheduleLocaleSync(): void {
   };
   requestAnimationFrame(waitForEagerIslands);
 }
+
+document.addEventListener("click", (event) => {
+  if (location.pathname !== "/") return;
+  const target = event.target instanceof Element ? event.target : null;
+  const languageLink = target?.closest<HTMLAnchorElement>('a[hreflang="fr"], a[hreflang="en"]');
+  if (languageLink?.hreflang !== "fr" && languageLink?.hreflang !== "en") return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  document.querySelectorAll<HTMLDialogElement>("dialog[open]").forEach((dialog) => dialog.close());
+  switchLanding(languageLink.hreflang, true);
+}, { capture: true });
 
 scheduleLocaleSync();
 document.addEventListener("astro:page-load", scheduleLocaleSync);

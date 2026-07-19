@@ -24,6 +24,8 @@ const fr = {
   nav: {
     blog: "Blog",
     tags: "Tags",
+    archives: "Archives",
+    series: "Séries",
     about: "À propos",
     main: "Navigation principale",
   },
@@ -123,6 +125,9 @@ const fr = {
   },
   series: {
     label: "Série",
+    listTitle: "Séries",
+    listDescription: "Tous les parcours éditoriaux, regroupés dans leur ordre de lecture.",
+    empty: "Aucune série publiée pour le moment.",
     part: (order: number, total: number) => `Partie ${order} sur ${total}`,
     prev: "Précédent dans la série",
     next: "Suivant dans la série",
@@ -211,6 +216,8 @@ const en: Dict = {
   nav: {
     blog: "Blog",
     tags: "Tags",
+    archives: "Archives",
+    series: "Series",
     about: "About",
     main: "Main navigation",
   },
@@ -310,6 +317,9 @@ const en: Dict = {
   },
   series: {
     label: "Series",
+    listTitle: "Series",
+    listDescription: "Every editorial path, grouped in reading order.",
+    empty: "No series have been published yet.",
     part: (order: number, total: number) => `Part ${order} of ${total}`,
     prev: "Previous in series",
     next: "Next in series",
