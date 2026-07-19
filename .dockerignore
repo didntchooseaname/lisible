@@ -1,0 +1,13 @@
+.git
+.astro
+dist
+node_modules
+**/.astro
+**/dist
+**/node_modules
+**/.cache
+.env
+.env.*
+!.env.example
+*.7z
+*.log

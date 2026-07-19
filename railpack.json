@@ -1,0 +1,66 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "staticfile",
+  "caches": {
+    "bun": {
+      "directory": "/root/.bun/install/cache",
+      "type": "shared"
+    }
+  },
+  "steps": {
+    "build": {
+      "commands": [
+        {
+          "image": "oven/bun:1.3.11",
+          "src": "/usr/local/bin/bun",
+          "dest": "/usr/local/bin/bun"
+        },
+        "...",
+        {
+          "cmd": "bun install --cwd versions/organique --frozen-lockfile",
+          "customName": "Install Organique dependencies"
+        },
+        {
+          "cmd": "bun scripts/materialize-deploy-links.ts organique",
+          "customName": "Materialize Organique shared files"
+        },
+        {
+          "cmd": "bun run --cwd versions/organique build",
+          "customName": "Build Organique"
+        }
+      ],
+      "variables": {
+        "ASTRO_TELEMETRY_DISABLED": "1",
+        "CI": "true"
+      },
+      "caches": ["bun"],
+      "deployOutputs": [
+        {
+          "include": [
+            "Caddyfile",
+            "versions/organique/dist"
+          ]
+        }
+      ]
+    }
+  },
+  "deploy": {
+    "inputs": [
+      {
+        "step": "packages:caddy",
+        "include": ["/railpack/caddy"]
+      },
+      {
+        "step": "build",
+        "include": [
+          "Caddyfile",
+          "versions/organique/dist"
+        ]
+      }
+    ],
+    "variables": {
+      "LANG": "en_US.UTF-8",
+      "LC_ALL": "en_US.UTF-8"
+    }
+  }
+}
