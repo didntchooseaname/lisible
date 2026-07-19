@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/didntchooseaname/lisible/blob/main/docs/lisible.config.schema.json",
+  "title": "Lisible configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["variant"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "variant": {
+      "type": "string",
+      "enum": [
+        "motion-primitives",
+        "cult-ui",
+        "aceternity",
+        "reactbits",
+        "organique",
+        "h4x0r"
+      ]
+    }
+  }
+}

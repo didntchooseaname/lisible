@@ -1,0 +1,107 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { GradientHeading } from "@/components/ui/gradient-heading";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, groupByYearMonth, postUrl } from "@/lib/posts";
+import { isoDate } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+const groups = groupByYearMonth(posts);
+
+const monthFormatter = new Intl.DateTimeFormat(
+  locale === "fr" ? "fr-FR" : "en-US",
+  { month: "long" },
+);
+function monthName(month: number): string {
+  const label = monthFormatter.format(new Date(2000, month, 1));
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+const dayFormatter = new Intl.DateTimeFormat(
+  locale === "fr" ? "fr-FR" : "en-US",
+  { day: "2-digit" },
+);
+
+const alternates = {
+  fr: localeUrl("fr", "archives"),
+  en: localeUrl("en", "archives"),
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.archives.title}
+  description={dict.archives.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <GradientHeading as="h1" size="lg" weight="bold" className="tracking-tight">
+      {dict.archives.title}
+    </GradientHeading>
+    <p class="mt-1 max-w-2xl text-muted-foreground">{dict.archives.description}</p>
+
+    {
+      posts.length === 0 ? (
+        <p class="mt-10 text-muted-foreground">{dict.archives.empty}</p>
+      ) : (
+        <div class="mt-10 flex flex-col gap-12">
+          {groups.map((yearGroup) => {
+            const yearCount = yearGroup.months.reduce(
+              (sum, m) => sum + m.posts.length,
+              0,
+            );
+            return (
+              <section aria-labelledby={`archive-${yearGroup.year}`}>
+                <div class="flex items-baseline justify-between gap-3 border-b border-border pb-2">
+                  <h2
+                    id={`archive-${yearGroup.year}`}
+                    class="text-2xl font-bold tracking-tight"
+                  >
+                    {yearGroup.year}
+                  </h2>
+                  <span class="text-xs text-muted-foreground">
+                    {dict.archives.postsCount(yearCount)}
+                  </span>
+                </div>
+                <div class="mt-5 flex flex-col gap-6">
+                  {yearGroup.months.map((monthGroup) => (
+                    <div class="grid gap-2 sm:grid-cols-[8rem_minmax(0,1fr)]">
+                      <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                        {monthName(monthGroup.month)}
+                      </h3>
+                      <ul class="flex flex-col gap-2">
+                        {monthGroup.posts.map((post) => (
+                          <li class="flex items-baseline gap-3">
+                            <time
+                              datetime={isoDate(post.data.pubDate)}
+                              class="w-6 shrink-0 text-right text-sm tabular-nums text-muted-foreground"
+                            >
+                              {dayFormatter.format(post.data.pubDate)}
+                            </time>
+                            <a
+                              href={postUrl(post)}
+                              class="text-foreground transition-colors hover:text-accent"
+                            >
+                              {post.data.title}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

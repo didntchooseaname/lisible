@@ -1,0 +1,51 @@
+---
+import { FEATURES } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+const locale = (Astro.currentLocale === "en" ? "en" : "fr") as Locale;
+const label = t(locale).post.spoilerReveal;
+---
+
+{
+  FEATURES.mdxComponents ? (
+    <span
+      class="spoiler"
+      data-spoiler
+      role="button"
+      tabindex="0"
+      aria-expanded="false"
+      aria-label={label}
+    >
+      <span class="spoiler-content"><slot /></span>
+    </span>
+  ) : (
+    <span class="spoiler-plain"><slot /></span>
+  )
+}
+
+<script>
+  function reveal(el: HTMLElement) {
+    if (el.classList.contains("is-revealed")) return;
+    el.classList.add("is-revealed");
+    el.setAttribute("aria-expanded", "true");
+    el.removeAttribute("role");
+    el.removeAttribute("tabindex");
+    el.removeAttribute("aria-label");
+  }
+
+  function onClick(event: MouseEvent) {
+    const el = (event.target as HTMLElement | null)?.closest<HTMLElement>("[data-spoiler]");
+    if (el) reveal(el);
+  }
+
+  function onKey(event: KeyboardEvent) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const el = (event.target as HTMLElement | null)?.closest<HTMLElement>("[data-spoiler]");
+    if (!el) return;
+    event.preventDefault();
+    reveal(el);
+  }
+
+  document.addEventListener("click", onClick);
+  document.addEventListener("keydown", onKey);
+</script>

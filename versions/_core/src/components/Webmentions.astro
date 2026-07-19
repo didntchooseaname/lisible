@@ -1,0 +1,78 @@
+---
+import { WEBMENTIONS } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  target: string;
+}
+
+const { locale, target } = Astro.props;
+const dict = t(locale);
+
+interface Mention {
+  type: string;
+  url: string;
+  author?: { name?: string; photo?: string; url?: string };
+  content?: { text?: string };
+  "wm-property"?: string;
+}
+
+let likes: Mention[] = [];
+let reposts: Mention[] = [];
+let replies: Mention[] = [];
+
+try {
+  const api = `https://webmention.io/api/mentions.jf2?target=${encodeURIComponent(target)}&per-page=100`;
+  const res = await fetch(api);
+  if (res.ok) {
+    const data = (await res.json()) as { children?: Mention[] };
+    const children = data.children ?? [];
+    likes = children.filter((m) => m["wm-property"] === "like-of");
+    reposts = children.filter((m) => m["wm-property"] === "repost-of");
+    replies = children.filter(
+      (m) => m["wm-property"] === "in-reply-to" || m["wm-property"] === "mention-of",
+    );
+  }
+} catch {
+}
+
+const isEmpty = likes.length + reposts.length + replies.length === 0;
+
+void WEBMENTIONS;
+---
+
+<section aria-labelledby="webmentions-title" class="mt-14 border-t border-border pt-8">
+  <h2 id="webmentions-title" class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    {dict.webmentions.title}
+  </h2>
+
+  {
+    isEmpty ? (
+      <p class="mt-4 text-sm text-muted-foreground">{dict.webmentions.empty}</p>
+    ) : (
+      <div class="mt-4 flex flex-col gap-5">
+        {(likes.length > 0 || reposts.length > 0) && (
+          <div class="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+            {likes.length > 0 && <span>{dict.webmentions.likes(likes.length)}</span>}
+            {reposts.length > 0 && <span>{dict.webmentions.reposts(reposts.length)}</span>}
+          </div>
+        )}
+        {replies.length > 0 && (
+          <ul class="flex flex-col gap-4">
+            {replies.map((reply) => (
+              <li class="rounded-lg border border-border bg-card p-4">
+                <a href={reply.author?.url ?? reply.url} rel="noopener noreferrer external" class="text-sm font-semibold hover:text-accent">
+                  {reply.author?.name ?? reply.url}
+                </a>
+                {reply.content?.text && (
+                  <p class="mt-1.5 text-sm text-muted-foreground">{reply.content.text}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )
+  }
+</section>

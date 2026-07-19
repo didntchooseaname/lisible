@@ -1,0 +1,120 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  absoluteUrl: string;
+  markdownPath?: string;
+  markdownAbsoluteUrl?: string;
+}
+
+const { locale, absoluteUrl, markdownPath, markdownAbsoluteUrl } = Astro.props;
+const dict = t(locale);
+
+const target = markdownAbsoluteUrl ?? absoluteUrl;
+const query = `${dict.ai.prompt}: ${target}`;
+const claudeUrl = `https://claude.ai/new?q=${encodeURIComponent(query)}`;
+const chatgptUrl = `https://chatgpt.com/?q=${encodeURIComponent(query)}`;
+---
+
+<details class="ai-menu" data-ai-menu>
+  <summary class="ai-trigger" aria-label={dict.ai.open}>
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.75"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 3 9.5 9.5 3 12l6.5 2.5L12 21l2.5-6.5L21 12l-6.5-2.5Z"></path>
+    </svg>
+    <span>{dict.ai.title}</span>
+  </summary>
+  <div class="ai-pop" role="menu" data-copied={dict.ai.copied}>
+    {
+      markdownPath && (
+        <button type="button" class="ai-item" role="menuitem" data-ai-copy data-md={markdownPath}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+          </svg>
+          <span data-ai-copy-label>{dict.ai.copyMarkdown}</span>
+        </button>
+      )
+    }
+    {
+      markdownPath && (
+        <a class="ai-item" role="menuitem" href={markdownPath}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+            <path d="M14 2v5h5" />
+          </svg>
+          <span>{dict.ai.viewMarkdown}</span>
+        </a>
+      )
+    }
+    <a class="ai-item" role="menuitem" href={claudeUrl} target="_blank" rel="noopener noreferrer external">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7.5 15 12 4l4.5 11" />
+        <path d="M9.2 11h5.6" />
+      </svg>
+      <span>{dict.ai.openClaude}</span>
+    </a>
+    <a class="ai-item" role="menuitem" href={chatgptUrl} target="_blank" rel="noopener noreferrer external">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M8 12a4 4 0 0 1 8 0 4 4 0 0 1-8 0Z" />
+      </svg>
+      <span>{dict.ai.openChatgpt}</span>
+    </a>
+  </div>
+</details>
+
+<script>
+  async function copyMarkdown(button: HTMLButtonElement): Promise<void> {
+    const path = button.dataset.md;
+    if (!path) return;
+    const label = button.querySelector<HTMLElement>("[data-ai-copy-label]");
+    const original = label?.textContent ?? "";
+    const copied = button.closest<HTMLElement>(".ai-pop")?.dataset.copied ?? "";
+    try {
+      const res = await fetch(path);
+      const text = await res.text();
+      await navigator.clipboard.writeText(text);
+      if (label && copied) {
+        label.textContent = copied;
+        window.setTimeout(() => {
+          label.textContent = original;
+        }, 1600);
+      }
+    } catch {
+    }
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    const copyBtn = target?.closest<HTMLButtonElement>("[data-ai-copy]");
+    if (copyBtn) {
+      event.preventDefault();
+      void copyMarkdown(copyBtn);
+      return;
+    }
+    const menu = document.querySelector<HTMLDetailsElement>("[data-ai-menu][open]");
+    if (menu && !target?.closest("[data-ai-menu]")) menu.open = false;
+    if (menu && target?.closest(".ai-item[role='menuitem']:not([data-ai-copy])")) menu.open = false;
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const menu = document.querySelector<HTMLDetailsElement>("[data-ai-menu][open]");
+    if (menu) menu.open = false;
+  });
+  document.addEventListener("astro:before-swap", () => {
+    const menu = document.querySelector<HTMLDetailsElement>("[data-ai-menu][open]");
+    if (menu) menu.open = false;
+  });
+</script>

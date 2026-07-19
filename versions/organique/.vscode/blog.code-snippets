@@ -1,0 +1,145 @@
+{
+  "Frontmatter article": {
+    "scope": "markdown,mdx",
+    "prefix": "fm",
+    "body": [
+      "---",
+      "title: \"${1:Titre de l'article}\"",
+      "description: \"${2:Description en moins de 160 caracteres}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "draft: ${4:true}",
+      "tags: [${5:\"tag\"}]",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Frontmatter minimal valide pour un article"
+  },
+  "Frontmatter complet": {
+    "scope": "markdown,mdx",
+    "prefix": "fm-full",
+    "body": [
+      "---",
+      "title: \"${1:Titre de l'article}\"",
+      "description: \"${2:Description en moins de 160 caracteres}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "updatedDate: ${4:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "tags: [${5:\"tag\"}]",
+      "draft: ${6:false}",
+      "featured: ${7:false}",
+      "cover: ${8:/images/cover.svg}",
+      "coverAlt: \"${9:Texte alternatif de la couverture}\"",
+      "series: \"${10:slug-de-serie}\"",
+      "seriesOrder: ${11:1}",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Frontmatter avec cover, epinglage et serie"
+  },
+  "Callout note": {
+    "scope": "markdown,mdx",
+    "prefix": ":::note",
+    "body": [":::note[${1:Titre}]", "$0", ":::"],
+    "description": "Callout note"
+  },
+  "Callout tip": {
+    "scope": "markdown,mdx",
+    "prefix": ":::tip",
+    "body": [":::tip[${1:Titre}]", "$0", ":::"],
+    "description": "Callout tip"
+  },
+  "Callout warning": {
+    "scope": "markdown,mdx",
+    "prefix": ":::warning",
+    "body": [":::warning[${1:Titre}]", "$0", ":::"],
+    "description": "Callout warning"
+  },
+  "Callout caution": {
+    "scope": "markdown,mdx",
+    "prefix": ":::caution",
+    "body": [":::caution[${1:Titre}]", "$0", ":::"],
+    "description": "Callout caution"
+  },
+  "Callout important repliable": {
+    "scope": "markdown,mdx",
+    "prefix": ":::important",
+    "body": [":::important[${1:Titre}]{collapse}", "$0", ":::"],
+    "description": "Callout important repliable"
+  },
+  "Bloc Mermaid": {
+    "scope": "markdown,mdx",
+    "prefix": "mermaid",
+    "body": ["```mermaid", "flowchart TD", "  A[${1:Debut}] --> B[${2:Fin}]", "```", "$0"],
+    "description": "Diagramme Mermaid"
+  },
+  "Formule KaTeX (bloc)": {
+    "scope": "markdown,mdx",
+    "prefix": "katex",
+    "body": ["$$", "${1:a^2 + b^2 = c^2}", "$$", "$0"],
+    "description": "Bloc de formule KaTeX"
+  },
+  "Carte de depot GitHub": {
+    "scope": "markdown,mdx",
+    "prefix": "::github",
+    "body": ["::github{repo=\"${1:owner/repo}\"}", "$0"],
+    "description": "Carte de depot GitHub"
+  },
+  "Imports composants MDX": {
+    "scope": "mdx",
+    "prefix": "mdx-imports",
+    "body": [
+      "import { Tabs, Tab } from \"@/components/ui/tabs\";",
+      "import { Steps, Step } from \"@/components/ui/steps\";",
+      "import Spoiler from \"@/components/Spoiler.astro\";",
+      "$0"
+    ],
+    "description": "Imports des composants MDX (Tabs, Steps, Spoiler)"
+  },
+  "Composant Tabs (MDX)": {
+    "scope": "mdx",
+    "prefix": "tabs",
+    "body": [
+      "<Tabs tabs={[\"${1:bun}\", \"${2:npm}\"]} client:load>",
+      "<Tab>",
+      "",
+      "$3",
+      "",
+      "</Tab>",
+      "<Tab>",
+      "",
+      "$4",
+      "",
+      "</Tab>",
+      "</Tabs>",
+      "$0"
+    ],
+    "description": "Composant Tabs (fichiers .mdx)"
+  },
+  "Composant Steps (MDX)": {
+    "scope": "mdx",
+    "prefix": "steps",
+    "body": [
+      "<Steps>",
+      "<Step title=\"${1:Creer l'article}\">",
+      "",
+      "$2",
+      "",
+      "</Step>",
+      "<Step title=\"${3:Publier}\">",
+      "",
+      "$4",
+      "",
+      "</Step>",
+      "</Steps>",
+      "$0"
+    ],
+    "description": "Composant Steps (fichiers .mdx)"
+  },
+  "Composant Spoiler (MDX)": {
+    "scope": "mdx",
+    "prefix": "spoiler",
+    "body": ["<Spoiler>${1:contenu masque}</Spoiler>", "$0"],
+    "description": "Composant Spoiler (fichiers .mdx)"
+  }
+}

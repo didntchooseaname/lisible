@@ -1,0 +1,57 @@
+---
+
+---
+
+<span class="spoiler" data-spoiler role="button" tabindex="0" aria-expanded="false">
+  <span class="spoiler-content"><slot /></span>
+</span>
+
+<script>
+  function reveal(el: HTMLElement) {
+    el.classList.add("is-revealed");
+    el.setAttribute("aria-expanded", "true");
+    el.removeAttribute("tabindex");
+    el.removeAttribute("role");
+  }
+
+  function label() {
+    return document.documentElement.lang === "en"
+      ? "Reveal hidden content"
+      : "Révéler le contenu masqué";
+  }
+
+  function bind() {
+    document
+      .querySelectorAll<HTMLElement>("[data-spoiler]:not([data-spoiler-ready])")
+      .forEach((el) => {
+        el.setAttribute("data-spoiler-ready", "");
+        el.setAttribute("aria-label", label());
+      });
+  }
+
+  function onClick(event: MouseEvent) {
+    const el = (event.target as HTMLElement)?.closest<HTMLElement>(
+      "[data-spoiler]:not(.is-revealed)",
+    );
+    if (!el) return;
+    reveal(el);
+  }
+
+  function onKeyDown(event: KeyboardEvent) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const el = (event.target as HTMLElement)?.closest<HTMLElement>(
+      "[data-spoiler]:not(.is-revealed)",
+    );
+    if (!el) return;
+    event.preventDefault();
+    reveal(el);
+  }
+
+  if (!(window as { __spoilerBound?: boolean }).__spoilerBound) {
+    (window as { __spoilerBound?: boolean }).__spoilerBound = true;
+    document.addEventListener("click", onClick);
+    document.addEventListener("keydown", onKeyDown);
+  }
+  bind();
+  document.addEventListener("astro:page-load", bind);
+</script>

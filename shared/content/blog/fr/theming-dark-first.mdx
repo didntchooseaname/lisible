@@ -1,0 +1,41 @@
+---
+title: "Concevoir un thème dark first"
+description: "Pourquoi partir du sombre, comment structurer ses tokens et éviter les pièges de contraste."
+pubDate: 2026-07-08
+tags: ["design", "css", "accessibilité"]
+draft: false
+---
+
+Concevoir dark first inverse la démarche habituelle: le mode sombre est la base, le clair est la déclinaison.
+
+## Des tokens sémantiques, pas des couleurs brutes
+
+```css
+.dark {
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.984 0.003 248);
+  --accent: oklch(0.723 0.219 149.6);
+}
+```
+
+Un composant ne référence jamais un hex: il consomme `--background`, `--accent`, `--muted-foreground`. Le thème entier bascule en changeant une classe sur `<html>`.
+
+## Le piège du contraste inversé
+
+Un gris lisible sur blanc devient illisible sur fond noir. Les deux modes se testent séparément, avec un objectif de 4.5:1 pour le texte courant.
+
+## Le script no-flash
+
+```html
+<script>
+  const stored = localStorage.getItem("theme");
+  const theme = stored ?? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  document.documentElement.classList.toggle("dark", theme === "dark");
+</script>
+```
+
+Placé avant le premier paint, il élimine le flash de thème incorrect au chargement.
+
+## Désaturer, pas inverser
+
+En mode sombre, les couleurs saturées vibrent. La bonne pratique consiste à monter la luminosité et baisser le chroma: un vert `green-600` en light devient `green-500` en dark, jamais l'inverse.

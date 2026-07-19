@@ -1,0 +1,100 @@
+{
+  "Frontmatter article (minimal)": {
+    "scope": "markdown,mdx",
+    "prefix": "post",
+    "body": [
+      "---",
+      "title: \"${1:Titre de l'article}\"",
+      "description: \"${2:Description en 160 caracteres maximum.}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "draft: true",
+      "tags: [${4:tag}]",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Frontmatter minimal d'un article Lisible (title, description, pubDate, draft, tags)."
+  },
+  "Frontmatter article (complet)": {
+    "scope": "markdown,mdx",
+    "prefix": "post-full",
+    "body": [
+      "---",
+      "title: \"${1:Titre de l'article}\"",
+      "description: \"${2:Description en 160 caracteres maximum.}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "updatedDate: ${4:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "draft: false",
+      "featured: ${5|false,true|}",
+      "tags: [${6:tag}]",
+      "cover: ${7:/images/exemple.svg}",
+      "coverAlt: \"${8:Description de la couverture}\"",
+      "series: ${9:slug-de-serie}",
+      "seriesOrder: ${10:1}",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Frontmatter complet: couverture, epinglage, serie, dates."
+  },
+  "Champs de serie": {
+    "scope": "markdown,mdx",
+    "prefix": "series",
+    "body": ["series: ${1:slug-de-serie}", "seriesOrder: ${2:1}"],
+    "description": "Champs frontmatter d'appartenance a une serie (series + seriesOrder)."
+  },
+  "Champs de couverture": {
+    "scope": "markdown,mdx",
+    "prefix": "cover",
+    "body": ["cover: ${1:/images/exemple.svg}", "coverAlt: \"${2:Description de la couverture}\""],
+    "description": "Champs frontmatter de couverture (cover + coverAlt)."
+  },
+  "Callout note": {
+    "scope": "markdown,mdx",
+    "prefix": "note",
+    "body": [":::note[${1:Titre optionnel}]", "$0", ":::"],
+    "description": "Callout :::note (variante repliable: {collapse} apres le titre)."
+  },
+  "Callout tip": {
+    "scope": "markdown,mdx",
+    "prefix": "tip",
+    "body": [":::tip[${1:Titre optionnel}]", "$0", ":::"],
+    "description": "Callout :::tip."
+  },
+  "Callout warning": {
+    "scope": "markdown,mdx",
+    "prefix": "warning",
+    "body": [":::warning[${1:Titre optionnel}]", "$0", ":::"],
+    "description": "Callout :::warning."
+  },
+  "Callout caution": {
+    "scope": "markdown,mdx",
+    "prefix": "caution",
+    "body": [":::caution[${1:Titre optionnel}]", "$0", ":::"],
+    "description": "Callout :::caution."
+  },
+  "Callout important": {
+    "scope": "markdown,mdx",
+    "prefix": "important",
+    "body": [":::important[${1:Titre optionnel}]", "$0", ":::"],
+    "description": "Callout :::important."
+  },
+  "Bloc mathematique KaTeX": {
+    "scope": "markdown,mdx",
+    "prefix": "math",
+    "body": ["$$", "${1:e^{i\\\\pi} + 1 = 0}", "$$"],
+    "description": "Bloc mathematique KaTeX (inline: $...$)."
+  },
+  "Diagramme Mermaid": {
+    "scope": "markdown,mdx",
+    "prefix": "mermaid",
+    "body": ["```mermaid", "${1:flowchart TD}", "  ${2:A[Debut] --> B[Fin]}", "```"],
+    "description": "Bloc de diagramme Mermaid (rendu client, re-teinte au theme)."
+  },
+  "Carte de depot GitHub": {
+    "scope": "markdown,mdx",
+    "prefix": "github",
+    "body": ["::github{repo=\"${1:owner/repo}\"}"],
+    "description": "Carte de depot GitHub hydratee cote client."
+  }
+}

@@ -1,0 +1,80 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostList from "@/components/PostList.astro";
+import Pagination from "@/components/Pagination.astro";
+import { FEATURES } from "@/site.config";
+import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+import { getAllTags, type Post } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+  tagSlug: string;
+  tagName: string;
+  posts: Post[];
+  page?: number;
+}
+
+const { locale, tagSlug, tagName, posts, page = 1 } = Astro.props;
+const dict = t(locale);
+
+const paginated = FEATURES.pagination.enabled;
+const pageSize = FEATURES.pagination.pageSize;
+const totalPages = paginated ? Math.max(1, Math.ceil(posts.length / pageSize)) : 1;
+const current = Math.min(Math.max(1, page), totalPages);
+const pagePosts = paginated ? posts.slice((current - 1) * pageSize, current * pageSize) : posts;
+
+const pageHref = (n: number): string =>
+  n <= 1 ? localeUrl(locale, `tags/${tagSlug}`) : localeUrl(locale, `tags/${tagSlug}/${n}`);
+const prevUrl = current > 1 ? pageHref(current - 1) : undefined;
+const nextUrl = current < totalPages ? pageHref(current + 1) : undefined;
+
+const alternates: Partial<Record<Locale, string>> = { [locale]: pageHref(current) };
+if (current === 1) {
+  const other = otherLocale(locale);
+  const otherTags = await getAllTags(other);
+  if (otherTags.some((tag) => tag.slug === tagSlug)) {
+    alternates[other] = localeUrl(other, `tags/${tagSlug}`);
+  }
+}
+
+const pageLabel = current > 1 ? ` (${dict.pagination.pageOf(current, totalPages)})` : "";
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${dict.tags.taggedWith(tagName)}${pageLabel}`}
+  description={dict.tags.tagDescription(tagName)}
+  alternates={alternates}
+>
+  {prevUrl && <link slot="head" rel="prev" href={new URL(prevUrl, Astro.site)} />}
+  {nextUrl && <link slot="head" rel="next" href={new URL(nextUrl, Astro.site)} />}
+
+  <div class="py-12 md:py-16">
+    <p class="text-sm font-medium text-muted-foreground">
+      <a
+        href={localeUrl(locale, "tags")}
+        class="underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        {dict.tags.title}
+      </a>
+    </p>
+    <h1 class="type-title rise mt-3">
+      {dict.tags.taggedWith(tagName)}
+    </h1>
+    <p class="rise rise-2 mt-4 text-muted-foreground">{dict.tags.postsCount(posts.length)}</p>
+
+    <hr class="wave-line mt-8 max-w-3xl" aria-hidden="true" />
+
+    <div class="rise rise-3 mt-6 max-w-3xl">
+      <PostList posts={pagePosts} />
+    </div>
+
+    <Pagination
+      locale={locale}
+      current={current}
+      total={totalPages}
+      prevUrl={prevUrl}
+      nextUrl={nextUrl}
+    />
+  </div>
+</BaseLayout>

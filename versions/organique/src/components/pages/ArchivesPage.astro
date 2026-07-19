@@ -1,0 +1,99 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, postUrl, type Post } from "@/lib/posts";
+import { isoDate } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const dateLocale = locale === "fr" ? "fr-FR" : "en-US";
+
+const posts = await getPublishedPosts(locale);
+
+interface MonthGroup {
+  key: number;
+  label: string;
+  posts: Post[];
+}
+const byYear = new Map<number, Map<number, Post[]>>();
+for (const post of posts) {
+  const y = post.data.pubDate.getFullYear();
+  const m = post.data.pubDate.getMonth();
+  const months = byYear.get(y) ?? new Map<number, Post[]>();
+  const list = months.get(m) ?? [];
+  list.push(post);
+  months.set(m, list);
+  byYear.set(y, months);
+}
+
+const monthFmt = new Intl.DateTimeFormat(dateLocale, { month: "long" });
+const dayFmt = new Intl.DateTimeFormat(dateLocale, { day: "2-digit", month: "short" });
+
+const years = [...byYear.entries()]
+  .sort((a, b) => b[0] - a[0])
+  .map(([year, months]) => ({
+    year,
+    total: [...months.values()].reduce((n, list) => n + list.length, 0),
+    months: [...months.entries()]
+      .sort((a, b) => b[0] - a[0])
+      .map(([key, list]): MonthGroup => ({
+        key,
+        label: monthFmt.format(new Date(year, key, 1)),
+        posts: list,
+      })),
+  }));
+
+const alternates = { fr: localeUrl("fr", "archives"), en: localeUrl("en", "archives") };
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.archives.title}
+  description={dict.archives.description}
+  alternates={alternates}
+>
+  <div class="py-12 md:py-16">
+    <h1 class="type-mega rise">{dict.archives.title}</h1>
+    <p class="rise rise-2 mt-5 max-w-2xl text-muted-foreground md:ml-[8%]">
+      {dict.archives.description}
+    </p>
+
+    <div class="archive-timeline mt-14">
+      {
+        years.map(({ year, total, months }) => (
+          <section class="archive-year" aria-labelledby={`arch-${year}`}>
+            <div class="archive-year-head">
+              <h2 id={`arch-${year}`} class="year-big" aria-label={String(year)}>
+                {year}
+              </h2>
+              <span class="archive-year-count">{dict.archives.postsCount(total)}</span>
+            </div>
+            <div class="archive-months">
+              {months.map((month) => (
+                <div class="archive-month">
+                  <h3 class="archive-month-label">{month.label}</h3>
+                  <ul class="archive-list">
+                    {month.posts.map((post) => (
+                      <li>
+                        <a href={postUrl(post)} class="archive-row">
+                          <time datetime={isoDate(post.data.pubDate)} class="archive-date">
+                            {dayFmt.format(post.data.pubDate)}
+                          </time>
+                          <span class="archive-title">{post.data.title}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

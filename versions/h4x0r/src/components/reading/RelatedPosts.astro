@@ -1,0 +1,51 @@
+---
+import { t } from "@/i18n/ui";
+import { getRelatedPosts, postLocale, postUrl, type Post } from "@/lib/posts";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const locale = postLocale(post);
+const dict = t(locale);
+const related = await getRelatedPosts(post, 3);
+---
+
+{
+  related.length > 0 && (
+    <aside class="related-posts mt-12" aria-label={dict.reading.related} data-pagefind-ignore>
+      <p class="section-label" aria-hidden="true">
+        related
+      </p>
+      <h2 class="font-display mt-2 text-lg font-bold tracking-wide">{dict.reading.related}</h2>
+      <ul class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {related.map((entry) => {
+          const minutes = readingTime(entry.body ?? "");
+          return (
+            <li class="min-w-0">
+              <a
+                href={postUrl(entry)}
+                class="hud-corners group flex h-full flex-col gap-2 border border-border bg-background/60 p-4 transition-colors hover:border-accent/70"
+              >
+                <span class="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <time datetime={isoDate(entry.data.pubDate)}>
+                    {formatDate(entry.data.pubDate, locale, "short")}
+                  </time>
+                  <span aria-hidden="true" class="text-accent">
+                    {" "}::{" "}
+                  </span>
+                  {dict.post.readingTime(minutes)}
+                </span>
+                <span class="font-medium leading-snug transition-colors group-hover:text-accent">
+                  {entry.data.title}
+                </span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </aside>
+  )
+}

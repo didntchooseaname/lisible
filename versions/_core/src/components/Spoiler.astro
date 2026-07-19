@@ -1,0 +1,29 @@
+---
+import { FEATURES } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+const locale = (Astro.currentLocale ?? "fr") as Locale;
+const dict = t(locale);
+---
+
+{
+  FEATURES.mdxComponents ? (
+    <button
+      type="button"
+      class="spoiler"
+      data-spoiler
+      aria-expanded="false"
+      aria-label={dict.reader.spoilerLabel}
+    >
+      <span class="spoiler-content">
+        <slot />
+      </span>
+    </button>
+  ) : (
+    <span>
+      <slot />
+    </span>
+  )
+}
+
+{FEATURES.mdxComponents && <script>import "@/scripts/spoiler";</script>}

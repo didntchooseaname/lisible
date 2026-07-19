@@ -1,0 +1,126 @@
+{
+  "Frontmatter article (FR)": {
+    "scope": "markdown,mdx",
+    "prefix": "post-fr",
+    "description": "Frontmatter d'article Lisible en francais",
+    "body": [
+      "---",
+      "title: \"${1:Titre de l'article}\"",
+      "description: \"${2:Description courte (160 caracteres max).}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "tags: [${4:\"tag\"}]",
+      "draft: ${5|true,false|}",
+      "---",
+      "",
+      "$0"
+    ]
+  },
+  "Frontmatter article (EN)": {
+    "scope": "markdown,mdx",
+    "prefix": "post-en",
+    "description": "Frontmatter d'article Lisible en anglais",
+    "body": [
+      "---",
+      "title: \"${1:Post title}\"",
+      "description: \"${2:Short description (160 characters max).}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "tags: [${4:\"tag\"}]",
+      "draft: ${5|true,false|}",
+      "---",
+      "",
+      "$0"
+    ]
+  },
+  "Frontmatter complet (cover + serie + epingle)": {
+    "scope": "markdown,mdx",
+    "prefix": "post-full",
+    "description": "Frontmatter avec toutes les options (cover, series, featured)",
+    "body": [
+      "---",
+      "title: \"${1:Titre}\"",
+      "description: \"${2:Description courte.}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "updatedDate: ${4:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "tags: [${5:\"tag\"}]",
+      "cover: \"${6:./cover.png}\"",
+      "coverAlt: \"${7:Texte alternatif de la couverture}\"",
+      "series: \"${8:slug-de-serie}\"",
+      "seriesOrder: ${9:1}",
+      "featured: ${10|false,true|}",
+      "draft: ${11|true,false|}",
+      "---",
+      "",
+      "$0"
+    ]
+  },
+  "Callout": {
+    "scope": "markdown,mdx",
+    "prefix": "callout",
+    "description": "Callout / admonition (note, tip, warning, caution, important)",
+    "body": [":::${1|note,tip,warning,caution,important|}[${2:Titre}]", "$0", ":::"]
+  },
+  "Callout repliable": {
+    "scope": "markdown,mdx",
+    "prefix": "callout-collapse",
+    "description": "Callout repliable",
+    "body": [":::${1|note,tip,warning,caution,important|}[${2:Titre}]{collapse}", "$0", ":::"]
+  },
+  "Bloc Mermaid": {
+    "scope": "markdown,mdx",
+    "prefix": "mermaid",
+    "description": "Diagramme Mermaid",
+    "body": ["```mermaid", "${1:flowchart TD}", "  ${2:A[Debut] --> B[Fin]}", "```", "$0"]
+  },
+  "Carte de depot GitHub": {
+    "scope": "markdown,mdx",
+    "prefix": "github-card",
+    "description": "Carte de depot GitHub",
+    "body": ["::github{repo=\"${1:owner/repo}\"}", "$0"]
+  },
+  "Tabs (MDX)": {
+    "scope": "mdx",
+    "prefix": "tabs",
+    "description": "Composant Tabs (MDX)",
+    "body": [
+      "<Tabs tabs={[\"${1:Onglet A}\", \"${2:Onglet B}\"]} client:load>",
+      "<Tab>",
+      "",
+      "$3",
+      "",
+      "</Tab>",
+      "<Tab>",
+      "",
+      "$4",
+      "",
+      "</Tab>",
+      "</Tabs>",
+      "$0"
+    ]
+  },
+  "Steps (MDX)": {
+    "scope": "mdx",
+    "prefix": "steps",
+    "description": "Composant Steps (MDX)",
+    "body": [
+      "<Steps>",
+      "<Step title=\"${1:Premiere etape}\">",
+      "",
+      "$2",
+      "",
+      "</Step>",
+      "<Step title=\"${3:Deuxieme etape}\">",
+      "",
+      "$4",
+      "",
+      "</Step>",
+      "</Steps>",
+      "$0"
+    ]
+  },
+  "Spoiler (MDX)": {
+    "scope": "mdx",
+    "prefix": "spoiler",
+    "description": "Composant Spoiler (MDX)",
+    "body": ["<Spoiler>$1</Spoiler>", "$0"]
+  }
+}

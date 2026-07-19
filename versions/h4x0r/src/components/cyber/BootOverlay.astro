@@ -1,0 +1,109 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+<div
+  data-boot
+  data-lines={JSON.stringify(dict.cyber.boot.lines)}
+  data-granted={dict.cyber.boot.granted}
+>
+  <div class="boot-screen">
+    <div class="boot-lines" data-boot-lines></div>
+    <div class="boot-progress"><div data-boot-progress></div></div>
+    <p class="boot-granted" data-boot-granted aria-hidden="true"></p>
+  </div>
+  <button
+    type="button"
+    data-boot-skip
+    class="absolute bottom-8 right-8 inline-flex min-h-11 items-center border border-border px-4 font-mono text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+  >
+    {dict.cyber.boot.skip}
+  </button>
+</div>
+
+<script>
+  const root = document.documentElement;
+  const overlay = document.querySelector<HTMLElement>("[data-boot]");
+
+  function reveal() {
+    root.classList.remove("cyber-booting");
+    root.classList.add("cyber-revealed");
+  }
+
+  if (!overlay || !root.classList.contains("cyber-booting")) {
+    overlay?.remove();
+    if (root.classList.contains("cyber-booting")) reveal();
+  } else {
+    sessionStorage.setItem("cyber-boot", "done");
+
+    const linesHost = overlay.querySelector<HTMLElement>("[data-boot-lines]")!;
+    const progress = overlay.querySelector<HTMLElement>("[data-boot-progress]")!;
+    const granted = overlay.querySelector<HTMLElement>("[data-boot-granted]")!;
+    const lines: string[] = JSON.parse(overlay.dataset.lines ?? "[]");
+    const grantedText = overlay.dataset.granted ?? "";
+
+    let finished = false;
+    const timers: number[] = [];
+
+    function finish() {
+      if (finished) return;
+      finished = true;
+      timers.forEach((timer) => clearTimeout(timer));
+      overlay!.classList.add("boot-out");
+      reveal();
+      document.removeEventListener("keydown", onKey);
+      window.setTimeout(() => overlay!.remove(), 500);
+    }
+
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") finish();
+    }
+
+    document.addEventListener("keydown", onKey);
+    overlay
+      .querySelector("[data-boot-skip]")
+      ?.addEventListener("click", () => finish());
+
+    timers.push(window.setTimeout(finish, 3500));
+
+    const totalChars = lines.reduce((sum, line) => sum + line.length, 0);
+    const perChar = Math.min(9, 2100 / Math.max(1, totalChars));
+    let elapsed = 120;
+    let typedChars = 0;
+
+    lines.forEach((line, index) => {
+      const row = document.createElement("div");
+      row.className = index === lines.length - 1 ? "ok" : "";
+      linesHost.appendChild(row);
+      for (let i = 1; i <= line.length; i++) {
+        const slice = line.slice(0, i);
+        typedChars++;
+        const done = typedChars;
+        timers.push(
+          window.setTimeout(() => {
+            if (finished) return;
+            row.textContent = slice;
+            progress.style.width = `${Math.round((done / totalChars) * 100)}%`;
+          }, elapsed + i * perChar),
+        );
+      }
+      elapsed += line.length * perChar + 70;
+    });
+
+    timers.push(
+      window.setTimeout(() => {
+        if (finished) return;
+        granted.textContent = grantedText;
+        overlay.classList.add("boot-granted-on");
+      }, elapsed + 80),
+    );
+    timers.push(window.setTimeout(finish, elapsed + 780));
+  }
+</script>

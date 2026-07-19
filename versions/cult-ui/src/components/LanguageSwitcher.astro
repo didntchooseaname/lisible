@@ -1,0 +1,67 @@
+---
+import TextureLink from "@/components/react/TextureLink";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+  alternates?: Partial<Record<Locale, string>>;
+}
+
+const { locale, alternates } = Astro.props;
+const dict = t(locale);
+
+const items: { code: Locale; label: string; ariaLabel: string; href: string }[] = [
+  {
+    code: "fr",
+    label: "FR",
+    ariaLabel: dict.a11y.frenchVersion,
+    href: alternates?.fr ?? localeUrl("fr", "blog"),
+  },
+  {
+    code: "en",
+    label: "EN",
+    ariaLabel: dict.a11y.englishVersion,
+    href: alternates?.en ?? localeUrl("en", "blog"),
+  },
+];
+---
+
+
+<nav aria-label={dict.a11y.languageSwitcher}>
+  <ul class="flex items-center gap-1">
+    {
+      items.map((item) => (
+        <li>
+          <TextureLink
+            href={item.href}
+            variant="minimal"
+            size="sm"
+            lang={item.code}
+            hrefLang={item.code}
+            aria-label={item.ariaLabel}
+            aria-current={item.code === locale ? "true" : undefined}
+            className={cn("min-w-11", item.code === locale && "opacity-100")}
+            innerClassName={cn(
+              "min-h-[42px] px-2.5 text-xs font-semibold tracking-wide",
+              item.code === locale
+                ? "text-foreground shadow-[inset_0_-2px_0_0_var(--color-accent)]"
+                : "text-muted-foreground",
+            )}
+          >
+            {item.label}
+          </TextureLink>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<script>
+  document.addEventListener("click", (event) => {
+    const link = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[hreflang="fr"], a[hreflang="en"]');
+    if (link?.hreflang === "fr" || link?.hreflang === "en") {
+      localStorage.setItem("lisible-locale", link.hreflang);
+    }
+  });
+</script>

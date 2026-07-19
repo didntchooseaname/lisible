@@ -1,0 +1,373 @@
+---
+import { SITE } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+<div
+  class="relative"
+  data-accent-picker
+  data-default-accent={SITE.accent}
+  data-sv-text={dict.accent.svValueText}
+  data-hue-text={dict.accent.hueValueText}
+  transition:persist="accent-picker"
+>
+  <button
+    type="button"
+    data-accent-toggle
+    aria-label={dict.accent.open}
+    aria-haspopup="true"
+    aria-expanded="false"
+    class="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+  >
+    
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path
+        d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"
+      ></path>
+      <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
+      <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
+      <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
+      <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
+    </svg>
+  </button>
+
+  
+  <div
+    data-accent-popover
+    hidden
+    class="absolute right-0 top-full z-50 mt-2 w-max rounded-lg border border-border bg-card p-3 text-card-foreground shadow-xl"
+  >
+    
+    <div
+      data-accent-sv
+      class="accent-sv relative h-[140px] w-[180px] cursor-crosshair rounded-md border border-border"
+      role="slider"
+      tabindex="0"
+      aria-label={dict.accent.svLabel}
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="0"
+    >
+      <div data-accent-sv-cursor class="accent-cursor" aria-hidden="true"></div>
+    </div>
+
+    
+    <div
+      data-accent-hue
+      class="accent-hue relative mt-3 h-3.5 w-[180px] rounded-full border border-border"
+      role="slider"
+      tabindex="0"
+      aria-label={dict.accent.hueLabel}
+      aria-valuemin="0"
+      aria-valuemax="360"
+      aria-valuenow="0"
+    >
+      <div data-accent-hue-cursor class="accent-cursor accent-cursor--hue" aria-hidden="true"></div>
+    </div>
+
+    <div class="mt-3 flex items-center justify-between gap-3">
+      <span data-accent-value class="font-mono text-xs text-muted-foreground" aria-hidden="true"
+      ></span>
+      <button
+        type="button"
+        data-accent-reset
+        class="text-xs text-muted-foreground underline decoration-border underline-offset-2 transition-colors hover:text-foreground"
+      >
+        {dict.accent.reset}
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  [data-accent-popover] {
+    --picker-hue: 145;
+  }
+
+  .accent-sv {
+    touch-action: none;
+    background:
+      linear-gradient(to top, #000, transparent),
+      linear-gradient(to right, #fff, hsl(var(--picker-hue) 100% 50%));
+  }
+
+  .accent-hue {
+    touch-action: none;
+    background: linear-gradient(
+      to right,
+      hsl(0 100% 50%),
+      hsl(60 100% 50%),
+      hsl(120 100% 50%),
+      hsl(180 100% 50%),
+      hsl(240 100% 50%),
+      hsl(300 100% 50%),
+      hsl(360 100% 50%)
+    );
+  }
+  .accent-cursor {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.55),
+      inset 0 0 0 1px rgb(0 0 0 / 0.35);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .accent-cursor--hue {
+    top: 50%;
+    background: hsl(var(--picker-hue) 100% 50%);
+  }
+</style>
+
+<script>
+  const HEX = /^#[0-9a-fA-F]{6}$/;
+
+  const state = { h: 145, s: 80, v: 75 };
+  let dragging: HTMLElement | null = null;
+
+  function picker(): HTMLElement | null {
+    return document.querySelector<HTMLElement>("[data-accent-picker]");
+  }
+
+  function clamp(value: number, min: number, max: number): number {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function hexToRgb(hex: string): [number, number, number] {
+    return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)) as [number, number, number];
+  }
+
+  function rgbToHsv(r: number, g: number, b: number): { h: number; s: number; v: number } {
+    const rn = r / 255;
+    const gn = g / 255;
+    const bn = b / 255;
+    const max = Math.max(rn, gn, bn);
+    const min = Math.min(rn, gn, bn);
+    const d = max - min;
+    let h = 0;
+    if (d > 0) {
+      if (max === rn) h = 60 * (((gn - bn) / d) % 6);
+      else if (max === gn) h = 60 * ((bn - rn) / d + 2);
+      else h = 60 * ((rn - gn) / d + 4);
+    }
+    if (h < 0) h += 360;
+    return { h, s: max === 0 ? 0 : (d / max) * 100, v: max * 100 };
+  }
+
+  function hsvToRgb(h: number, s: number, v: number): [number, number, number] {
+    const sn = s / 100;
+    const vn = v / 100;
+    const c = vn * sn;
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = vn - c;
+    let rgb: [number, number, number];
+    if (h < 60) rgb = [c, x, 0];
+    else if (h < 120) rgb = [x, c, 0];
+    else if (h < 180) rgb = [0, c, x];
+    else if (h < 240) rgb = [0, x, c];
+    else if (h < 300) rgb = [x, 0, c];
+    else rgb = [c, 0, x];
+    return rgb.map((ch) => Math.round((ch + m) * 255)) as [number, number, number];
+  }
+
+  function hsvToHex(h: number, s: number, v: number): string {
+    return (
+      "#" +
+      hsvToRgb(h, s, v)
+        .map((ch) => ch.toString(16).padStart(2, "0"))
+        .join("")
+    );
+  }
+
+  function currentAccent(root: HTMLElement): string {
+    const stored = localStorage.getItem("accent");
+    return HEX.test(stored ?? "") ? stored! : (root.dataset.defaultAccent ?? "#000000");
+  }
+
+  function syncFromHex(root: HTMLElement, hex: string) {
+    const [r, g, b] = hexToRgb(hex);
+    const hsv = rgbToHsv(r, g, b);
+    if (hsv.s > 0 && hsv.v > 0) state.h = hsv.h;
+    state.s = hsv.s;
+    state.v = hsv.v;
+    renderUI(root);
+  }
+
+  function fill(template: string, values: Record<string, number>): string {
+    return template.replace(/\{(\w+)\}/g, (_, key: string) =>
+      String(Math.round(values[key] ?? 0)),
+    );
+  }
+
+  function renderUI(root: HTMLElement) {
+    const popover = root.querySelector<HTMLElement>("[data-accent-popover]");
+    const sv = root.querySelector<HTMLElement>("[data-accent-sv]");
+    const hue = root.querySelector<HTMLElement>("[data-accent-hue]");
+    const svCursor = root.querySelector<HTMLElement>("[data-accent-sv-cursor]");
+    const hueCursor = root.querySelector<HTMLElement>("[data-accent-hue-cursor]");
+    const label = root.querySelector<HTMLElement>("[data-accent-value]");
+    if (!popover || !sv || !hue || !svCursor || !hueCursor || !label) return;
+
+    const hex = hsvToHex(state.h, state.s, state.v);
+    popover.style.setProperty("--picker-hue", String(Math.round(state.h)));
+    svCursor.style.left = `${state.s}%`;
+    svCursor.style.top = `${100 - state.v}%`;
+    svCursor.style.backgroundColor = hex;
+    hueCursor.style.left = `${(state.h / 360) * 100}%`;
+    label.textContent = hex;
+
+    sv.setAttribute("aria-valuenow", String(Math.round(state.s)));
+    sv.setAttribute("aria-valuetext", fill(root.dataset.svText ?? "", { s: state.s, v: state.v }));
+    hue.setAttribute("aria-valuenow", String(Math.round(state.h)));
+    hue.setAttribute("aria-valuetext", fill(root.dataset.hueText ?? "", { h: state.h }));
+  }
+
+  function commit(root: HTMLElement) {
+    localStorage.setItem("accent", hsvToHex(state.h, state.s, state.v));
+    (window as unknown as { __applyAccent?: () => void }).__applyAccent?.();
+    renderUI(root);
+  }
+
+  function setOpen(root: HTMLElement, open: boolean) {
+    const toggle = root.querySelector<HTMLButtonElement>("[data-accent-toggle]");
+    const popover = root.querySelector<HTMLElement>("[data-accent-popover]");
+    if (!toggle || !popover) return;
+    popover.hidden = !open;
+    toggle.setAttribute("aria-expanded", String(open));
+    if (open) syncFromHex(root, currentAccent(root));
+  }
+
+  function isOpen(root: HTMLElement): boolean {
+    const popover = root.querySelector<HTMLElement>("[data-accent-popover]");
+    return Boolean(popover && !popover.hidden);
+  }
+
+  function updateFromPointer(root: HTMLElement, surface: HTMLElement, event: PointerEvent) {
+    const rect = surface.getBoundingClientRect();
+    if (surface.matches("[data-accent-sv]")) {
+      state.s = clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100);
+      state.v = 100 - clamp(((event.clientY - rect.top) / rect.height) * 100, 0, 100);
+    } else {
+      state.h = clamp(((event.clientX - rect.left) / rect.width) * 360, 0, 360);
+    }
+    commit(root);
+  }
+
+  document.addEventListener("pointerdown", (event) => {
+    const root = picker();
+    const target = event.target as HTMLElement | null;
+    const surface = target?.closest<HTMLElement>("[data-accent-sv], [data-accent-hue]");
+    if (!root || !surface || !root.contains(surface)) return;
+    event.preventDefault();
+    surface.focus();
+    dragging = surface;
+    try {
+      surface.setPointerCapture(event.pointerId);
+    } catch {
+    }
+    updateFromPointer(root, surface, event);
+  });
+
+  document.addEventListener("pointermove", (event) => {
+    const root = picker();
+    if (!root || !dragging) return;
+    updateFromPointer(root, dragging, event);
+  });
+
+  const stopDrag = () => {
+    dragging = null;
+  };
+  document.addEventListener("pointerup", stopDrag);
+  document.addEventListener("pointercancel", stopDrag);
+
+  document.addEventListener("click", (event) => {
+    const root = picker();
+    if (!root) return;
+    const target = event.target as HTMLElement | null;
+
+    if (!target || !root.contains(target)) {
+      if (isOpen(root)) setOpen(root, false);
+      return;
+    }
+
+    if (target.closest("[data-accent-toggle]")) {
+      setOpen(root, !isOpen(root));
+      return;
+    }
+
+    if (target.closest("[data-accent-reset]")) {
+      localStorage.removeItem("accent");
+      (window as unknown as { __applyAccent?: () => void }).__applyAccent?.();
+      syncFromHex(root, currentAccent(root));
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const root = picker();
+    if (!root) return;
+
+    if (event.key === "Escape") {
+      if (!isOpen(root)) return;
+      setOpen(root, false);
+      root.querySelector<HTMLButtonElement>("[data-accent-toggle]")?.focus();
+      return;
+    }
+
+    const target = event.target as HTMLElement | null;
+    if (!target || !root.contains(target)) return;
+
+    if (target.matches("[data-accent-sv]")) {
+      let handled = true;
+      if (event.key === "ArrowLeft") state.s = clamp(state.s - 2, 0, 100);
+      else if (event.key === "ArrowRight") state.s = clamp(state.s + 2, 0, 100);
+      else if (event.key === "ArrowUp") state.v = clamp(state.v + 2, 0, 100);
+      else if (event.key === "ArrowDown") state.v = clamp(state.v - 2, 0, 100);
+      else handled = false;
+      if (handled) {
+        event.preventDefault();
+        commit(root);
+      }
+      return;
+    }
+
+    if (target.matches("[data-accent-hue]")) {
+      let handled = true;
+      if (event.key === "ArrowLeft") state.h = clamp(state.h - 5, 0, 360);
+      else if (event.key === "ArrowRight") state.h = clamp(state.h + 5, 0, 360);
+      else handled = false;
+      if (handled) {
+        event.preventDefault();
+        commit(root);
+      }
+    }
+  });
+
+  document.addEventListener("focusin", (event) => {
+    const root = picker();
+    if (!root || !isOpen(root)) return;
+    const target = event.target as HTMLElement | null;
+    if (target && !root.contains(target)) setOpen(root, false);
+  });
+</script>

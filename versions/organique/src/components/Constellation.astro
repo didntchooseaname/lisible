@@ -1,0 +1,730 @@
+---
+import { t, localeUrl, type Locale } from "@/i18n/ui";
+import { postUrl, slugifyTag, type Post } from "@/lib/posts";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+import { FEATURES } from "@/site.config";
+import PostCover from "@/components/PostCover.astro";
+
+interface Props {
+  locale: Locale;
+  featured: Post[];
+  latest: Post[];
+}
+
+const { locale, featured, latest } = Astro.props;
+const dict = t(locale);
+
+interface NodeData {
+  post: Post;
+  order: number;
+  isFeatured: boolean;
+}
+
+const groups: { id: string; label: string; nodes: NodeData[] }[] = [
+  {
+    id: "c-featured-title",
+    label: dict.home.featured,
+    nodes: featured.map((post, i) => ({ post, order: i, isFeatured: true })),
+  },
+  {
+    id: "c-latest-title",
+    label: dict.home.latest,
+    nodes: latest.map((post, i) => ({ post, order: featured.length + i, isFeatured: false })),
+  },
+];
+---
+
+<section class="constellation py-14 md:py-20" data-constellation aria-labelledby="constellation-heading">
+  <h2 id="constellation-heading" class="type-title">{dict.home.constellationTitle}</h2>
+  <p class="c-hint mt-4 text-sm md:text-base">{dict.home.constellationHint}</p>
+
+  <div class="c-field mt-10" data-c-field>
+    <canvas class="c-canvas" data-c-canvas aria-hidden="true"></canvas>
+    {
+      groups.map((group) => (
+        <div class="c-group">
+          <h3 class="c-group-label" id={group.id}>
+            {group.label}
+          </h3>
+          <ul class="c-list" aria-labelledby={group.id}>
+            {group.nodes.map(({ post, order, isFeatured }) => {
+              const minutes = readingTime(post.body ?? "");
+              const tagSlugs = post.data.tags.map((tag) => slugifyTag(tag)).join(" ");
+              return (
+                <li
+                  class="c-node"
+                  data-c-node
+                  data-order={order}
+                  data-tags={tagSlugs}
+                  data-featured={isFeatured ? "" : undefined}
+                >
+                  <a class="c-node-link" href={postUrl(post)} draggable="false">
+                    <span class="c-node-title">
+                      {post.data.title}
+                      {post.data.draft && <span class="c-node-badge">{dict.post.draft}</span>}
+                    </span>
+                    <span class="c-node-card">
+                      {FEATURES.covers && post.data.cover && (
+                        <PostCover
+                          cover={post.data.cover}
+                          alt={post.data.coverAlt ?? post.data.title}
+                          variant="card"
+                          class="c-node-cover"
+                        />
+                      )}
+                      <span class="c-node-desc">{post.data.description}</span>
+                      <span class="c-node-meta">
+                        <time datetime={isoDate(post.data.pubDate)}>
+                          {formatDate(post.data.pubDate, locale)}
+                        </time>
+                        {" "}<span aria-hidden="true">&middot;</span>{" "}
+                        {dict.post.readingTime(minutes)}
+                      </span>
+                      {isFeatured && <span class="c-node-badge">{dict.home.featured}</span>}
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+
+  <p class="mt-10 text-center md:text-left">
+    <a href={localeUrl(locale, "blog")} class="c-cta-link">
+      {dict.home.allPosts}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="17"
+        height="17"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M5 12h14"></path>
+        <path d="m12 5 7 7-7 7"></path>
+      </svg>
+    </a>
+  </p>
+</section>
+
+<script>
+
+  interface CNode {
+    el: HTMLElement;
+    link: HTMLAnchorElement;
+    tags: string[];
+    featured: boolean;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    hx: number;
+    hy: number;
+    r: number;
+    p1: number;
+    p2: number;
+    boost: number;
+  }
+
+  interface CLink {
+    a: number;
+    b: number;
+    shared: number;
+    bend: number;
+  }
+
+  interface DragState {
+    index: number;
+    pointerId: number;
+    startClientX: number;
+    startClientY: number;
+    offsetX: number;
+    offsetY: number;
+    moved: boolean;
+  }
+
+  let section: HTMLElement | null = null;
+  let field: HTMLElement | null = null;
+  let canvas: HTMLCanvasElement | null = null;
+  let ctx: CanvasRenderingContext2D | null = null;
+  let nodes: CNode[] = [];
+  let links: CLink[] = [];
+  let raf = 0;
+  let live = false;
+  let inView = true;
+  let lastTime = 0;
+  let activeIndex = -1;
+  let drag: DragState | null = null;
+  let suppressedClickIndex = -1;
+  let suppressedClickUntil = 0;
+  let resizeTimer = 0;
+  let cleanups: (() => void)[] = [];
+  const colors = { accent: "#22c55e", line: "#888888" };
+  const pointer = { x: 0, y: 0, active: false };
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function clamp(v: number, min: number, max: number): number {
+    return Math.min(max, Math.max(min, v));
+  }
+
+  function rng(seed: number): () => number {
+    return function () {
+      seed |= 0;
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function on<K extends keyof DocumentEventMap>(
+    target: EventTarget,
+    type: string,
+    handler: EventListenerOrEventListenerObject,
+    options?: AddEventListenerOptions,
+  ): void {
+    target.addEventListener(type, handler, options);
+    cleanups.push(() => target.removeEventListener(type, handler, options));
+  }
+
+  function resolveColors(): void {
+    if (!field) return;
+    const probe = document.createElement("i");
+    probe.style.cssText = "position:absolute;visibility:hidden";
+    document.body.appendChild(probe);
+    const get = (value: string) => {
+      probe.style.color = value;
+      return getComputedStyle(probe).color;
+    };
+    colors.accent = get("var(--accent)");
+    colors.line = get("var(--muted-foreground)");
+    probe.remove();
+  }
+
+  function sizeCanvas(): void {
+    if (!canvas || !ctx || !field) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(field.clientWidth * dpr);
+    canvas.height = Math.round(field.clientHeight * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function updateCardPlacement(node: CNode): void {
+    if (!field) return;
+    const w = field.clientWidth;
+    const h = field.clientHeight;
+    if (node.y > h * 0.6) node.el.setAttribute("data-flip", "y");
+    else node.el.removeAttribute("data-flip");
+    if (node.x < 150) node.el.setAttribute("data-edge", "left");
+    else if (node.x > w - 150) node.el.setAttribute("data-edge", "right");
+    else node.el.removeAttribute("data-edge");
+  }
+
+  function setActiveIndex(index: number): void {
+    activeIndex = index;
+    const connected = new Set<number>();
+    if (index >= 0) {
+      for (const link of links) {
+        if (link.a === index) connected.add(link.b);
+        if (link.b === index) connected.add(link.a);
+      }
+    }
+    nodes.forEach((node, nodeIndex) => {
+      if (index < 0) node.el.removeAttribute("data-graph-state");
+      else if (nodeIndex === index) node.el.setAttribute("data-graph-state", "active");
+      else if (connected.has(nodeIndex)) node.el.setAttribute("data-graph-state", "connected");
+      else node.el.setAttribute("data-graph-state", "muted");
+    });
+  }
+
+  function layout(): void {
+    if (!field) return;
+    const w = field.clientWidth;
+    const h = field.clientHeight;
+    const n = nodes.length;
+    if (n === 0 || w === 0 || h === 0) return;
+
+    const rMax = clamp(Math.min(w, h) * 0.115, 44, 76);
+    const rMin = rMax * 0.52;
+    const rand = rng(n * 7919 + 17);
+    const golden = 2.399963;
+    const cx = w / 2;
+    const cy = h / 2;
+
+    nodes.forEach((node, i) => {
+      node.r = rMax - (rMax - rMin) * (n === 1 ? 0 : i / (n - 1));
+      const frac = 0.3 + 0.7 * Math.sqrt((i + 0.55) / n);
+      const angle = i * golden + rand() * 0.9;
+      node.hx = cx + Math.cos(angle) * frac * (w / 2 - rMax - 26);
+      node.hy = cy + Math.sin(angle) * frac * (h / 2 - rMax - 30);
+      node.p1 = rand() * Math.PI * 2;
+      node.p2 = rand() * Math.PI * 2;
+    });
+
+    for (let iter = 0; iter < 70; iter++) {
+      for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+          const a = nodes[i]!;
+          const b = nodes[j]!;
+          const dx = b.hx - a.hx;
+          const dy = b.hy - a.hy;
+          const dist = Math.hypot(dx, dy) || 0.01;
+          const min = a.r + b.r + 54;
+          if (dist < min) {
+            const push = ((min - dist) / dist) * 0.32;
+            a.hx -= dx * push;
+            a.hy -= dy * push;
+            b.hx += dx * push;
+            b.hy += dy * push;
+          }
+        }
+      }
+      for (const node of nodes) {
+        node.hx = clamp(node.hx, node.r + 18, w - node.r - 18);
+        node.hy = clamp(node.hy, node.r + 26, h - node.r - 26);
+      }
+    }
+
+    for (const node of nodes) {
+      node.x = node.hx;
+      node.y = node.hy;
+      node.vx = 0;
+      node.vy = 0;
+      node.el.style.setProperty("--d", `${Math.round(node.r * 2 + 14)}px`);
+      updateCardPlacement(node);
+    }
+  }
+
+  function buildLinks(): void {
+    links = [];
+    const rand = rng(nodes.length * 31 + 5);
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const shared = nodes[i]!.tags.filter((tag) => nodes[j]!.tags.includes(tag)).length;
+        if (shared > 0) {
+          links.push({ a: i, b: j, shared, bend: (rand() - 0.5) * 0.85 });
+        }
+      }
+    }
+  }
+
+  function step(dt: number, time: number): void {
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i]!;
+      if (drag?.index === i) {
+        node.vx = 0;
+        node.vy = 0;
+        node.boost += (1 - node.boost) * Math.min(1, dt * 12);
+        continue;
+      }
+      let tx = node.hx + Math.sin(time * 0.33 + node.p1) * 13;
+      let ty = node.hy + Math.cos(time * 0.27 + node.p2) * 11;
+
+      if (pointer.active && !drag) {
+        const dxh = pointer.x - node.hx;
+        const dyh = pointer.y - node.hy;
+        const dh = Math.hypot(dxh, dyh);
+        const reach = node.r + 130;
+        if (dh < reach) {
+          const f = (1 - dh / reach) * 0.6;
+          tx += dxh * f;
+          ty += dyh * f;
+        }
+      }
+
+      const k = 26;
+      node.vx += (tx - node.x) * k * dt;
+      node.vy += (ty - node.y) * k * dt;
+      const damp = Math.exp(-4.2 * dt);
+      node.vx *= damp;
+      node.vy *= damp;
+      node.x += node.vx * dt;
+      node.y += node.vy * dt;
+
+      const boostTarget = activeIndex === i
+        ? 1
+        : node.el.dataset.graphState === "connected"
+          ? 0.38
+          : 0;
+      node.boost += (boostTarget - node.boost) * Math.min(1, dt * 9);
+    }
+
+    for (const link of links) {
+      const a = nodes[link.a]!;
+      const b = nodes[link.b]!;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const distance = Math.hypot(dx, dy) || 0.01;
+      const target = a.r + b.r + 112;
+      const spring = (distance - target) * 0.7 * dt;
+      const fx = (dx / distance) * spring;
+      const fy = (dy / distance) * spring;
+      if (drag?.index !== link.a) {
+        a.vx += fx;
+        a.vy += fy;
+      }
+      if (drag?.index !== link.b) {
+        b.vx -= fx;
+        b.vy -= fy;
+      }
+    }
+
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i]!;
+        const b = nodes[j]!;
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const distance = Math.hypot(dx, dy) || 0.01;
+        const minimum = a.r + b.r + 24;
+        if (distance >= minimum) continue;
+        const push = (minimum - distance) * 0.12;
+        const px = (dx / distance) * push;
+        const py = (dy / distance) * push;
+        if (drag?.index !== i) {
+          a.x -= px;
+          a.y -= py;
+        }
+        if (drag?.index !== j) {
+          b.x += px;
+          b.y += py;
+        }
+      }
+    }
+  }
+
+  function drawBlob(node: CNode, time: number): void {
+    if (!ctx) return;
+    const K = 12;
+    const R = node.r * (1 + 0.13 * node.boost);
+    const pts: [number, number][] = [];
+    for (let k = 0; k < K; k++) {
+      const th = (k / K) * Math.PI * 2;
+      const rad =
+        R *
+        (1 +
+          0.085 * Math.sin(3 * th + node.p1 + time * 0.55) +
+          0.05 * Math.sin(5 * th + node.p2 + time * 0.4));
+      pts.push([node.x + Math.cos(th) * rad, node.y + Math.sin(th) * rad]);
+    }
+    ctx.beginPath();
+    const last = pts[K - 1]!;
+    const first = pts[0]!;
+    ctx.moveTo((last[0] + first[0]) / 2, (last[1] + first[1]) / 2);
+    for (let k = 0; k < K; k++) {
+      const p = pts[k]!;
+      const next = pts[(k + 1) % K]!;
+      ctx.quadraticCurveTo(p[0], p[1], (p[0] + next[0]) / 2, (p[1] + next[1]) / 2);
+    }
+    ctx.closePath();
+
+    const muted = node.el.dataset.graphState === "muted";
+    const stateAlpha = muted ? 0.28 : 1;
+    ctx.globalAlpha = (0.09 + (node.featured ? 0.05 : 0) + 0.12 * node.boost) * stateAlpha;
+    ctx.fillStyle = colors.accent;
+    ctx.fill();
+
+    ctx.globalAlpha = (node.featured ? 0.85 : 0.55 + 0.35 * node.boost) * stateAlpha;
+    ctx.strokeStyle = node.featured ? colors.accent : colors.line;
+    ctx.lineWidth = node.featured ? 1.8 : 1.2;
+    ctx.stroke();
+  }
+
+  function draw(time: number): void {
+    if (!ctx || !field) return;
+    ctx.clearRect(0, 0, field.clientWidth, field.clientHeight);
+
+    for (const link of links) {
+      const a = nodes[link.a]!;
+      const b = nodes[link.b]!;
+      const bend = link.bend + Math.sin(time * 0.35 + link.a + link.b) * 0.06;
+      const mx = (a.x + b.x) / 2 + (b.y - a.y) * bend * 0.35;
+      const my = (a.y + b.y) / 2 + (a.x - b.x) * bend * 0.35;
+      const emphasized = activeIndex === link.a || activeIndex === link.b;
+      const hasActiveNode = activeIndex >= 0;
+      ctx.globalAlpha = emphasized
+        ? Math.min(1, 0.72 + link.shared * 0.08)
+        : hasActiveNode
+          ? 0.07
+          : 0.24 + link.shared * 0.05;
+      ctx.strokeStyle = emphasized ? colors.accent : colors.line;
+      ctx.lineWidth = emphasized ? 1.7 + Math.min(2, link.shared) * 0.25 : 0.9;
+      ctx.shadowColor = emphasized ? colors.accent : "transparent";
+      ctx.shadowBlur = emphasized ? 7 : 0;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo(mx, my, b.x, b.y);
+      ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+
+    for (const node of nodes) drawBlob(node, time);
+    ctx.globalAlpha = 1;
+  }
+
+  function place(): void {
+    for (const node of nodes) {
+      node.el.style.transform = `translate3d(${node.x.toFixed(1)}px, ${node.y.toFixed(1)}px, 0)`;
+    }
+  }
+
+  function frame(now: number): void {
+    raf = requestAnimationFrame(frame);
+    const dt = Math.min(0.05, (now - lastTime) / 1000);
+    lastTime = now;
+    const time = now / 1000;
+    step(dt, time);
+    draw(time);
+    place();
+  }
+
+  function updateRunning(): void {
+    const should = live && inView && !document.hidden;
+    if (should && raf === 0) {
+      lastTime = performance.now();
+      raf = requestAnimationFrame(frame);
+    } else if (!should && raf !== 0) {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    }
+  }
+
+  function goLive(): void {
+    if (live || !section || !field || !canvas) return;
+    ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    live = true;
+    section.classList.add("is-live");
+    resolveColors();
+    sizeCanvas();
+    layout();
+    buildLinks();
+    const time = performance.now() / 1000;
+    draw(time);
+    place();
+    updateRunning();
+  }
+
+  function goStatic(): void {
+    if (!live) return;
+    live = false;
+    if (raf !== 0) cancelAnimationFrame(raf);
+    raf = 0;
+    section?.classList.remove("is-live");
+    for (const node of nodes) {
+      node.el.style.transform = "";
+      node.el.style.removeProperty("--d");
+      node.el.removeAttribute("data-flip");
+      node.el.removeAttribute("data-edge");
+      node.el.removeAttribute("data-dragging");
+      node.el.removeAttribute("data-graph-state");
+    }
+    field?.removeAttribute("data-dragging");
+  }
+
+  function evaluate(): void {
+    if (!section) return;
+    const wants = !reduceMotion.matches && window.innerWidth >= 640;
+    if (wants && !live) goLive();
+    else if (!wants && live) goStatic();
+    else if (live) {
+      sizeCanvas();
+      layout();
+      const time = performance.now() / 1000;
+      draw(time);
+      place();
+    }
+  }
+
+  function teardown(): void {
+    goStatic();
+    for (const cleanup of cleanups) cleanup();
+    cleanups = [];
+    nodes = [];
+    links = [];
+    section = null;
+    field = null;
+    canvas = null;
+    ctx = null;
+    drag = null;
+    suppressedClickIndex = -1;
+    suppressedClickUntil = 0;
+    activeIndex = -1;
+    window.clearTimeout(resizeTimer);
+  }
+
+  function nodeIndexFromEvent(event: Event): number {
+    const el = (event.target as HTMLElement | null)?.closest<HTMLElement>("[data-c-node]");
+    if (!el) return -1;
+    return nodes.findIndex((node) => node.el === el);
+  }
+
+  function updatePointer(event: PointerEvent): void {
+    if (!field) return;
+    const rect = field.getBoundingClientRect();
+    pointer.x = event.clientX - rect.left;
+    pointer.y = event.clientY - rect.top;
+    pointer.active = true;
+  }
+
+  function moveDraggedNode(event: PointerEvent): void {
+    if (!field || !drag || event.pointerId !== drag.pointerId) return;
+    updatePointer(event);
+    if (Math.hypot(event.clientX - drag.startClientX, event.clientY - drag.startClientY) > 4) {
+      drag.moved = true;
+      event.preventDefault();
+    }
+    const node = nodes[drag.index]!;
+    const nextX = clamp(pointer.x + drag.offsetX, node.r + 12, field.clientWidth - node.r - 12);
+    const nextY = clamp(pointer.y + drag.offsetY, node.r + 20, field.clientHeight - node.r - 20);
+    node.x = nextX;
+    node.y = nextY;
+    node.hx = nextX;
+    node.hy = nextY;
+    node.vx = 0;
+    node.vy = 0;
+    updateCardPlacement(node);
+  }
+
+  function finishDrag(event: PointerEvent, cancelled = false): void {
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    const finished = drag;
+    const node = nodes[finished.index];
+    drag = null;
+    node?.el.removeAttribute("data-dragging");
+    field?.removeAttribute("data-dragging");
+    if (node?.link.hasPointerCapture(event.pointerId)) node.link.releasePointerCapture(event.pointerId);
+    if (finished.moved && !cancelled) {
+      suppressedClickIndex = finished.index;
+      suppressedClickUntil = performance.now() + 500;
+    }
+    if (cancelled) setActiveIndex(-1);
+    else setActiveIndex(finished.index);
+  }
+
+  function setup(): void {
+    section = document.querySelector<HTMLElement>("[data-constellation]");
+    if (!section) return;
+    field = section.querySelector<HTMLElement>("[data-c-field]");
+    canvas = section.querySelector<HTMLCanvasElement>("[data-c-canvas]");
+    if (!field || !canvas) return;
+
+    nodes = [...field.querySelectorAll<HTMLElement>("[data-c-node]")].map((el) => ({
+      el,
+      link: el.querySelector<HTMLAnchorElement>("a")!,
+      tags: (el.dataset.tags ?? "").split(" ").filter(Boolean),
+      featured: el.hasAttribute("data-featured"),
+      x: 0,
+      y: 0,
+      vx: 0,
+      vy: 0,
+      hx: 0,
+      hy: 0,
+      r: 40,
+      p1: 0,
+      p2: 0,
+      boost: 0,
+    }));
+    if (nodes.length === 0) return;
+
+    on(field, "pointerdown", ((event: PointerEvent) => {
+      if (!live || !field || event.button !== 0 || !event.isPrimary) return;
+      const index = nodeIndexFromEvent(event);
+      if (index < 0) return;
+      updatePointer(event);
+      const node = nodes[index]!;
+      drag = {
+        index,
+        pointerId: event.pointerId,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        offsetX: node.x - pointer.x,
+        offsetY: node.y - pointer.y,
+        moved: false,
+      };
+      node.el.setAttribute("data-dragging", "");
+      field.setAttribute("data-dragging", "");
+      node.link.setPointerCapture(event.pointerId);
+      setActiveIndex(index);
+    }) as EventListener);
+    on(field, "pointermove", ((event: PointerEvent) => {
+      if (!live || !field) return;
+      updatePointer(event);
+      moveDraggedNode(event);
+    }) as EventListener);
+    on(field, "pointerup", ((event: PointerEvent) => finishDrag(event)) as EventListener);
+    on(field, "pointercancel", ((event: PointerEvent) => finishDrag(event, true)) as EventListener);
+    on(field, "pointerleave", () => {
+      pointer.active = false;
+    });
+    on(field, "pointerover", (event) => {
+      if (!drag) setActiveIndex(nodeIndexFromEvent(event));
+    });
+    on(field, "pointerout", ((event: PointerEvent) => {
+      if (drag) return;
+      const related = event.relatedTarget instanceof Element
+        ? event.relatedTarget.closest<HTMLElement>("[data-c-node]")
+        : null;
+      const nextIndex = related ? nodes.findIndex((node) => node.el === related) : -1;
+      setActiveIndex(nextIndex);
+    }) as EventListener);
+    on(field, "focusin", (event) => {
+      setActiveIndex(nodeIndexFromEvent(event));
+    });
+    on(field, "focusout", () => {
+      if (!drag) setActiveIndex(-1);
+    });
+    on(field, "dragstart", (event) => {
+      if (nodeIndexFromEvent(event) >= 0) event.preventDefault();
+    });
+    on(field, "click", ((event: MouseEvent) => {
+      const index = nodeIndexFromEvent(event);
+      if (index !== suppressedClickIndex || performance.now() > suppressedClickUntil) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      suppressedClickIndex = -1;
+      suppressedClickUntil = 0;
+    }) as EventListener, { capture: true });
+
+    on(window, "resize", () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(evaluate, 160);
+    });
+    on(document, "visibilitychange", updateRunning);
+    on(reduceMotion, "change", evaluate);
+
+    const io = new IntersectionObserver((entries) => {
+      inView = entries[0]?.isIntersecting ?? true;
+      updateRunning();
+    });
+    io.observe(field);
+    cleanups.push(() => io.disconnect());
+
+    const mo = new MutationObserver(() => {
+      if (live) resolveColors();
+    });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "style"] });
+    cleanups.push(() => mo.disconnect());
+
+    evaluate();
+  }
+
+  function init(): void {
+    teardown();
+    if (!document.querySelector("[data-constellation]")) return;
+    const idle = (window as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number })
+      .requestIdleCallback;
+    if (idle) idle(setup, { timeout: 600 });
+    else window.setTimeout(setup, 1);
+  }
+
+  document.addEventListener("astro:page-load", init);
+  document.addEventListener("astro:before-swap", teardown);
+</script>

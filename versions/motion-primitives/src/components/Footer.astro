@@ -1,0 +1,42 @@
+---
+import { FooterSocial } from "@/components/react/FooterSocial";
+import { SITE } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const year = new Date().getFullYear();
+const rssPath = localeUrl(locale, "rss.xml");
+---
+
+<footer class="mt-16 border-t border-border">
+  <div
+    class="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-muted-foreground sm:flex-row md:px-6"
+  >
+    <p>&copy; {year} {SITE.author}</p>
+    <p>
+      {dict.footer.poweredBy}{" "}
+      <a
+        href="https://astro.build"
+        class="font-medium text-foreground underline decoration-accent underline-offset-4 hover:text-accent"
+        >Astro</a
+      >{" "}{dict.footer.poweredByAnd}{" "}
+      <a
+        href={SITE.framework.url}
+        class="font-medium text-foreground underline decoration-accent underline-offset-4 hover:text-accent"
+        >{SITE.framework.name}</a
+      >
+    </p>
+    <FooterSocial
+      client:idle
+      githubHref={SITE.social.github || undefined}
+      githubLabel={dict.footer.github}
+      rssHref={rssPath}
+      rssLabel={dict.footer.rss}
+    />
+  </div>
+</footer>

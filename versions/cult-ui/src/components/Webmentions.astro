@@ -1,0 +1,114 @@
+---
+import { WEBMENTIONS } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  url: string;
+  locale: Locale;
+}
+
+const { url, locale } = Astro.props;
+const dict = t(locale);
+
+interface Mention {
+  type: string;
+  author?: { name?: string; photo?: string; url?: string };
+  url?: string;
+  "wm-property"?: string;
+}
+
+let likes: Mention[] = [];
+let reposts: Mention[] = [];
+let mentions: Mention[] = [];
+
+try {
+  const endpoint = new URL("https://webmention.io/api/mentions.jf2");
+  endpoint.searchParams.set("target", url);
+  endpoint.searchParams.set("per-page", "100");
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  const response = await fetch(endpoint, { signal: controller.signal });
+  clearTimeout(timeout);
+  if (response.ok) {
+    const data = (await response.json()) as { children?: Mention[] };
+    for (const child of data.children ?? []) {
+      const property = child["wm-property"];
+      if (property === "like-of") likes.push(child);
+      else if (property === "repost-of") reposts.push(child);
+      else mentions.push(child);
+    }
+  }
+} catch {
+}
+
+const total = likes.length + reposts.length + mentions.length;
+const faces = [...likes, ...reposts].filter((m) => m.author?.photo).slice(0, 24);
+void WEBMENTIONS;
+---
+
+<section class="mt-12 border-t border-border pt-6" aria-label={dict.webmentions.title}>
+  <h2 class="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+    {dict.webmentions.title}
+  </h2>
+
+  {
+    total === 0 ? (
+      <p class="mt-3 text-sm text-muted-foreground">{dict.webmentions.empty}</p>
+    ) : (
+      <div class="mt-4 flex flex-col gap-4">
+        <p class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+          {likes.length > 0 && <span>{dict.webmentions.likes(likes.length)}</span>}
+          {reposts.length > 0 && <span>{dict.webmentions.reposts(reposts.length)}</span>}
+        </p>
+
+        {faces.length > 0 && (
+          <ul class="flex flex-wrap gap-1.5">
+            {faces.map((m) => (
+              <li>
+                <a
+                  href={m.author?.url ?? m.url ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={m.author?.name ?? "Webmention"}
+                  title={m.author?.name}
+                >
+                  <img
+                    src={m.author?.photo}
+                    alt={m.author?.name ?? ""}
+                    width="32"
+                    height="32"
+                    loading="lazy"
+                    decoding="async"
+                    class="h-8 w-8 rounded-full border border-border object-cover"
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {mentions.length > 0 && (
+          <div>
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {dict.webmentions.mentions}
+            </h3>
+            <ul class="mt-2 flex flex-col gap-2">
+              {mentions.slice(0, 20).map((m) => (
+                <li class="text-sm">
+                  <a
+                    href={m.url ?? "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-muted-foreground transition-colors hover:text-accent"
+                  >
+                    {m.author?.name ?? m.url}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    )
+  }
+</section>

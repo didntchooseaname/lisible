@@ -1,0 +1,151 @@
+---
+import { COMMENTS } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const provider = COMMENTS.provider;
+const giscusLang = locale === "fr" ? "fr" : "en";
+---
+
+<section class="mt-14 border-t border-border pt-8" aria-labelledby="comments-title">
+  <h2 id="comments-title" class="text-lg font-bold tracking-tight">
+    {dict.comments.title}
+  </h2>
+
+  {
+    provider === "giscus" && (
+      <div
+        class="mt-4"
+        data-giscus
+        data-repo={COMMENTS.repo}
+        data-repo-id={COMMENTS.repoId}
+        data-category={COMMENTS.category}
+        data-category-id={COMMENTS.categoryId}
+        data-lang={giscusLang}
+      />
+    )
+  }
+
+  {
+    provider === "bluesky" && (
+      <div
+        class="mt-4"
+        data-bluesky-comments
+        data-post-uri={COMMENTS.postUri}
+        data-empty={dict.webmentions.empty}
+      />
+    )
+  }
+
+  {
+    provider === "giscus" && (
+      <script>
+        {`
+        (function () {
+          function currentTheme() {
+            return document.documentElement.classList.contains("dark") ? "dark_dimmed" : "light";
+          }
+          function mount(el) {
+            if (el.dataset.mounted) return;
+            el.dataset.mounted = "1";
+            var s = document.createElement("script");
+            s.src = "https://giscus.app/client.js";
+            s.setAttribute("data-repo", el.dataset.repo || "");
+            s.setAttribute("data-repo-id", el.dataset.repoId || "");
+            s.setAttribute("data-category", el.dataset.category || "");
+            s.setAttribute("data-category-id", el.dataset.categoryId || "");
+            s.setAttribute("data-mapping", "pathname");
+            s.setAttribute("data-strict", "1");
+            s.setAttribute("data-reactions-enabled", "1");
+            s.setAttribute("data-emit-metadata", "0");
+            s.setAttribute("data-input-position", "top");
+            s.setAttribute("data-theme", currentTheme());
+            s.setAttribute("data-lang", el.dataset.lang || "en");
+            s.setAttribute("data-loading", "lazy");
+            s.crossOrigin = "anonymous";
+            s.async = true;
+            el.appendChild(s);
+          }
+          function sync() {
+            var frame = document.querySelector("iframe.giscus-frame");
+            if (!frame || !frame.contentWindow) return;
+            frame.contentWindow.postMessage(
+              { giscus: { setConfig: { theme: currentTheme() } } },
+              "https://giscus.app"
+            );
+          }
+          function init() {
+            var el = document.querySelector("[data-giscus]");
+            if (!el) return;
+            var io = new IntersectionObserver(function (entries) {
+              entries.forEach(function (e) {
+                if (e.isIntersecting) { mount(el); io.disconnect(); }
+              });
+            });
+            io.observe(el);
+            new MutationObserver(sync).observe(document.documentElement, {
+              attributes: true, attributeFilter: ["class"],
+            });
+          }
+          document.addEventListener("astro:page-load", init);
+        })();
+        `}
+      </script>
+    )
+  }
+
+  {
+    provider === "bluesky" && (
+      <script>
+        {`
+        (function () {
+          function esc(s) {
+            var d = document.createElement("div");
+            d.textContent = s || "";
+            return d.innerHTML;
+          }
+          async function init() {
+            var el = document.querySelector("[data-bluesky-comments]");
+            if (!el || el.dataset.mounted) return;
+            el.dataset.mounted = "1";
+            var uri = el.dataset.postUri || "";
+            try {
+              var res = await fetch(
+                "https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri=" +
+                  encodeURIComponent(uri)
+              );
+              var data = await res.json();
+              var replies = (data && data.thread && data.thread.replies) || [];
+              if (!replies.length) {
+                el.innerHTML = '<p class="text-sm text-muted-foreground">' + esc(el.dataset.empty) + "</p>";
+                return;
+              }
+              var html = '<ul class="space-y-3">';
+              replies.forEach(function (r) {
+                var post = r.post || {};
+                var author = post.author || {};
+                var text = (post.record && post.record.text) || "";
+                html +=
+                  '<li class="flex gap-3 rounded-lg border border-border p-3">' +
+                  '<img src="' + esc(author.avatar) + '" alt="" width="32" height="32" class="h-8 w-8 shrink-0 rounded-full border border-border object-cover" />' +
+                  '<div class="min-w-0 text-sm"><span class="font-medium">' + esc(author.displayName || author.handle) + "</span>" +
+                  '<p class="mt-0.5 text-muted-foreground">' + esc(text) + "</p></div></li>";
+              });
+              html += "</ul>";
+              el.innerHTML = html;
+            } catch (e) {
+              el.innerHTML = '<p class="text-sm text-muted-foreground">' + esc(el.dataset.empty) + "</p>";
+            }
+          }
+          document.addEventListener("astro:page-load", init);
+        })();
+        `}
+      </script>
+    )
+  }
+</section>

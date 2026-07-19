@@ -1,0 +1,21 @@
+---
+import SeriesPage from "@/components/pages/SeriesPage.astro";
+import { getSeriesSlugs, getSeriesPosts } from "@/lib/posts";
+import { FEATURES } from "@/site.config";
+
+export async function getStaticPaths() {
+  if (!FEATURES.series) return [];
+  const slugs = await getSeriesSlugs("fr");
+  const paths = [];
+  for (const slug of slugs) {
+    const posts = await getSeriesPosts("fr", slug);
+    paths.push({ params: { slug }, props: { posts } });
+  }
+  return paths;
+}
+
+const { slug } = Astro.params;
+const { posts } = Astro.props;
+---
+
+<SeriesPage locale="fr" slug={slug!} posts={posts} />

@@ -1,0 +1,37 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { SITE } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const alternates = { fr: localeUrl("fr", "about"), en: localeUrl("en", "about") };
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.about.title}
+  description={dict.about.description}
+  alternates={alternates}
+>
+  <div class="home-hero py-12 md:py-16">
+    <div class="hero-blob" aria-hidden="true"></div>
+    <h1 class="type-mega rise">{dict.about.title}</h1>
+    <div class="prose rise rise-2 mt-10 md:ml-[8%]">
+      {dict.about.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      <p>
+        {SITE.social.github && (
+          <>
+            <a href={SITE.social.github}>GitHub</a> &middot;{" "}
+          </>
+        )}
+        <a href={localeUrl(locale, "rss.xml")}>RSS</a>
+      </p>
+    </div>
+  </div>
+</BaseLayout>

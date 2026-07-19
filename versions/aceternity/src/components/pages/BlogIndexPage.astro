@@ -1,0 +1,87 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlogTimeline from "@/components/react/BlogTimeline";
+import Pagination from "@/components/Pagination.astro";
+import { FEATURES } from "@/site.config";
+import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+import {
+  blogPageUrl,
+  blogPageCount,
+  getPublishedPosts,
+  groupByYear,
+  paginate,
+  postUrl,
+} from "@/lib/posts";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+  page?: number;
+}
+
+const { locale, page = 1 } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+const pageSize = FEATURES.pagination.enabled
+  ? FEATURES.pagination.pageSize
+  : Math.max(1, posts.length);
+const pages = paginate(posts, pageSize);
+const current = pages[page - 1] ?? pages[0];
+const total = current.total;
+
+const years = groupByYear(current.items).map(([year, yearPosts]) => ({
+  year: String(year),
+  posts: yearPosts.map((post) => ({
+    title: post.data.title,
+    url: postUrl(post),
+    description: post.data.description,
+    dateIso: isoDate(post.data.pubDate),
+    dateLabel: formatDate(post.data.pubDate, locale, "short"),
+    readingLabel: dict.post.readingTime(readingTime(post.body ?? "")),
+    draftLabel: post.data.draft ? dict.post.draft : undefined,
+  })),
+}));
+
+const prevUrl = page > 1 ? blogPageUrl(locale, page - 1) : undefined;
+const nextUrl = page < total ? blogPageUrl(locale, page + 1) : undefined;
+
+const other = otherLocale(locale);
+const otherTotal = await blogPageCount(other, pageSize);
+const alternates: Partial<Record<Locale, string>> = {
+  [locale]: blogPageUrl(locale, page),
+};
+if (page <= otherTotal) alternates[other] = blogPageUrl(other, page);
+
+const pageTitle =
+  page > 1
+    ? dict.pagination.pageTitle(dict.blog.title, page, total)
+    : dict.blog.title;
+---
+
+<BaseLayout
+  locale={locale}
+  title={pageTitle}
+  description={dict.blog.description}
+  alternates={alternates}
+  prevUrl={prevUrl}
+  nextUrl={nextUrl}
+>
+  <div class="py-10 md:py-14">
+    <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{dict.blog.title}</h1>
+    <p class="mt-3 max-w-2xl text-muted-foreground">{dict.blog.description}</p>
+
+    
+    <div class="mt-6">
+      <BlogTimeline client:visible years={years} />
+    </div>
+
+    <Pagination
+      locale={locale}
+      current={page}
+      total={total}
+      prevUrl={prevUrl}
+      nextUrl={nextUrl}
+    />
+  </div>
+</BaseLayout>

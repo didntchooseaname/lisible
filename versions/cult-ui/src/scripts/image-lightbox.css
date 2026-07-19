@@ -1,0 +1,20 @@
+#image-lightbox.active {
+  display: flex;
+  animation: lightboxFadeIn 0.2s ease-out;
+}
+@keyframes lightboxFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+#lightbox-image.zoomed {
+  cursor: grab !important;
+  touch-action: none;
+  user-select: none;
+}
+#lightbox-image.zoomed.panning {
+  cursor: grabbing !important;
+}

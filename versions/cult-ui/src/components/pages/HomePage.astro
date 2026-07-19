@@ -1,0 +1,149 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import JsonLd from "@/components/JsonLd.astro";
+import HeroBackdrop from "@/components/react/HeroBackdrop";
+import NewsletterIsland from "@/components/react/NewsletterIsland";
+import TextureLink from "@/components/react/TextureLink";
+import { GradientHeading } from "@/components/ui/gradient-heading";
+import { NeumorphEyebrow } from "@/components/ui/neumorph-eyebrow";
+import { TextAnimate } from "@/components/ui/text-animate";
+import { SITE, FEATURES } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+
+const pinned = FEATURES.pinned ? posts.filter((post) => post.data.featured) : [];
+const featured = (pinned.length > 0 ? pinned : posts).slice(
+  0,
+  SITE.featuredCount,
+);
+const featuredIds = new Set(featured.map((post) => post.id));
+const latest = posts
+  .filter((post) => !featuredIds.has(post.id))
+  .slice(0, SITE.postsPerPage);
+
+const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
+
+const eyebrowClass =
+  "border-border bg-secondary text-muted-foreground shadow-none";
+
+const jsonLd = {
+  "@type": "WebSite",
+  name: SITE.title,
+  description: dict.site.description,
+  url: new URL(localeUrl(locale), SITE.url).toString(),
+  inLanguage: locale,
+  author: { "@type": "Person", name: SITE.author },
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.home.metaTitle}
+  description={dict.site.description}
+  alternates={alternates}
+  isHome
+>
+  <JsonLd slot="head" data={jsonLd} />
+
+  <section class="relative py-14 md:py-20">
+    
+    <HeroBackdrop client:idle />
+    <div class="relative">
+      <NeumorphEyebrow className={eyebrowClass}>{dict.home.eyebrow}</NeumorphEyebrow>
+      <GradientHeading as="h1" size="xl" weight="bold" className="text-balance">
+        {SITE.title}
+      </GradientHeading>
+      <TextAnimate
+        client:load
+        as="p"
+        type="whipIn"
+        text={dict.site.tagline}
+        className="mt-2 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground"
+      />
+      <div class="mt-10">
+        <NewsletterIsland
+          client:visible
+          title={dict.newsletter.title}
+          description={dict.newsletter.description}
+          emailLabel={dict.newsletter.emailLabel}
+          placeholder={dict.newsletter.placeholder}
+          buttonLabel={dict.newsletter.button}
+          successTitle={dict.newsletter.successTitle}
+          successMessage={dict.newsletter.successMessage}
+          note={dict.newsletter.note}
+          closeLabel={dict.a11y.closeNewsletter}
+          idSuffix={`home-${locale}`}
+        />
+      </div>
+    </div>
+  </section>
+
+  {
+    featured.length > 0 && (
+      <section aria-labelledby="featured-title" class="py-8">
+        <NeumorphEyebrow className={eyebrowClass}>
+          {dict.tags.postsCount(featured.length)}
+        </NeumorphEyebrow>
+        <GradientHeading
+          as="h2"
+          size="xs"
+          weight="bold"
+          id="featured-title"
+          className="tracking-tight"
+        >
+          {dict.home.featured}
+        </GradientHeading>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          {featured.map((post) => (
+            <PostCard post={post} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    latest.length > 0 && (
+      <section aria-labelledby="latest-title" class="py-8">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <NeumorphEyebrow className={eyebrowClass}>
+              {dict.tags.postsCount(latest.length)}
+            </NeumorphEyebrow>
+            <GradientHeading
+              as="h2"
+              size="xs"
+              weight="bold"
+              id="latest-title"
+              className="tracking-tight"
+            >
+              {dict.home.latest}
+            </GradientHeading>
+          </div>
+          <TextureLink
+            href={localeUrl(locale, "blog")}
+            variant="minimal"
+            className="mb-2"
+          >
+            {dict.home.allPosts}
+          </TextureLink>
+        </div>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          {latest.map((post) => (
+            <PostCard post={post} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

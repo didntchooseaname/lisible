@@ -1,0 +1,90 @@
+---
+import AccentPicker from "@/components/AccentPicker.astro";
+import ThemeToggle from "@/components/ThemeToggle.astro";
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import PillNav from "@/components/ui/PillNav";
+import { FEATURES, SITE } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+  alternates?: Partial<Record<Locale, string>>;
+}
+
+const { locale, alternates } = Astro.props;
+const dict = t(locale);
+const hasSeries = FEATURES.series && (await getPublishedPosts(locale)).some((post) => Boolean(post.data.series));
+
+const navItems = [
+  { href: localeUrl(locale, "blog"), label: dict.nav.blog },
+  { href: localeUrl(locale, "tags"), label: dict.nav.tags },
+  ...(FEATURES.archives
+    ? [{ href: localeUrl(locale, "archives"), label: dict.nav.archives }]
+    : []),
+  ...(hasSeries
+    ? [{ href: localeUrl(locale, "series"), label: dict.nav.series }]
+    : []),
+  { href: localeUrl(locale, "about"), label: dict.nav.about },
+];
+
+const currentPath = Astro.url.pathname.endsWith("/")
+  ? Astro.url.pathname
+  : `${Astro.url.pathname}/`;
+
+const activeHref = navItems.find(
+  (item) => currentPath === item.href || currentPath.startsWith(item.href),
+)?.href;
+---
+
+<header class="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
+  <div class="mx-auto flex min-h-16 w-full max-w-6xl items-center justify-between gap-x-3 px-4 py-2 md:px-6">
+    <a
+      href={localeUrl(locale)}
+      class="inline-flex min-h-11 items-center text-lg font-bold tracking-tight hover:text-accent"
+    >
+      {SITE.title}
+    </a>
+
+    
+    <PillNav
+      client:load
+      items={navItems}
+      activeHref={activeHref}
+      navAriaLabel={dict.nav.main}
+      menuAriaLabel={dict.a11y.openMenu}
+      baseColor="var(--color-foreground)"
+      pillColor="var(--color-background)"
+      pillTextColor="var(--color-foreground)"
+      hoveredPillTextColor="var(--color-background)"
+    />
+
+    <div class="flex items-center gap-1.5">
+      <button
+        type="button"
+        data-search-open
+        aria-label={dict.a11y.openSearch}
+        class="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
+      </button>
+      <LanguageSwitcher locale={locale} alternates={alternates} />
+      <AccentPicker locale={locale} />
+      <ThemeToggle locale={locale} />
+    </div>
+  </div>
+</header>

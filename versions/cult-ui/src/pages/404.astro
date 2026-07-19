@@ -1,0 +1,68 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import NotFoundLocale from "@shared/components/NotFoundLocale.astro";
+import Board404 from "@/components/react/Board404";
+import TextureLink from "@/components/react/TextureLink";
+import SquigglyArrow from "@/components/ui/squiggle-arrow";
+import { GradientHeading } from "@/components/ui/gradient-heading";
+import { localeUrl, ui } from "@/i18n/ui";
+
+const fr = ui.fr;
+const en = ui.en;
+---
+
+<BaseLayout
+  locale="fr"
+  title={fr.notFound.title}
+  description={fr.notFound.message}
+>
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+  <NotFoundLocale
+    class="flex flex-col items-start gap-10 py-16 md:py-24"
+    frTitle={fr.notFound.title}
+    enTitle={en.notFound.title}
+    frDescription={fr.notFound.message}
+    enDescription={en.notFound.message}
+  >
+    
+    <Board404 client:idle />
+
+    <section data-not-found-locale="fr" aria-label={fr.notFound.title}>
+      <GradientHeading as="h1" size="md" weight="bold" className="tracking-tight">
+        {fr.notFound.title}
+      </GradientHeading>
+      <p class="mt-1 text-muted-foreground">{fr.notFound.message}</p>
+      <div class="mt-5 flex items-center gap-3">
+        <TextureLink href={localeUrl("fr")} variant="minimal">
+          {fr.notFound.backHome}
+        </TextureLink>
+        <SquigglyArrow
+          width={90}
+          height={44}
+          direction="left"
+          variant="wavy"
+          className="hidden text-muted-foreground sm:block"
+        />
+      </div>
+    </section>
+
+    <section data-not-found-locale="en" lang="en" aria-label={en.notFound.title}>
+      <GradientHeading as="h1" size="md" weight="bold" className="tracking-tight">
+        {en.notFound.title}
+      </GradientHeading>
+      <p class="mt-1 text-muted-foreground">{en.notFound.message}</p>
+      <div class="mt-5 flex items-center gap-3">
+        <TextureLink href={localeUrl("en")} variant="minimal">
+          {en.notFound.backHome}
+        </TextureLink>
+        <SquigglyArrow
+          width={90}
+          height={44}
+          direction="left"
+          variant="smooth"
+          className="hidden text-muted-foreground sm:block"
+        />
+      </div>
+    </section>
+  </NotFoundLocale>
+</BaseLayout>

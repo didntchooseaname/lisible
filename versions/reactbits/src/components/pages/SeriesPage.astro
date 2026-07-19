@@ -1,0 +1,92 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import AnimatedContent from "@/components/ui/AnimatedContent";
+import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+import {
+  getSeriesSlugs,
+  postUrl,
+  seriesName,
+  type Post,
+} from "@/lib/posts";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+  slug: string;
+  posts: Post[];
+}
+
+const { locale, slug, posts } = Astro.props;
+const dict = t(locale);
+
+const name = seriesName(slug, locale);
+const totalMinutes = posts.reduce((sum, p) => sum + readingTime(p.body ?? ""), 0);
+
+const other = otherLocale(locale);
+const otherSlugs = await getSeriesSlugs(other);
+const alternates: Partial<Record<Locale, string>> = {
+  [locale]: localeUrl(locale, `series/${slug}`),
+};
+if (otherSlugs.includes(slug)) {
+  alternates[other] = localeUrl(other, `series/${slug}`);
+}
+
+const description = `${dict.series.intro} ${dict.series.count(posts.length)} · ${dict.series.totalTime(totalMinutes)}.`;
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${dict.series.label} : ${name}`}
+  description={description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <p class="text-sm font-medium text-muted-foreground">
+      <a
+        href={localeUrl(locale, "blog")}
+        class="underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        {dict.blog.title}
+      </a>
+    </p>
+    <div class="mt-2 flex items-center gap-2">
+      <span class="series-page__badge">{dict.series.label}</span>
+    </div>
+    <h1 class="mt-3 text-3xl font-bold tracking-tight md:text-4xl">{name}</h1>
+    <p class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-muted-foreground">
+      <span>{dict.series.count(posts.length)}</span>
+      <span aria-hidden="true">&middot;</span>
+      <span>{dict.series.totalTime(totalMinutes)}</span>
+    </p>
+
+    <AnimatedContent client:visible distance={28} duration={0.5} className="mt-10">
+      <ol class="series-page__list">
+        {
+          posts.map((post, i) => {
+            const minutes = readingTime(post.body ?? "");
+            return (
+              <li class="series-page__item">
+                <span class="series-page__num" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <div class="series-page__body">
+                  <a href={postUrl(post)} class="series-page__title">
+                    {post.data.title}
+                  </a>
+                  <p class="series-page__desc">{post.data.description}</p>
+                  <p class="series-page__meta">
+                    <time datetime={isoDate(post.data.pubDate)}>
+                      {formatDate(post.data.pubDate, locale)}
+                    </time>
+                    <span aria-hidden="true">&middot;</span>
+                    <span>{dict.post.readingTime(minutes)}</span>
+                  </p>
+                </div>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </AnimatedContent>
+  </div>
+</BaseLayout>

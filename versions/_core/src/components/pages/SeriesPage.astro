@@ -1,0 +1,67 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { postUrl, type Post } from "@/lib/posts";
+import { totalReadingTime } from "@/lib/series";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+  slug: string;
+  title: string;
+  posts: Post[];
+}
+
+const { locale, slug, title, posts } = Astro.props;
+const dict = t(locale);
+const totalMinutes = totalReadingTime(posts);
+
+const alternates: Partial<Record<Locale, string>> = {
+  [locale]: localeUrl(locale, `series/${slug}`),
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={title}
+  description={dict.series.description(title)}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <p class="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+      {dict.series.label}
+    </p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">{title}</h1>
+    <p class="mt-3 text-muted-foreground">
+      {dict.archives.count(posts.length)} &middot; {dict.series.cumulative(totalMinutes)}
+    </p>
+
+    <ol class="mt-10 flex max-w-3xl flex-col gap-4">
+      {
+        posts.map((post, i) => (
+          <li>
+            <a
+              href={postUrl(post)}
+              class="group flex gap-4 rounded-lg border border-border bg-card p-5 transition-colors hover:border-accent"
+            >
+              <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border font-mono text-sm font-semibold text-muted-foreground">
+                {i + 1}
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block font-semibold leading-snug tracking-tight transition-colors group-hover:text-accent">
+                  {post.data.title}
+                </span>
+                <span class="mt-1.5 block text-sm text-muted-foreground">{post.data.description}</span>
+                <span class="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                  <time datetime={isoDate(post.data.pubDate)}>{formatDate(post.data.pubDate, locale, "short")}</time>
+                  <span aria-hidden="true">&middot;</span>
+                  <span>{dict.post.readingTime(readingTime(post.body ?? ""))}</span>
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</BaseLayout>

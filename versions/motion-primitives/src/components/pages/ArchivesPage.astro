@@ -1,0 +1,88 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, groupByYear, postUrl, type Post } from "@/lib/posts";
+import { formatMonth, isoDate } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+const byYear = groupByYear(posts);
+
+function groupByMonth(list: Post[]): [number, Post[]][] {
+  const map = new Map<number, Post[]>();
+  for (const post of list) {
+    const month = post.data.pubDate.getMonth();
+    const bucket = map.get(month) ?? [];
+    bucket.push(post);
+    map.set(month, bucket);
+  }
+  return [...map.entries()].sort((a, b) => b[0] - a[0]);
+}
+
+const alternates = { fr: localeUrl("fr", "archives"), en: localeUrl("en", "archives") };
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.archives.title}
+  description={dict.archives.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{dict.archives.title}</h1>
+    <p class="mt-3 max-w-2xl text-muted-foreground">{dict.archives.description}</p>
+    <p class="mt-2 text-sm text-muted-foreground">{dict.archives.count(posts.length)}</p>
+
+    <div class="mt-10 flex flex-col gap-12">
+      {
+        byYear.map(([year, yearPosts]) => (
+          <section aria-labelledby={`archive-${year}`}>
+            <h2 id={`archive-${year}`} class="text-2xl font-bold tracking-tight text-accent">
+              {year}
+            </h2>
+            <div class="mt-4 flex flex-col gap-6">
+              {groupByMonth(yearPosts).map(([month, monthPosts]) => (
+                <div class="grid gap-2 sm:grid-cols-[8rem_minmax(0,1fr)]">
+                  <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-foreground sm:pt-1">
+                    {formatMonth(new Date(year, month, 1), locale)}
+                  </h3>
+                  <ul class="flex flex-col divide-y divide-border border-l border-border pl-4 sm:border-l-0 sm:pl-0">
+                    {monthPosts.map((post) => (
+                      <li>
+                        <a
+                          href={postUrl(post)}
+                          class="group flex items-baseline justify-between gap-4 py-2"
+                        >
+                          <span class="font-medium transition-colors group-hover:text-accent">
+                            {post.data.title}
+                            {post.data.draft && (
+                              <span class="ml-2 inline-flex items-center rounded-md border border-border px-1.5 py-0.5 align-middle text-xs font-medium text-muted-foreground">
+                                {dict.post.draft}
+                              </span>
+                            )}
+                          </span>
+                          <time
+                            datetime={isoDate(post.data.pubDate)}
+                            class="shrink-0 font-mono text-xs text-muted-foreground"
+                          >
+                            {String(post.data.pubDate.getDate()).padStart(2, "0")}
+                          </time>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,66 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import TagsExplorer from "@/components/react/TagsExplorer";
+import { GradientHeading } from "@/components/ui/gradient-heading";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { formatDate, isoDate } from "@/lib/utils";
+import { getAllTags, getPostsByTag, postUrl } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const tags = await getAllTags(locale);
+
+const allTags = tags.map((tag) => ({
+  slug: tag.slug,
+  name: tag.name,
+  countLabel: String(tag.count),
+  href: localeUrl(locale, `tags/${tag.slug}`),
+}));
+
+const topTags = await Promise.all(
+  tags.slice(0, 3).map(async (tag) => {
+    const posts = await getPostsByTag(locale, tag.slug);
+    return {
+      slug: tag.slug,
+      name: tag.name,
+      href: localeUrl(locale, `tags/${tag.slug}`),
+      posts: posts.slice(0, 4).map((post) => ({
+        title: post.data.title,
+        href: postUrl(post),
+        dateISO: isoDate(post.data.pubDate),
+        dateLabel: formatDate(post.data.pubDate, locale, "short"),
+      })),
+    };
+  }),
+);
+
+const alternates = { fr: localeUrl("fr", "tags"), en: localeUrl("en", "tags") };
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.tags.title}
+  description={dict.tags.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <GradientHeading as="h1" size="lg" weight="bold" className="tracking-tight">
+      {dict.tags.title}
+    </GradientHeading>
+    <p class="mt-1 max-w-2xl text-muted-foreground">{dict.tags.description}</p>
+
+    
+    <div class="mt-10 max-w-3xl">
+      <TagsExplorer
+        client:visible
+        allLabel={dict.tags.all}
+        allTags={allTags}
+        topTags={topTags}
+      />
+    </div>
+  </div>
+</BaseLayout>

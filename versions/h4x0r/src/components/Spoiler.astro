@@ -1,0 +1,30 @@
+---
+import { FEATURES } from "@/site.config";
+import SpoilerRuntime from "@/components/reading/SpoilerRuntime.astro";
+import { defaultLocale, t, type Locale } from "@/i18n/ui";
+
+const locale = (Astro.currentLocale as Locale | undefined) ?? defaultLocale;
+const dict = t(locale);
+---
+
+{
+  FEATURES.mdxComponents ? (
+    <span
+      class="spoiler"
+      data-spoiler
+      role="button"
+      tabindex="0"
+      aria-expanded="false"
+      aria-label={dict.reading.spoilerReveal}
+      title={dict.reading.spoilerReveal}
+    >
+      <span class="spoiler-content">
+        <slot />
+      </span>
+    </span>
+  ) : (
+    <slot />
+  )
+}
+
+{FEATURES.mdxComponents && <SpoilerRuntime />}

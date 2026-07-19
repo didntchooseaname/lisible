@@ -1,0 +1,35 @@
+---
+interface Props {
+  href: string | null;
+  label: string;
+}
+
+const { href, label } = Astro.props;
+---
+
+{
+  href && (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer external"
+      class="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M12 20h9" />
+        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+      </svg>
+      {label}
+    </a>
+  )
+}

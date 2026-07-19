@@ -1,0 +1,18 @@
+---
+import BlogIndexPage from "@/components/pages/BlogIndexPage.astro";
+import { FEATURES } from "@/site.config";
+import { getPublishedPosts, paginate } from "@/lib/posts";
+
+export async function getStaticPaths() {
+  if (!FEATURES.pagination.enabled) return [];
+  const posts = await getPublishedPosts("en");
+  const pages = paginate(posts, FEATURES.pagination.pageSize);
+  return pages
+    .filter((p) => p.current > 1)
+    .map((p) => ({ params: { page: String(p.current) }, props: { page: p.current } }));
+}
+
+const { page } = Astro.props;
+---
+
+<BlogIndexPage locale="en" page={page} />

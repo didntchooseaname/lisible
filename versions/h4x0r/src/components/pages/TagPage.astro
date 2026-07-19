@@ -1,0 +1,78 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostList from "@/components/PostList.astro";
+import Pagination from "@/components/Pagination.astro";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { ensureTrailingSlash, localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+import { getAllTags, pageOf, type Post } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+  tagSlug: string;
+  tagName: string;
+  posts: Post[];
+  current?: number;
+}
+
+const { locale, tagSlug, tagName, posts, current = 1 } = Astro.props;
+const dict = t(locale);
+
+const page = pageOf(posts, current);
+const baseUrl = localeUrl(locale, `tags/${tagSlug}`).replace(/\/$/, "");
+const pagePath = (n: number) => (n <= 1 ? `${baseUrl}/` : `${baseUrl}/${n}/`);
+
+const alternates: Partial<Record<Locale, string>> = {
+  [locale]: pagePath(current),
+};
+const other = otherLocale(locale);
+if (current === 1) {
+  const otherTags = await getAllTags(other);
+  if (otherTags.some((tag) => tag.slug === tagSlug)) {
+    alternates[other] = localeUrl(other, `tags/${tagSlug}`);
+  }
+}
+
+const scanLine = dict.cyber.tags.scanLine.replace("#tag", `#${tagSlug}`);
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.tags.taggedWith(tagName)}
+  description={dict.tags.tagDescription(tagName)}
+  alternates={alternates}
+  relPrev={current > 1 ? ensureTrailingSlash(pagePath(current - 1)) : undefined}
+  relNext={current < page.total ? ensureTrailingSlash(pagePath(current + 1)) : undefined}
+>
+  <div class="py-10 md:py-14">
+    <p class="text-sm font-medium">
+      <a
+        href={localeUrl(locale, "tags")}
+        class="inline-flex min-h-11 items-center font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        <span aria-hidden="true" class="mr-1 text-accent">&lt;-</span>
+        {dict.tags.title}
+      </a>
+    </p>
+
+    <div class="hud-corners mt-4 border border-border/70 bg-card/50 p-6 backdrop-blur-sm md:p-8">
+      <p class="terminal-line" aria-hidden="true">
+        <span class="prompt-user">{scanLine.split(":~$")[0]}</span>:~$
+        <span>{scanLine.split(":~$")[1]}</span>
+      </p>
+      <h1 class="font-display mt-3 text-3xl font-black tracking-tight md:text-4xl">
+        <span class="text-accent text-glow" aria-hidden="true">#</span>{tagName}
+      </h1>
+      <p class="mt-2 font-mono text-xs uppercase tracking-[0.18em] text-accent">
+        {dict.tags.postsCount(posts.length)}
+      </p>
+    </div>
+
+    <BlurFade client:visible inView>
+      <div class="mt-6 max-w-3xl">
+        <PostList posts={page.items} />
+      </div>
+    </BlurFade>
+
+    <Pagination locale={locale} current={page.current} total={page.total} baseUrl={baseUrl} />
+  </div>
+</BaseLayout>

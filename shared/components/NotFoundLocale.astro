@@ -1,0 +1,65 @@
+---
+interface Props {
+  frTitle: string;
+  enTitle: string;
+  frDescription: string;
+  enDescription: string;
+  class?: string;
+}
+
+const {
+  frTitle,
+  enTitle,
+  frDescription,
+  enDescription,
+  class: className,
+} = Astro.props;
+---
+
+<div class={className} data-not-found-root data-pagefind-ignore>
+  <script
+    is:inline
+    define:vars={{ frTitle, enTitle, frDescription, enDescription }}
+  >
+    (() => {
+      const stored = localStorage.getItem("lisible-locale");
+      const pathLocale = /^\/en(?:\/|$)/.test(location.pathname) ? "en" : null;
+      const detected = navigator.languages?.find((language) => /^(fr|en)(-|$)/i.test(language))
+        ?? navigator.language;
+      const locale = stored === "fr" || stored === "en"
+        ? stored
+        : pathLocale
+          ? pathLocale
+        : /^fr(-|$)/i.test(detected ?? "") ? "fr" : "en";
+
+      document.documentElement.lang = locale;
+      document.documentElement.dataset.lisibleLocale = locale;
+      const title = locale === "en" ? enTitle : frTitle;
+      const description = locale === "en" ? enDescription : frDescription;
+      document.title = document.title.replace(frTitle, title);
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) metaDescription.setAttribute("content", description);
+    })();
+  </script>
+  <slot />
+  <script is:inline data-astro-rerun>
+    (() => {
+      const locale = document.documentElement.dataset.lisibleLocale === "fr" ? "fr" : "en";
+      document.querySelectorAll("[data-not-found-root] [data-not-found-locale]").forEach((element) => {
+        if (element.getAttribute("data-not-found-locale") !== locale) element.remove();
+      });
+    })();
+  </script>
+</div>
+
+<style is:global>
+  [data-not-found-root] [data-not-found-locale] {
+    display: none !important;
+  }
+
+  html:not([data-lisible-locale]) [data-not-found-root] [data-not-found-locale="fr"],
+  html[data-lisible-locale="fr"] [data-not-found-root] [data-not-found-locale="fr"],
+  html[data-lisible-locale="en"] [data-not-found-root] [data-not-found-locale="en"] {
+    display: block !important;
+  }
+</style>

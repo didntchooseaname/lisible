@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#000000"/>
+  <rect x="100" y="262" width="72" height="10" rx="5" fill="#22C55E"/>
+  <text x="100" y="380" font-family="Inter, 'Inter Variable', system-ui, sans-serif" font-size="92" font-weight="700" fill="#FFFFFF" letter-spacing="-2">Lisible</text>
+  <text x="100" y="446" font-family="Inter, 'Inter Variable', system-ui, sans-serif" font-size="34" font-weight="400" fill="#A3A3A3">l'auteur</text>
+  <circle cx="1084" cy="116" r="8" fill="#22C55E"/>
+</svg>

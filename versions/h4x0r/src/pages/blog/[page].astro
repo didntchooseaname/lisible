@@ -1,0 +1,18 @@
+---
+import BlogIndexPage from "@/components/pages/BlogIndexPage.astro";
+import { FEATURES } from "@/site.config";
+import { getPublishedPosts, pageCount } from "@/lib/posts";
+
+export async function getStaticPaths() {
+  if (!FEATURES.pagination.enabled) return [];
+  const total = pageCount((await getPublishedPosts("fr")).length);
+  return Array.from({ length: Math.max(0, total - 1) }, (_, index) => ({
+    params: { page: String(index + 2) },
+    props: { current: index + 2 },
+  }));
+}
+
+const { current } = Astro.props;
+---
+
+<BlogIndexPage locale="fr" current={current} />

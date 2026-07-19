@@ -1,0 +1,71 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+  current: number;
+  total: number;
+  baseUrl: string;
+}
+
+const { locale, current, total, baseUrl } = Astro.props;
+const strings = t(locale).platform.pager;
+
+const pageUrl = (page: number) => (page <= 1 ? `${baseUrl}/` : `${baseUrl}/${page}/`);
+const prevUrl = current > 1 ? pageUrl(current - 1) : undefined;
+const nextUrl = current < total ? pageUrl(current + 1) : undefined;
+const pages = Array.from({ length: total }, (_, index) => index + 1);
+
+const arrowClass =
+  "inline-flex min-h-11 items-center gap-1.5 border border-border bg-background/60 px-3 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:border-accent/70 hover:text-accent";
+---
+
+{
+  total > 1 && (
+    <nav aria-label={strings.label} class="mt-12 flex flex-wrap items-center justify-between gap-3">
+      {prevUrl ? (
+        <a href={prevUrl} rel="prev" class={arrowClass}>
+          <span aria-hidden="true">&lt;-</span>
+          {strings.prev}
+        </a>
+      ) : (
+        <span aria-hidden="true" />
+      )}
+
+      <p class="order-first w-full text-center font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground sm:order-none sm:w-auto">
+        <span class="text-accent" aria-hidden="true">:: </span>
+        {strings.page(current, total)}
+        <span class="text-accent" aria-hidden="true"> ::</span>
+      </p>
+
+      <ul class="hidden items-center gap-1.5 sm:flex" aria-hidden="false">
+        {pages.map((page) => (
+          <li>
+            <a
+              href={pageUrl(page)}
+              aria-current={page === current ? "page" : undefined}
+              class={cn(
+                "inline-flex h-11 w-11 items-center justify-center border font-mono text-xs transition-colors",
+                page === current
+                  ? "border-accent/70 text-accent shadow-[var(--glow-sm)]"
+                  : "border-border bg-background/60 text-muted-foreground hover:border-accent/70 hover:text-accent",
+              )}
+            >
+              {String(page).padStart(2, "0")}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      {nextUrl ? (
+        <a href={nextUrl} rel="next" class={arrowClass}>
+          {strings.next}
+          <span aria-hidden="true">-&gt;</span>
+        </a>
+      ) : (
+        <span aria-hidden="true" />
+      )}
+    </nav>
+  )
+}

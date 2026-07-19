@@ -1,0 +1,121 @@
+---
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { postUrl, type PostSeriesContext } from "@/lib/posts";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  series: PostSeriesContext;
+  locale: Locale;
+  class?: string;
+}
+
+const { series, locale, class: className } = Astro.props;
+const dict = t(locale);
+const seriesHref = localeUrl(locale, `series/${series.info.slug}`);
+const total = series.info.posts.length;
+---
+
+<aside
+  class={cn(
+    "rounded-lg border border-border border-l-2 border-l-accent bg-card p-4",
+    className,
+  )}
+  aria-label={dict.series.label}
+>
+  <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+    <p class="text-sm font-semibold">
+      <span class="text-accent">{dict.series.label}</span>
+      <span aria-hidden="true" class="mx-1.5 text-muted-foreground">&middot;</span>
+      <a href={seriesHref} class="hover:text-accent">{series.info.name}</a>
+    </p>
+    <p class="text-xs text-muted-foreground">
+      {dict.series.part(series.index, total)}
+    </p>
+  </div>
+
+  <details class="group mt-3">
+    <summary
+      class="flex cursor-pointer list-none items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        class="shrink-0 transition-transform group-open:rotate-90"
+      >
+        <path d="m9 18 6-6-6-6"></path>
+      </svg>
+      {dict.series.inThisSeries}
+    </summary>
+    <ol class="mt-3 flex flex-col gap-1.5">
+      {
+        series.info.posts.map((entry, i) => {
+          const isCurrent = i + 1 === series.index;
+          return (
+            <li class="flex items-baseline gap-2 text-sm">
+              <span
+                class={cn(
+                  "w-5 shrink-0 text-right text-xs tabular-nums",
+                  isCurrent ? "text-accent" : "text-muted-foreground",
+                )}
+              >
+                {i + 1}
+              </span>
+              {isCurrent ? (
+                <span class="font-medium text-foreground" aria-current="true">
+                  {entry.data.title}
+                  <span class="sr-only"> ({dict.series.current})</span>
+                </span>
+              ) : (
+                <a
+                  href={postUrl(entry)}
+                  class="text-muted-foreground transition-colors hover:text-accent"
+                >
+                  {entry.data.title}
+                </a>
+              )}
+            </li>
+          );
+        })
+      }
+    </ol>
+  </details>
+
+  {
+    (series.prev || series.next) && (
+      <div class="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3 text-sm">
+        {series.prev ? (
+          <a
+            href={postUrl(series.prev)}
+            rel="prev"
+            class="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-accent"
+          >
+            <span aria-hidden="true">&larr;</span>
+            <span class="line-clamp-1">{series.prev.data.title}</span>
+          </a>
+        ) : (
+          <span />
+        )}
+        {series.next ? (
+          <a
+            href={postUrl(series.next)}
+            rel="next"
+            class="inline-flex items-center gap-1 text-right text-muted-foreground transition-colors hover:text-accent"
+          >
+            <span class="line-clamp-1">{series.next.data.title}</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        ) : (
+          <span />
+        )}
+      </div>
+    )
+  }
+</aside>

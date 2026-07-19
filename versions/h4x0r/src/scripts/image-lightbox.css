@@ -1,0 +1,122 @@
+.prose img.lightbox-target {
+  cursor: zoom-in;
+}
+
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  visibility: hidden;
+  opacity: 0;
+  background-color: color-mix(in oklab, var(--color-background) 90%, transparent);
+  backdrop-filter: blur(8px);
+  transition: opacity 200ms ease-out, visibility 0s linear 200ms;
+}
+
+.image-lightbox.active {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 200ms ease-out;
+}
+
+.lightbox-toolbar {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+  background-color: color-mix(in oklab, var(--color-background) 72%, transparent);
+}
+
+.lightbox-counter {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  color: var(--color-muted-foreground);
+}
+
+.lightbox-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.lightbox-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-border);
+  background-color: color-mix(in oklab, var(--color-card) 85%, transparent);
+  color: var(--color-muted-foreground);
+  cursor: pointer;
+  transition: color 150ms ease-out, border-color 150ms ease-out;
+}
+
+.lightbox-btn:hover,
+.lightbox-btn:focus-visible {
+  border-color: color-mix(in oklab, var(--color-accent) 70%, transparent);
+  color: var(--color-accent);
+}
+
+.lightbox-btn[disabled] {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.lightbox-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4.5rem 1rem 2rem;
+}
+
+.lightbox-stage img {
+  max-width: 100%;
+  max-height: 100%;
+  touch-action: none;
+  user-select: none;
+  cursor: zoom-in;
+  background-color: color-mix(in oklab, var(--color-secondary) 45%, transparent);
+  transition: transform 120ms ease-out;
+}
+
+.lightbox-stage img.zoomed {
+  cursor: grab;
+}
+
+.lightbox-stage img.panning {
+  cursor: grabbing;
+  transition: none;
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  transform: translateY(-50%);
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.lightbox-nav-prev {
+  inset-inline-start: 0.875rem;
+}
+
+.lightbox-nav-next {
+  inset-inline-end: 0.875rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox-stage img {
+    transition: none;
+  }
+}

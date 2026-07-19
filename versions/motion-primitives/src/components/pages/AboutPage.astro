@@ -1,0 +1,74 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { AboutStats } from "@/components/react/AboutStats";
+import { InView } from "@/components/ui/in-view";
+import EditOnGithub from "@/components/EditOnGithub.astro";
+import { SITE } from "@/site.config";
+import { locales, localeUrl, t, type Locale } from "@/i18n/ui";
+import { getAllTags, getPublishedPosts } from "@/lib/posts";
+import { githubEditUrl } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+const tags = await getAllTags(locale);
+
+const stats = [
+  { value: posts.length, label: dict.about.stats.posts },
+  { value: tags.length, label: dict.about.stats.tags },
+  { value: locales.length, label: dict.about.stats.languages },
+];
+
+const alternates = { fr: localeUrl("fr", "about"), en: localeUrl("en", "about") };
+
+const aboutFile = locale === "en" ? "src/pages/en/about.astro" : "src/pages/about.astro";
+const editHref = githubEditUrl(SITE.repo, aboutFile);
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.about.title}
+  description={dict.about.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{dict.about.title}</h1>
+
+    <div class="mt-8 max-w-[72ch]">
+      <AboutStats client:visible locale={locale} title={dict.about.stats.title} stats={stats} />
+    </div>
+
+    <InView
+      client:visible
+      variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      viewOptions={{ once: true, margin: "0px 0px -10% 0px" }}
+      once
+    >
+      <div class="prose mt-8">
+        {dict.about.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+        <p>
+          {SITE.social.github && (
+            <>
+              <a href={SITE.social.github}>GitHub</a> &middot;{" "}
+            </>
+          )}
+          <a href={localeUrl(locale, "rss.xml")}>RSS</a>
+        </p>
+      </div>
+    </InView>
+
+    {
+      editHref && (
+        <div class="mt-10 border-t border-border pt-6">
+          <EditOnGithub href={editHref} label={dict.post.editOnGithub} />
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

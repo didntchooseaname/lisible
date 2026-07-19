@@ -1,0 +1,109 @@
+{
+  "Frontmatter d'article": {
+    "scope": "markdown,mdx",
+    "prefix": "post",
+    "body": [
+      "---",
+      "title: \"${1:Titre de l'article}\"",
+      "description: \"${2:Resume en une phrase, 160 caracteres maximum.}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "draft: ${4|true,false|}",
+      "tags: [${5:\"astro\"}]",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Frontmatter minimal valide pour un nouvel article Lisible."
+  },
+  "Frontmatter complet": {
+    "scope": "markdown,mdx",
+    "prefix": "post-full",
+    "body": [
+      "---",
+      "title: \"${1:Titre de l'article}\"",
+      "description: \"${2:Resume en une phrase, 160 caracteres maximum.}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "updatedDate: ${4:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "draft: ${5|true,false|}",
+      "tags: [${6:\"astro\", \"performance\"}]",
+      "cover: ${7:/images/mon-cover.svg}",
+      "coverAlt: \"${8:Description de l'image de couverture}\"",
+      "featured: ${9|false,true|}",
+      "series: ${10:mon-atelier}",
+      "seriesOrder: ${11:1}",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Frontmatter avec tous les champs optionnels (cover, series, featured)."
+  },
+  "Callout": {
+    "scope": "markdown,mdx",
+    "prefix": "callout",
+    "body": [":::${1|note,tip,warning,caution,important|}${2:[Titre]}", "$0", ":::"],
+    "description": "Bloc callout (note, tip, warning, caution, important)."
+  },
+  "Callout repliable": {
+    "scope": "markdown,mdx",
+    "prefix": "callout-collapse",
+    "body": [":::${1|note,tip,warning,caution,important|}[${2:Titre}]{collapse}", "$0", ":::"],
+    "description": "Callout repliable (ferme par defaut)."
+  },
+  "Formule mathematique en bloc": {
+    "scope": "markdown,mdx",
+    "prefix": "math",
+    "body": ["$$", "${1:a^2 + b^2 = c^2}", "$$", "$0"],
+    "description": "Bloc KaTeX (rendu au build)."
+  },
+  "Diagramme Mermaid": {
+    "scope": "markdown,mdx",
+    "prefix": "mermaid",
+    "body": ["```mermaid", "flowchart TD", "  A[${1:Debut}] --> B[${2:Fin}]", "```", "$0"],
+    "description": "Diagramme Mermaid (rendu client, re-teinte au theme)."
+  },
+  "Carte de depot GitHub": {
+    "scope": "markdown,mdx",
+    "prefix": "github",
+    "body": ["::github{repo=\"${1:owner/repo}\"}", "$0"],
+    "description": "Carte de depot GitHub hydratee cote client."
+  },
+  "Onglets (MDX)": {
+    "scope": "mdx",
+    "prefix": "tabs",
+    "body": [
+      "<Tabs>",
+      "  <Tab label=\"${1:Onglet 1}\">",
+      "    $2",
+      "  </Tab>",
+      "  <Tab label=\"${3:Onglet 2}\">",
+      "    $4",
+      "  </Tab>",
+      "</Tabs>",
+      "$0"
+    ],
+    "description": "Composant Tabs (article .mdx)."
+  },
+  "Etapes (MDX)": {
+    "scope": "mdx",
+    "prefix": "steps",
+    "body": [
+      "<Steps>",
+      "",
+      "1. ${1:Premiere etape}",
+      "",
+      "2. ${2:Deuxieme etape}",
+      "",
+      "3. ${3:Troisieme etape}",
+      "",
+      "</Steps>",
+      "$0"
+    ],
+    "description": "Composant Steps a numerotation automatique (article .mdx)."
+  },
+  "Spoiler (MDX)": {
+    "scope": "mdx",
+    "prefix": "spoiler",
+    "body": ["<Spoiler>${1:Contenu masque jusqu'au clic}</Spoiler>", "$0"],
+    "description": "Composant Spoiler (article .mdx)."
+  }
+}

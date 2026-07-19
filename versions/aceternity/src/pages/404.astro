@@ -1,0 +1,72 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import NotFoundLocale from "@shared/components/NotFoundLocale.astro";
+import { BackgroundBeams } from "@/components/ui/background-beams";
+import { TextHoverEffect } from "@/components/ui/text-hover-effect";
+import { Button as MovingBorderButton } from "@/components/ui/moving-border";
+import { localeUrl, ui } from "@/i18n/ui";
+
+const fr = ui.fr;
+const en = ui.en;
+---
+
+<BaseLayout
+  locale="fr"
+  title={fr.notFound.title}
+  description={fr.notFound.message}
+>
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+  <NotFoundLocale
+    class="relative"
+    frTitle={fr.notFound.title}
+    enTitle={en.notFound.title}
+    frDescription={fr.notFound.message}
+    enDescription={en.notFound.message}
+  >
+    
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+      <BackgroundBeams client:idle />
+    </div>
+
+    <div class="relative flex flex-col items-start gap-8 py-14 md:py-20">
+      
+      <div class="h-32 w-full max-w-md md:h-44" aria-hidden="true">
+        <TextHoverEffect client:idle text="404" duration={0.3} />
+      </div>
+
+      <section data-not-found-locale="fr" aria-label={fr.notFound.title}>
+        <h1 class="text-2xl font-bold tracking-tight md:text-3xl">{fr.notFound.title}</h1>
+        <p class="mt-2 text-muted-foreground">{fr.notFound.message}</p>
+        <div class="mt-5">
+          <MovingBorderButton
+            client:visible
+            as="a"
+            href={localeUrl("fr")}
+            borderRadius="0.75rem"
+            containerClassName="h-12 w-auto min-w-44"
+            className="px-5"
+          >
+            {fr.notFound.backHome}
+          </MovingBorderButton>
+        </div>
+      </section>
+
+      <section data-not-found-locale="en" lang="en" aria-label={en.notFound.title}>
+        <h1 class="text-2xl font-bold tracking-tight md:text-3xl">{en.notFound.title}</h1>
+        <p class="mt-2 text-muted-foreground">{en.notFound.message}</p>
+        <div class="mt-5">
+          <MovingBorderButton
+            client:visible
+            as="a"
+            href={localeUrl("en")}
+            borderRadius="0.75rem"
+            containerClassName="h-12 w-auto min-w-44"
+            className="px-5"
+          >
+            {en.notFound.backHome}
+          </MovingBorderButton>
+        </div>
+      </section>
+    </div>
+  </NotFoundLocale>
+</BaseLayout>

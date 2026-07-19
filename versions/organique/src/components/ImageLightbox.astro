@@ -1,0 +1,166 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale).lightbox;
+---
+
+<div id="image-lightbox" role="dialog" aria-modal="true" aria-label={dict.title}>
+  <div class="lb-controls" aria-hidden="false">
+    <button id="lightbox-zoom-out" type="button" class="lb-btn" aria-label={dict.zoomOut} title={dict.zoomOut}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path><path d="M8 11h6"></path></svg>
+    </button>
+    <button id="lightbox-zoom-reset" type="button" class="lb-btn" aria-label={dict.reset} title={dict.reset}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+    </button>
+    <button id="lightbox-zoom-in" type="button" class="lb-btn" aria-label={dict.zoomIn} title={dict.zoomIn}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path><path d="M11 8v6"></path><path d="M8 11h6"></path></svg>
+    </button>
+    <button id="lightbox-close" type="button" class="lb-btn" aria-label={dict.close} title={dict.close}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+    </button>
+  </div>
+
+  <button id="lightbox-prev" type="button" class="lb-nav lb-prev" aria-label={dict.prev}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+  </button>
+  <button id="lightbox-next" type="button" class="lb-nav lb-next" aria-label={dict.next}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+  </button>
+
+  <div class="lb-stage">
+    <img id="lightbox-image" src="" alt="" />
+  </div>
+
+  <div class="lb-counter">
+    <span id="lightbox-current">1</span> / <span id="lightbox-total">1</span>
+  </div>
+</div>
+
+
+<script>
+  import "@/scripts/image-lightbox";
+</script>
+
+<style>
+  #image-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background-color: color-mix(in oklab, var(--color-background) 92%, transparent);
+    backdrop-filter: blur(6px);
+  }
+
+  #image-lightbox.active {
+    display: flex;
+    animation: lb-fade 0.2s ease-out;
+  }
+
+  @keyframes lb-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .lb-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .lb-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-popover);
+    color: var(--color-popover-foreground);
+    cursor: pointer;
+    transition: background-color 0.15s ease-out, color 0.15s ease-out;
+  }
+
+  .lb-btn:hover {
+    background-color: var(--color-secondary);
+    color: var(--color-foreground);
+  }
+
+  .lb-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background-color: var(--color-popover);
+    color: var(--color-popover-foreground);
+    cursor: pointer;
+    transition: background-color 0.15s ease-out, color 0.15s ease-out;
+  }
+
+  .lb-nav:hover {
+    background-color: var(--color-secondary);
+    color: var(--color-foreground);
+  }
+
+  .lb-prev { left: 1rem; }
+  .lb-next { right: 1rem; }
+
+  .lb-nav[disabled] {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .lb-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 1.5rem;
+  }
+
+  #lightbox-image {
+    max-width: 92vw;
+    max-height: 88vh;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    transition: transform 0.2s ease-out;
+    cursor: zoom-in;
+    touch-action: none;
+    user-select: none;
+  }
+
+  #lightbox-image.zoomed { cursor: grab; }
+  #lightbox-image.zoomed.panning { cursor: grabbing; }
+
+  .lb-counter {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.3rem 0.85rem;
+    font-size: 0.8rem;
+    color: var(--color-popover-foreground);
+    background-color: var(--color-popover);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    font-variant-numeric: tabular-nums;
+  }
+</style>

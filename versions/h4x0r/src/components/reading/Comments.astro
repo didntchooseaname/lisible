@@ -1,0 +1,211 @@
+---
+import { COMMENTS, SITE } from "@/site.config";
+import { ensureTrailingSlash, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const strings = dict.platform.comments;
+const canonicalUrl = new URL(ensureTrailingSlash(Astro.url.pathname), SITE.url).toString();
+---
+
+<section class="comments mt-12" aria-label={strings.title} data-pagefind-ignore>
+  <p class="section-label" aria-hidden="true">{strings.title}</p>
+  <h2 class="font-display mt-2 text-lg font-bold tracking-wide">{strings.title}</h2>
+
+  {
+    COMMENTS.provider === "giscus" ? (
+      <div
+        class="mt-4 min-h-32"
+        data-comments-giscus
+        data-repo={COMMENTS.giscus.repo}
+        data-repo-id={COMMENTS.giscus.repoId}
+        data-category={COMMENTS.giscus.category}
+        data-category-id={COMMENTS.giscus.categoryId}
+        data-lang={locale}
+        data-loading-text={strings.loading}
+      >
+        <p class="text-sm text-muted-foreground">{strings.loading}</p>
+      </div>
+    ) : (
+      <div
+        class="mt-4 min-h-16"
+        data-comments-bluesky
+        data-handle={COMMENTS.bluesky.handle}
+        data-url={canonicalUrl}
+        data-loading-text={strings.loading}
+        data-error-text={strings.error}
+        data-reply-text={strings.joinBluesky}
+      >
+        <p class="text-sm text-muted-foreground">{strings.loading}</p>
+      </div>
+    )
+  }
+</section>
+
+<script>
+
+  function giscusTheme(): string {
+    return document.documentElement.classList.contains("dark")
+      ? "noborder_dark"
+      : "noborder_light";
+  }
+
+  function syncGiscusTheme(): void {
+    const frame = document.querySelector<HTMLIFrameElement>(
+      "iframe.giscus-frame",
+    );
+    frame?.contentWindow?.postMessage(
+      { giscus: { setConfig: { theme: giscusTheme() } } },
+      "https://giscus.app",
+    );
+  }
+
+  function mountGiscus(container: HTMLElement): void {
+    if (container.dataset.mounted) return;
+    container.dataset.mounted = "true";
+    container.replaceChildren();
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.crossOrigin = "anonymous";
+    script.setAttribute("data-repo", container.dataset.repo ?? "");
+    script.setAttribute("data-repo-id", container.dataset.repoId ?? "");
+    script.setAttribute("data-category", container.dataset.category ?? "");
+    script.setAttribute("data-category-id", container.dataset.categoryId ?? "");
+    script.setAttribute("data-mapping", "pathname");
+    script.setAttribute("data-strict", "0");
+    script.setAttribute("data-reactions-enabled", "1");
+    script.setAttribute("data-emit-metadata", "0");
+    script.setAttribute("data-input-position", "bottom");
+    script.setAttribute("data-theme", giscusTheme());
+    script.setAttribute("data-lang", container.dataset.lang ?? "fr");
+    container.appendChild(script);
+  }
+
+  const themeObserver = new MutationObserver(syncGiscusTheme);
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+
+
+  interface BskyPost {
+    uri: string;
+    author?: { displayName?: string; handle?: string; avatar?: string };
+    record?: { text?: string; createdAt?: string };
+  }
+
+  interface BskyThread {
+    post?: BskyPost;
+    replies?: BskyThread[];
+  }
+
+  async function mountBluesky(container: HTMLElement): Promise<void> {
+    if (container.dataset.mounted) return;
+    container.dataset.mounted = "true";
+    const handle = container.dataset.handle ?? "";
+    const url = container.dataset.url ?? "";
+    try {
+      const search = new URL(
+        "https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts",
+      );
+      search.searchParams.set("q", url);
+      search.searchParams.set("author", handle);
+      search.searchParams.set("limit", "1");
+      const found = await fetch(search).then((r) => r.json());
+      const root: BskyPost | undefined = found?.posts?.[0];
+      if (!root) {
+        renderBskyError(container);
+        return;
+      }
+      const threadApi = new URL(
+        "https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread",
+      );
+      threadApi.searchParams.set("uri", root.uri);
+      threadApi.searchParams.set("depth", "3");
+      const data = await fetch(threadApi).then((r) => r.json());
+      renderBskyThread(container, root, data?.thread?.replies ?? []);
+    } catch {
+      renderBskyError(container);
+    }
+  }
+
+  function bskyPostUrl(post: BskyPost): string {
+    const id = post.uri.split("/").pop() ?? "";
+    return `https://bsky.app/profile/${post.author?.handle ?? ""}/post/${id}`;
+  }
+
+  function renderBskyError(container: HTMLElement): void {
+    const p = document.createElement("p");
+    p.className = "text-sm text-muted-foreground";
+    p.textContent = container.dataset.errorText ?? "";
+    container.replaceChildren(p);
+  }
+
+  function renderBskyThread(
+    container: HTMLElement,
+    root: BskyPost,
+    replies: BskyThread[],
+  ): void {
+    container.replaceChildren();
+    const list = document.createElement("ul");
+    list.className = "flex flex-col gap-3";
+    const flat: BskyPost[] = [];
+    const walk = (nodes: BskyThread[]) => {
+      for (const node of nodes) {
+        if (node.post) flat.push(node.post);
+        if (node.replies) walk(node.replies);
+      }
+    };
+    walk(replies);
+    for (const post of flat) {
+      const item = document.createElement("li");
+      item.className = "hud-corners border border-border bg-background/60 p-4";
+      const author = document.createElement("a");
+      author.href = bskyPostUrl(post);
+      author.rel = "external nofollow noopener";
+      author.className =
+        "text-sm font-medium underline decoration-accent underline-offset-4 hover:text-accent";
+      author.textContent =
+        post.author?.displayName || `@${post.author?.handle ?? "?"}`;
+      const text = document.createElement("p");
+      text.className = "mt-1.5 text-sm leading-relaxed text-muted-foreground";
+      text.textContent = post.record?.text ?? "";
+      item.append(author, text);
+      list.appendChild(item);
+    }
+    const reply = document.createElement("a");
+    reply.href = bskyPostUrl(root);
+    reply.rel = "external nofollow noopener";
+    reply.className =
+      "mt-3 inline-flex min-h-11 items-center font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground underline decoration-accent underline-offset-4 transition-colors hover:text-accent";
+    reply.textContent = container.dataset.replyText ?? "";
+    if (flat.length > 0) container.appendChild(list);
+    container.appendChild(reply);
+  }
+
+
+  function initComments(): void {
+    const giscus = document.querySelector<HTMLElement>("[data-comments-giscus]");
+    const bluesky = document.querySelector<HTMLElement>("[data-comments-bluesky]");
+    const target = giscus ?? bluesky;
+    if (!target || target.dataset.mounted) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        if (giscus) mountGiscus(giscus);
+        if (bluesky) void mountBluesky(bluesky);
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(target);
+  }
+
+  initComments();
+  document.addEventListener("astro:page-load", initComments);
+</script>

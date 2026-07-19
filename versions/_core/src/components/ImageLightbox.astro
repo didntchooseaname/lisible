@@ -1,0 +1,53 @@
+---
+import "@/styles/lightbox.css";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+<div
+  id="image-lightbox"
+  class="lightbox"
+  role="dialog"
+  aria-modal="true"
+  aria-label={dict.reader.lightboxLabel}
+>
+  <div class="lightbox-toolbar">
+    <button id="lightbox-zoom-out" type="button" class="lightbox-btn" aria-label={dict.reader.zoomOut}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path><path d="M8 11h6"></path></svg>
+    </button>
+    <button id="lightbox-zoom-in" type="button" class="lightbox-btn" aria-label={dict.reader.zoomIn}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path><path d="M11 8v6"></path><path d="M8 11h6"></path></svg>
+    </button>
+    <button id="lightbox-zoom-reset" type="button" class="lightbox-btn" aria-label={dict.reader.zoomReset}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+    </button>
+    <button id="lightbox-close" type="button" class="lightbox-btn" aria-label={dict.reader.close}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+    </button>
+  </div>
+
+  <button id="lightbox-prev" type="button" class="lightbox-btn lightbox-nav lightbox-prev" aria-label={dict.reader.prevImage}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+  </button>
+  <button id="lightbox-next" type="button" class="lightbox-btn lightbox-nav lightbox-next" aria-label={dict.reader.nextImage}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+  </button>
+
+  <div class="lightbox-stage">
+    <img id="lightbox-image" class="lightbox-image" src="" alt="" />
+  </div>
+
+  <div class="lightbox-counter">
+    <span id="lightbox-current">1</span> / <span id="lightbox-total">1</span>
+  </div>
+</div>
+
+<script>
+  import "@/scripts/image-lightbox";
+</script>

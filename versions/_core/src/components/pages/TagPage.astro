@@ -1,0 +1,79 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostList from "@/components/PostList.astro";
+import Pagination from "@/components/Pagination.astro";
+import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+import { getAllTags, paginatePosts, type Post } from "@/lib/posts";
+import { FEATURES } from "@/site.config";
+
+interface Props {
+  locale: Locale;
+  tagSlug: string;
+  tagName: string;
+  posts: Post[];
+  page?: number;
+}
+
+const { locale, tagSlug, tagName, posts, page = 1 } = Astro.props;
+const dict = t(locale);
+
+const paginationOn = FEATURES.pagination.enabled;
+const paged = paginationOn
+  ? paginatePosts(posts, FEATURES.pagination.pageSize, page)
+  : { items: posts, current: 1, last: 1 };
+
+function pageUrl(n: number): string {
+  return n <= 1
+    ? localeUrl(locale, `tags/${tagSlug}`)
+    : localeUrl(locale, `tags/${tagSlug}/${n}`);
+}
+const prevUrl = paged.current > 1 ? pageUrl(paged.current - 1) : undefined;
+const nextUrl = paged.current < paged.last ? pageUrl(paged.current + 1) : undefined;
+
+const alternates: Partial<Record<Locale, string>> =
+  paged.current === 1
+    ? { [locale]: localeUrl(locale, `tags/${tagSlug}`) }
+    : { [locale]: pageUrl(paged.current) };
+const other = otherLocale(locale);
+if (paged.current === 1) {
+  const otherTags = await getAllTags(other);
+  if (otherTags.some((tag) => tag.slug === tagSlug)) {
+    alternates[other] = localeUrl(other, `tags/${tagSlug}`);
+  }
+}
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.tags.taggedWith(tagName)}
+  description={dict.tags.tagDescription(tagName)}
+  alternates={alternates}
+  prevUrl={prevUrl}
+  nextUrl={nextUrl}
+>
+  <div class="py-10 md:py-14">
+    <p class="text-sm font-medium text-muted-foreground">
+      <a
+        href={localeUrl(locale, "tags")}
+        class="underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        {dict.tags.title}
+      </a>
+    </p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+      {dict.tags.taggedWith(tagName)}
+    </h1>
+    <p class="mt-3 text-muted-foreground">{dict.tags.postsCount(posts.length)}</p>
+
+    <div class="mt-8 max-w-3xl">
+      <PostList posts={paged.items} />
+      <Pagination
+        locale={locale}
+        current={paged.current}
+        last={paged.last}
+        prevUrl={prevUrl}
+        nextUrl={nextUrl}
+      />
+    </div>
+  </div>
+</BaseLayout>

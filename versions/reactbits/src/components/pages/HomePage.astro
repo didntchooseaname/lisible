@@ -1,0 +1,149 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import NewsletterCTA from "@/components/NewsletterCTA.astro";
+import JsonLd from "@/components/JsonLd.astro";
+import SplitText from "@/components/ui/SplitText";
+import BlurText from "@/components/ui/BlurText";
+import ShinyText from "@/components/ui/ShinyText";
+import SpotlightCard from "@/components/ui/SpotlightCard";
+import AnimatedContent from "@/components/ui/AnimatedContent";
+import DotGrid from "@/components/ui/DotGrid";
+import { SITE, FEATURES } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+
+const pinned = FEATURES.pinned ? posts.filter((post) => post.data.featured) : [];
+const featured = (pinned.length > 0 ? pinned : posts).slice(0, SITE.featuredCount);
+const featuredIds = new Set(featured.map((post) => post.id));
+const latest = posts
+  .filter((post) => !featuredIds.has(post.id))
+  .slice(0, SITE.postsPerPage);
+
+const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
+
+const jsonLd = {
+  "@type": "WebSite",
+  name: SITE.title,
+  description: dict.site.description,
+  url: new URL(localeUrl(locale), SITE.url).toString(),
+  inLanguage: locale,
+  author: { "@type": "Person", name: SITE.author },
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.home.metaTitle}
+  description={dict.site.description}
+  alternates={alternates}
+  isHome
+>
+  <JsonLd slot="head" data={jsonLd} />
+
+  <section class="relative py-14 md:py-20">
+    
+    <div class="pointer-events-none absolute inset-0 -z-10 bg-background" aria-hidden="true">
+      <DotGrid
+        client:visible
+        dotSize={3}
+        gap={26}
+        proximity={110}
+        shockRadius={180}
+        shockStrength={3}
+        className="p-0"
+      />
+      <div
+        class="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_30%,var(--color-background))]"
+      >
+      </div>
+    </div>
+
+    
+    <SplitText
+      client:load
+      tag="h1"
+      text={SITE.title}
+      textAlign="left"
+      splitType="chars"
+      delay={40}
+      duration={0.9}
+      from={{ opacity: 0, y: 24 }}
+      to={{ opacity: 1, y: 0 }}
+      className="text-balance text-4xl font-bold tracking-tight md:text-5xl"
+    />
+    
+    <BlurText
+      client:load
+      text={dict.site.tagline}
+      animateBy="words"
+      delay={70}
+      stepDuration={0.3}
+      className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground"
+    />
+    <div class="mt-10">
+      <NewsletterCTA locale={locale} />
+    </div>
+  </section>
+
+  {
+    featured.length > 0 && (
+      <section aria-labelledby="featured-title" class="py-8">
+        <h2 id="featured-title" class="text-xl font-bold tracking-tight">
+          {dict.home.featured}
+        </h2>
+        <AnimatedContent client:visible distance={40} duration={0.6} className="mt-5">
+          <div class="grid gap-4 sm:grid-cols-2">
+            {featured.map((post) => (
+              <SpotlightCard client:visible className="h-full">
+                <PostCard post={post} />
+              </SpotlightCard>
+            ))}
+          </div>
+        </AnimatedContent>
+      </section>
+    )
+  }
+
+  {
+    latest.length > 0 && (
+      <section aria-labelledby="latest-title" class="py-8">
+        <div class="flex items-baseline justify-between gap-4">
+          <h2 id="latest-title" class="text-xl font-bold tracking-tight">
+            {dict.home.latest}
+          </h2>
+          <a
+            href={localeUrl(locale, "blog")}
+            class="inline-flex min-h-11 items-center text-sm font-medium underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+          >
+            <ShinyText
+              client:visible
+              text={dict.home.allPosts}
+              speed={4}
+              color="var(--color-foreground)"
+              shineColor="var(--color-accent)"
+            />
+          </a>
+        </div>
+        <AnimatedContent client:visible distance={40} duration={0.6} delay={0.1} className="mt-5">
+          <div class="grid gap-4 sm:grid-cols-2">
+            {latest.map((post) => (
+              <SpotlightCard client:visible className="h-full">
+                <PostCard post={post} />
+              </SpotlightCard>
+            ))}
+          </div>
+        </AnimatedContent>
+      </section>
+    )
+  }
+</BaseLayout>

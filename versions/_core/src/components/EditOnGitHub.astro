@@ -1,0 +1,48 @@
+---
+import { SITE, hasRepo } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  path: string;
+  locale: Locale;
+}
+
+const { path, locale } = Astro.props;
+const dict = t(locale);
+
+const base = SITE.repo.url.replace(/\/+$/, "");
+const contentBase = SITE.repo.contentBase.replace(/^\/+|\/+$/g, "");
+const repoPath = [path.startsWith("/") ? "" : contentBase, path]
+  .filter(Boolean)
+  .map((part) => part.replace(/^\/+|\/+$/g, ""))
+  .join("/");
+const href = hasRepo ? `${base}/edit/${SITE.repo.branch}/${repoPath}` : "";
+---
+
+{
+  hasRepo && (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer external"
+      class="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-foreground hover:decoration-accent"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+        <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
+      </svg>
+      {dict.post.editOnGithub}
+    </a>
+  )
+}

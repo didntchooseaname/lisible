@@ -1,0 +1,96 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import NewsletterCTA from "@/components/NewsletterCTA.astro";
+import JsonLd from "@/components/JsonLd.astro";
+import { SITE, FEATURES } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+
+const ordered = FEATURES.pinned
+  ? [...posts.filter((p) => p.data.featured), ...posts.filter((p) => !p.data.featured)]
+  : posts;
+const featured = ordered.slice(0, SITE.featuredCount);
+const featuredIds = new Set(featured.map((p) => p.id));
+const latest = posts.filter((p) => !featuredIds.has(p.id)).slice(0, SITE.postsPerPage);
+
+const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
+
+const jsonLd = {
+  "@type": "WebSite",
+  name: SITE.title,
+  description: dict.site.description,
+  url: new URL(localeUrl(locale), SITE.url).toString(),
+  inLanguage: locale,
+  author: { "@type": "Person", name: SITE.author },
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.home.metaTitle}
+  description={dict.site.description}
+  alternates={alternates}
+  isHome
+>
+  <JsonLd slot="head" data={jsonLd} />
+
+  <section class="py-14 md:py-20">
+    <h1 class="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+      {SITE.title}
+    </h1>
+    <p class="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
+      {dict.site.tagline}
+    </p>
+    <div class="mt-10">
+      <NewsletterCTA locale={locale} />
+    </div>
+  </section>
+
+  {
+    featured.length > 0 && (
+      <section aria-labelledby="featured-title" class="py-8">
+        <h2 id="featured-title" class="text-xl font-bold tracking-tight">
+          {dict.home.featured}
+        </h2>
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          {featured.map((post) => (
+            <PostCard post={post} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    latest.length > 0 && (
+      <section aria-labelledby="latest-title" class="py-8">
+        <div class="flex items-baseline justify-between gap-4">
+          <h2 id="latest-title" class="text-xl font-bold tracking-tight">
+            {dict.home.latest}
+          </h2>
+          <a
+            href={localeUrl(locale, "blog")}
+            class="inline-flex min-h-11 items-center text-sm font-medium underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+          >
+            {dict.home.allPosts}
+          </a>
+        </div>
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          {latest.map((post) => (
+            <PostCard post={post} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

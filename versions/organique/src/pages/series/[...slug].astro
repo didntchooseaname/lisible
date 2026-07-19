@@ -1,0 +1,30 @@
+---
+import SeriesIndexPage from "@/components/pages/SeriesIndexPage.astro";
+import SeriesPage from "@/components/pages/SeriesPage.astro";
+import { FEATURES } from "@/site.config";
+import { getAllSeries } from "@/lib/posts";
+
+export async function getStaticPaths() {
+  if (!FEATURES.series) return [];
+  const series = await getAllSeries("fr");
+  return [
+    { params: { slug: undefined }, props: { kind: "index" as const } },
+    ...series.map((s) => ({
+      params: { slug: s.slug },
+      props: { kind: "detail" as const, slug: s.slug },
+    })),
+  ];
+}
+
+const props = Astro.props as
+  | { kind: "index" }
+  | { kind: "detail"; slug: string };
+---
+
+{
+  props.kind === "index" ? (
+    <SeriesIndexPage locale="fr" />
+  ) : (
+    <SeriesPage locale="fr" slug={props.slug} />
+  )
+}

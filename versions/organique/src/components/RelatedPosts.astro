@@ -1,0 +1,43 @@
+---
+import { postLocale, postUrl, type Post } from "@/lib/posts";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  posts: Post[];
+  locale: Locale;
+}
+
+const { posts, locale } = Astro.props;
+const dict = t(locale);
+---
+
+{
+  posts.length > 0 && (
+    <section class="related mt-14 border-t border-border pt-8" aria-labelledby="related-heading">
+      <h2 id="related-heading" class="type-title text-2xl md:text-3xl">
+        {dict.post.related}
+      </h2>
+      <ul class="related-list mt-6">
+        {posts.map((post) => {
+          const minutes = readingTime(post.body ?? "");
+          const pl = postLocale(post);
+          return (
+            <li class="related-item">
+              <a href={postUrl(post)} class="related-link">
+                <span class="related-title">{post.data.title}</span>
+                <span class="related-desc">{post.data.description}</span>
+                <span class="related-meta">
+                  <time datetime={isoDate(post.data.pubDate)}>
+                    {formatDate(post.data.pubDate, pl, "short")}
+                  </time>{" "}
+                  <span aria-hidden="true">&middot;</span> {dict.post.readingTime(minutes)}
+                </span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  )
+}

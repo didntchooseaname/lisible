@@ -1,0 +1,24 @@
+---
+import TagPage from "@/components/pages/TagPage.astro";
+import { FEATURES } from "@/site.config";
+import { getAllTags, getPostsByTag, pageCount } from "@/lib/posts";
+
+export async function getStaticPaths() {
+  if (!FEATURES.pagination.enabled) return [];
+  const tags = await getAllTags("fr");
+  const paths = [];
+  for (const tag of tags) {
+    const posts = await getPostsByTag("fr", tag.slug);
+    const total = pageCount(posts.length, FEATURES.pagination.pageSize);
+    for (let n = 2; n <= total; n++) {
+      paths.push({ params: { tag: tag.slug, page: String(n) }, props: { tagName: tag.name, posts, page: n } });
+    }
+  }
+  return paths;
+}
+
+const { tag } = Astro.params;
+const { tagName, posts, page } = Astro.props;
+---
+
+<TagPage locale="fr" tagSlug={tag} tagName={tagName} posts={posts} page={page} />

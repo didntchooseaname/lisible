@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#000000"/>
+  <rect x="120" y="278" width="72" height="10" rx="5" fill="#22C55E"/>
+  <text x="120" y="380" font-family="Inter, DejaVu Sans, sans-serif" font-size="96" font-weight="700" fill="#FFFFFF">Lisible</text>
+  <text x="120" y="452" font-family="Inter, DejaVu Sans, sans-serif" font-size="34" font-weight="400" fill="#A3A3A3">Notes sur le web, la performance et le design</text>
+  <circle cx="1056" cy="120" r="10" fill="#22C55E"/>
+</svg>

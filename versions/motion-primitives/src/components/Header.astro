@@ -1,0 +1,116 @@
+---
+import ThemeToggle from "@/components/ThemeToggle.astro";
+import { AccentPicker } from "@/components/react/AccentPicker";
+import { NavBar } from "@/components/react/NavBar";
+import { LangSwitch } from "@/components/react/LangSwitch";
+import { ProgressiveBlur } from "@/components/ui/progressive-blur";
+import { FEATURES, SITE } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+  alternates?: Partial<Record<Locale, string>>;
+}
+
+const { locale, alternates } = Astro.props;
+const dict = t(locale);
+const hasSeries = FEATURES.series && (await getPublishedPosts(locale)).some((post) => Boolean(post.data.series));
+
+const currentPath = Astro.url.pathname.endsWith("/")
+  ? Astro.url.pathname
+  : `${Astro.url.pathname}/`;
+
+function isActive(href: string): boolean {
+  return currentPath === href || currentPath.startsWith(href);
+}
+
+const navItems = [
+  { href: localeUrl(locale, "blog"), label: dict.nav.blog, active: isActive(localeUrl(locale, "blog")) },
+  { href: localeUrl(locale, "tags"), label: dict.nav.tags, active: isActive(localeUrl(locale, "tags")) },
+  ...(FEATURES.archives
+    ? [{ href: localeUrl(locale, "archives"), label: dict.nav.archives, active: isActive(localeUrl(locale, "archives")) }]
+    : []),
+  ...(hasSeries
+    ? [{ href: localeUrl(locale, "series"), label: dict.nav.series, active: isActive(localeUrl(locale, "series")) }]
+    : []),
+  { href: localeUrl(locale, "about"), label: dict.nav.about, active: isActive(localeUrl(locale, "about")) },
+];
+
+const langItems = [
+  {
+    code: "fr",
+    label: "FR",
+    ariaLabel: dict.a11y.frenchVersion,
+    href: alternates?.fr ?? localeUrl("fr", "blog"),
+    active: locale === "fr",
+  },
+  {
+    code: "en",
+    label: "EN",
+    ariaLabel: dict.a11y.englishVersion,
+    href: alternates?.en ?? localeUrl("en", "blog"),
+    active: locale === "en",
+  },
+];
+---
+
+<header class="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
+  <div class="mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-0 px-4 py-2 md:px-6">
+    <a
+      href={localeUrl(locale)}
+      class="inline-flex min-h-11 items-center text-lg font-bold tracking-tight hover:text-accent"
+    >
+      {SITE.title}
+    </a>
+
+    <div class="order-last w-full sm:order-none sm:w-auto">
+      <NavBar client:load items={navItems} ariaLabel={dict.nav.main} />
+    </div>
+
+    <div class="flex items-center gap-1.5">
+      <button
+        type="button"
+        data-search-open
+        aria-label={dict.a11y.openSearch}
+        class="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
+      </button>
+      <LangSwitch client:load items={langItems} ariaLabel={dict.a11y.languageSwitcher} />
+      <AccentPicker
+        client:load
+        defaultAccent={SITE.accent}
+        labels={{
+          trigger: dict.accent.picker,
+          title: dict.accent.title,
+          area: dict.accent.area,
+          areaValue: dict.accent.areaValue,
+          hue: dict.accent.hue,
+          hueValue: dict.accent.hueValue,
+          reset: dict.accent.reset,
+        }}
+      />
+      <ThemeToggle locale={locale} />
+    </div>
+  </div>
+
+  
+  <div class="pointer-events-none absolute inset-x-0 top-full h-8" aria-hidden="true">
+    <ProgressiveBlur className="h-full w-full" direction="top" blurIntensity={0.6} blurLayers={5} />
+  </div>
+</header>

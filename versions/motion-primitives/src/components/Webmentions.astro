@@ -1,0 +1,154 @@
+---
+import { FEATURES, WEBMENTIONS } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  url: string;
+  locale: Locale;
+}
+
+const { url, locale } = Astro.props;
+const dict = t(locale).webmentions;
+
+if (FEATURES.webmentions && !WEBMENTIONS.domain) {
+  throw new Error(
+    "FEATURES.webmentions is enabled but WEBMENTIONS.domain is empty in shared/site.config.ts. " +
+      "Set the domain verified by https://webmention.io (for example: \"blog.example.com\") or disable the feature flag.",
+  );
+}
+
+type Mention = {
+  "wm-property"?: string;
+  url?: string;
+  author?: { name?: string; photo?: string; url?: string };
+  content?: { text?: string };
+};
+
+let likes: Mention[] = [];
+let reposts: Mention[] = [];
+let mentions: Mention[] = [];
+
+try {
+  const endpoint = `https://webmention.io/api/mentions.jf2?target=${encodeURIComponent(url)}&per-page=100`;
+  const res = await fetch(endpoint);
+  if (res.ok) {
+    const data = (await res.json()) as { children?: Mention[] };
+    for (const child of data.children ?? []) {
+      const kind = child["wm-property"];
+      if (kind === "like-of") likes.push(child);
+      else if (kind === "repost-of") reposts.push(child);
+      else mentions.push(child);
+    }
+  }
+} catch {
+}
+
+const total = likes.length + reposts.length + mentions.length;
+---
+
+<section aria-labelledby="webmentions-title" class="mt-14 border-t border-border pt-8">
+  <h2 id="webmentions-title" class="text-lg font-bold tracking-tight">{dict.title}</h2>
+
+  {total === 0 && <p class="mt-3 text-sm text-muted-foreground">{dict.empty}</p>}
+
+  {
+    likes.length > 0 && (
+      <div class="mt-4">
+        <h3 class="text-sm font-medium text-muted-foreground">
+          {dict.likes} ({likes.length})
+        </h3>
+        <ul class="mt-2 flex flex-wrap gap-2">
+          {likes.map((like) => (
+            <li>
+              <a href={like.author?.url ?? like.url ?? "#"} rel="nofollow noopener" title={like.author?.name}>
+                {like.author?.photo ? (
+                  <img
+                    src={like.author.photo}
+                    alt={like.author?.name ?? ""}
+                    width="36"
+                    height="36"
+                    loading="lazy"
+                    decoding="async"
+                    class="h-9 w-9 rounded-full border border-border object-cover"
+                  />
+                ) : (
+                  <span class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-secondary text-xs">
+                    {(like.author?.name ?? "?").slice(0, 1)}
+                  </span>
+                )}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  {
+    reposts.length > 0 && (
+      <div class="mt-4">
+        <h3 class="text-sm font-medium text-muted-foreground">
+          {dict.reposts} ({reposts.length})
+        </h3>
+        <ul class="mt-2 flex flex-wrap gap-2">
+          {reposts.map((repost) => (
+            <li>
+              <a href={repost.author?.url ?? repost.url ?? "#"} rel="nofollow noopener" title={repost.author?.name}>
+                {repost.author?.photo ? (
+                  <img
+                    src={repost.author.photo}
+                    alt={repost.author?.name ?? ""}
+                    width="36"
+                    height="36"
+                    loading="lazy"
+                    decoding="async"
+                    class="h-9 w-9 rounded-full border border-border object-cover"
+                  />
+                ) : (
+                  <span class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-secondary text-xs">
+                    {(repost.author?.name ?? "?").slice(0, 1)}
+                  </span>
+                )}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  {
+    mentions.length > 0 && (
+      <div class="mt-4">
+        <h3 class="text-sm font-medium text-muted-foreground">
+          {dict.mentions} ({mentions.length})
+        </h3>
+        <ul class="mt-2 flex flex-col gap-3">
+          {mentions.map((mention) => (
+            <li class="flex gap-3 rounded-lg border border-border p-3">
+              {mention.author?.photo && (
+                <img
+                  src={mention.author.photo}
+                  alt={mention.author?.name ?? ""}
+                  width="36"
+                  height="36"
+                  loading="lazy"
+                  decoding="async"
+                  class="h-9 w-9 shrink-0 rounded-full border border-border object-cover"
+                />
+              )}
+              <div class="min-w-0">
+                <a href={mention.author?.url ?? mention.url ?? "#"} rel="nofollow noopener" class="text-sm font-medium hover:text-accent">
+                  {mention.author?.name ?? mention.url}
+                </a>
+                {mention.content?.text && (
+                  <p class="mt-1 text-sm text-muted-foreground">{mention.content.text}</p>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+</section>

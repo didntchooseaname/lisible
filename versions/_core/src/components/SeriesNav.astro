@@ -1,0 +1,81 @@
+---
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { postUrl } from "@/lib/posts";
+import type { SeriesContext } from "@/lib/series";
+
+interface Props {
+  context: SeriesContext;
+  locale: Locale;
+  position: "top" | "bottom";
+}
+
+const { context, locale, position } = Astro.props;
+const dict = t(locale);
+const seriesHref = localeUrl(locale, `series/${context.slug}`);
+const total = context.posts.length;
+---
+
+{
+  position === "top" ? (
+    <aside class="mt-8 rounded-lg border border-border bg-card p-4">
+      <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <p class="flex items-center gap-2 text-sm font-semibold">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="text-accent">
+            <line x1="8" x2="21" y1="6" y2="6" />
+            <line x1="8" x2="21" y1="12" y2="12" />
+            <line x1="8" x2="21" y1="18" y2="18" />
+            <line x1="3" x2="3.01" y1="6" y2="6" />
+            <line x1="3" x2="3.01" y1="12" y2="12" />
+            <line x1="3" x2="3.01" y1="18" y2="18" />
+          </svg>
+          <a href={seriesHref} class="hover:text-accent">{context.title}</a>
+        </p>
+        <span class="text-xs text-muted-foreground">
+          {dict.series.part(context.index + 1, total)} &middot; {dict.series.cumulative(context.totalMinutes)}
+        </span>
+      </div>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer list-none text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+          {dict.series.listLabel}
+        </summary>
+        <ol class="mt-3 flex flex-col gap-1">
+          {context.posts.map((part, i) => (
+            <li class="flex items-baseline gap-2 text-sm">
+              <span class="w-5 shrink-0 text-right font-mono text-xs text-muted-foreground">{i + 1}.</span>
+              {i === context.index ? (
+                <span class="font-medium text-foreground" aria-current="true">
+                  {part.data.title}
+                  <span class="ml-1.5 text-xs text-muted-foreground">({dict.series.current})</span>
+                </span>
+              ) : (
+                <a href={postUrl(part)} class="text-muted-foreground transition-colors hover:text-accent">
+                  {part.data.title}
+                </a>
+              )}
+            </li>
+          ))}
+        </ol>
+      </details>
+    </aside>
+  ) : (
+    (context.prev || context.next) && (
+      <nav aria-label={dict.series.label} class="mt-10 grid gap-3 border-t border-border pt-6 sm:grid-cols-2">
+        {context.prev ? (
+          <a href={postUrl(context.prev)} class="group flex flex-col gap-1 rounded-lg border border-border p-3 transition-colors hover:border-accent">
+            <span class="text-xs text-muted-foreground">{dict.series.prev}</span>
+            <span class="text-sm font-medium transition-colors group-hover:text-accent">{context.prev.data.title}</span>
+          </a>
+        ) : (
+          <span aria-hidden="true" />
+        )}
+        {context.next && (
+          <a href={postUrl(context.next)} class="group flex flex-col gap-1 rounded-lg border border-border p-3 text-right transition-colors hover:border-accent sm:col-start-2">
+            <span class="text-xs text-muted-foreground">{dict.series.next}</span>
+            <span class="text-sm font-medium transition-colors group-hover:text-accent">{context.next.data.title}</span>
+          </a>
+        )}
+      </nav>
+    )
+  )
+}

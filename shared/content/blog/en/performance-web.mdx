@@ -1,0 +1,44 @@
+---
+title: "A performance budget for a static blog"
+description: "Set a budget, measure it, stick to it: performance as a design constraint."
+pubDate: 2026-06-10
+tags: ["performance", "astro"]
+draft: false
+---
+
+A static blog has no excuse for being slow. Here is a reasonable budget and how to stick to it.
+
+## The budget
+
+| Resource | Budget | Rationale |
+| --- | --- | --- |
+| HTML | < 30 KB | Brotli-compressed content |
+| CSS | < 20 KB | Purged Tailwind |
+| Initial JS | < 50 KB | Islands only |
+| Fonts | < 120 KB | 2 variable fonts, woff2 |
+| LCP | < 1.5 s | On simulated 4G |
+
+## Variable fonts
+
+```css
+@font-face {
+  font-family: "Inter Variable";
+  font-display: swap;
+  src: url("/fonts/inter.woff2") format("woff2-variations");
+}
+```
+
+A single variable font replaces four static weights. With `font-display: swap`, the text stays visible while the font loads.
+
+## Images
+
+```bash
+# Astro optimizes at build time
+bunx astro build
+```
+
+Astro's `<Image>` component generates AVIF/WebP with explicit `width` and `height`: zero layout shift.
+
+## Measure continuously
+
+Lighthouse in CI on every pull request, with a blocking threshold at 95. A budget that is not enforced automatically always ends up blowing past its limits.

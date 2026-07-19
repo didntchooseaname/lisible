@@ -1,0 +1,61 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getAllSeries, seriesUrl } from "@/lib/posts";
+import { readingTime } from "@/lib/utils";
+import { prettifySlug } from "@/lib/series";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const series = (await getAllSeries(locale)).map((s) => ({
+  ...s,
+  cumulative: s.posts.reduce((sum, post) => sum + readingTime(post.body ?? ""), 0),
+}));
+
+const alternates = { fr: localeUrl("fr", "series"), en: localeUrl("en", "series") };
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.series.listTitle}
+  description={dict.series.listDescription}
+  alternates={alternates}
+>
+  <div class="py-12 md:py-16">
+    <h1 class="type-mega rise">{dict.series.listTitle}</h1>
+    <p class="rise rise-2 mt-5 max-w-2xl text-muted-foreground md:ml-[8%]">
+      {dict.series.listDescription}
+    </p>
+
+    <ul class="series-index mt-14">
+      {
+        series.map((s) => (
+          <li class="series-card">
+            <a href={seriesUrl(locale, s.slug)} class="series-card-link">
+              <span class="series-eyebrow">{dict.series.label}</span>
+              <span class="series-card-name">{prettifySlug(s.slug)}</span>
+              <span class="series-card-meta">
+                {dict.series.articlesCount(s.posts.length)}
+                <span aria-hidden="true">&middot;</span>
+                {dict.series.cumulativeTime(s.cumulative)}
+              </span>
+            </a>
+            <ol class="series-card-list">
+              {s.posts.map((post, i) => (
+                <li>
+                  <span class="series-card-order" aria-hidden="true">{i + 1}</span>
+                  <span class="series-card-post">{post.data.title}</span>
+                </li>
+              ))}
+            </ol>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</BaseLayout>

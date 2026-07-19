@@ -1,0 +1,60 @@
+---
+interface Item {
+  title: string;
+  url: string;
+  description: string;
+  dateIso: string;
+  dateLabel: string;
+  readingLabel: string;
+  coverSrc?: string;
+  coverAlt?: string;
+}
+
+interface Props {
+  items: Item[];
+  heading: string;
+}
+
+const { items, heading } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <section class="mt-14 border-t border-border pt-8" aria-labelledby="related-heading">
+      <h2 id="related-heading" class="text-xl font-bold tracking-tight">
+        {heading}
+      </h2>
+      <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item) => (
+          <a
+            href={item.url}
+            class="group flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-accent"
+          >
+            {item.coverSrc && (
+              <div class="cover cover--card" style="aspect-ratio:16 / 9">
+                <img
+                  src={item.coverSrc}
+                  alt={item.coverAlt ?? ""}
+                  loading="lazy"
+                  decoding="async"
+                  class="cover__img"
+                />
+              </div>
+            )}
+            <div class="flex flex-1 flex-col gap-2 p-4">
+              <h3 class="font-semibold leading-snug tracking-tight transition-colors group-hover:text-accent">
+                {item.title}
+              </h3>
+              <p class="line-clamp-2 text-sm text-muted-foreground">{item.description}</p>
+              <p class="mt-auto flex flex-wrap items-center gap-x-2 pt-1 text-xs text-muted-foreground">
+                <time datetime={item.dateIso}>{item.dateLabel}</time>
+                <span aria-hidden="true">&middot;</span>
+                <span>{item.readingLabel}</span>
+              </p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}

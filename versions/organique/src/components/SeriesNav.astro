@@ -1,0 +1,70 @@
+---
+import { postUrl, seriesUrl, type SeriesContext } from "@/lib/posts";
+import { readingTime } from "@/lib/utils";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  context: SeriesContext;
+}
+
+const { locale, context } = Astro.props;
+const dict = t(locale);
+const { slug, posts, index, prev, next } = context;
+const total = posts.length;
+const order = index + 1;
+const cumulative = posts.reduce((sum, post) => sum + readingTime(post.body ?? ""), 0);
+const seriesHref = seriesUrl(locale, slug);
+---
+
+<section class="series-nav" aria-label={dict.series.label}>
+  <div class="series-head">
+    <div class="series-head-text">
+      <span class="series-eyebrow">{dict.series.label}</span>
+      <a href={seriesHref} class="series-name">{slug}</a>
+    </div>
+    <span class="series-progress">{dict.series.partOf(order, total)}</span>
+  </div>
+
+  <details class="series-list-wrap">
+    <summary class="series-summary">
+      <span>{dict.series.inThisSeries}</span>
+      <span class="series-cumulative">{dict.series.cumulativeTime(cumulative)}</span>
+    </summary>
+    <ol class="series-list">
+      {
+        posts.map((post, i) => (
+          <li class:list={["series-list-item", i === index && "is-current"]}>
+            <span class="series-list-order" aria-hidden="true">{i + 1}</span>
+            {i === index ? (
+              <span class="series-list-current" aria-current="true">{post.data.title}</span>
+            ) : (
+              <a href={postUrl(post)} class="series-list-link">{post.data.title}</a>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+  </details>
+
+  {
+    (prev || next) && (
+      <div class="series-steps">
+        {prev ? (
+          <a href={postUrl(prev)} class="series-step">
+            <span class="series-step-label">{dict.series.prev}</span>
+            <span class="series-step-title">{prev.data.title}</span>
+          </a>
+        ) : (
+          <span aria-hidden="true" />
+        )}
+        {next && (
+          <a href={postUrl(next)} class="series-step series-step-next">
+            <span class="series-step-label">{dict.series.next}</span>
+            <span class="series-step-title">{next.data.title}</span>
+          </a>
+        )}
+      </div>
+    )
+  }
+</section>

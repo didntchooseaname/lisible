@@ -1,0 +1,62 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import TagBadge from "@/components/TagBadge.astro";
+import TagOrbit from "@/components/cyber/TagOrbit";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getAllTags } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const tags = await getAllTags(locale);
+
+const orbitTags = tags.map((tag) => ({
+  name: tag.name,
+  count: tag.count,
+  url: localeUrl(locale, `tags/${tag.slug}`),
+}));
+
+const alternates = { fr: localeUrl("fr", "tags"), en: localeUrl("en", "tags") };
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.tags.title}
+  description={dict.tags.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <p class="section-label" aria-hidden="true">{dict.cyber.tags.orbitLabel}</p>
+    <h1 class="font-display mt-3 text-4xl font-black uppercase tracking-[0.06em] md:text-5xl">
+      {dict.tags.title}
+    </h1>
+    <p class="mt-3 max-w-2xl text-muted-foreground">{dict.tags.description}</p>
+
+    
+    <div class="mt-8" aria-hidden="true">
+      <TagOrbit client:load tags={orbitTags} hubLabel={dict.tags.title.toUpperCase()} />
+    </div>
+
+    
+    <BlurFade client:visible inView>
+      <ul class="mt-8 flex flex-wrap gap-3" aria-label={dict.tags.all}>
+        {
+          tags.map((tag) => (
+            <li>
+              <TagBadge
+                tag={tag.name}
+                locale={locale}
+                count={tag.count}
+                class="px-3.5 py-2.5 text-sm"
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </BlurFade>
+  </div>
+</BaseLayout>

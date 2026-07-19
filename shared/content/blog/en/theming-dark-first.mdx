@@ -1,0 +1,41 @@
+---
+title: "Designing a dark-first theme"
+description: "Why start from dark, how to structure your tokens and avoid contrast pitfalls."
+pubDate: 2026-07-08
+tags: ["design", "css", "accessibility"]
+draft: false
+---
+
+Designing dark first flips the usual process: dark mode is the baseline, light mode is the variant.
+
+## Semantic tokens, not raw colors
+
+```css
+.dark {
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.984 0.003 248);
+  --accent: oklch(0.723 0.219 149.6);
+}
+```
+
+A component never references a hex value: it consumes `--background`, `--accent`, `--muted-foreground`. The entire theme switches by toggling one class on `<html>`.
+
+## The inverted contrast trap
+
+A gray that reads fine on white becomes illegible on a black background. Both modes must be tested separately, aiming for 4.5:1 on body text.
+
+## The no-flash script
+
+```html
+<script>
+  const stored = localStorage.getItem("theme");
+  const theme = stored ?? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  document.documentElement.classList.toggle("dark", theme === "dark");
+</script>
+```
+
+Placed before the first paint, it eliminates the flash of incorrect theme on load.
+
+## Desaturate, don't invert
+
+In dark mode, saturated colors vibrate. The right move is to raise the lightness and lower the chroma: a `green-600` in light becomes a `green-500` in dark, never the other way around.

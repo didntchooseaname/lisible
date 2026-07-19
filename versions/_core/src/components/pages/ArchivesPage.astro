@@ -1,0 +1,75 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, groupByYearMonth, postUrl } from "@/lib/posts";
+import { formatMonth, isoDate } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const posts = await getPublishedPosts(locale);
+const years = groupByYearMonth(posts);
+
+const alternates = {
+  fr: localeUrl("fr", "archives"),
+  en: localeUrl("en", "archives"),
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.archives.title}
+  description={dict.archives.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{dict.archives.title}</h1>
+    <p class="mt-3 max-w-2xl text-muted-foreground">{dict.archives.description}</p>
+    <p class="mt-2 text-sm text-muted-foreground">{dict.archives.count(posts.length)}</p>
+
+    <div class="mt-10 flex max-w-3xl flex-col gap-10">
+      {
+        years.map(([year, months]) => (
+          <section aria-labelledby={`archive-${year}`}>
+            <h2
+              id={`archive-${year}`}
+              class="border-b border-border pb-2 text-lg font-bold tracking-tight"
+            >
+              {year}
+            </h2>
+            <div class="mt-4 flex flex-col gap-6">
+              {months.map((group) => (
+                <div class="grid gap-2 sm:grid-cols-[8rem_minmax(0,1fr)]">
+                  <p class="text-sm font-medium capitalize text-muted-foreground">
+                    {formatMonth(group.month, locale)}
+                  </p>
+                  <ul class="flex flex-col gap-2">
+                    {group.posts.map((post) => (
+                      <li class="flex items-baseline gap-3">
+                        <time
+                          datetime={isoDate(post.data.pubDate)}
+                          class="w-8 shrink-0 font-mono text-xs text-muted-foreground"
+                        >
+                          {String(post.data.pubDate.getDate()).padStart(2, "0")}
+                        </time>
+                        <a
+                          href={postUrl(post)}
+                          class="text-pretty underline decoration-transparent underline-offset-4 transition-colors hover:decoration-accent hover:text-accent"
+                        >
+                          {post.data.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

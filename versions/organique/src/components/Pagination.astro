@@ -1,0 +1,54 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  current: number;
+  total: number;
+  prevUrl?: string;
+  nextUrl?: string;
+}
+
+const { locale, current, total, prevUrl, nextUrl } = Astro.props;
+const dict = t(locale);
+---
+
+{
+  total > 1 && (
+    <nav class="pagination" aria-label={dict.pagination.label}>
+      {prevUrl ? (
+        <a rel="prev" href={prevUrl} class="pagination-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+          <span>{dict.pagination.prev}</span>
+        </a>
+      ) : (
+        <span class="pagination-link is-disabled" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+          <span>{dict.pagination.prev}</span>
+        </span>
+      )}
+
+      <span class="pagination-status">{dict.pagination.pageOf(current, total)}</span>
+
+      {nextUrl ? (
+        <a rel="next" href={nextUrl} class="pagination-link">
+          <span>{dict.pagination.next}</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </a>
+      ) : (
+        <span class="pagination-link is-disabled" aria-hidden="true">
+          <span>{dict.pagination.next}</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </span>
+      )}
+    </nav>
+  )
+}

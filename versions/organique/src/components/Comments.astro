@@ -1,0 +1,114 @@
+---
+import { COMMENTS } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const provider = COMMENTS.provider;
+const giscus = COMMENTS.giscus;
+const bluesky = COMMENTS.bluesky;
+
+const blueskyHref = bluesky.postUri;
+---
+
+<section class="comments mt-14 border-t border-border pt-8" aria-labelledby="comments-heading">
+  <h2 id="comments-heading" class="type-title text-2xl md:text-3xl">{dict.comments.title}</h2>
+
+  {
+    provider === "giscus" ? (
+      <div
+        class="mt-6"
+        data-giscus
+        data-repo={giscus.repo}
+        data-repo-id={giscus.repoId}
+        data-category={giscus.category}
+        data-category-id={giscus.categoryId}
+        data-lang={locale}
+      />
+    ) : (
+      <div class="mt-6">
+        <p class="text-sm text-muted-foreground">{dict.comments.blueskyVia}</p>
+        {blueskyHref && (
+          <a
+            href={blueskyHref}
+            target="_blank"
+            rel="noopener noreferrer external"
+            class="mt-3 inline-flex items-center gap-2 text-sm font-medium text-foreground underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+          >
+            {dict.comments.blueskyOpen}
+          </a>
+        )}
+      </div>
+    )
+  }
+</section>
+
+{
+  provider === "giscus" && (
+    <script>
+      {`
+      function giscusTheme() {
+        return document.documentElement.classList.contains("dark") ? "dark" : "light";
+      }
+
+      function mountGiscus(container) {
+        if (container.dataset.mounted) return;
+        container.dataset.mounted = "1";
+        const s = document.createElement("script");
+        s.src = "https://giscus.app/client.js";
+        s.setAttribute("data-repo", container.dataset.repo || "");
+        s.setAttribute("data-repo-id", container.dataset.repoId || "");
+        s.setAttribute("data-category", container.dataset.category || "");
+        s.setAttribute("data-category-id", container.dataset.categoryId || "");
+        s.setAttribute("data-mapping", "pathname");
+        s.setAttribute("data-strict", "1");
+        s.setAttribute("data-reactions-enabled", "1");
+        s.setAttribute("data-emit-metadata", "0");
+        s.setAttribute("data-input-position", "top");
+        s.setAttribute("data-theme", giscusTheme());
+        s.setAttribute("data-lang", container.dataset.lang || "fr");
+        s.setAttribute("data-loading", "lazy");
+        s.crossOrigin = "anonymous";
+        s.async = true;
+        container.appendChild(s);
+      }
+
+      function syncGiscusTheme() {
+        const frame = document.querySelector("iframe.giscus-frame");
+        if (!frame || !frame.contentWindow) return;
+        frame.contentWindow.postMessage(
+          { giscus: { setConfig: { theme: giscusTheme() } } },
+          "https://giscus.app",
+        );
+      }
+
+      function initGiscus() {
+        const container = document.querySelector("[data-giscus]");
+        if (!container) return;
+        if ("IntersectionObserver" in window) {
+          const io = new IntersectionObserver((entries, obs) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                mountGiscus(container);
+                obs.disconnect();
+              }
+            }
+          }, { rootMargin: "200px" });
+          io.observe(container);
+        } else {
+          mountGiscus(container);
+        }
+      }
+
+      const themeWatcher = new MutationObserver(syncGiscusTheme);
+      themeWatcher.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+      document.addEventListener("astro:page-load", initGiscus);
+      `}
+    </script>
+  )
+}

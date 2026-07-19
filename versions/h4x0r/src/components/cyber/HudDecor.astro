@@ -1,0 +1,82 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const path = Astro.url.pathname;
+---
+
+<div aria-hidden="true">
+  <div class="cyber-vignette"></div>
+  <div class="cyber-scanlines"></div>
+  <i class="hud-bracket hud-bracket-tl"></i>
+  <i class="hud-bracket hud-bracket-tr"></i>
+  <i class="hud-bracket hud-bracket-bl"></i>
+  <i class="hud-bracket hud-bracket-br"></i>
+
+  <div class="cyber-statusbar" data-hud-statusbar>
+    <span class="flex items-center gap-2 overflow-hidden">
+      <span class="status-dot"></span>
+      <span class="status-accent">{dict.cyber.hud.online}</span>
+      <span>{dict.cyber.hud.sys}</span>
+      <span class="hidden truncate lg:inline">{`~${path === "/" ? "/home" : path.replace(/\/$/, "")}`}</span>
+    </span>
+    <span class="flex items-center gap-4">
+      <span>{dict.cyber.hud.mode}</span>
+      <span>{dict.cyber.hud.signal}</span>
+      <span>{dict.cyber.hud.pos} <span data-hud-pos>0000:0000</span></span>
+      <span>{dict.cyber.hud.scroll} <span data-hud-scroll>000%</span></span>
+      <span data-hud-clock>00:00:00</span>
+    </span>
+  </div>
+</div>
+
+<script>
+  let hudTicking = false;
+
+  function pad(value: number, size: number): string {
+    return Math.max(0, Math.round(value)).toString().padStart(size, "0");
+  }
+
+  function updateScroll() {
+    const el = document.querySelector("[data-hud-scroll]");
+    if (!el) return;
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - doc.clientHeight;
+    const pct = max > 0 ? Math.min(100, (doc.scrollTop / max) * 100) : 0;
+    el.textContent = `${pad(pct, 3)}%`;
+  }
+
+  function updateClock() {
+    const el = document.querySelector("[data-hud-clock]");
+    if (!el) return;
+    const now = new Date();
+    el.textContent = `${pad(now.getHours(), 2)}:${pad(now.getMinutes(), 2)}:${pad(now.getSeconds(), 2)}`;
+  }
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (hudTicking) return;
+      hudTicking = true;
+      requestAnimationFrame(() => {
+        hudTicking = false;
+        const el = document.querySelector("[data-hud-pos]");
+        if (el) el.textContent = `${pad(event.clientX, 4)}:${pad(event.clientY, 4)}`;
+      });
+    },
+    { passive: true },
+  );
+
+  document.addEventListener("scroll", updateScroll, { passive: true });
+  document.addEventListener("astro:page-load", () => {
+    updateScroll();
+    updateClock();
+  });
+  updateClock();
+  setInterval(updateClock, 1000);
+</script>

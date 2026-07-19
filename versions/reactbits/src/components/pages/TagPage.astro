@@ -1,0 +1,102 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Pagination from "@/components/Pagination.astro";
+import Masonry from "@/components/ui/Masonry";
+import type { MasonryItem } from "@/components/ui/Masonry";
+import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+import { getAllTags, paginate, postUrl, type Post } from "@/lib/posts";
+import { formatDate, readingTime } from "@/lib/utils";
+import { SITE, FEATURES } from "@/site.config";
+
+interface Props {
+  locale: Locale;
+  tagSlug: string;
+  tagName: string;
+  posts: Post[];
+  page?: number;
+}
+
+const { locale, tagSlug, tagName, posts, page = 1 } = Astro.props;
+const dict = t(locale);
+
+const baseUrl = localeUrl(locale, `tags/${tagSlug}`);
+const pageSize = FEATURES.pagination.enabled
+  ? FEATURES.pagination.pageSize
+  : Math.max(1, posts.length);
+const paged = paginate(posts, page, pageSize, baseUrl);
+
+const other = otherLocale(locale);
+const otherTags = await getAllTags(other);
+const pagePath = (loc: Locale, n: number) =>
+  n <= 1 ? localeUrl(loc, `tags/${tagSlug}`) : `${localeUrl(loc, `tags/${tagSlug}`)}${n}/`;
+const alternates: Partial<Record<Locale, string>> = {
+  [locale]: pagePath(locale, paged.current),
+};
+if (otherTags.some((tag) => tag.slug === tagSlug)) {
+  alternates[other] = pagePath(other, paged.current);
+}
+
+const pageSuffix =
+  paged.total > 1 && paged.current > 1
+    ? ` · ${dict.pagination.page(paged.current, paged.total)}`
+    : "";
+
+const items: MasonryItem[] = paged.items.map((post) => {
+  const minutes = readingTime(post.body ?? "");
+  const descriptionLines = Math.ceil(post.data.description.length / 46);
+  return {
+    id: post.id,
+    url: postUrl(post),
+    title: post.data.title,
+    description: post.data.description,
+    meta: `${formatDate(post.data.pubDate, locale)} · ${dict.post.readingTime(minutes)}`,
+    height: 150 + descriptionLines * 22,
+  };
+});
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${dict.tags.taggedWith(tagName)}${pageSuffix}`}
+  description={`${dict.tags.tagDescription(tagName)}${pageSuffix}`}
+  alternates={alternates}
+>
+  <Fragment slot="head">
+    {paged.prevUrl && (
+      <link rel="prev" href={new URL(paged.prevUrl, SITE.url).toString()} />
+    )}
+    {paged.nextUrl && (
+      <link rel="next" href={new URL(paged.nextUrl, SITE.url).toString()} />
+    )}
+  </Fragment>
+
+  <div class="py-10 md:py-14">
+    <p class="text-sm font-medium text-muted-foreground">
+      <a
+        href={localeUrl(locale, "tags")}
+        class="underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        {dict.tags.title}
+      </a>
+    </p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+      {dict.tags.taggedWith(tagName)}
+    </h1>
+    <p class="mt-3 text-muted-foreground">{dict.tags.postsCount(posts.length)}</p>
+
+    
+    <div class="mt-8">
+      <Masonry client:visible items={items} />
+    </div>
+
+    <Pagination
+      locale={locale}
+      current={paged.current}
+      total={paged.total}
+      prevUrl={paged.prevUrl}
+      nextUrl={paged.nextUrl}
+      baseUrl={baseUrl}
+      class="mt-10"
+    />
+  </div>
+</BaseLayout>

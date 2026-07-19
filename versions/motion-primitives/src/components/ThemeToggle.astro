@@ -1,0 +1,128 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  transition:persist="theme-toggle"
+  aria-label={dict.a11y.toggleTheme}
+  class="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+>
+  
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    class="hidden dark:block"
+  >
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="M12 2v2"></path>
+    <path d="M12 20v2"></path>
+    <path d="m4.93 4.93 1.41 1.41"></path>
+    <path d="m17.66 17.66 1.41 1.41"></path>
+    <path d="M2 12h2"></path>
+    <path d="M20 12h2"></path>
+    <path d="m6.34 17.66-1.41 1.41"></path>
+    <path d="m19.07 4.93-1.41 1.41"></path>
+  </svg>
+  
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    class="block dark:hidden"
+  >
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+  </svg>
+</button>
+
+<script>
+  type ThemeViewTransition = {
+    finished: Promise<void>;
+    ready: Promise<void>;
+  };
+
+  const applyThemeToggle = () => {
+    const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
+    document.documentElement.classList.toggle("dark", next === "dark");
+    localStorage.setItem("theme", next);
+    (window as typeof window & { __applyAccent?: () => void }).__applyAccent?.();
+  };
+
+  const startToggle = (button: HTMLElement) => {
+    const startViewTransition = (
+      document as Document & {
+        startViewTransition?: (callback: () => void) => ThemeViewTransition;
+      }
+    ).startViewTransition;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (typeof startViewTransition !== "function" || reduceMotion) {
+      applyThemeToggle();
+      return;
+    }
+
+    const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+    const { top, left, width, height } = button.getBoundingClientRect();
+    const x = left + width / 2;
+    const y = top + height / 2;
+    const maxRadius = Math.hypot(Math.max(x, viewportWidth - x), Math.max(y, viewportHeight - y));
+    const clipPath = [
+      `circle(0px at ${x}px ${y}px)`,
+      `circle(${maxRadius}px at ${x}px ${y}px)`,
+    ];
+    const duration = 500;
+
+    const root = document.documentElement;
+    root.dataset.themeVt = "active";
+    root.style.setProperty("--theme-vt-clip-from", clipPath[0]);
+    const cleanup = () => {
+      delete root.dataset.themeVt;
+      root.style.removeProperty("--theme-vt-clip-from");
+    };
+
+    const transition = startViewTransition.call(document, applyThemeToggle);
+    transition.finished.finally(cleanup);
+    transition.ready.then(() => {
+      root.animate(
+        { clipPath },
+        {
+          duration,
+          easing: "ease-in-out",
+          fill: "forwards",
+          pseudoElement: "::view-transition-new(root)",
+        },
+      );
+    });
+  };
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    const button = target?.closest<HTMLElement>("[data-theme-toggle]");
+    if (!button) return;
+    startToggle(button);
+  });
+</script>

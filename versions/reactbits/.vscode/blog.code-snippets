@@ -1,0 +1,125 @@
+{
+  "// Note": "Snippets d'ecriture pour les articles Lisible (.md / .mdx). Tapez le prefixe puis Tab.",
+  "Frontmatter d'article": {
+    "scope": "markdown,mdx",
+    "prefix": "post",
+    "body": [
+      "---",
+      "title: \"${1:Titre de l'article}\"",
+      "description: \"${2:Une ou deux phrases (160 caracteres max).}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "draft: ${4|true,false|}",
+      "tags: [${5}]",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Frontmatter minimal valide d'un article"
+  },
+  "Frontmatter complet": {
+    "scope": "markdown,mdx",
+    "prefix": "post-full",
+    "body": [
+      "---",
+      "title: \"${1:Titre de l'article}\"",
+      "description: \"${2:Une ou deux phrases (160 caracteres max).}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "updatedDate: ${4:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "tags: [${5}]",
+      "draft: ${6|true,false|}",
+      "featured: ${7|false,true|}",
+      "cover: ${8:/images/ma-cover.svg}",
+      "coverAlt: \"${9:Description de la cover}\"",
+      "series: ${10:mon-serie}",
+      "seriesOrder: ${11:1}",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Frontmatter avec tous les champs optionnels (cover, serie, epinglage)"
+  },
+  "Callout": {
+    "scope": "markdown,mdx",
+    "prefix": "callout",
+    "body": [":::${1|note,tip,warning,caution,important|}[${2:Titre optionnel}]", "$0", ":::"],
+    "description": "Bloc callout / admonition"
+  },
+  "Callout repliable": {
+    "scope": "markdown,mdx",
+    "prefix": "callout-collapse",
+    "body": [":::${1|note,tip,warning,caution,important|}[${2:Titre}]{collapse}", "$0", ":::"],
+    "description": "Callout repliable"
+  },
+  "Carte de depot GitHub": {
+    "scope": "markdown,mdx",
+    "prefix": "github",
+    "body": ["::github{repo=\"${1:owner/repo}\"}"],
+    "description": "Carte de depot GitHub"
+  },
+  "Bloc Mermaid": {
+    "scope": "markdown,mdx",
+    "prefix": "mermaid",
+    "body": ["```mermaid", "${1:flowchart TD}", "  ${2:A[Debut] --> B[Fin]}", "```"],
+    "description": "Diagramme Mermaid"
+  },
+  "Formule mathematique (bloc)": {
+    "scope": "markdown,mdx",
+    "prefix": "math",
+    "body": ["$$", "${1:E = mc^2}", "$$"],
+    "description": "Bloc KaTeX"
+  },
+  "Import composants MDX": {
+    "scope": "mdx",
+    "prefix": "mdx-imports",
+    "body": [
+      "import { Tabs, Tab } from \"@/components/ui/tabs\";",
+      "import { Steps, Step } from \"@/components/ui/steps\";",
+      "import Spoiler from \"@/components/Spoiler.astro\";"
+    ],
+    "description": "Imports des composants MDX (a placer sous le frontmatter)"
+  },
+  "Composant Tabs (MDX)": {
+    "scope": "mdx",
+    "prefix": "tabs",
+    "body": [
+      "<Tabs tabs={[\"${1:bun}\", \"${2:npm}\"]} client:load>",
+      "<Tab>",
+      "",
+      "$3",
+      "",
+      "</Tab>",
+      "<Tab>",
+      "",
+      "$4",
+      "",
+      "</Tab>",
+      "</Tabs>"
+    ],
+    "description": "Composant MDX Tabs (un <Tab> par onglet, dans l'ordre)"
+  },
+  "Composant Steps (MDX)": {
+    "scope": "mdx",
+    "prefix": "steps",
+    "body": [
+      "<Steps>",
+      "<Step title=\"${1:Premiere etape}\">",
+      "",
+      "$2",
+      "",
+      "</Step>",
+      "<Step title=\"${3:Deuxieme etape}\">",
+      "",
+      "$4",
+      "",
+      "</Step>",
+      "</Steps>"
+    ],
+    "description": "Composant MDX Steps (numerotation geree par le composant)"
+  },
+  "Composant Spoiler (MDX)": {
+    "scope": "mdx",
+    "prefix": "spoiler",
+    "body": ["<Spoiler>${1:Contenu masque jusqu'au clic.}</Spoiler>"],
+    "description": "Composant MDX Spoiler"
+  }
+}

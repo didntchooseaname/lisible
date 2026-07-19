@@ -1,0 +1,375 @@
+---
+import { render } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import TOC from "@/components/TOC.astro";
+import TagBadge from "@/components/TagBadge.astro";
+import JsonLd from "@/components/JsonLd.astro";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { BorderBeam } from "@/components/ui/border-beam";
+import { RippleButton } from "@/components/ui/ripple-button";
+import Cover from "@/components/reading/Cover.astro";
+import RelatedPosts from "@/components/reading/RelatedPosts.astro";
+import SeriesNav from "@/components/reading/SeriesNav.astro";
+import ShareRow from "@/components/reading/ShareRow.astro";
+import AiMenu from "@/components/reading/AiMenu.astro";
+import Webmentions from "@/components/reading/Webmentions.astro";
+import Comments from "@/components/reading/Comments.astro";
+import DiscussionPlaceholders from "@shared/components/DiscussionPlaceholders.astro";
+import EditOnGithub from "@/components/reading/EditOnGithub.astro";
+import Lightbox from "@/components/reading/Lightbox.astro";
+import MermaidRuntime from "@/components/reading/MermaidRuntime.astro";
+import DrawioRuntime from "@/components/reading/DrawioRuntime.astro";
+import HeadingAnchorsRuntime from "@/components/reading/HeadingAnchorsRuntime.astro";
+import { FEATURES, SITE } from "@/site.config";
+import { ensureTrailingSlash, otherLocale, t, type Locale } from "@/i18n/ui";
+import {
+  getAdjacentPosts,
+  getTranslation,
+  hasDrawio,
+  hasMath,
+  hasMermaid,
+  postLocale,
+  postSlug,
+  postUrl,
+  type Post,
+} from "@/lib/posts";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+import katexCssUrl from "katex/dist/katex.min.css?url";
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const locale = postLocale(post);
+const dict = t(locale);
+const { Content, headings } = await render(post);
+const { older, newer } = await getAdjacentPosts(post);
+const translation = await getTranslation(post);
+const minutes = readingTime(post.body ?? "");
+
+const withMath = FEATURES.math && hasMath(post);
+const withMermaid = FEATURES.mermaid && hasMermaid(post);
+const withDrawio = FEATURES.drawio && hasDrawio(post);
+const cover = FEATURES.covers ? post.data.cover : undefined;
+const showCoverUp = Boolean(cover) && SITE.coverPosition === "up";
+const showCoverDown = Boolean(cover) && SITE.coverPosition === "down";
+const editExtension = post.filePath?.endsWith(".mdx") ? "mdx" : "md";
+const editPath = `/shared/content/blog/${post.id}.${editExtension}`;
+
+const currentPath = ensureTrailingSlash(Astro.url.pathname);
+const catLine = `cat blog/${locale}/${postSlug(post)}.md`;
+const alternates: Partial<Record<Locale, string>> = { [locale]: currentPath };
+if (translation) {
+  alternates[otherLocale(locale)] = postUrl(translation);
+}
+
+const ogImagePath = FEATURES.ogPerPost
+  ? `/og/blog/${locale}/${postSlug(post)}.png`
+  : undefined;
+const markdownPath = `${locale === "fr" ? "" : "/en"}/blog/${postSlug(post)}.md`;
+
+const jsonLd = {
+  "@type": "BlogPosting",
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: isoDate(post.data.pubDate),
+  dateModified: isoDate(post.data.updatedDate ?? post.data.pubDate),
+  author: { "@type": "Person", name: SITE.author },
+  inLanguage: locale,
+  image: new URL(ogImagePath ?? "/og-default.png", SITE.url).toString(),
+  mainEntityOfPage: new URL(currentPath, SITE.url).toString(),
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={post.data.title}
+  description={post.data.description}
+  ogType="article"
+  alternates={alternates}
+  scene="calm"
+  ogImagePath={ogImagePath}
+>
+  <Fragment slot="head">
+    <JsonLd data={jsonLd} />
+    {withMath && <link rel="stylesheet" href={katexCssUrl} />}
+  </Fragment>
+
+  
+  <div
+    data-progress-bar
+    aria-hidden="true"
+    class="fixed inset-x-0 top-0 z-50 h-0.5 origin-left scale-x-0 bg-accent shadow-[var(--glow-sm)]"
+  >
+  </div>
+
+  <div class="py-10 md:py-14 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-12">
+    <article
+      data-pagefind-body
+      class="prose-shield hud-corners min-w-0 max-w-[76ch] border border-border/60 p-5 sm:p-8 md:p-10"
+    >
+      {
+        showCoverUp && (
+          <figure class="post-cover hud-corners" data-post-cover>
+            <Cover
+              cover={cover}
+              alt={post.data.coverAlt ?? ""}
+              loading="eager"
+              width={1400}
+              sizes="(min-width: 1024px) 76ch, 100vw"
+              class="post-cover-img"
+            />
+          </figure>
+        )
+      }
+
+      <BlurFade client:load inView={false} duration={0.5}>
+        <header>
+          <p class="terminal-line" aria-hidden="true" data-pagefind-ignore>
+            <span class="prompt-user">operator@lisible</span>:~$ {catLine}
+          </p>
+          <h1 class="font-display mt-5 text-balance text-3xl font-bold tracking-tight md:text-4xl">
+            {post.data.title}
+          </h1>
+          <p class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+            <span>
+              {dict.post.publishedOn}{" "}
+              <time datetime={isoDate(post.data.pubDate)}>
+                {formatDate(post.data.pubDate, locale)}
+              </time>
+            </span>
+            <span aria-hidden="true" class="text-accent">::</span>
+            <span>{dict.post.readingTime(minutes)}</span>
+            {
+              post.data.draft && (
+                <>
+                  <span aria-hidden="true" class="text-accent">::</span>
+                  <span class="inline-flex items-center border border-border px-1.5 py-0.5 text-xs font-medium">
+                    {dict.post.draft}
+                  </span>
+                </>
+              )
+            }
+          </p>
+          {
+            post.data.updatedDate && (
+              <p class="mt-1 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                {dict.post.updatedOn}{" "}
+                <time datetime={isoDate(post.data.updatedDate)}>
+                  {formatDate(post.data.updatedDate, locale)}
+                </time>
+              </p>
+            )
+          }
+          {
+            post.data.tags.length > 0 && (
+              <ul class="mt-4 flex flex-wrap gap-2" aria-label={dict.post.tags}>
+                {post.data.tags.map((tag) => (
+                  <li>
+                    <TagBadge tag={tag} locale={locale} />
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+        </header>
+      </BlurFade>
+
+      {FEATURES.series && <SeriesNav post={post} />}
+
+      {
+        showCoverDown && (
+          <figure class="post-cover hud-corners" data-post-cover>
+            <Cover
+              cover={cover}
+              alt={post.data.coverAlt ?? ""}
+              loading="eager"
+              width={1400}
+              sizes="(min-width: 1024px) 76ch, 100vw"
+              class="post-cover-img"
+            />
+          </figure>
+        )
+      }
+
+      <div class="prose mt-10">
+        <Content />
+      </div>
+
+      <p class="terminal-line mt-12 border-t border-border/70 pt-4" aria-hidden="true" data-pagefind-ignore>
+        <span class="prompt-user">&gt;</span> {dict.cyber.post.eof}<span class="terminal-caret"></span>
+      </p>
+
+      {
+        (FEATURES.socialShare || FEATURES.aiButtons) && (
+          <div
+            class="mt-8 flex flex-wrap items-start justify-between gap-x-6 gap-y-5"
+            data-pagefind-ignore
+          >
+            {FEATURES.socialShare && <ShareRow locale={locale} title={post.data.title} />}
+            {FEATURES.aiButtons && <AiMenu locale={locale} markdownPath={markdownPath} />}
+          </div>
+        )
+      }
+
+      {FEATURES.relatedPosts && <RelatedPosts post={post} />}
+
+      {FEATURES.webmentions && <Webmentions locale={locale} path={currentPath} />}
+
+      {FEATURES.comments && <Comments locale={locale} />}
+      {FEATURES.demoPlaceholders && <DiscussionPlaceholders locale={locale} />}
+
+      {
+        SITE.repo.url && (
+          <p class="mt-10" data-pagefind-ignore>
+            <EditOnGithub locale={locale} filePath={editPath} />
+          </p>
+        )
+      }
+
+      {
+        (older || newer) && (
+          <nav
+            aria-label={dict.post.pagination}
+            class="mt-10 grid gap-4 sm:grid-cols-2"
+          >
+            {older ? (
+              <a
+                href={postUrl(older)}
+                class="hud-corners group flex flex-col gap-1 border border-border bg-background/60 p-4 transition-colors hover:border-accent/70"
+              >
+                <span class="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                  &lt;- {dict.post.prev}
+                </span>
+                <span class="font-medium transition-colors group-hover:text-accent">
+                  {older.data.title}
+                </span>
+              </a>
+            ) : (
+              <span aria-hidden="true" />
+            )}
+            {newer && (
+              <a
+                href={postUrl(newer)}
+                class="hud-corners group flex flex-col gap-1 border border-border bg-background/60 p-4 text-right transition-colors hover:border-accent/70 sm:col-start-2"
+              >
+                <span class="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                  {dict.post.next} -&gt;
+                </span>
+                <span class="font-medium transition-colors group-hover:text-accent">
+                  {newer.data.title}
+                </span>
+              </a>
+            )}
+          </nav>
+        )
+      }
+    </article>
+
+    <aside class="hidden lg:block">
+      <div class="sticky top-28">
+        <div class="hud-frame">
+          <div class="hud-frame-inner relative p-4">
+            <TOC headings={headings} locale={locale} />
+            <BorderBeam
+              client:idle
+              size={60}
+              duration={10}
+              colorFrom="var(--neon-45)"
+              colorTo="var(--neon-12)"
+              className="opacity-60"
+            />
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  
+  <RippleButton
+    client:load
+    data-back-to-top
+    aria-label={dict.a11y.backToTop}
+    rippleColor="var(--neon-45)"
+    className="fixed bottom-12 right-6 z-40 inline-flex h-11 w-11 items-center justify-center rounded-none border border-border bg-card/85 p-0 text-muted-foreground shadow-sm backdrop-blur-sm transition-colors hover:border-accent/70 hover:text-accent"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m18 15-6-6-6 6"></path>
+    </svg>
+  </RippleButton>
+
+  {FEATURES.imageZoom && <Lightbox locale={locale} />}
+  {FEATURES.headingAnchors && <HeadingAnchorsRuntime />}
+  {withMermaid && <MermaidRuntime />}
+  {withDrawio && <DrawioRuntime />}
+
+  <script>
+    import "@/scripts/github-card";
+  </script>
+
+  <script>
+    let ticking = false;
+
+    function update() {
+      const doc = document.documentElement;
+
+      const bar = document.querySelector<HTMLElement>("[data-progress-bar]");
+      if (bar) {
+        const max = doc.scrollHeight - doc.clientHeight;
+        const progress = max > 0 ? Math.min(1, doc.scrollTop / max) : 0;
+        bar.style.transform = `scaleX(${progress})`;
+      }
+
+      const backToTop = document.querySelector<HTMLElement>("[data-back-to-top]");
+      if (backToTop) {
+        backToTop.classList.toggle("is-visible", doc.scrollTop > 500);
+      }
+    }
+
+    document.addEventListener(
+      "scroll",
+      () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          update();
+          ticking = false;
+        });
+      },
+      { passive: true },
+    );
+
+    document.addEventListener("astro:page-load", update);
+
+    document.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement | null;
+      if (!target?.closest("[data-back-to-top]")) return;
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    });
+  </script>
+
+  <style>
+    [data-progress-bar] {
+      transition: transform 0.12s linear;
+      will-change: transform;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      [data-progress-bar] {
+        transition: none;
+      }
+    }
+  </style>
+</BaseLayout>

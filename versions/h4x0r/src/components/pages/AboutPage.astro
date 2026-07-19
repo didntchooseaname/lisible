@@ -1,0 +1,116 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import AboutTree from "@/components/cyber/AboutTree";
+import AboutBeams from "@/components/cyber/AboutBeams";
+import LensFigure from "@/components/cyber/LensFigure";
+import { RevealText, TypeLine } from "@/components/cyber/TextFx";
+import { BlurFade } from "@/components/ui/blur-fade";
+import EditOnGithub from "@/components/reading/EditOnGithub.astro";
+import { SITE } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, postSlug } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const frPosts = await getPublishedPosts("fr");
+const enPosts = await getPublishedPosts("en");
+const frFiles = frPosts.map((post) => ({ id: `fr-${postSlug(post)}`, name: `${postSlug(post)}.md` }));
+const enFiles = enPosts.map((post) => ({ id: `en-${postSlug(post)}`, name: `${postSlug(post)}.md` }));
+
+const modules = ["astro", "markdown", "i18n fr/en", "pagefind", "rss x2", "magicui"];
+
+const alternates = { fr: localeUrl("fr", "about"), en: localeUrl("en", "about") };
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.about.title}
+  description={dict.about.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <p class="terminal-line" aria-hidden="true">
+      <span class="prompt-user">operator@lisible</span><span>:~$&nbsp;</span><TypeLine
+        client:load
+        duration={22}
+        text={`cat /dossiers/${locale}/operator.txt`}
+      />
+    </p>
+    <p class="section-label mt-6" aria-hidden="true">{dict.cyber.about.dossier}</p>
+    <h1 class="font-display mt-2 text-4xl font-black uppercase tracking-[0.06em] md:text-5xl">
+      {dict.about.title}
+    </h1>
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+      <div class="prose min-w-0">
+        {dict.about.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+        <p>
+          {SITE.social.github && (
+            <>
+              <a href={SITE.social.github}>GitHub</a> &middot;{" "}
+            </>
+          )}
+          <a href={localeUrl(locale, "rss.xml")}>RSS</a>
+        </p>
+        {
+          SITE.repo.url && (
+            <p>
+              <EditOnGithub
+                locale={locale}
+                filePath={`src/pages/${locale === "en" ? "en/" : ""}about.astro`}
+              />
+            </p>
+          )
+        }
+      </div>
+
+      
+      <BlurFade client:visible inView className="min-w-0">
+        <LensFigure
+          client:visible
+          src="/images/demo-ilots.svg"
+          alt={dict.cyber.about.lensLabel}
+          width={960}
+          height={480}
+          caption={dict.cyber.about.lensHint}
+        />
+      </BlurFade>
+    </div>
+
+    <div class="mt-12 grid gap-8 lg:grid-cols-2">
+      
+      <BlurFade client:visible inView className="min-w-0">
+        <section aria-label={dict.cyber.about.treeLabel}>
+          <p class="section-label" aria-hidden="true">{dict.cyber.about.treeLabel}</p>
+          <div class="hud-corners mt-3 h-80 overflow-hidden border border-border/70 bg-card/50 py-2 backdrop-blur-sm">
+            <AboutTree client:visible frFiles={frFiles} enFiles={enFiles} />
+          </div>
+        </section>
+      </BlurFade>
+
+      
+      <BlurFade client:visible inView delay={0.1} className="min-w-0">
+        <section aria-label={dict.cyber.about.modulesLabel}>
+          <p class="section-label" aria-hidden="true">{dict.cyber.about.modulesLabel}</p>
+          <div class="mt-3 h-80">
+            <AboutBeams client:visible core={SITE.title.toUpperCase()} modules={modules} />
+          </div>
+        </section>
+      </BlurFade>
+    </div>
+
+    
+    <div aria-hidden="true" class="-mx-4 md:-mx-6">
+      <RevealText
+        client:visible
+        text={dict.cyber.about.manifesto}
+        className="text-foreground"
+      />
+    </div>
+  </div>
+</BaseLayout>

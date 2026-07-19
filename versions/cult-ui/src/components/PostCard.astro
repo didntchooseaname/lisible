@@ -1,0 +1,42 @@
+---
+import PostCardMinimal from "@/components/react/PostCardMinimal";
+import { postLocale, postUrl, type Post } from "@/lib/posts";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+import { t } from "@/i18n/ui";
+import { FEATURES } from "@/site.config";
+import { getImage } from "astro:assets";
+
+interface Props {
+  post: Post;
+  headingLevel?: "h2" | "h3";
+}
+
+const { post, headingLevel = "h3" } = Astro.props;
+const locale = postLocale(post);
+const dict = t(locale);
+const minutes = readingTime(post.body ?? "");
+
+let coverSrc: string | null = null;
+if (FEATURES.covers && post.data.cover) {
+  if (typeof post.data.cover === "string") {
+    coverSrc = post.data.cover;
+  } else {
+    const optimized = await getImage({ src: post.data.cover, width: 800 });
+    coverSrc = optimized.src;
+  }
+}
+---
+
+
+<PostCardMinimal
+  href={postUrl(post)}
+  title={post.data.title}
+  description={post.data.description}
+  dateISO={isoDate(post.data.pubDate)}
+  dateLabel={formatDate(post.data.pubDate, locale)}
+  readingTimeLabel={dict.post.readingTime(minutes)}
+  draftLabel={post.data.draft ? dict.post.draft : null}
+  coverSrc={coverSrc}
+  coverAlt={post.data.coverAlt ?? post.data.title}
+  headingLevel={headingLevel}
+/>

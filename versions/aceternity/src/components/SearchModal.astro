@@ -1,0 +1,466 @@
+---
+import { FEATURES } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  alternates?: Partial<Record<Locale, string>>;
+}
+
+const { locale, alternates } = Astro.props;
+const dict = t(locale);
+
+const palette = FEATURES.commandPalette;
+const other: Locale = locale === "fr" ? "en" : "fr";
+const switchLangHref = alternates?.[other] ?? localeUrl(other, "blog");
+const rssHref = localeUrl(locale, "rss.xml");
+
+const actions = [
+  { action: "toggle-theme", label: dict.palette.actions.toggleTheme, keywords: "theme dark light sombre clair mode" },
+  { action: "reset-accent", label: dict.palette.actions.resetAccent, keywords: "accent couleur color reinitialiser reset" },
+  { action: "copy-url", label: dict.palette.actions.copyUrl, keywords: "url lien link copier copy adresse" },
+];
+const links = [
+  { href: switchLangHref, label: dict.palette.actions.switchLanguage, keywords: "langue language locale fr en français english" },
+  { href: rssHref, label: dict.palette.actions.openRss, keywords: "rss flux feed abonnement subscribe", external: true },
+];
+const navItems = [
+  { href: localeUrl(locale), label: dict.palette.actions.goHome, keywords: "accueil home index" },
+  { href: localeUrl(locale, "blog"), label: dict.palette.actions.goBlog, keywords: "blog articles posts" },
+  { href: localeUrl(locale, "tags"), label: dict.palette.actions.goTags, keywords: "tags etiquettes sujets" },
+  ...(FEATURES.archives
+    ? [{ href: localeUrl(locale, "archives"), label: dict.palette.actions.goArchives, keywords: "archives historique timeline" }]
+    : []),
+  { href: localeUrl(locale, "about"), label: dict.palette.actions.goAbout, keywords: "about a propos auteur" },
+];
+
+const headingClass =
+  "px-3 pb-1 pt-2 text-[0.7rem] font-semibold uppercase tracking-wide text-muted-foreground";
+const itemClass =
+  "flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm text-foreground transition-colors data-[active=true]:bg-secondary data-[active=true]:text-foreground";
+---
+
+<dialog
+  data-search-modal
+  data-palette={palette ? "true" : undefined}
+  aria-label={dict.search.title}
+  data-hint={palette ? dict.palette.hint : dict.search.hint}
+  data-no-results={dict.search.noResults}
+  data-dev-notice={dict.search.devNotice}
+  data-copied={dict.palette.copied}
+>
+  <div class="flex items-center gap-2 border-b border-border px-4">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      class="shrink-0 text-muted-foreground"
+    >
+      <circle cx="11" cy="11" r="8"></circle>
+      <path d="m21 21-4.3-4.3"></path>
+    </svg>
+    <input
+      type="search"
+      data-search-input
+      placeholder={palette ? dict.palette.placeholder : dict.search.placeholder}
+      aria-label={dict.search.title}
+      autocomplete="off"
+      role={palette ? "combobox" : undefined}
+      aria-expanded={palette ? "true" : undefined}
+      aria-controls={palette ? "palette-body" : undefined}
+      class="h-12 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground"
+    />
+    <button
+      type="button"
+      data-search-close
+      aria-label={dict.a11y.closeSearch}
+      class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M18 6 6 18"></path>
+        <path d="m6 6 12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div id="palette-body" data-search-results class="max-h-[50vh] overflow-y-auto p-2">
+    
+    <div data-palette-articles hidden>
+      <p class={headingClass}>{dict.palette.resultsHeading}</p>
+      <div data-palette-articles-list class="flex flex-col gap-0.5"></div>
+    </div>
+
+    {
+      palette ? (
+        <>
+          <div data-palette-section>
+            <p class={headingClass}>{dict.palette.actionsHeading}</p>
+            {actions.map((item) => (
+              <button
+                type="button"
+                data-palette-item
+                data-action={item.action}
+                data-keywords={`${item.label} ${item.keywords}`.toLowerCase()}
+                class={itemClass}
+              >
+                <span aria-hidden="true" class="text-muted-foreground">&rsaquo;</span>
+                <span data-palette-label>{item.label}</span>
+              </button>
+            ))}
+            {links.map((item) => (
+              <a
+                href={item.href}
+                data-palette-item
+                data-external={item.external ? "true" : undefined}
+                data-keywords={`${item.label} ${item.keywords}`.toLowerCase()}
+                class={itemClass}
+              >
+                <span aria-hidden="true" class="text-muted-foreground">&rsaquo;</span>
+                <span data-palette-label>{item.label}</span>
+              </a>
+            ))}
+          </div>
+
+          <div data-palette-section>
+            <p class={headingClass}>{dict.palette.navHeading}</p>
+            {navItems.map((item) => (
+              <a
+                href={item.href}
+                data-palette-item
+                data-keywords={`${item.label} ${item.keywords}`.toLowerCase()}
+                class={itemClass}
+              >
+                <span aria-hidden="true" class="text-muted-foreground">&rsaquo;</span>
+                <span data-palette-label>{item.label}</span>
+              </a>
+            ))}
+          </div>
+        </>
+      ) : (
+        <p data-palette-empty class="px-3 py-6 text-center text-sm text-muted-foreground">
+          {dict.search.hint}
+        </p>
+      )
+    }
+  </div>
+</dialog>
+
+<script>
+  type PagefindResult = {
+    data: () => Promise<{
+      url: string;
+      excerpt: string;
+      meta: { title?: string };
+    }>;
+  };
+
+  type PagefindModule = {
+    options: (options: Record<string, unknown>) => Promise<void>;
+    init: () => void;
+    debouncedSearch: (
+      query: string,
+    ) => Promise<{ results: PagefindResult[] } | null>;
+  };
+
+  let pagefind: PagefindModule | null = null;
+  let loadFailed = false;
+  let activeIndex = -1;
+
+  function getModal(): HTMLDialogElement | null {
+    return document.querySelector<HTMLDialogElement>("[data-search-modal]");
+  }
+
+  function isPalette(modal: HTMLDialogElement): boolean {
+    return modal.dataset.palette === "true";
+  }
+
+  function normalize(value: string): string {
+    return value
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .toLowerCase()
+      .trim();
+  }
+
+  function renderNotice(modal: HTMLDialogElement, message: string) {
+    const container = modal.querySelector("[data-search-results]");
+    if (!container) return;
+    let notice = container.querySelector<HTMLElement>("[data-palette-empty]");
+    if (!notice) {
+      notice = document.createElement("p");
+      notice.setAttribute("data-palette-empty", "");
+      notice.className = "px-3 py-6 text-center text-sm text-muted-foreground";
+      container.appendChild(notice);
+    }
+    notice.textContent = message;
+    notice.hidden = false;
+  }
+
+  function visibleItems(modal: HTMLDialogElement): HTMLElement[] {
+    return [
+      ...modal.querySelectorAll<HTMLElement>("[data-palette-item]"),
+    ].filter((el) => !el.hidden && el.offsetParent !== null);
+  }
+
+  function setActive(modal: HTMLDialogElement, index: number) {
+    const items = visibleItems(modal);
+    items.forEach((el) => el.removeAttribute("data-active"));
+    if (items.length === 0) {
+      activeIndex = -1;
+      return;
+    }
+    activeIndex = ((index % items.length) + items.length) % items.length;
+    const el = items[activeIndex];
+    el.setAttribute("data-active", "true");
+    el.scrollIntoView({ block: "nearest" });
+  }
+
+  function filterStaticItems(modal: HTMLDialogElement, query: string) {
+    const q = normalize(query);
+    modal.querySelectorAll<HTMLElement>("[data-palette-section]").forEach((section) => {
+      let anyVisible = false;
+      section.querySelectorAll<HTMLElement>("[data-palette-item]").forEach((item) => {
+        const keywords = item.dataset.keywords ?? "";
+        const match = q === "" || normalize(keywords).includes(q);
+        item.hidden = !match;
+        if (match) anyVisible = true;
+      });
+      const heading = section.querySelector<HTMLElement>("p");
+      if (heading) heading.hidden = !anyVisible;
+    });
+  }
+
+  async function ensurePagefind(): Promise<void> {
+    if (pagefind || loadFailed) return;
+    try {
+      const module = (await import(
+        /* @vite-ignore */ "/pagefind/pagefind.js"
+      )) as PagefindModule;
+      await module.options({ excerptLength: 25 });
+      module.init();
+      pagefind = module;
+    } catch {
+      loadFailed = true;
+    }
+  }
+
+  function articlesBox(modal: HTMLDialogElement) {
+    return {
+      box: modal.querySelector<HTMLElement>("[data-palette-articles]"),
+      list: modal.querySelector<HTMLElement>("[data-palette-articles-list]"),
+    };
+  }
+
+  async function runSearch(modal: HTMLDialogElement, query: string) {
+    const { box, list } = articlesBox(modal);
+    const trimmed = query.trim();
+
+    if (isPalette(modal)) filterStaticItems(modal, trimmed);
+
+    if (!trimmed) {
+      if (box) box.hidden = true;
+      if (list) list.innerHTML = "";
+      if (!isPalette(modal)) renderNotice(modal, modal.dataset.hint ?? "");
+      setActive(modal, 0);
+      return;
+    }
+
+    if (loadFailed || !pagefind) {
+      if (box) box.hidden = true;
+      if (!isPalette(modal)) renderNotice(modal, modal.dataset.devNotice ?? "");
+      setActive(modal, 0);
+      return;
+    }
+
+    const search = await pagefind.debouncedSearch(trimmed);
+    if (!search) return;
+    const results = await Promise.all(
+      search.results.slice(0, 8).map((result) => result.data()),
+    );
+
+    if (list) {
+      list.innerHTML = "";
+      for (const result of results) {
+        const link = document.createElement("a");
+        link.href = result.url;
+        link.setAttribute("data-palette-item", "");
+        link.className =
+          "block rounded-md px-3 py-2.5 transition-colors data-[active=true]:bg-secondary";
+        const title = document.createElement("span");
+        title.className = "block text-sm font-semibold";
+        title.textContent = result.meta.title ?? result.url;
+        const excerpt = document.createElement("span");
+        excerpt.className =
+          "mt-0.5 block text-xs leading-relaxed text-muted-foreground";
+        excerpt.innerHTML = result.excerpt;
+        link.append(title, excerpt);
+        list.appendChild(link);
+      }
+    }
+    if (box) box.hidden = results.length === 0;
+
+    const noStatic = visibleItems(modal).length === 0;
+    if (results.length === 0 && (!isPalette(modal) || noStatic)) {
+      renderNotice(modal, modal.dataset.noResults ?? "");
+    } else {
+      modal.querySelector<HTMLElement>("[data-palette-empty]")?.remove();
+    }
+    setActive(modal, 0);
+  }
+
+  function flashCopied(item: HTMLElement, copied: string) {
+    const label = item.querySelector<HTMLElement>("[data-palette-label]");
+    if (!label) return;
+    const original = label.textContent ?? "";
+    label.textContent = copied;
+    window.setTimeout(() => {
+      label.textContent = original;
+    }, 1200);
+  }
+
+  function runAction(modal: HTMLDialogElement, item: HTMLElement) {
+    const action = item.dataset.action;
+    if (action === "toggle-theme") {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try {
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+      } catch {
+      }
+      modal.close();
+    } else if (action === "reset-accent") {
+      try {
+        localStorage.removeItem("accent");
+      } catch {
+      }
+      window.applyAccent?.();
+      modal.close();
+    } else if (action === "copy-url") {
+      void navigator.clipboard
+        ?.writeText(window.location.href)
+        .then(() => flashCopied(item, modal.dataset.copied ?? ""))
+        .catch(() => {});
+    }
+  }
+
+  function activate(modal: HTMLDialogElement, item: HTMLElement) {
+    if (item.dataset.action) {
+      runAction(modal, item);
+      return;
+    }
+    const href = item.getAttribute("href");
+    if (href) {
+      modal.close();
+      if (item.dataset.external === "true") {
+        window.location.assign(href);
+      } else {
+        item.click();
+      }
+    }
+  }
+
+  async function openSearch(): Promise<void> {
+    const modal = getModal();
+    if (!modal || modal.open) return;
+    if (isPalette(modal)) filterStaticItems(modal, "");
+    modal.showModal();
+    const input = modal.querySelector<HTMLInputElement>("[data-search-input]");
+    if (input) input.value = "";
+    input?.focus();
+    setActive(modal, 0);
+    await ensurePagefind();
+    if (loadFailed && !isPalette(modal)) {
+      renderNotice(modal, modal.dataset.devNotice ?? "");
+    }
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+    if (target.closest("[data-search-open]")) {
+      void openSearch();
+      return;
+    }
+    if (target.closest("[data-search-close]")) {
+      getModal()?.close();
+      return;
+    }
+    const modal = getModal();
+    if (!modal) return;
+    if (modal.open && event.target === modal) {
+      modal.close();
+      return;
+    }
+    const item = target.closest<HTMLElement>("[data-palette-item]");
+    if (item && modal.contains(item) && item.dataset.action) {
+      event.preventDefault();
+      runAction(modal, item);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      const modal = getModal();
+      if (modal?.open) modal.close();
+      else void openSearch();
+      return;
+    }
+    const modal = getModal();
+    if (!modal?.open) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActive(modal, activeIndex + 1);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActive(modal, activeIndex - 1);
+    } else if (event.key === "Enter") {
+      const items = visibleItems(modal);
+      const item = items[activeIndex];
+      if (item) {
+        event.preventDefault();
+        activate(modal, item);
+      }
+    }
+  });
+
+  document.addEventListener("mousemove", (event) => {
+    const modal = getModal();
+    if (!modal?.open) return;
+    const item = (event.target as HTMLElement | null)?.closest<HTMLElement>(
+      "[data-palette-item]",
+    );
+    if (!item) return;
+    const items = visibleItems(modal);
+    const index = items.indexOf(item);
+    if (index >= 0 && index !== activeIndex) setActive(modal, index);
+  });
+
+  document.addEventListener("input", (event) => {
+    const input = event.target as HTMLInputElement | null;
+    if (!input?.matches("[data-search-input]")) return;
+    const modal = getModal();
+    if (modal) void runSearch(modal, input.value);
+  });
+
+  document.addEventListener("astro:before-swap", () => {
+    getModal()?.close();
+  });
+</script>

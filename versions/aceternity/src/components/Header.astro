@@ -1,0 +1,70 @@
+---
+import HeaderNav from "@/components/react/HeaderNav";
+import { FEATURES, SITE } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+  alternates?: Partial<Record<Locale, string>>;
+}
+
+const { locale, alternates } = Astro.props;
+const dict = t(locale);
+const hasSeries = FEATURES.series && (await getPublishedPosts(locale)).some((post) => Boolean(post.data.series));
+
+const currentPath = Astro.url.pathname.endsWith("/")
+  ? Astro.url.pathname
+  : `${Astro.url.pathname}/`;
+
+function isActive(href: string): boolean {
+  return currentPath === href || currentPath.startsWith(href);
+}
+
+const items = [
+  { name: dict.nav.blog, link: localeUrl(locale, "blog") },
+  { name: dict.nav.tags, link: localeUrl(locale, "tags") },
+  ...(FEATURES.archives
+    ? [{ name: dict.nav.archives, link: localeUrl(locale, "archives") }]
+    : []),
+  ...(hasSeries
+    ? [{ name: dict.nav.series, link: localeUrl(locale, "series") }]
+    : []),
+  { name: dict.nav.about, link: localeUrl(locale, "about") },
+].map((item) => ({ ...item, active: isActive(item.link) }));
+
+const langItems = [
+  {
+    code: "fr",
+    label: "FR",
+    ariaLabel: dict.a11y.frenchVersion,
+    href: alternates?.fr ?? localeUrl("fr", "blog"),
+    current: locale === "fr",
+  },
+  {
+    code: "en",
+    label: "EN",
+    ariaLabel: dict.a11y.englishVersion,
+    href: alternates?.en ?? localeUrl("en", "blog"),
+    current: locale === "en",
+  },
+];
+---
+
+
+<HeaderNav
+  client:load
+  transition:persist="header"
+  siteTitle={SITE.title}
+  homeUrl={localeUrl(locale)}
+  navLabel={dict.nav.main}
+  items={items}
+  searchLabel={dict.a11y.openSearch}
+  themeLabel={dict.a11y.toggleTheme}
+  accentLabels={dict.accent}
+  defaultAccent={SITE.accent}
+  langLabel={dict.a11y.languageSwitcher}
+  langItems={langItems}
+  menuOpenLabel={dict.a11y.openMenu}
+  menuCloseLabel={dict.a11y.closeMenu}
+/>

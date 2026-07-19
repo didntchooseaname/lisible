@@ -1,0 +1,54 @@
+---
+import Cover from "@/components/reading/Cover.astro";
+import { FEATURES } from "@/site.config";
+import { postLocale, postUrl, type Post } from "@/lib/posts";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+import { t } from "@/i18n/ui";
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const locale = postLocale(post);
+const dict = t(locale);
+const url = postUrl(post);
+const minutes = readingTime(post.body ?? "");
+const cover = FEATURES.covers ? post.data.cover : undefined;
+---
+
+<article
+  class="group relative flex flex-col rounded-lg border border-border bg-card p-5 transition-colors hover:border-accent"
+>
+  {
+    cover && (
+      <div class="card-cover mb-4" aria-hidden="true">
+        <Cover
+          cover={cover}
+          alt=""
+          width={720}
+          sizes="(min-width: 640px) 50vw, 100vw"
+          class="card-cover-img"
+        />
+      </div>
+    )
+  }
+  <h3 class="text-lg font-semibold leading-snug tracking-tight">
+    <a href={url} class="after:absolute after:inset-0 group-hover:text-accent dark:group-hover:text-accent">
+      {post.data.title}
+    </a>
+    {
+      post.data.draft && (
+        <span class="ml-2 inline-flex items-center rounded-md border border-border px-1.5 py-0.5 align-middle text-xs font-medium text-muted-foreground">
+          {dict.post.draft}
+        </span>
+      )
+    }
+  </h3>
+  <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{post.data.description}</p>
+  <p class="mt-4 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+    <time datetime={isoDate(post.data.pubDate)}>{formatDate(post.data.pubDate, locale)}</time>
+    <span aria-hidden="true">&middot;</span>
+    <span>{dict.post.readingTime(minutes)}</span>
+  </p>
+</article>
