@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="125" viewBox="0 0 200 125" role="img" aria-label="github.com">
+  <rect width="200" height="125" rx="6" fill="#000000"/>
+  <rect x="0.5" y="0.5" width="199" height="124" rx="5.5" fill="none" stroke="#262626"/>
+  <rect x="12" y="12" width="176" height="18" rx="4" fill="#171717"/>
+  <circle cx="22" cy="21" r="4" fill="#262626"/>
+  <text x="34" y="25" font-family="Inter, ui-sans-serif, sans-serif" font-size="10" fill="#A3A3A3">github.com</text>
+  <circle cx="34" cy="62" r="16" fill="#171717" stroke="#22C55E" stroke-width="1.5"/>
+  <text x="34" y="68" text-anchor="middle" font-family="Inter, ui-sans-serif, sans-serif" font-size="16" font-weight="700" fill="#22C55E">M</text>
+  <rect x="60" y="50" width="90" height="9" rx="3" fill="#262626"/>
+  <rect x="60" y="66" width="120" height="7" rx="3" fill="#171717"/>
+  <rect x="12" y="92" width="54" height="21" rx="4" fill="#171717"/>
+  <rect x="72" y="92" width="54" height="21" rx="4" fill="#171717"/>
+  <rect x="132" y="92" width="54" height="21" rx="4" fill="#171717"/>
+</svg>

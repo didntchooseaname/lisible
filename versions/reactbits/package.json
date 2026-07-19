@@ -1,0 +1,59 @@
+{
+  "name": "blog-reactbits",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "imports": {
+    "#src/*": "./src/*",
+    "#shared/*": "../../shared/*"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "new-post": "bun ../../scripts/new-post.ts",
+    "check-links": "bun ../../scripts/check-links.ts reactbits",
+    "check-assets": "bun ../../scripts/check-assets.ts reactbits",
+    "check:all": "bun run build && bun run check-links && bun run check-assets"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.2.1",
+    "@astrojs/mdx": "^7.0.3",
+    "@astrojs/react": "^6.0.1",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "@expressive-code/plugin-collapsible-sections": "^0.44.0",
+    "@expressive-code/plugin-line-numbers": "^0.44.0",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@gsap/react": "^2.1.2",
+    "@resvg/resvg-js": "^2.6.2",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.1.1",
+    "astro-expressive-code": "^0.44.0",
+    "astro-pagefind": "^2.0.1",
+    "clsx": "^2.1.1",
+    "gsap": "^3.15.0",
+    "hastscript": "^9.0.1",
+    "katex": "^0.18.0",
+    "lucide-react": "^1.25.0",
+    "mermaid": "^11.16.0",
+    "motion": "^12.42.2",
+    "open-graph-scraper": "^6.12.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "rehype-katex": "^7.0.1",
+    "remark-directive": "^4.0.0",
+    "remark-math": "^6.0.0",
+    "satori": "^0.28.0",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.3",
+    "unist-util-visit": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "pagefind": "^1.5.2"
+  }
+}

@@ -1,0 +1,71 @@
+---
+import { WEBMENTIONS } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  url: string;
+  locale: Locale;
+  class?: string;
+}
+
+const { url, locale, class: className } = Astro.props;
+const dict = t(locale);
+
+interface Mention {
+  type: string;
+  author?: { name?: string; photo?: string; url?: string };
+  url?: string;
+}
+
+let likes: Mention[] = [];
+let reposts: Mention[] = [];
+let mentions: Mention[] = [];
+
+try {
+  const endpoint = new URL("https://webmention.io/api/mentions.jf2");
+  endpoint.searchParams.set("target", url);
+  endpoint.searchParams.set("per-page", "100");
+  const res = await fetch(endpoint, { signal: AbortSignal.timeout(8000) });
+  if (res.ok) {
+    const data = (await res.json()) as { children?: Mention[] };
+    const children = data.children ?? [];
+    likes = children.filter((m) => m.type === "like-of");
+    reposts = children.filter((m) => m.type === "repost-of");
+    mentions = children.filter(
+      (m) => m.type === "mention-of" || m.type === "in-reply-to",
+    );
+  }
+} catch {
+}
+
+const domain = WEBMENTIONS.domain;
+---
+
+<section class:list={["not-prose webmentions", className]} aria-label={dict.webmentions.title}>
+  <h2 class="webmentions__title">{dict.webmentions.title}</h2>
+
+  {
+    likes.length + reposts.length + mentions.length === 0 ? (
+      <p class="webmentions__empty">{dict.webmentions.empty}</p>
+    ) : (
+      <>
+        <div class="webmentions__counts">
+          {likes.length > 0 && <span>{dict.webmentions.likes(likes.length)}</span>}
+          {reposts.length > 0 && <span>{dict.webmentions.reposts(reposts.length)}</span>}
+        </div>
+        {mentions.length > 0 && (
+          <ul class="webmentions__list">
+            {mentions.map((m) => (
+              <li>
+                <a href={m.author?.url ?? m.url} rel="nofollow noopener noreferrer">
+                  {m.author?.name ?? m.url}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </>
+    )
+  }
+  {domain && <link rel="webmention" href={`https://webmention.io/${domain}/webmention`} />}
+</section>

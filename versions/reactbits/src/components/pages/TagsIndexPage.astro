@@ -1,0 +1,47 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import TagBadge from "@/components/TagBadge.astro";
+import FadeContent from "@/components/ui/FadeContent";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getAllTags } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const tags = await getAllTags(locale);
+
+const alternates = { fr: localeUrl("fr", "tags"), en: localeUrl("en", "tags") };
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.tags.title}
+  description={dict.tags.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{dict.tags.title}</h1>
+    <p class="mt-3 max-w-2xl text-muted-foreground">{dict.tags.description}</p>
+
+    
+    <FadeContent client:visible duration={500} className="mt-10">
+      <ul class="flex flex-wrap gap-3" aria-label={dict.tags.all}>
+        {
+          tags.map((tag) => (
+            <li>
+              <TagBadge
+                tag={tag.name}
+                locale={locale}
+                count={tag.count}
+                class="px-3.5 py-2.5 text-sm"
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </FadeContent>
+  </div>
+</BaseLayout>

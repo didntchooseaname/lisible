@@ -1,0 +1,65 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Constellation from "@/components/Constellation.astro";
+import NewsletterCTA from "@/components/NewsletterCTA.astro";
+import JsonLd from "@/components/JsonLd.astro";
+import { SITE, FEATURES } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+
+const featured = (
+  FEATURES.pinned
+    ? [...posts.filter((p) => p.data.featured), ...posts.filter((p) => !p.data.featured)]
+    : posts
+).slice(0, SITE.featuredCount);
+
+const featuredIds = new Set(featured.map((p) => p.id));
+const latest = posts.filter((p) => !featuredIds.has(p.id)).slice(0, SITE.postsPerPage);
+
+const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
+
+const jsonLd = {
+  "@type": "WebSite",
+  name: SITE.title,
+  description: dict.site.description,
+  url: new URL(localeUrl(locale), SITE.url).toString(),
+  inLanguage: locale,
+  author: { "@type": "Person", name: SITE.author },
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.home.metaTitle}
+  description={dict.site.description}
+  alternates={alternates}
+  isHome
+>
+  <JsonLd slot="head" data={jsonLd} />
+
+  
+  <section class="home-hero pb-10 pt-16 md:pb-16 md:pt-24">
+    <div class="hero-blob" aria-hidden="true"></div>
+    <h1 class="type-mega rise">{SITE.title}</h1>
+    <p class="hero-tagline rise rise-2 mt-7">{dict.site.tagline}</p>
+    <div class="hero-cta-offset rise rise-3 mt-14 max-w-xl">
+      <NewsletterCTA locale={locale} />
+    </div>
+  </section>
+
+  <hr class="wave-line" aria-hidden="true" />
+
+  
+  <Constellation locale={locale} featured={featured} latest={latest} />
+
+  <hr class="wave-line" aria-hidden="true" />
+</BaseLayout>

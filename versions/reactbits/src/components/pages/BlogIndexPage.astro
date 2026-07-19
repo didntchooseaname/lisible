@@ -1,0 +1,104 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostList from "@/components/PostList.astro";
+import Pagination from "@/components/Pagination.astro";
+import BlurText from "@/components/ui/BlurText";
+import AnimatedContent from "@/components/ui/AnimatedContent";
+import GradualBlur from "@/components/ui/GradualBlur";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, groupByYear, paginate } from "@/lib/posts";
+import { SITE, FEATURES } from "@/site.config";
+
+interface Props {
+  locale: Locale;
+  page?: number;
+}
+
+const { locale, page = 1 } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+const baseUrl = localeUrl(locale, "blog");
+const pageSize = FEATURES.pagination.enabled
+  ? FEATURES.pagination.pageSize
+  : Math.max(1, posts.length);
+const paged = paginate(posts, page, pageSize, baseUrl);
+const years = groupByYear(paged.items);
+
+const pageSuffix =
+  paged.total > 1 && paged.current > 1
+    ? ` · ${dict.pagination.page(paged.current, paged.total)}`
+    : "";
+const title = `${dict.blog.title}${pageSuffix}`;
+const description = `${dict.blog.description}${pageSuffix}`;
+
+const pagePath = (loc: Locale, n: number) =>
+  n <= 1 ? localeUrl(loc, "blog") : `${localeUrl(loc, "blog")}${n}/`;
+const alternates = {
+  fr: pagePath("fr", paged.current),
+  en: pagePath("en", paged.current),
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={title}
+  description={description}
+  alternates={alternates}
+>
+  
+  <Fragment slot="head">
+    {paged.prevUrl && (
+      <link rel="prev" href={new URL(paged.prevUrl, SITE.url).toString()} />
+    )}
+    {paged.nextUrl && (
+      <link rel="next" href={new URL(paged.nextUrl, SITE.url).toString()} />
+    )}
+  </Fragment>
+
+  <div class="py-10 md:py-14">
+    <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{dict.blog.title}</h1>
+    
+    <BlurText
+      client:load
+      text={dict.blog.description}
+      animateBy="words"
+      delay={50}
+      stepDuration={0.25}
+      className="mt-3 max-w-2xl text-muted-foreground"
+    />
+
+    
+    <div class="relative mt-10">
+      <div class="flex flex-col gap-10 pb-10">
+        {
+          years.map(([year, yearPosts]) => (
+            <section aria-labelledby={`year-${year}`}>
+              <h2
+                id={`year-${year}`}
+                class="border-b border-border pb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground"
+              >
+                {year}
+              </h2>
+              
+              <AnimatedContent client:visible distance={32} duration={0.55}>
+                <PostList posts={yearPosts} />
+              </AnimatedContent>
+            </section>
+          ))
+        }
+      </div>
+      <GradualBlur position="bottom" height="4rem" strength={1.2} divCount={4} opacity={0.9} />
+    </div>
+
+    <Pagination
+      locale={locale}
+      current={paged.current}
+      total={paged.total}
+      prevUrl={paged.prevUrl}
+      nextUrl={paged.nextUrl}
+      baseUrl={baseUrl}
+      class="mt-6"
+    />
+  </div>
+</BaseLayout>

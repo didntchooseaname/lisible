@@ -1,0 +1,52 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  cover: ImageMetadata | string;
+  alt: string;
+  width?: number;
+  fallbackWidth?: number;
+  fallbackHeight?: number;
+  loading?: "eager" | "lazy";
+  class?: string;
+  sizes?: string;
+}
+
+const {
+  cover,
+  alt,
+  width = 1280,
+  fallbackWidth = 960,
+  fallbackHeight = 480,
+  loading = "lazy",
+  class: className,
+  sizes,
+} = Astro.props;
+
+const isPublicPath = typeof cover === "string";
+---
+
+{
+  isPublicPath ? (
+    <img
+      src={cover}
+      alt={alt}
+      width={fallbackWidth}
+      height={fallbackHeight}
+      loading={loading}
+      decoding="async"
+      class={className}
+    />
+  ) : (
+    <Image
+      src={cover}
+      alt={alt}
+      width={width}
+      loading={loading}
+      decoding="async"
+      class={className}
+      sizes={sizes}
+    />
+  )
+}

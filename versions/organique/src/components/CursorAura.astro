@@ -1,0 +1,49 @@
+<div class="cursor-aura" data-aura aria-hidden="true"></div>
+
+<script>
+  let auraRaf = 0;
+  let auraX = 0;
+  let auraY = 0;
+  let targetX = 0;
+  let targetY = 0;
+
+  function auraEl(): HTMLElement | null {
+    return document.querySelector<HTMLElement>("[data-aura]");
+  }
+
+  function auraLoop(): void {
+    const el = auraEl();
+    if (!el) {
+      auraRaf = 0;
+      return;
+    }
+    auraX += (targetX - auraX) * 0.11;
+    auraY += (targetY - auraY) * 0.11;
+    el.style.transform = `translate3d(${auraX.toFixed(1)}px, ${auraY.toFixed(1)}px, 0)`;
+    if (Math.hypot(targetX - auraX, targetY - auraY) > 0.4) auraRaf = requestAnimationFrame(auraLoop);
+    else auraRaf = 0;
+  }
+
+  document.addEventListener("pointermove", (event) => {
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const el = auraEl();
+    if (!el) return;
+    targetX = event.clientX;
+    targetY = event.clientY;
+    el.classList.add("is-on");
+    if (auraRaf === 0 && !document.hidden) auraRaf = requestAnimationFrame(auraLoop);
+  }, { passive: true });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && auraRaf !== 0) {
+      cancelAnimationFrame(auraRaf);
+      auraRaf = 0;
+    }
+  });
+
+  document.addEventListener("astro:before-swap", () => {
+    if (auraRaf !== 0) cancelAnimationFrame(auraRaf);
+    auraRaf = 0;
+  });
+</script>

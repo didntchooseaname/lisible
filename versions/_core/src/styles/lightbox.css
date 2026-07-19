@@ -1,0 +1,113 @@
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(0 0 0 / 0.92);
+}
+
+.lightbox.is-open {
+  display: flex;
+  animation: lightbox-fade 200ms ease-out;
+}
+
+@keyframes lightbox-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lightbox-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 4.5rem 1rem;
+}
+
+.lightbox-image {
+  max-width: 92vw;
+  max-height: 84vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  cursor: zoom-in;
+  transition: transform 150ms ease-out;
+  touch-action: none;
+  user-select: none;
+}
+
+.lightbox-image.is-zoomed {
+  cursor: grab;
+}
+
+.lightbox-image.is-panning {
+  cursor: grabbing;
+  transition: none;
+}
+
+.lightbox-toolbar {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.lightbox-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-card);
+  color: var(--color-foreground);
+  cursor: pointer;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+
+.lightbox-btn:hover {
+  background-color: var(--color-secondary);
+}
+
+.lightbox-btn[disabled] {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.lightbox-prev {
+  left: 1rem;
+}
+
+.lightbox-next {
+  right: 1rem;
+}
+
+.lightbox-counter {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.3rem 0.9rem;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted-foreground);
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}

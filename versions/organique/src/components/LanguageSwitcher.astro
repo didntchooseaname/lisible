@@ -1,0 +1,62 @@
+---
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+  alternates?: Partial<Record<Locale, string>>;
+}
+
+const { locale, alternates } = Astro.props;
+const dict = t(locale);
+
+const items: { code: Locale; label: string; ariaLabel: string; href: string }[] = [
+  {
+    code: "fr",
+    label: "FR",
+    ariaLabel: dict.a11y.frenchVersion,
+    href: alternates?.fr ?? localeUrl("fr", "blog"),
+  },
+  {
+    code: "en",
+    label: "EN",
+    ariaLabel: dict.a11y.englishVersion,
+    href: alternates?.en ?? localeUrl("en", "blog"),
+  },
+];
+---
+
+<nav aria-label={dict.a11y.languageSwitcher}>
+  <ul class="flex items-center overflow-hidden rounded-md border border-border">
+    {
+      items.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            lang={item.code}
+            hreflang={item.code}
+            aria-label={item.ariaLabel}
+            aria-current={item.code === locale ? "true" : undefined}
+            class={cn(
+              "inline-flex h-11 min-w-11 items-center justify-center px-2.5 text-xs font-semibold tracking-wide transition-colors",
+              item.code === locale
+                ? "bg-secondary text-foreground"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+            )}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<script>
+  document.addEventListener("click", (event) => {
+    const link = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[hreflang="fr"], a[hreflang="en"]');
+    if (link?.hreflang === "fr" || link?.hreflang === "en") {
+      localStorage.setItem("lisible-locale", link.hreflang);
+    }
+  });
+</script>

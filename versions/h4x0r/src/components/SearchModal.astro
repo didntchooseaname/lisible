@@ -1,0 +1,502 @@
+---
+import { ShineBorder } from "@/components/ui/shine-border";
+import { FEATURES } from "@/site.config";
+import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  alternates?: Partial<Record<Locale, string>>;
+}
+
+const { locale, alternates } = Astro.props;
+const dict = t(locale);
+const palette = dict.platform.palette;
+const other = otherLocale(locale);
+const langHref = alternates?.[other] ?? localeUrl(other, "blog");
+
+const itemClass =
+  "palette-item flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-left text-sm text-muted-foreground transition-colors";
+
+interface ActionEntry {
+  action: string;
+  label: string;
+  href?: string;
+  extra?: Record<string, string>;
+  icon: string;
+}
+
+const actions: ActionEntry[] = [
+  {
+    action: "theme",
+    label: palette.toggleTheme,
+    icon: "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z",
+  },
+  {
+    action: "lang",
+    label: palette.switchLang,
+    href: langHref,
+    icon: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 0c2.5 2.7 4 6.3 4 10s-1.5 7.3-4 10m0-20C9.5 4.7 8 8.3 8 12s1.5 7.3 4 10M2 12h20",
+  },
+  {
+    action: "accent",
+    label: palette.resetAccent,
+    icon: "M12 22a10 10 0 1 1 10-10c0 1.7-1.3 3-3 3h-2.3a2.7 2.7 0 0 0-2 4.5c.4.5.3 1.3-.2 1.8-.7.5-1.6.7-2.5.7Zm-5-9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm4-4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z",
+  },
+  {
+    action: "copy-url",
+    label: palette.copyUrl,
+    extra: { "data-copied-label": palette.copiedUrl },
+    icon: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71",
+  },
+];
+
+const navEntries = [
+  { href: localeUrl(locale, "blog"), label: palette.goBlog },
+  { href: localeUrl(locale, "tags"), label: palette.goTags },
+  ...(FEATURES.archives
+    ? [{ href: localeUrl(locale, "archives"), label: palette.goArchives }]
+    : []),
+  { href: localeUrl(locale, "about"), label: palette.goAbout },
+  { href: localeUrl(locale, "rss.xml"), label: palette.openRss },
+];
+---
+
+<dialog
+  data-search-modal
+  aria-label={dict.search.title}
+  data-hint={dict.search.hint}
+  data-no-results={dict.search.noResults}
+  data-dev-notice={dict.search.devNotice}
+  data-results-label={palette.results}
+  class="relative"
+>
+  <ShineBorder
+    client:idle
+    shineColor={["var(--color-accent)", "var(--neon-25)"]}
+    duration={9}
+    aria-hidden="true"
+  />
+  <div
+    class="flex items-center gap-2 border-b border-border/60 bg-secondary/40 px-4 py-1.5 font-mono"
+    aria-hidden="true"
+  >
+    <span class="text-[11px] tracking-wider text-accent">operator@lisible:~$ grep -ri</span>
+  </div>
+  <div class="flex items-center gap-2 border-b border-border px-4">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      class="shrink-0 text-muted-foreground"
+    >
+      <circle cx="11" cy="11" r="8"></circle>
+      <path d="m21 21-4.3-4.3"></path>
+    </svg>
+    <input
+      type="search"
+      data-search-input
+      placeholder={dict.search.placeholder}
+      aria-label={dict.search.title}
+      autocomplete="off"
+      class="h-12 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground"
+    />
+    <button
+      type="button"
+      data-search-close
+      aria-label={dict.a11y.closeSearch}
+      class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M18 6 6 18"></path>
+        <path d="m6 6 12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div class="max-h-[60vh] overflow-y-auto">
+    {
+      FEATURES.commandPalette && (
+        <div data-palette class="border-b border-border/60 p-2">
+          <p class="palette-section" data-palette-group-label aria-hidden="true">
+            {palette.actions}
+          </p>
+          <div data-palette-group>
+            {actions.map((entry) => (
+              <button
+                type="button"
+                data-palette-item
+                data-palette-action={entry.action}
+                data-href={entry.href}
+                data-label={entry.label}
+                class={itemClass}
+                {...(entry.extra ?? {})}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  class="shrink-0"
+                >
+                  <path d={entry.icon} />
+                </svg>
+                <span data-palette-label>{entry.label}</span>
+              </button>
+            ))}
+          </div>
+          <p class="palette-section mt-1" data-palette-group-label aria-hidden="true">
+            {palette.navigation}
+          </p>
+          <div data-palette-group>
+            {navEntries.map((entry) => (
+              <a
+                href={entry.href}
+                data-palette-item
+                data-label={entry.label}
+                class={itemClass}
+              >
+                <span class="font-mono text-xs text-accent/80" aria-hidden="true">
+                  -&gt;
+                </span>
+                <span data-palette-label>{entry.label}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )
+    }
+    <div data-search-results class="p-2">
+      <p class="px-3 py-6 text-center text-sm text-muted-foreground">{dict.search.hint}</p>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { navigate } from "astro:transitions/client";
+
+  type PagefindResult = {
+    data: () => Promise<{
+      url: string;
+      excerpt: string;
+      meta: { title?: string };
+    }>;
+  };
+
+  type PagefindModule = {
+    options: (options: Record<string, unknown>) => Promise<void>;
+    init: () => void;
+    debouncedSearch: (
+      query: string,
+    ) => Promise<{ results: PagefindResult[] } | null>;
+  };
+
+  let pagefind: PagefindModule | null = null;
+  let loadFailed = false;
+
+  let paletteSync: ((modal: HTMLDialogElement, query: string) => void) | null = null;
+  let paletteDecorate: ((link: HTMLElement) => void) | null = null;
+  let paletteHeading: ((modal: HTMLDialogElement, container: HTMLElement) => void) | null =
+    null;
+
+  function getModal(): HTMLDialogElement | null {
+    return document.querySelector<HTMLDialogElement>("[data-search-modal]");
+  }
+
+  function renderMessage(modal: HTMLDialogElement, message: string) {
+    const container = modal.querySelector("[data-search-results]");
+    if (!container) return;
+    container.innerHTML = "";
+    const p = document.createElement("p");
+    p.className = "px-3 py-6 text-center text-sm text-muted-foreground";
+    p.textContent = message;
+    container.appendChild(p);
+  }
+
+  async function ensurePagefind(): Promise<void> {
+    if (pagefind || loadFailed) return;
+    try {
+      const dynamicImport = new Function(
+        "path",
+        "return import(path)",
+      ) as (path: string) => Promise<PagefindModule>;
+      const module = await dynamicImport("/pagefind/pagefind.js");
+      await module.options({ excerptLength: 25 });
+      module.init();
+      pagefind = module;
+    } catch {
+      loadFailed = true;
+    }
+  }
+
+
+  async function openSearch(): Promise<void> {
+    const modal = getModal();
+    if (!modal || modal.open) return;
+    modal.showModal();
+    const input = modal.querySelector<HTMLInputElement>("[data-search-input]");
+    input?.focus();
+    paletteSync?.(modal, input?.value ?? "");
+    await ensurePagefind();
+    if (loadFailed && input?.value.trim()) {
+      renderMessage(modal, modal.dataset.devNotice ?? "");
+    }
+  }
+
+  async function runSearch(input: HTMLInputElement): Promise<void> {
+    const modal = getModal();
+    if (!modal) return;
+    const query = input.value.trim();
+    paletteSync?.(modal, query);
+    if (!query) {
+      renderMessage(modal, modal.dataset.hint ?? "");
+      return;
+    }
+    if (loadFailed) {
+      renderMessage(modal, modal.dataset.devNotice ?? "");
+      return;
+    }
+    if (!pagefind) return;
+
+    const search = await pagefind.debouncedSearch(query);
+    if (!search) return;
+
+    const results = await Promise.all(
+      search.results.slice(0, 8).map((result) => result.data()),
+    );
+    const container = modal.querySelector("[data-search-results]");
+    if (!container) return;
+
+    if (results.length === 0) {
+      renderMessage(modal, modal.dataset.noResults ?? "");
+      return;
+    }
+
+    const list = document.createElement("ul");
+    list.className = "flex flex-col gap-1";
+    for (const result of results) {
+      const item = document.createElement("li");
+      const link = document.createElement("a");
+      link.href = result.url;
+      link.className =
+        "block rounded-md px-3 py-2.5 transition-colors hover:bg-secondary";
+      paletteDecorate?.(link);
+      const title = document.createElement("span");
+      title.className = "block text-sm font-semibold text-foreground";
+      title.textContent = result.meta.title ?? result.url;
+      const excerpt = document.createElement("span");
+      excerpt.className = "mt-0.5 block text-xs leading-relaxed text-muted-foreground";
+      excerpt.innerHTML = result.excerpt;
+      link.append(title, excerpt);
+      item.appendChild(link);
+      list.appendChild(item);
+    }
+    container.innerHTML = "";
+    paletteHeading?.(modal, container as HTMLElement);
+    container.appendChild(list);
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest("[data-search-open]")) {
+      void openSearch();
+      return;
+    }
+    if (target?.closest("[data-search-close]")) {
+      getModal()?.close();
+      return;
+    }
+    const modal = getModal();
+    if (modal?.open && event.target === modal) {
+      modal.close();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      const modal = getModal();
+      if (modal?.open) {
+        modal.close();
+      } else {
+        void openSearch();
+      }
+    }
+  });
+
+  document.addEventListener("input", (event) => {
+    const input = event.target as HTMLInputElement | null;
+    if (!input?.matches("[data-search-input]")) return;
+    void runSearch(input);
+  });
+
+  document.addEventListener("astro:before-swap", () => {
+    getModal()?.close();
+  });
+
+  if (__FEATURE_COMMAND_PALETTE__) {
+    const normalize = (text: string): string =>
+      text
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+
+    const filterPalette = (modal: HTMLDialogElement, query: string): void => {
+      const palette = modal.querySelector<HTMLElement>("[data-palette]");
+      if (!palette) return;
+      const needle = normalize(query.trim());
+      const groups = palette.querySelectorAll<HTMLElement>("[data-palette-group]");
+      const labels = palette.querySelectorAll<HTMLElement>("[data-palette-group-label]");
+      groups.forEach((group, index) => {
+        let visible = 0;
+        for (const item of group.querySelectorAll<HTMLElement>("[data-palette-item]")) {
+          const match =
+            needle === "" || normalize(item.dataset.label ?? "").includes(needle);
+          item.classList.toggle("hidden", !match);
+          if (match) visible += 1;
+        }
+        labels[index]?.classList.toggle("hidden", visible === 0);
+      });
+    };
+
+    const visibleItems = (modal: HTMLDialogElement): HTMLElement[] =>
+      [...modal.querySelectorAll<HTMLElement>("[data-palette-item]")].filter(
+        (item) => !item.classList.contains("hidden"),
+      );
+
+    const setActive = (modal: HTMLDialogElement, index: number): void => {
+      const items = visibleItems(modal);
+      items.forEach((item, i) => item.classList.toggle("is-active", i === index));
+      const active = items[index];
+      if (active) {
+        if (!active.id) {
+          active.id = `palette-item-${Math.random().toString(36).slice(2, 8)}`;
+        }
+        modal
+          .querySelector("[data-search-input]")
+          ?.setAttribute("aria-activedescendant", active.id);
+        active.scrollIntoView({ block: "nearest" });
+      } else {
+        modal
+          .querySelector("[data-search-input]")
+          ?.removeAttribute("aria-activedescendant");
+      }
+    };
+
+    const activeIndex = (modal: HTMLDialogElement): number =>
+      visibleItems(modal).findIndex((item) =>
+        item.classList.contains("is-active"),
+      );
+
+    const runAction = (item: HTMLElement): void => {
+      const modal = getModal();
+      const action = item.dataset.paletteAction;
+      if (!action) {
+        if (item instanceof HTMLAnchorElement) item.click();
+        return;
+      }
+      if (action === "theme") {
+        modal?.close();
+        document.querySelector<HTMLElement>("[data-theme-toggle]")?.click();
+        return;
+      }
+      if (action === "lang") {
+        const href = item.dataset.href;
+        if (href) {
+          localStorage.setItem("lisible-locale", href.startsWith("/en") ? "en" : "fr");
+          modal?.close();
+          void navigate(href);
+        }
+        return;
+      }
+      if (action === "accent") {
+        localStorage.removeItem("accent");
+        (window as { __applyAccent?: () => void }).__applyAccent?.();
+        modal?.close();
+        return;
+      }
+      if (action === "copy-url") {
+        const label = item.querySelector<HTMLElement>("[data-palette-label]");
+        const original = item.dataset.label ?? "";
+        void navigator.clipboard
+          .writeText(window.location.href)
+          .then(() => {
+            if (label) label.textContent = item.dataset.copiedLabel ?? original;
+            window.setTimeout(() => {
+              if (label) label.textContent = original;
+            }, 1500);
+          })
+          .catch(() => {});
+      }
+    };
+
+    paletteSync = (modal, query) => {
+      filterPalette(modal, query);
+      setActive(modal, -1);
+    };
+    paletteDecorate = (link) => {
+      link.setAttribute("data-palette-item", "");
+      link.classList.add("palette-item");
+    };
+    paletteHeading = (modal, container) => {
+      const heading = document.createElement("p");
+      heading.className = "palette-section";
+      heading.setAttribute("aria-hidden", "true");
+      heading.textContent = modal.dataset.resultsLabel ?? "";
+      container.appendChild(heading);
+    };
+
+    document.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement | null;
+      const actionItem = target?.closest<HTMLElement>("button[data-palette-item]");
+      if (actionItem) runAction(actionItem);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      const modal = getModal();
+      if (!modal?.open) return;
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        const items = visibleItems(modal);
+        if (items.length === 0) return;
+        const current = activeIndex(modal);
+        const delta = event.key === "ArrowDown" ? 1 : -1;
+        const next = (current + delta + items.length) % items.length;
+        setActive(modal, next);
+        return;
+      }
+      if (event.key === "Enter") {
+        const items = visibleItems(modal);
+        const current = activeIndex(modal);
+        const active = items[current];
+        if (active) {
+          event.preventDefault();
+          runAction(active);
+        }
+      }
+    });
+  }
+</script>

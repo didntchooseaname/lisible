@@ -1,0 +1,10 @@
+---
+import ArchivesPage from "@/components/pages/ArchivesPage.astro";
+import { FEATURES } from "@/site.config";
+
+export async function getStaticPaths() {
+  return FEATURES.archives ? [{ params: { slug: undefined } }] : [];
+}
+---
+
+<ArchivesPage locale="en" />

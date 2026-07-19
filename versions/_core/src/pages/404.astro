@@ -1,0 +1,47 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import NotFoundLocale from "@shared/components/NotFoundLocale.astro";
+import { localeUrl, ui } from "@/i18n/ui";
+
+const fr = ui.fr;
+const en = ui.en;
+---
+
+<BaseLayout
+  locale="fr"
+  title={fr.notFound.title}
+  description={fr.notFound.message}
+>
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+  <NotFoundLocale
+    class="flex flex-col items-start gap-10 py-16 md:py-24"
+    frTitle={fr.notFound.title}
+    enTitle={en.notFound.title}
+    frDescription={fr.notFound.message}
+    enDescription={en.notFound.message}
+  >
+    <p class="font-mono text-6xl font-bold tracking-tight text-accent md:text-7xl" aria-hidden="true">
+      404
+    </p>
+    <section data-not-found-locale="fr" aria-label={fr.notFound.title}>
+      <h1 class="text-2xl font-bold tracking-tight md:text-3xl">{fr.notFound.title}</h1>
+      <p class="mt-2 text-muted-foreground">{fr.notFound.message}</p>
+      <a
+        href={localeUrl("fr")}
+        class="mt-4 inline-flex min-h-11 items-center font-medium underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        {fr.notFound.backHome}
+      </a>
+    </section>
+    <section data-not-found-locale="en" lang="en" aria-label={en.notFound.title}>
+      <h1 class="text-2xl font-bold tracking-tight md:text-3xl">{en.notFound.title}</h1>
+      <p class="mt-2 text-muted-foreground">{en.notFound.message}</p>
+      <a
+        href={localeUrl("en")}
+        class="mt-4 inline-flex min-h-11 items-center font-medium underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        {en.notFound.backHome}
+      </a>
+    </section>
+  </NotFoundLocale>
+</BaseLayout>

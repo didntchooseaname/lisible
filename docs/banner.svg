@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320">
+  <rect width="1280" height="320" fill="#000000"/>
+  <g fill="#ffffff" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" text-anchor="middle">
+    <text x="640" y="170" font-size="132" font-weight="700" letter-spacing="-2">Lisible</text>
+    <text x="640" y="228" font-size="27" font-weight="400" fill="#a3a3a3" letter-spacing="0.5">A minimal, fast blog framework built for reading.</text>
+  </g>
+  <rect x="596" y="258" width="88" height="4" rx="2" fill="#22c55e"/>
+</svg>

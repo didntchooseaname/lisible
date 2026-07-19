@@ -1,0 +1,152 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+import { postUrl } from "@/lib/posts";
+import { seriesUrl, type SeriesContext } from "@/lib/series";
+
+interface Props {
+  context: SeriesContext;
+  locale: Locale;
+  class?: string;
+}
+
+const { context, locale, class: className } = Astro.props;
+const dict = t(locale);
+const { slug, title, posts, position, total, previous, next } = context;
+---
+
+<aside
+  class:list={[
+    "rounded-lg border border-border bg-card/60 p-5",
+    className,
+  ]}
+  aria-label={`${dict.series.label}: ${title}`}
+>
+  <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+    <p class="text-xs font-semibold uppercase tracking-wide text-accent">
+      {dict.series.label}
+    </p>
+    <p class="text-xs text-muted-foreground">
+      {dict.series.position(position, total)}
+    </p>
+  </div>
+
+  <a
+    href={seriesUrl(locale, slug)}
+    class="mt-1 inline-block text-lg font-bold tracking-tight transition-colors hover:text-accent"
+  >
+    {title}
+  </a>
+
+  <details class="group mt-3">
+    <summary
+      class="cursor-pointer list-none text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+    >
+      <span class="inline-flex items-center gap-1.5">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          class="transition-transform group-open:rotate-90"
+        >
+          <path d="m9 18 6-6-6-6"></path>
+        </svg>
+        {dict.series.showList}
+      </span>
+    </summary>
+    <ol class="mt-3 space-y-1.5 border-l border-border pl-4">
+      {
+        posts.map((entry, index) => {
+          const isCurrent = index + 1 === position;
+          return (
+            <li class="text-sm">
+              <span class="mr-1.5 tabular-nums text-muted-foreground">
+                {index + 1}.
+              </span>
+              {isCurrent ? (
+                <span
+                  class="font-semibold text-foreground"
+                  aria-current="true"
+                  title={dict.series.current}
+                >
+                  {entry.data.title}
+                </span>
+              ) : (
+                <a
+                  href={postUrl(entry)}
+                  class="text-muted-foreground transition-colors hover:text-accent"
+                >
+                  {entry.data.title}
+                </a>
+              )}
+            </li>
+          );
+        })
+      }
+    </ol>
+  </details>
+
+  {
+    (previous || next) && (
+      <nav
+        class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3 text-sm"
+        aria-label={title}
+      >
+        {previous ? (
+          <a
+            href={postUrl(previous)}
+            class="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-accent"
+            rel="prev"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+            <span>{dict.series.previous}</span>
+          </a>
+        ) : (
+          <span aria-hidden="true" />
+        )}
+        {next && (
+          <a
+            href={postUrl(next)}
+            class="inline-flex items-center gap-1.5 text-right text-muted-foreground transition-colors hover:text-accent"
+            rel="next"
+          >
+            <span>{dict.series.next}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </a>
+        )}
+      </nav>
+    )
+  }
+</aside>

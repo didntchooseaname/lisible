@@ -1,0 +1,100 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Pagination from "@/components/Pagination.astro";
+import { HoverEffect } from "@/components/ui/card-hover-effect";
+import { FEATURES } from "@/site.config";
+import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+import {
+  getAllTags,
+  getPostsByTag,
+  paginate,
+  postUrl,
+  tagPageUrl,
+} from "@/lib/posts";
+import { formatDate, readingTime } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+  tagSlug: string;
+  tagName: string;
+  page?: number;
+}
+
+const { locale, tagSlug, tagName, page = 1 } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPostsByTag(locale, tagSlug);
+const pageSize = FEATURES.pagination.enabled
+  ? FEATURES.pagination.pageSize
+  : Math.max(1, posts.length);
+const pages = paginate(posts, pageSize);
+const current = pages[page - 1] ?? pages[0];
+const total = current.total;
+
+const items = current.items.map((post) => ({
+  title: post.data.draft
+    ? `${post.data.title} (${dict.post.draft})`
+    : post.data.title,
+  description: post.data.description,
+  link: postUrl(post),
+  meta: `${formatDate(post.data.pubDate, locale)} · ${dict.post.readingTime(readingTime(post.body ?? ""))}`,
+}));
+
+const prevUrl = page > 1 ? tagPageUrl(locale, tagSlug, page - 1) : undefined;
+const nextUrl = page < total ? tagPageUrl(locale, tagSlug, page + 1) : undefined;
+
+const other = otherLocale(locale);
+const alternates: Partial<Record<Locale, string>> = {
+  [locale]: tagPageUrl(locale, tagSlug, page),
+};
+const otherTags = await getAllTags(other);
+if (otherTags.some((tag) => tag.slug === tagSlug)) {
+  const otherPosts = await getPostsByTag(other, tagSlug);
+  const otherTotal = Math.max(1, Math.ceil(otherPosts.length / pageSize));
+  if (page <= otherTotal) alternates[other] = tagPageUrl(other, tagSlug, page);
+}
+
+const pageTitle =
+  page > 1
+    ? dict.pagination.pageTitle(dict.tags.taggedWith(tagName), page, total)
+    : dict.tags.taggedWith(tagName);
+---
+
+<BaseLayout
+  locale={locale}
+  title={pageTitle}
+  description={dict.tags.tagDescription(tagName)}
+  alternates={alternates}
+  prevUrl={prevUrl}
+  nextUrl={nextUrl}
+>
+  <div class="py-10 md:py-14">
+    <p class="text-sm font-medium text-muted-foreground">
+      <a
+        href={localeUrl(locale, "tags")}
+        class="underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        {dict.tags.title}
+      </a>
+    </p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+      {dict.tags.taggedWith(tagName)}
+    </h1>
+    <p class="mt-3 text-muted-foreground">{dict.tags.postsCount(posts.length)}</p>
+
+    
+    <div class="-mx-2 mt-4 max-w-4xl">
+      <HoverEffect client:visible items={items} headingLevel="h2" />
+    </div>
+
+    <div class="max-w-4xl">
+      <Pagination
+        locale={locale}
+        current={page}
+        total={total}
+        prevUrl={prevUrl}
+        nextUrl={nextUrl}
+      />
+    </div>
+  </div>
+</BaseLayout>

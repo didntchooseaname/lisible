@@ -1,0 +1,74 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import TagBadge from "@/components/TagBadge.astro";
+import TagsTabs from "@/components/react/TagsTabs";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getAllTags, getPostsByTag, postUrl } from "@/lib/posts";
+import { formatDate, isoDate } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const tags = await getAllTags(locale);
+
+const tabsData = await Promise.all(
+  tags.map(async (tag) => {
+    const posts = await getPostsByTag(locale, tag.slug);
+    return {
+      slug: tag.slug,
+      name: tag.name,
+      countLabel: dict.tags.postsCount(tag.count),
+      tagUrl: localeUrl(locale, `tags/${tag.slug}`),
+      allPostsLabel: dict.tags.viewTagPage,
+      posts: posts.map((post) => ({
+        title: post.data.title,
+        url: postUrl(post),
+        dateIso: isoDate(post.data.pubDate),
+        dateLabel: formatDate(post.data.pubDate, locale, "short"),
+      })),
+    };
+  }),
+);
+
+const alternates = { fr: localeUrl("fr", "tags"), en: localeUrl("en", "tags") };
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.tags.title}
+  description={dict.tags.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{dict.tags.title}</h1>
+    <p class="mt-3 max-w-2xl text-muted-foreground">{dict.tags.description}</p>
+
+    <ul class="mt-8 flex flex-wrap gap-3" aria-label={dict.tags.all}>
+      {
+        tags.map((tag) => (
+          <li>
+            <TagBadge
+              tag={tag.name}
+              locale={locale}
+              count={tag.count}
+              class="px-3.5 py-2.5 text-sm"
+            />
+          </li>
+        ))
+      }
+    </ul>
+
+    
+    <section aria-labelledby="tags-explore-title" class="mt-12">
+      <h2 id="tags-explore-title" class="text-xl font-bold tracking-tight">
+        {dict.tags.explore}
+      </h2>
+      <div class="mt-5">
+        <TagsTabs client:visible tags={tabsData} listLabel={dict.tags.explore} />
+      </div>
+    </section>
+  </div>
+</BaseLayout>

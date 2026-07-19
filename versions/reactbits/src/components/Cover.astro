@@ -1,0 +1,40 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  cover: ImageMetadata | string;
+  alt: string;
+  class?: string;
+  loading?: "eager" | "lazy";
+}
+
+const { cover, alt, class: className, loading = "lazy" } = Astro.props;
+const isLocal = typeof cover !== "string";
+---
+
+<figure class:list={["cover", className]}>
+  {
+    isLocal ? (
+      <Image
+        src={cover as ImageMetadata}
+        alt={alt}
+        widths={[480, 800, 1200]}
+        sizes="(min-width: 768px) 768px, 100vw"
+        loading={loading}
+        decoding="async"
+        class="cover__img"
+      />
+    ) : (
+      <img
+        src={cover as string}
+        alt={alt}
+        width="1200"
+        height="600"
+        loading={loading}
+        decoding="async"
+        class="cover__img"
+      />
+    )
+  }
+</figure>

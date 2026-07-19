@@ -1,0 +1,58 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+import { getWebmentions } from "@/lib/webmentions";
+
+interface Props {
+  locale: Locale;
+  path: string;
+}
+
+const { locale, path } = Astro.props;
+const dict = t(locale);
+const strings = dict.platform.webmentions;
+const { likes, reposts, mentions } = await getWebmentions(path);
+const isEmpty = likes === 0 && reposts === 0 && mentions.length === 0;
+---
+
+<section class="webmentions mt-12" aria-label={strings.title} data-pagefind-ignore>
+  <p class="section-label" aria-hidden="true">{strings.title}</p>
+  <h2 class="font-display mt-2 text-lg font-bold tracking-wide">{strings.title}</h2>
+
+  {
+    isEmpty ? (
+      <p class="mt-3 text-sm text-muted-foreground">{strings.empty}</p>
+    ) : (
+      <div class="mt-4">
+        <p class="flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+          <span>{strings.likes(likes)}</span>
+          <span aria-hidden="true" class="text-accent">::</span>
+          <span>{strings.reposts(reposts)}</span>
+        </p>
+        {mentions.length > 0 && (
+          <ul class="mt-4 flex flex-col gap-3" aria-label={strings.mentions}>
+            {mentions.map((mention) => (
+              <li class="hud-corners border border-border bg-background/60 p-4">
+                <p class="text-sm font-medium">
+                  <a
+                    href={mention.author.url}
+                    rel="external nofollow noopener"
+                    class="underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+                  >
+                    {mention.author.name}
+                  </a>
+                </p>
+                {mention.text && (
+                  <p class="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                    {mention.text.length > 280
+                      ? `${mention.text.slice(0, 280)}...`
+                      : mention.text}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )
+  }
+</section>

@@ -1,0 +1,47 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale).lightbox;
+
+const btn =
+  "inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card/80 text-muted-foreground backdrop-blur transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-30";
+---
+
+<div id="image-lightbox" class="lightbox" aria-hidden="true">
+  <div class="lightbox__toolbar">
+    <span class="lightbox__counter" aria-hidden="true">
+      <span id="lightbox-current">1</span> / <span id="lightbox-total">1</span>
+    </span>
+    <div class="flex items-center gap-1.5">
+      <button id="lightbox-zoom-out" type="button" class={btn} aria-label={dict.zoomOut}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path><path d="M8 11h6"></path></svg>
+      </button>
+      <button id="lightbox-zoom-in" type="button" class={btn} aria-label={dict.zoomIn}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path><path d="M11 8v6"></path><path d="M8 11h6"></path></svg>
+      </button>
+      <button id="lightbox-zoom-reset" type="button" class={btn} aria-label={dict.reset}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+      </button>
+      <button id="lightbox-close" type="button" class={btn} aria-label={dict.close}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <button id="lightbox-prev" type="button" class={`lightbox__nav lightbox__nav--prev ${btn}`} aria-label={dict.prev}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+  </button>
+
+  <img id="lightbox-image" class="lightbox__image" alt="" />
+
+  <button id="lightbox-next" type="button" class={`lightbox__nav lightbox__nav--next ${btn}`} aria-label={dict.next}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+  </button>
+</div>
+
+

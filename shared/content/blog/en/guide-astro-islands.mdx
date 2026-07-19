@@ -1,0 +1,95 @@
+---
+title: "Understanding Astro's islands architecture"
+description: "Partial hydration, client directives and a JavaScript budget: the complete guide to islands."
+pubDate: 2026-07-05
+updatedDate: 2026-07-12
+tags: ["astro", "performance", "architecture"]
+draft: false
+---
+
+Astro renders everything as static HTML by default and only hydrates the components that need it. This post, deliberately long, also serves to test the table of contents.
+
+## The problem with SPAs
+
+A single-page application ships all of its JavaScript, even to display static text. On a blog, that makes no sense: 95% of the content is inert.
+
+### The real cost of JavaScript
+
+Every kilobyte of JS costs you three times: download, parsing, execution. On a mid-range phone, 300 KB of JS can block the main thread for more than a second.
+
+### What Core Web Vitals measure
+
+- LCP: the paint of the largest visible element
+- INP: interaction latency
+- CLS: visual stability
+
+## Islands in practice
+
+An island is an interactive component hydrated independently from the rest of the page.
+
+### Client directives
+
+```astro
+---
+import ThemeToggle from "../components/ThemeToggle";
+import Comments from "../components/Comments";
+---
+<ThemeToggle client:load />
+<Comments client:visible />
+```
+
+`client:load` hydrates immediately, `client:visible` waits until the component enters the viewport, `client:idle` waits until the browser is idle.
+
+### When to pick what
+
+| Directive | Use case | Priority |
+| --- | --- | --- |
+| `client:load` | Theme switcher, interactive header | High |
+| `client:idle` | Search bar | Medium |
+| `client:visible` | Bottom-of-page carousel | Low |
+| `client:only` | SSR-incompatible component | Special |
+
+## Content collections
+
+Content lives in typed collections:
+
+```ts
+import { defineCollection, z } from "astro:content";
+import { glob } from "astro/loaders";
+
+const blog = defineCollection({
+  loader: glob({ pattern: "**/*.mdx", base: "../../shared/content/blog" }),
+  schema: z.object({
+    title: z.string().max(70),
+    description: z.string().max(160),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { blog };
+```
+
+### Querying the collection
+
+```ts
+const posts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+```
+
+## Going further
+
+### On-demand rendering
+
+Astro can also do per-route SSR when a page needs fresh data.
+
+### View transitions
+
+Astro's transition router animates the move from one page to the next without a SPA, preserving the theme state.
+
+## Conclusion
+
+A well-built Astro blog ships a few kilobytes of JavaScript where a SPA ships hundreds. The islands architecture is not an optimization, it is a structural choice.

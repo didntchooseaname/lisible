@@ -1,0 +1,82 @@
+---
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { postUrl, seriesName, type Post, type SeriesInfo } from "@/lib/posts";
+import { readingTime } from "@/lib/utils";
+
+interface Props {
+  series: SeriesInfo;
+  current: Post;
+  locale: Locale;
+  class?: string;
+}
+
+const { series, current, locale, class: className } = Astro.props;
+const dict = t(locale);
+
+const posts = series.posts;
+const index = posts.findIndex((p) => p.id === current.id);
+const prev = posts[index - 1];
+const next = posts[index + 1];
+const totalMinutes = posts.reduce((sum, p) => sum + readingTime(p.body ?? ""), 0);
+const seriesUrl = localeUrl(locale, `series/${series.slug}`);
+const name = seriesName(series.slug, locale);
+---
+
+<aside class:list={["not-prose series-nav", className]} aria-label={dict.series.label}>
+  <div class="series-nav__head">
+    <div class="series-nav__meta">
+      <span class="series-nav__badge">{dict.series.label}</span>
+      <a href={seriesUrl} class="series-nav__name">{name}</a>
+      <span aria-hidden="true">&middot;</span>
+      <span>{dict.series.part(index + 1, posts.length)}</span>
+      <span aria-hidden="true">&middot;</span>
+      <span>{dict.series.totalTime(totalMinutes)}</span>
+    </div>
+    <a href={seriesUrl} class="series-nav__all">{dict.series.toc}</a>
+  </div>
+
+  <details class="series-nav__list">
+    <summary>
+      <span>{dict.series.count(posts.length)}</span>
+      <svg class="series-nav__chevron" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    </summary>
+    <ol>
+      {
+        posts.map((post, i) => {
+          const isCurrent = post.id === current.id;
+          return (
+            <li aria-current={isCurrent ? "true" : undefined}>
+              <span class="series-nav__num">{i + 1}</span>
+              {isCurrent ? (
+                <span class="series-nav__cur">{post.data.title}</span>
+              ) : (
+                <a href={postUrl(post)}>{post.data.title}</a>
+              )}
+            </li>
+          );
+        })
+      }
+    </ol>
+  </details>
+
+  {
+    (prev || next) && (
+      <div class="series-nav__pager">
+        {prev ? (
+          <a href={postUrl(prev)} class="series-nav__link">
+            <span class="series-nav__dir">{dict.series.prev}</span>
+            <span class="series-nav__title">{prev.data.title}</span>
+          </a>
+        ) : (
+          <span aria-hidden="true" />
+        )}
+        {next && (
+          <a href={postUrl(next)} class="series-nav__link series-nav__link--next">
+            <span class="series-nav__dir">{dict.series.next}</span>
+            <span class="series-nav__title">{next.data.title}</span>
+          </a>
+        )}
+      </div>
+    )
+  }
+</aside>

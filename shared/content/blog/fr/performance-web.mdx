@@ -1,0 +1,44 @@
+---
+title: "Budget performance pour un blog statique"
+description: "Fixer un budget, mesurer, tenir: la performance comme contrainte de design."
+pubDate: 2026-06-10
+tags: ["performance", "astro"]
+draft: false
+---
+
+Un blog statique n'a aucune excuse pour être lent. Voici un budget raisonnable et comment le tenir.
+
+## Le budget
+
+| Ressource | Budget | Justification |
+| --- | --- | --- |
+| HTML | < 30 ko | Contenu compressé en brotli |
+| CSS | < 20 ko | Tailwind purgé |
+| JS initial | < 50 ko | Îlots seulement |
+| Fonts | < 120 ko | 2 variables fonts, woff2 |
+| LCP | < 1.5 s | Sur 4G simulée |
+
+## Les fonts variables
+
+```css
+@font-face {
+  font-family: "Inter Variable";
+  font-display: swap;
+  src: url("/fonts/inter.woff2") format("woff2-variations");
+}
+```
+
+Une seule variable font remplace quatre graisses statiques. Avec `font-display: swap`, le texte reste visible pendant le chargement.
+
+## Les images
+
+```bash
+# Astro optimise la compilation
+bunx astro build
+```
+
+Le composant `<Image>` d'Astro génère du AVIF/WebP avec `width` et `height` explicites: zéro layout shift.
+
+## Mesurer en continu
+
+Lighthouse en CI sur chaque pull request, avec un seuil bloquant à 95. Un budget qui n'est pas vérifié automatiquement finit toujours par exploser.

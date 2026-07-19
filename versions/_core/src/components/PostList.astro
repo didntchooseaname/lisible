@@ -1,0 +1,43 @@
+---
+import { postLocale, postUrl, type Post } from "@/lib/posts";
+import { formatDate, isoDate } from "@/lib/utils";
+import { t } from "@/i18n/ui";
+
+interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+---
+
+<ul class="divide-y divide-border">
+  {
+    posts.map((post) => {
+      const locale = postLocale(post);
+      const dict = t(locale);
+      return (
+        <li>
+          <a
+            href={postUrl(post)}
+            class="group flex min-h-11 flex-col gap-1 py-3.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+          >
+            <span class="font-medium transition-colors group-hover:text-accent">
+              {post.data.title}
+              {post.data.draft && (
+                <span class="ml-2 inline-flex items-center rounded-md border border-border px-1.5 py-0.5 align-middle text-xs font-medium text-muted-foreground">
+                  {dict.post.draft}
+                </span>
+              )}
+            </span>
+            <time
+              datetime={isoDate(post.data.pubDate)}
+              class="shrink-0 text-sm text-muted-foreground"
+            >
+              {formatDate(post.data.pubDate, locale, "short")}
+            </time>
+          </a>
+        </li>
+      );
+    })
+  }
+</ul>

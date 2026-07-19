@@ -1,0 +1,66 @@
+{
+  "Frontmatter d'article Lisible": {
+    "scope": "markdown,mdx",
+    "prefix": "post-frontmatter",
+    "description": "Frontmatter complet d'un article (schema de la collection blog)",
+    "body": [
+      "---",
+      "title: \"${1:Titre de l'article}\"",
+      "description: \"${2:Description de 160 caracteres maximum}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "tags: [${4:\"demo\"}]",
+      "draft: ${5|true,false|}",
+      "---",
+      "",
+      "$0"
+    ]
+  },
+  "Frontmatter avec cover et serie": {
+    "scope": "markdown,mdx",
+    "prefix": "post-frontmatter-complet",
+    "description": "Frontmatter avec cover, epinglage et serie",
+    "body": [
+      "---",
+      "title: \"${1:Titre de l'article}\"",
+      "description: \"${2:Description de 160 caracteres maximum}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "updatedDate: ${4:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "tags: [${5:\"demo\"}]",
+      "draft: ${6|true,false|}",
+      "cover: ${7:/images/exemple.svg}",
+      "coverAlt: \"${8:Description de l'image}\"",
+      "featured: ${9|false,true|}",
+      "series: ${10:ma-serie}",
+      "seriesOrder: ${11:1}",
+      "---",
+      "",
+      "$0"
+    ]
+  },
+  "Callout": {
+    "scope": "markdown,mdx",
+    "prefix": "callout",
+    "description": "Callout :::note / :::tip / :::warning / :::caution / :::important",
+    "body": [
+      ":::${1|note,tip,warning,caution,important|}",
+      "${2:Contenu du callout.}",
+      ":::"
+    ]
+  },
+  "Callout repliable": {
+    "scope": "markdown,mdx",
+    "prefix": "callout-collapse",
+    "description": "Callout repliable avec titre personnalise",
+    "body": [
+      ":::${1|note,tip,warning,caution,important|}[${2:Titre}]{collapse}",
+      "${3:Contenu replie.}",
+      ":::"
+    ]
+  },
+  "Carte de depot GitHub": {
+    "scope": "markdown,mdx",
+    "prefix": "github-card",
+    "description": "Carte de depot GitHub ::github{repo=...}",
+    "body": ["::github{repo=\"${1:withastro/astro}\"}"]
+  }
+}

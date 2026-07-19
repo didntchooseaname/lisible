@@ -1,0 +1,137 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import NewsletterCTA from "@/components/NewsletterCTA.astro";
+import JsonLd from "@/components/JsonLd.astro";
+import FeaturedBento from "@/components/react/FeaturedBento";
+import { GridDotBackground } from "@/components/ui/grid-dot-background";
+import { Spotlight } from "@/components/ui/spotlight-new";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { FlipWords } from "@/components/ui/flip-words";
+import { HoverEffect } from "@/components/ui/card-hover-effect";
+import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
+import { SITE, FEATURES } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, postUrl, selectFeatured } from "@/lib/posts";
+import { coverSrc } from "@/lib/cover";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+const featured = FEATURES.pinned
+  ? selectFeatured(posts, SITE.featuredCount)
+  : posts.slice(0, SITE.featuredCount);
+const featuredIds = new Set(featured.map((post) => post.id));
+const latest = posts
+  .filter((post) => !featuredIds.has(post.id))
+  .slice(0, SITE.postsPerPage);
+
+const featuredData = await Promise.all(
+  featured.map(async (post) => ({
+    title: post.data.title,
+    description: post.data.description,
+    url: postUrl(post),
+    dateIso: isoDate(post.data.pubDate),
+    dateLabel: formatDate(post.data.pubDate, locale),
+    readingLabel: dict.post.readingTime(readingTime(post.body ?? "")),
+    draftLabel: post.data.draft ? dict.post.draft : undefined,
+    coverSrc: FEATURES.covers ? await coverSrc(post.data.cover, 960) : undefined,
+    coverAlt: post.data.coverAlt ?? dict.reading.coverAltFallback,
+  })),
+);
+
+const latestItems = latest.map((post) => ({
+  title: post.data.draft
+    ? `${post.data.title} (${dict.post.draft})`
+    : post.data.title,
+  description: post.data.description,
+  link: postUrl(post),
+  meta: `${formatDate(post.data.pubDate, locale)} · ${dict.post.readingTime(readingTime(post.body ?? ""))}`,
+}));
+
+const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
+
+const jsonLd = {
+  "@type": "WebSite",
+  name: SITE.title,
+  description: dict.site.description,
+  url: new URL(localeUrl(locale), SITE.url).toString(),
+  inLanguage: locale,
+  author: { "@type": "Person", name: SITE.author },
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.home.metaTitle}
+  description={dict.site.description}
+  alternates={alternates}
+  isHome
+>
+  <JsonLd slot="head" data={jsonLd} />
+
+  
+  <section class="relative overflow-hidden py-14 md:py-20">
+    <GridDotBackground variant="grid" />
+    <div class="pointer-events-none absolute inset-0 hidden dark:block">
+      <Spotlight client:idle />
+    </div>
+    <div class="relative">
+      <h1 class="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+        <TextGenerateEffect client:load words={SITE.title} filter={false} duration={0.4} />
+      </h1>
+      <p class="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
+        {dict.site.tagline}
+      </p>
+      <p class="mt-2 text-sm font-medium text-muted-foreground">
+        {dict.home.topicsPrefix}
+        <FlipWords client:idle words={dict.home.topics} className="font-semibold text-accent" />
+      </p>
+      <div class="mt-10">
+        <NewsletterCTA locale={locale} />
+      </div>
+    </div>
+  </section>
+
+  {
+    featuredData.length > 0 && (
+      <section aria-labelledby="featured-title" class="py-8">
+        <h2 id="featured-title" class="text-xl font-bold tracking-tight">
+          {dict.home.featured}
+        </h2>
+        <div class="mt-5">
+          <FeaturedBento posts={featuredData} />
+        </div>
+      </section>
+    )
+  }
+
+  {
+    latestItems.length > 0 && (
+      <section aria-labelledby="latest-title" class="py-8">
+        <div class="flex items-center justify-between gap-4">
+          <h2 id="latest-title" class="text-xl font-bold tracking-tight">
+            {dict.home.latest}
+          </h2>
+          <HoverBorderGradient
+            client:visible
+            as="a"
+            href={localeUrl(locale, "blog")}
+            containerClassName="shrink-0"
+            className="inline-flex min-h-11 items-center px-5 text-sm font-medium"
+          >
+            {dict.home.allPosts}
+          </HoverBorderGradient>
+        </div>
+        <div class="-mx-2 mt-3">
+          <HoverEffect client:visible items={latestItems} />
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

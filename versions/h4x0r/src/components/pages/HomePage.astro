@@ -1,0 +1,291 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import CardBody from "@/components/cyber/CardBody.astro";
+import HomeTerminal from "@/components/cyber/HomeTerminal";
+import HomeStats from "@/components/cyber/HomeStats";
+import NewsletterCTA from "@/components/NewsletterCTA.astro";
+import JsonLd from "@/components/JsonLd.astro";
+import { HyperTitle, TypeLine } from "@/components/cyber/TextFx";
+import { WordRotate } from "@/components/ui/word-rotate";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { MagicCard } from "@/components/ui/magic-card";
+import { NeonGradientCard } from "@/components/ui/neon-gradient-card";
+import { BorderBeam } from "@/components/ui/border-beam";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { SparklesText } from "@/components/ui/sparkles-text";
+import { Marquee } from "@/components/ui/marquee";
+import { SITE } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getAllTags, getFeaturedPosts, getPublishedPosts, postUrl } from "@/lib/posts";
+import { readingTime } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+const featured = await getFeaturedPosts(locale, SITE.featuredCount);
+const featuredIds = new Set(featured.map((post) => post.id));
+const latest = posts
+  .filter((post) => !featuredIds.has(post.id))
+  .slice(0, SITE.postsPerPage);
+const tags = await getAllTags(locale);
+
+const words = posts.reduce(
+  (sum, post) => sum + (post.body ?? "").split(/\s+/).filter(Boolean).length,
+  0,
+);
+const minutes = posts.reduce((sum, post) => sum + readingTime(post.body ?? ""), 0);
+
+const terminalPosts = posts.slice(0, 4).map((post) => ({
+  title: post.data.title,
+  url: postUrl(post),
+  stamp: post.data.pubDate.toISOString().slice(0, 10),
+  meta: dict.post.readingTime(readingTime(post.body ?? "")),
+}));
+
+const stats = [
+  { value: posts.length, label: dict.cyber.home.statPosts },
+  { value: tags.length, label: dict.cyber.home.statTags },
+  { value: words, label: dict.cyber.home.statWords },
+  { value: minutes, label: dict.cyber.home.statMinutes },
+];
+
+const scrambleChars = "ABCDEF0123456789<>/*#$";
+
+const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
+
+const jsonLd = {
+  "@type": "WebSite",
+  name: SITE.title,
+  description: dict.site.description,
+  url: new URL(localeUrl(locale), SITE.url).toString(),
+  inLanguage: locale,
+  author: { "@type": "Person", name: SITE.author },
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.home.metaTitle}
+  description={dict.site.description}
+  alternates={alternates}
+  isHome
+>
+  <JsonLd slot="head" data={jsonLd} />
+
+  
+  <section class="grid items-center gap-10 py-12 md:py-16 lg:min-h-[min(calc(100vh-11rem),42rem)] lg:grid-cols-[1.05fr_0.95fr]">
+    <div class="min-w-0">
+      <p class="terminal-line" data-boot-reveal style="--reveal-i: 0">
+        <span class="prompt-user">{dict.cyber.home.prompt.split(":~$")[0]}</span><span>:~$&nbsp;</span><TypeLine
+          client:load
+          duration={26}
+          delay={250}
+          className="font-mono text-[0.8125rem] text-muted-foreground"
+          text={dict.cyber.home.prompt.split(":~$")[1]?.trim() ?? ""}
+        />
+      </p>
+
+      <h1 class="mt-6" data-boot-reveal style="--reveal-i: 1">
+        <HyperTitle
+          client:load
+          duration={1100}
+          characters={scrambleChars}
+          className="font-display text-glow-lg block text-5xl font-black uppercase tracking-[0.08em] md:text-7xl"
+          text={SITE.title.toUpperCase()}
+        />
+      </h1>
+
+      <div
+        class="mt-4 flex items-center gap-3 font-mono text-sm uppercase tracking-[0.22em] text-accent"
+        data-boot-reveal
+        style="--reveal-i: 2"
+      >
+        <span class="inline-block h-px w-10 bg-accent/70" aria-hidden="true"></span>
+        <WordRotate
+          client:load
+          words={[...dict.cyber.home.rotateWords]}
+          duration={2400}
+          className="text-glow font-semibold"
+        />
+      </div>
+
+      <p class="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground" data-boot-reveal style="--reveal-i: 3">
+        <TypeLine client:load duration={14} delay={1100} showCursor={false} text={dict.site.tagline} />
+      </p>
+
+      <div class="mt-10 flex flex-wrap items-center gap-4" data-boot-reveal style="--reveal-i: 4">
+        <a
+          href={localeUrl(locale, "blog")}
+          class="hud-corners inline-flex min-h-11 items-center gap-2 border border-accent/70 bg-accent/10 px-6 font-mono text-sm font-semibold uppercase tracking-wider text-foreground transition-all hover:bg-accent hover:text-accent-foreground hover:shadow-[var(--glow-md)]"
+        >
+          {dict.cyber.home.ctaBlog}
+          <span aria-hidden="true">→</span>
+        </a>
+        <InteractiveHoverButton
+          client:idle
+          data-search-open
+          className="rounded-none border-border bg-transparent font-mono text-sm uppercase tracking-wider"
+        >
+          {dict.search.title} [Ctrl+K]
+        </InteractiveHoverButton>
+      </div>
+    </div>
+
+    <div class="min-w-0" data-boot-reveal style="--reveal-i: 5">
+      <HomeTerminal
+        client:load
+        cmd={dict.cyber.home.terminalCmd}
+        okLine={dict.cyber.home.terminalOk}
+        posts={terminalPosts}
+      />
+    </div>
+  </section>
+
+  
+  <section aria-labelledby="telemetry-title" class="py-10">
+    <BlurFade client:visible inView>
+      <p class="section-label" aria-hidden="true">{dict.cyber.home.telemetry}</p>
+      <h2 id="telemetry-title" class="sr-only">{dict.cyber.home.telemetry}</h2>
+      <SparklesText
+        client:visible
+        aria-hidden="true"
+        sparklesCount={6}
+        colors={{ first: "var(--color-accent)", second: "var(--neon-70)" }}
+        className="font-display mt-2 text-xl font-bold tracking-wide"
+      >
+        {dict.cyber.home.telemetry}
+      </SparklesText>
+      <div class="mt-6">
+        <HomeStats client:visible locale={locale} stats={stats} integrityLabel={dict.cyber.home.integrity} />
+      </div>
+    </BlurFade>
+  </section>
+
+  
+  {
+    featured.length > 0 && (
+      <section aria-labelledby="featured-title" class="py-10">
+        <BlurFade client:visible inView>
+          <p class="section-label" aria-hidden="true">{dict.home.featured}</p>
+          <h2 id="featured-title" class="mt-2 font-display text-xl font-bold tracking-wide">
+            {dict.home.featured}
+          </h2>
+        </BlurFade>
+        <div class="mt-6 grid gap-5 sm:grid-cols-2">
+          {featured[0] && (
+            <BlurFade client:visible inView delay={0.1} className="min-w-0">
+              <NeonGradientCard
+                client:visible
+                borderRadius={10}
+                borderSize={1}
+                neonColors={{
+                  firstColor: "var(--color-accent)",
+                  secondColor: "var(--neon-45)",
+                }}
+                className="cyber-card h-full"
+              >
+                <CardBody post={featured[0]} index={0} />
+              </NeonGradientCard>
+            </BlurFade>
+          )}
+          {featured[1] && (
+            <BlurFade client:visible inView delay={0.2} className="min-w-0">
+              <MagicCard
+                client:visible
+                gradientColor="var(--neon-12)"
+                gradientFrom="var(--neon-70)"
+                gradientTo="var(--neon-25)"
+                className="cyber-card h-full rounded-lg"
+              >
+                <CardBody post={featured[1]} index={1} />
+                <BorderBeam
+                  client:visible
+                  size={90}
+                  duration={7}
+                  colorFrom="var(--color-accent)"
+                  colorTo="var(--neon-25)"
+                />
+              </MagicCard>
+            </BlurFade>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  
+  {
+    latest.length > 0 && (
+      <section aria-labelledby="latest-title" class="py-10">
+        <BlurFade client:visible inView>
+          <div class="flex items-baseline justify-between gap-4">
+            <div>
+              <p class="section-label" aria-hidden="true">{dict.home.latest}</p>
+              <h2 id="latest-title" class="mt-2 font-display text-xl font-bold tracking-wide">
+                {dict.home.latest}
+              </h2>
+            </div>
+            <a
+              href={localeUrl(locale, "blog")}
+              class="inline-flex min-h-11 items-center font-mono text-sm font-medium uppercase tracking-wider underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+            >
+              {dict.home.allPosts}
+            </a>
+          </div>
+        </BlurFade>
+        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+          {latest.map((post, i) => (
+            <BlurFade client:visible inView delay={0.08 * i} className="min-w-0">
+              <MagicCard
+                client:visible
+                gradientColor="var(--neon-12)"
+                gradientFrom="var(--neon-45)"
+                gradientTo="var(--neon-25)"
+                className="cyber-card h-full rounded-lg"
+              >
+                <CardBody post={post} index={i + 2} />
+              </MagicCard>
+            </BlurFade>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  
+  {
+    tags.length > 0 && (
+      <section aria-label={dict.cyber.home.tagStream} class="py-10">
+        <BlurFade client:visible inView>
+          <p class="section-label" aria-hidden="true">{dict.cyber.home.tagStream}</p>
+          <div class="relative mt-4 overflow-hidden border-y border-border/70 py-3 [mask-image:linear-gradient(90deg,transparent,black_10%,black_90%,transparent)]">
+            <Marquee client:visible pauseOnHover className="[--duration:28s] [--gap:1.25rem]">
+              {tags.map((tag) => (
+                <a
+                  href={localeUrl(locale, `tags/${tag.slug}`)}
+                  class="inline-flex min-h-9 items-center gap-1.5 border border-border/70 bg-card/50 px-3 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:border-accent/70 hover:text-accent"
+                >
+                  <span class="text-accent" aria-hidden="true">#</span>
+                  {tag.name}
+                  <span class="text-muted-foreground/70">{tag.count}</span>
+                </a>
+              ))}
+            </Marquee>
+          </div>
+        </BlurFade>
+      </section>
+    )
+  }
+
+  
+  <div class="py-10">
+    <BlurFade client:visible inView>
+      <NewsletterCTA locale={locale} />
+    </BlurFade>
+  </div>
+</BaseLayout>

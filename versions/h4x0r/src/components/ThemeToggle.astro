@@ -1,0 +1,141 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  transition:persist="theme-toggle"
+  aria-label={dict.a11y.toggleTheme}
+  class="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+>
+  
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    class="hidden dark:block"
+  >
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="M12 2v2"></path>
+    <path d="M12 20v2"></path>
+    <path d="m4.93 4.93 1.41 1.41"></path>
+    <path d="m17.66 17.66 1.41 1.41"></path>
+    <path d="M2 12h2"></path>
+    <path d="M20 12h2"></path>
+    <path d="m6.34 17.66-1.41 1.41"></path>
+    <path d="m19.07 4.93-1.41 1.41"></path>
+  </svg>
+  
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    class="block dark:hidden"
+  >
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+  </svg>
+</button>
+
+<script>
+
+  type ViewTransition = {
+    finished?: Promise<void>;
+    ready?: Promise<void>;
+    updateCallbackDone?: Promise<void>;
+  };
+  type StartVT = (cb: () => void) => ViewTransition;
+
+  const DURATION = 500;
+
+  function applyTheme(): void {
+    const root = document.documentElement;
+    const next = root.classList.contains("dark") ? "light" : "dark";
+    root.classList.toggle("dark", next === "dark");
+    localStorage.setItem("theme", next);
+    (window as { __applyAccent?: () => void }).__applyAccent?.();
+  }
+
+  function toggleTheme(button: HTMLElement): void {
+    const root = document.documentElement;
+    const start = (document as unknown as { startViewTransition?: StartVT })
+      .startViewTransition;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (typeof start !== "function" || reduce) {
+      applyTheme();
+      return;
+    }
+
+    const vw = window.visualViewport?.width ?? window.innerWidth;
+    const vh = window.visualViewport?.height ?? window.innerHeight;
+    const rect = button.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const maxRadius = Math.hypot(Math.max(x, vw - x), Math.max(y, vh - y));
+    const from = `circle(0px at ${x}px ${y}px)`;
+    const to = `circle(${maxRadius}px at ${x}px ${y}px)`;
+
+    root.dataset.magicuiThemeVt = "active";
+    root.style.setProperty("--magicui-theme-toggle-vt-duration", `${DURATION}ms`);
+    root.style.setProperty("--magicui-theme-vt-clip-from", from);
+
+    const cleanup = (): void => {
+      delete root.dataset.magicuiThemeVt;
+      root.style.removeProperty("--magicui-theme-toggle-vt-duration");
+      root.style.removeProperty("--magicui-theme-vt-clip-from");
+    };
+
+    const transition = start.call(document, () => {
+      applyTheme();
+    });
+
+    if (transition.finished && typeof transition.finished.finally === "function") {
+      transition.finished.finally(cleanup);
+    } else {
+      cleanup();
+    }
+
+    if (transition.ready && typeof transition.ready.then === "function") {
+      transition.ready.then(() => {
+        root.animate(
+          { clipPath: [from, to] },
+          {
+            duration: DURATION,
+            easing: "ease-in-out",
+            fill: "forwards",
+            pseudoElement: "::view-transition-new(root)",
+          },
+        );
+      });
+    }
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    const button = target?.closest<HTMLElement>("[data-theme-toggle]");
+    if (!button) return;
+    toggleTheme(button);
+  });
+</script>

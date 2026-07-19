@@ -1,0 +1,38 @@
+---
+import { Image } from "astro:assets";
+
+interface Props {
+  cover: ImageMetadata | string;
+  alt: string;
+  variant?: "header" | "card";
+  class?: string;
+}
+
+const { cover, alt, variant = "header", class: className } = Astro.props;
+const isString = typeof cover === "string";
+const eager = variant === "header";
+---
+
+<div class:list={["cover", `cover-${variant}`, className]}>
+  {
+    isString ? (
+      <img
+        src={cover}
+        alt={alt}
+        loading={eager ? "eager" : "lazy"}
+        decoding="async"
+        class="cover-media"
+      />
+    ) : (
+      <Image
+        src={cover}
+        alt={alt}
+        widths={[480, 800, 1200]}
+        sizes={variant === "header" ? "(max-width: 768px) 100vw, 72ch" : "(max-width: 640px) 100vw, 30rem"}
+        loading={eager ? "eager" : "lazy"}
+        decoding="async"
+        class="cover-media"
+      />
+    )
+  }
+</div>

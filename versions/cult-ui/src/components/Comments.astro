@@ -1,0 +1,126 @@
+---
+import { COMMENTS } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  url: string;
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const giscus = COMMENTS.giscus;
+
+function blueskyWebUrl(uri: string): string {
+  if (uri.startsWith("http")) return uri;
+  const match = uri.match(/^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/(.+)$/);
+  if (!match) return "https://bsky.app";
+  return `https://bsky.app/profile/${match[1]}/post/${match[2]}`;
+}
+---
+
+<section class="mt-12 border-t border-border pt-6" aria-label={dict.comments.title}>
+  <h2 class="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+    {dict.comments.title}
+  </h2>
+
+  {
+    COMMENTS.provider === "giscus" ? (
+      <div
+        class="mt-4"
+        data-giscus
+        data-repo={giscus.repo}
+        data-repo-id={giscus.repoId}
+        data-category={giscus.category}
+        data-category-id={giscus.categoryId}
+        data-mapping={giscus.mapping}
+        data-lang={locale}
+        data-loading={dict.comments.loading}
+      >
+        <p class="text-sm text-muted-foreground" data-giscus-placeholder>
+          {dict.comments.loading}
+        </p>
+      </div>
+    ) : (
+      <div class="mt-4 flex flex-col gap-3 text-sm">
+        <p class="text-muted-foreground">{dict.comments.blueskyPrompt}</p>
+        <a
+          href={blueskyWebUrl(COMMENTS.bluesky.postUri)}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex w-fit items-center gap-2 rounded-md border border-border px-3 py-2 font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
+        >
+          {dict.comments.blueskyView}
+        </a>
+      </div>
+    )
+  }
+</section>
+
+{
+  COMMENTS.provider === "giscus" && (
+    <script>
+      function giscusTheme() {
+        return document.documentElement.classList.contains("dark")
+          ? "dark_dimmed"
+          : "light";
+      }
+
+      function sendTheme() {
+        const frame = document.querySelector<HTMLIFrameElement>(
+          "iframe.giscus-frame",
+        );
+        frame?.contentWindow?.postMessage(
+          { giscus: { setConfig: { theme: giscusTheme() } } },
+          "https://giscus.app",
+        );
+      }
+
+      function mountGiscus() {
+        const host = document.querySelector<HTMLElement>("[data-giscus]");
+        if (!host || host.dataset.mounted === "true") return;
+        host.dataset.mounted = "true";
+        const script = document.createElement("script");
+        script.src = "https://giscus.app/client.js";
+        script.async = true;
+        script.crossOrigin = "anonymous";
+        script.setAttribute("data-repo", host.dataset.repo ?? "");
+        script.setAttribute("data-repo-id", host.dataset.repoId ?? "");
+        script.setAttribute("data-category", host.dataset.category ?? "");
+        script.setAttribute("data-category-id", host.dataset.categoryId ?? "");
+        script.setAttribute("data-mapping", host.dataset.mapping ?? "pathname");
+        script.setAttribute("data-strict", "0");
+        script.setAttribute("data-reactions-enabled", "1");
+        script.setAttribute("data-emit-metadata", "0");
+        script.setAttribute("data-input-position", "top");
+        script.setAttribute("data-theme", giscusTheme());
+        script.setAttribute("data-lang", host.dataset.lang ?? "en");
+        script.setAttribute("data-loading", "lazy");
+        host.querySelector("[data-giscus-placeholder]")?.remove();
+        host.appendChild(script);
+      }
+
+      function init() {
+        const host = document.querySelector<HTMLElement>("[data-giscus]");
+        if (!host) return;
+        const observer = new IntersectionObserver((entries, obs) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              mountGiscus();
+              obs.disconnect();
+            }
+          }
+        });
+        observer.observe(host);
+
+        const themeObserver = new MutationObserver(sendTheme);
+        themeObserver.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ["class"],
+        });
+      }
+
+      document.addEventListener("astro:page-load", init);
+    </script>
+  )
+}

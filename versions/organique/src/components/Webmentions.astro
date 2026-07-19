@@ -1,0 +1,101 @@
+---
+import { WEBMENTIONS } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  url: string;
+}
+
+interface Mention {
+  "wm-property": string;
+  url?: string;
+  author?: { name?: string; photo?: string; url?: string };
+  content?: { text?: string };
+}
+
+const { locale, url } = Astro.props;
+const dict = t(locale);
+
+let likes: Mention[] = [];
+let reposts: Mention[] = [];
+let mentions: Mention[] = [];
+
+try {
+  const api = `https://webmention.io/api/mentions.jf2?target=${encodeURIComponent(url)}&per-page=100`;
+  const res = await fetch(api);
+  if (res.ok) {
+    const data = (await res.json()) as { children?: Mention[] };
+    for (const child of data.children ?? []) {
+      const kind = child["wm-property"];
+      if (kind === "like-of") likes.push(child);
+      else if (kind === "repost-of") reposts.push(child);
+      else mentions.push(child);
+    }
+  }
+} catch {
+}
+
+const hasAny = likes.length + reposts.length + mentions.length > 0;
+---
+
+<section class="webmentions mt-14 border-t border-border pt-8" aria-labelledby="webmentions-heading">
+  <h2 id="webmentions-heading" class="type-title text-2xl md:text-3xl">{dict.webmentions.title}</h2>
+
+  {
+    !hasAny ? (
+      <p class="mt-4 text-sm text-muted-foreground">{dict.webmentions.empty}</p>
+    ) : (
+      <div class="mt-6 flex flex-col gap-6">
+        {(likes.length > 0 || reposts.length > 0) && (
+          <div class="flex flex-wrap items-center gap-6">
+            {likes.length > 0 && (
+              <div class="wm-facepile">
+                <span class="wm-facepile-label">{dict.webmentions.likes} ({likes.length})</span>
+                <ul class="wm-faces">
+                  {likes.map((m) => (
+                    <li>
+                      <a href={m.author?.url ?? m.url ?? "#"} target="_blank" rel="noopener noreferrer external" aria-label={m.author?.name}>
+                        <img src={m.author?.photo} alt={m.author?.name ?? ""} width="32" height="32" loading="lazy" decoding="async" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {reposts.length > 0 && (
+              <div class="wm-facepile">
+                <span class="wm-facepile-label">{dict.webmentions.reposts} ({reposts.length})</span>
+                <ul class="wm-faces">
+                  {reposts.map((m) => (
+                    <li>
+                      <a href={m.author?.url ?? m.url ?? "#"} target="_blank" rel="noopener noreferrer external" aria-label={m.author?.name}>
+                        <img src={m.author?.photo} alt={m.author?.name ?? ""} width="32" height="32" loading="lazy" decoding="async" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+        {mentions.length > 0 && (
+          <div>
+            <span class="wm-facepile-label">{dict.webmentions.mentions} ({mentions.length})</span>
+            <ul class="mt-3 flex flex-col gap-3">
+              {mentions.map((m) => (
+                <li class="wm-mention">
+                  <a href={m.author?.url ?? m.url ?? "#"} target="_blank" rel="noopener noreferrer external" class="wm-mention-author">
+                    {m.author?.photo && <img src={m.author.photo} alt="" width="24" height="24" loading="lazy" decoding="async" />}
+                    <span>{m.author?.name ?? m.url}</span>
+                  </a>
+                  {m.content?.text && <p class="wm-mention-text">{m.content.text}</p>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    )
+  }
+</section>

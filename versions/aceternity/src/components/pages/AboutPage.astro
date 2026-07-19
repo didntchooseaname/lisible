@@ -1,0 +1,55 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import AboutAuthor from "@/components/react/AboutAuthor";
+import AboutLinks from "@/components/react/AboutLinks";
+import EditOnGithub from "@/components/EditOnGithub.astro";
+import { SITE } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const alternates = { fr: localeUrl("fr", "about"), en: localeUrl("en", "about") };
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.about.title}
+  description={dict.about.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <div class="flex items-center gap-5">
+      
+      <AboutAuthor
+        client:visible
+        name={SITE.author}
+        role={dict.about.role}
+        image="/images/avatar-placeholder.svg"
+      />
+      <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{dict.about.title}</h1>
+    </div>
+    <div class="prose mt-8">
+      {dict.about.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
+    
+    <div class="mt-6">
+      <AboutLinks
+        client:visible
+        githubHref={SITE.social.github}
+        githubLabel={dict.footer.github}
+        githubPreviewSrc="/images/preview-github.svg"
+        githubPreviewAlt={dict.about.githubPreviewAlt}
+        rssHref={localeUrl(locale, "rss.xml")}
+        rssLabel={dict.footer.rss}
+      />
+    </div>
+    <div class="mt-10 flex justify-end border-t border-border pt-6">
+      <EditOnGithub filePath="src/components/pages/AboutPage.astro" locale={locale} />
+    </div>
+  </div>
+</BaseLayout>

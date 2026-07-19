@@ -1,0 +1,80 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostList from "@/components/PostList.astro";
+import Pagination from "@/components/Pagination.astro";
+import { FEATURES } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, groupByYear } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+  page?: number;
+}
+
+const { locale, page = 1 } = Astro.props;
+const dict = t(locale);
+
+const allPosts = await getPublishedPosts(locale);
+
+const paginated = FEATURES.pagination.enabled;
+const pageSize = FEATURES.pagination.pageSize;
+const totalPages = paginated ? Math.max(1, Math.ceil(allPosts.length / pageSize)) : 1;
+const current = Math.min(Math.max(1, page), totalPages);
+const posts = paginated ? allPosts.slice((current - 1) * pageSize, current * pageSize) : allPosts;
+const years = groupByYear(posts);
+
+const pageHref = (n: number): string =>
+  n <= 1 ? localeUrl(locale, "blog") : localeUrl(locale, `blog/${n}`);
+const prevUrl = current > 1 ? pageHref(current - 1) : undefined;
+const nextUrl = current < totalPages ? pageHref(current + 1) : undefined;
+
+const alternates =
+  current === 1
+    ? { fr: localeUrl("fr", "blog"), en: localeUrl("en", "blog") }
+    : {
+        fr: localeUrl("fr", `blog/${current}`),
+        en: localeUrl("en", `blog/${current}`),
+      };
+
+const pageLabel = current > 1 ? ` (${dict.pagination.pageOf(current, totalPages)})` : "";
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${dict.blog.title}${pageLabel}`}
+  description={dict.blog.description}
+  alternates={alternates}
+>
+  {prevUrl && <link slot="head" rel="prev" href={new URL(prevUrl, Astro.site)} />}
+  {nextUrl && <link slot="head" rel="next" href={new URL(nextUrl, Astro.site)} />}
+
+  <div class="py-12 md:py-16">
+    <h1 class="type-mega rise">{dict.blog.title}</h1>
+    <p class="rise rise-2 mt-5 max-w-2xl text-muted-foreground md:ml-[8%]">
+      {dict.blog.description}
+    </p>
+
+    <div class="mt-14 flex flex-col">
+      {
+        years.map(([year, yearPosts]) => (
+          <section aria-labelledby={`year-${year}`} class="year-block">
+            <h2 id={`year-${year}`} class="year-big" aria-label={String(year)}>
+              {year}
+            </h2>
+            <div class="max-w-3xl">
+              <PostList posts={yearPosts} />
+            </div>
+          </section>
+        ))
+      }
+    </div>
+
+    <Pagination
+      locale={locale}
+      current={current}
+      total={totalPages}
+      prevUrl={prevUrl}
+      nextUrl={nextUrl}
+    />
+  </div>
+</BaseLayout>

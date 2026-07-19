@@ -1,0 +1,95 @@
+---
+title: "Comprendre l'architecture en îlots d'Astro"
+description: "Hydratation partielle, directives client et budget JavaScript: le guide complet des islands."
+pubDate: 2026-07-05
+updatedDate: 2026-07-12
+tags: ["astro", "performance", "architecture"]
+draft: false
+---
+
+Astro rend tout en HTML statique par défaut et n'hydrate que les composants qui en ont besoin. Ce billet, volontairement long, sert aussi à tester la table des matières.
+
+## Le problème des SPA
+
+Une single-page application embarque tout son JavaScript, même pour afficher du texte statique. Sur un blog, c'est un contresens: 95 % du contenu est inerte.
+
+### Le coût réel du JavaScript
+
+Chaque kilooctet de JS coûte trois fois: téléchargement, parsing, exécution. Sur mobile milieu de gamme, 300 ko de JS peuvent bloquer le thread principal pendant plus d'une seconde.
+
+### Ce que mesure le Core Web Vitals
+
+- LCP: la peinture du plus gros élément visible
+- INP: la latence d'interaction
+- CLS: la stabilité visuelle
+
+## Les îlots en pratique
+
+Un îlot est un composant interactif hydraté indépendamment du reste de la page.
+
+### Les directives client
+
+```astro
+---
+import ThemeToggle from "../components/ThemeToggle";
+import Comments from "../components/Comments";
+---
+<ThemeToggle client:load />
+<Comments client:visible />
+```
+
+`client:load` hydrate immédiatement, `client:visible` attend que le composant entre dans le viewport, `client:idle` attend que le navigateur soit disponible.
+
+### Quand choisir quoi
+
+| Directive | Cas d'usage | Priorité |
+| --- | --- | --- |
+| `client:load` | Switcher de thème, header interactif | Haute |
+| `client:idle` | Barre de recherche | Moyenne |
+| `client:visible` | Carrousel en bas de page | Basse |
+| `client:only` | Composant incompatible SSR | Spéciale |
+
+## Les content collections
+
+Le contenu vit dans des collections typées:
+
+```ts
+import { defineCollection, z } from "astro:content";
+import { glob } from "astro/loaders";
+
+const blog = defineCollection({
+  loader: glob({ pattern: "**/*.mdx", base: "../../shared/content/blog" }),
+  schema: z.object({
+    title: z.string().max(70),
+    description: z.string().max(160),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { blog };
+```
+
+### Requêter la collection
+
+```ts
+const posts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+```
+
+## Aller plus loin
+
+### Le rendu à la demande
+
+Astro sait aussi faire du SSR par route quand une page a besoin de données fraîches.
+
+### Les view transitions
+
+Le routeur de transitions d'Astro anime le passage d'une page à l'autre sans SPA, en conservant l'état du thème.
+
+## Conclusion
+
+Un blog Astro bien construit livre quelques kilooctets de JavaScript là où une SPA en livre des centaines. L'architecture en îlots n'est pas une optimisation, c'est un choix structurel.

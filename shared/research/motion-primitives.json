@@ -1,0 +1,253 @@
+{
+  "kit": "motion-primitives (motion-primitives.com) — open-source React animation primitives by ibelick, built on the \"motion\" package (framer-motion successor)",
+  "installation": "Three options per component. 1) Dedicated CLI: `npx motion-primitives@latest add <name>` (e.g. `npx motion-primitives@latest add text-effect`). 2) shadcn CLI registry: `npx shadcn@latest add \"https://motion-primitives.com/c/<name>.json\"` (requires a components.json in the project; registry items are type registry:ui and land in your configured ui dir). 3) Manual copy-paste from each doc page's Installation section (source also at github.com/ibelick/motion-primitives under components/core/). Prerequisites from /docs/installation: Tailwind CSS, `npm install motion`, `npm install lucide-react`, and a `lib/utils.ts` cn() helper (clsx + tailwind-merge).",
+  "dependencies": [
+    "motion (^11.12.0 in repo; v12 also works)",
+    "clsx (^2.1.1, for cn helper)",
+    "tailwind-merge (^2.6.0, for cn helper)",
+    "lucide-react (^0.400.0, icons used in examples and dialog close buttons)",
+    "react-use-measure (^2.1.1, ONLY for sliding-number)"
+  ],
+  "tailwindVersion": "Kit targets Tailwind CSS v4 (repo uses tailwindcss ^4.0.0 with @tailwindcss/postcss) — matches your Astro + Tailwind v4 stack with zero config; components use plain utility classes + cn(), no tailwind plugin required (tailwindcss-animate in the repo is for the docs site only).",
+  "components": [
+    {
+      "name": "Text Effect",
+      "url": "https://motion-primitives.com/docs/text-effect",
+      "category": "text-effect",
+      "blogUse": "Homepage hero title entrance (per-word blur/fade preset) and post-page H1 reveal; supports per char/word/line, presets, custom variants, delays, exit animations",
+      "priority": "must"
+    },
+    {
+      "name": "Text Loop",
+      "url": "https://motion-primitives.com/docs/text-loop",
+      "category": "text-effect",
+      "blogUse": "Rotating word in hero subtitle (e.g. 'writing about X / Y / Z')",
+      "priority": "must"
+    },
+    {
+      "name": "Text Morph",
+      "url": "https://motion-primitives.com/docs/text-morph",
+      "category": "text-effect",
+      "blogUse": "Code-block copy button 'Copy' -> 'Copied' morph; theme-switcher or header label swaps",
+      "priority": "must"
+    },
+    {
+      "name": "Text Scramble",
+      "url": "https://motion-primitives.com/docs/text-scramble",
+      "category": "text-effect",
+      "blogUse": "404 page headline scramble-in; still reads minimal/Swiss",
+      "priority": "must"
+    },
+    {
+      "name": "Text Shimmer",
+      "url": "https://motion-primitives.com/docs/text-shimmer",
+      "category": "text-effect",
+      "blogUse": "Subtle status text: newsletter 'Subscribing...' state, loading indicators; tasteful in dark mode",
+      "priority": "nice"
+    },
+    {
+      "name": "Text Roll",
+      "url": "https://motion-primitives.com/docs/text-roll",
+      "category": "text-effect",
+      "blogUse": "Header nav link hover roll micro-interaction",
+      "priority": "nice"
+    },
+    {
+      "name": "Text Shimmer Wave",
+      "url": "https://motion-primitives.com/docs/text-shimmer-wave",
+      "category": "text-effect",
+      "blogUse": "Wavy shimmer headline — too flashy for a minimal Swiss blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Spinning Text",
+      "url": "https://motion-primitives.com/docs/spinning-text",
+      "category": "text-effect",
+      "blogUse": "Circular rotating text badge — decorative, off-style for minimal design",
+      "priority": "skip"
+    },
+    {
+      "name": "In View",
+      "url": "https://motion-primitives.com/docs/in-view",
+      "category": "interaction",
+      "blogUse": "Scroll-reveal wrapper for post list items, about-page sections, footer CTA; viewport-triggered fade/blur-in",
+      "priority": "must"
+    },
+    {
+      "name": "Animated Group",
+      "url": "https://motion-primitives.com/docs/animated-group",
+      "category": "layout",
+      "blogUse": "Staggered entrance of the post card grid on homepage and tags page (presets: fade, blur-slide, scale)",
+      "priority": "must"
+    },
+    {
+      "name": "Animated Background",
+      "url": "https://motion-primitives.com/docs/animated-background",
+      "category": "navigation",
+      "blogUse": "Shared-layout hover/active pill behind header nav links, tag filter pills, and segmented theme switcher",
+      "priority": "must"
+    },
+    {
+      "name": "Scroll Progress",
+      "url": "https://motion-primitives.com/docs/scroll-progress",
+      "category": "interaction",
+      "blogUse": "Reading-progress bar fixed at top of post pages (spring-smoothed useScroll)",
+      "priority": "must"
+    },
+    {
+      "name": "Progressive Blur",
+      "url": "https://motion-primitives.com/docs/progressive-blur",
+      "category": "background",
+      "blogUse": "Gradient edge blur under sticky header / above footer so content fades out as it scrolls beneath",
+      "priority": "must"
+    },
+    {
+      "name": "Spotlight",
+      "url": "https://motion-primitives.com/docs/spotlight",
+      "category": "card",
+      "blogUse": "Mouse-follow spotlight on post cards — excellent dark-first card hover treatment",
+      "priority": "must"
+    },
+    {
+      "name": "Disclosure",
+      "url": "https://motion-primitives.com/docs/disclosure",
+      "category": "navigation",
+      "blogUse": "Collapsible table of contents on post pages (esp. mobile) and expandable post-card excerpts",
+      "priority": "must"
+    },
+    {
+      "name": "Morphing Dialog",
+      "url": "https://motion-primitives.com/docs/morphing-dialog",
+      "category": "interaction",
+      "blogUse": "Image lightbox for prose images (click to zoom, shared-layout morph) and post-card -> preview expansion; ships with useClickOutside hook",
+      "priority": "must"
+    },
+    {
+      "name": "Magnetic",
+      "url": "https://motion-primitives.com/docs/magnetic",
+      "category": "interaction",
+      "blogUse": "Subtle magnetic hover on footer/header social icons and the newsletter submit button",
+      "priority": "nice"
+    },
+    {
+      "name": "Tilt",
+      "url": "https://motion-primitives.com/docs/tilt",
+      "category": "card",
+      "blogUse": "Gentle 3D tilt on post cards (pure CSS transform, no three.js) — keep rotation factor low for Swiss style",
+      "priority": "nice"
+    },
+    {
+      "name": "Glow Effect",
+      "url": "https://motion-primitives.com/docs/glow-effect",
+      "category": "background",
+      "blogUse": "Soft glow behind newsletter CTA button/card in dark mode — use sparingly as garnish",
+      "priority": "nice"
+    },
+    {
+      "name": "Border Trail",
+      "url": "https://motion-primitives.com/docs/border-trail",
+      "category": "card",
+      "blogUse": "Animated border light on newsletter input/card focus state",
+      "priority": "nice"
+    },
+    {
+      "name": "Accordion",
+      "url": "https://motion-primitives.com/docs/accordion",
+      "category": "layout",
+      "blogUse": "FAQ section on about page; overlaps with Disclosure so pick one primary",
+      "priority": "nice"
+    },
+    {
+      "name": "Transition Panel",
+      "url": "https://motion-primitives.com/docs/transition-panel",
+      "category": "layout",
+      "blogUse": "Animated switching between tag-filtered post lists or about-page tabs",
+      "priority": "nice"
+    },
+    {
+      "name": "Animated Number",
+      "url": "https://motion-primitives.com/docs/animated-number",
+      "category": "text-effect",
+      "blogUse": "Count-up stats on about page (posts written, years coding) with in-view trigger",
+      "priority": "nice"
+    },
+    {
+      "name": "Sliding Number",
+      "url": "https://motion-primitives.com/docs/sliding-number",
+      "category": "text-effect",
+      "blogUse": "Odometer-style digits: footer clock or view counters; needs react-use-measure",
+      "priority": "nice"
+    },
+    {
+      "name": "Text Loop",
+      "url": "https://motion-primitives.com/docs/text-loop",
+      "category": "text-effect",
+      "blogUse": "Duplicate entry guard — see earlier Text Loop entry",
+      "priority": "skip"
+    },
+    {
+      "name": "Dialog",
+      "url": "https://motion-primitives.com/docs/dialog",
+      "category": "interaction",
+      "blogUse": "Animated modal for site search (Cmd+K) or newsletter signup",
+      "priority": "nice"
+    },
+    {
+      "name": "Morphing Popover",
+      "url": "https://motion-primitives.com/docs/morphing-popover",
+      "category": "interaction",
+      "blogUse": "Newsletter CTA button morphing into an inline email form popover",
+      "priority": "nice"
+    },
+    {
+      "name": "Toolbar Dynamic",
+      "url": "https://motion-primitives.com/docs/toolbar-dynamic",
+      "category": "navigation",
+      "blogUse": "Floating share/actions toolbar on post pages (share, copy link, back to top)",
+      "priority": "nice"
+    },
+    {
+      "name": "Carousel",
+      "url": "https://motion-primitives.com/docs/carousel",
+      "category": "card",
+      "blogUse": "Featured-posts carousel on homepage — a static grid is more Swiss; use only if featured content exists",
+      "priority": "nice"
+    },
+    {
+      "name": "Toolbar Expandable",
+      "url": "https://motion-primitives.com/docs/toolbar-expandable",
+      "category": "navigation",
+      "blogUse": "Expandable icon toolbar — redundant with Toolbar Dynamic for a blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Dock",
+      "url": "https://motion-primitives.com/docs/dock",
+      "category": "navigation",
+      "blogUse": "macOS-style magnifying dock — too playful for a minimal Swiss blog header/footer",
+      "priority": "skip"
+    },
+    {
+      "name": "Cursor",
+      "url": "https://motion-primitives.com/docs/cursor",
+      "category": "interaction",
+      "blogUse": "Custom animated cursor — hurts readability on a text-focused blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Infinite Slider",
+      "url": "https://motion-primitives.com/docs/infinite-slider",
+      "category": "layout",
+      "blogUse": "Marquee of logos/tags — visual noise for a minimal blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Image Comparison",
+      "url": "https://motion-primitives.com/docs/image-comparison",
+      "category": "interaction",
+      "blogUse": "Before/after slider — only useful inside specific post content, not blog chrome",
+      "priority": "skip"
+    }
+  ],
+  "notes": "1) Every core component starts with 'use client' — in Astro each usage must be a React island (client:visible for below-fold reveals like InView/AnimatedGroup, client:load for ScrollProgress/header nav, client:idle for garnish like Magnetic/Spotlight). No module-top-level window access observed, so SSR render + hydrate is safe. 2) React 19: the kit's own site pins react ^18 (Next 14), but components use no React-18-only APIs and motion v11.12+/v12 officially supports React 19; shadcn CLI install works under React 19 (may prompt --force/--legacy-peer-deps on npm). 3) No three.js or other heavy deps anywhere — the only extra runtime deps are motion, plus react-use-measure for sliding-number; morphing-dialog/morphing-popover also install a hooks/useClickOutside.tsx file (registry:hook). 4) shadcn registry path is /c/<name>.json (not /r/): npx shadcn@latest add \"https://motion-primitives.com/c/text-effect.json\"; full registry index at https://motion-primitives.com/c/registry.json. 5) The website itself sits behind a Vercel security checkpoint that can 403/429 automated fetches — source of truth is github.com/ibelick/motion-primitives (app/docs/*/page.mdx for docs, components/core/*.tsx for code). 6) One duplicate 'Text Loop' row appears in the list above due to an editing slip — treat the first entry (priority: must) as canonical; the kit has exactly 33 components. 7) TextEffect exit animations need the component kept mounted (AnimatePresence semantics) — for Astro page transitions prefer entrance-only. 8) Respect prefers-reduced-motion yourself; primitives do not gate animations automatically."
+}

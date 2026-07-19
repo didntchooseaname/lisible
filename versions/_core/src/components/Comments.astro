@@ -1,0 +1,99 @@
+---
+import { COMMENTS } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const provider = COMMENTS.provider;
+const giscus = COMMENTS.giscus;
+const bluesky = COMMENTS.bluesky;
+---
+
+<section aria-labelledby="comments-title" class="mt-14 border-t border-border pt-8">
+  <h2 id="comments-title" class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    {dict.comments.title}
+  </h2>
+
+  {
+    provider === "giscus" ? (
+      <div
+        class="mt-4"
+        data-comments="giscus"
+        data-repo={giscus.repo}
+        data-repo-id={giscus.repoId}
+        data-category={giscus.category}
+        data-category-id={giscus.categoryId}
+        data-mapping={giscus.mapping}
+        data-lang={locale}
+      />
+    ) : (
+      <div class="mt-4" data-comments="bluesky" data-post-uri={bluesky.postUri}>
+        <a
+          href={`https://bsky.app/profile/${bluesky.postUri.replace("at://", "").split("/")[0]}`}
+          rel="noopener noreferrer external"
+          class="text-sm font-medium text-muted-foreground underline decoration-accent underline-offset-4 hover:text-foreground"
+        >
+          Bluesky
+        </a>
+      </div>
+    )
+  }
+</section>
+
+<script>
+  function giscusTheme(): string {
+    return document.documentElement.classList.contains("dark") ? "dark" : "light";
+  }
+
+  function mountGiscus(host: HTMLElement): void {
+    if (host.dataset.mounted) return;
+    host.dataset.mounted = "true";
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.crossOrigin = "anonymous";
+    script.setAttribute("data-repo", host.dataset.repo ?? "");
+    script.setAttribute("data-repo-id", host.dataset.repoId ?? "");
+    script.setAttribute("data-category", host.dataset.category ?? "");
+    script.setAttribute("data-category-id", host.dataset.categoryId ?? "");
+    script.setAttribute("data-mapping", host.dataset.mapping ?? "pathname");
+    script.setAttribute("data-reactions-enabled", "1");
+    script.setAttribute("data-emit-metadata", "0");
+    script.setAttribute("data-input-position", "top");
+    script.setAttribute("data-theme", giscusTheme());
+    script.setAttribute("data-lang", host.dataset.lang ?? "fr");
+    host.appendChild(script);
+
+    const observer = new MutationObserver(() => {
+      const frame = host.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
+      frame?.contentWindow?.postMessage(
+        { giscus: { setConfig: { theme: giscusTheme() } } },
+        "https://giscus.app",
+      );
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  }
+
+  function init(): void {
+    const host = document.querySelector<HTMLElement>('[data-comments="giscus"]');
+    if (!host) return;
+    const io = new IntersectionObserver((entries, obs) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          mountGiscus(host);
+          obs.disconnect();
+        }
+      }
+    });
+    io.observe(host);
+  }
+
+  document.addEventListener("astro:page-load", init);
+</script>

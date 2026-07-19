@@ -1,0 +1,78 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import NotFoundLocale from "@shared/components/NotFoundLocale.astro";
+import GlitchText from "@/components/ui/GlitchText";
+import LetterGlitch from "@/components/ui/LetterGlitch";
+import DecryptedText from "@/components/ui/DecryptedText";
+import { localeUrl, ui } from "@/i18n/ui";
+
+const fr = ui.fr;
+const en = ui.en;
+---
+
+<BaseLayout
+  locale="fr"
+  title={fr.notFound.title}
+  description={fr.notFound.message}
+>
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+  <NotFoundLocale
+    class="flex flex-col items-start gap-10 py-16 md:py-24"
+    frTitle={fr.notFound.title}
+    enTitle={en.notFound.title}
+    frDescription={fr.notFound.message}
+    enDescription={en.notFound.message}
+  >
+    
+    <div class="relative w-full overflow-hidden rounded-lg border border-border bg-black">
+      <div class="absolute inset-0" aria-hidden="true">
+        <LetterGlitch client:visible glitchSpeed={80} smooth outerVignette />
+      </div>
+      <div class="dark relative flex min-h-56 items-center justify-center p-8 md:min-h-64" aria-hidden="true">
+        <GlitchText speed={0.7} className="font-mono">
+          404
+        </GlitchText>
+      </div>
+    </div>
+
+    <section data-not-found-locale="fr" aria-label={fr.notFound.title}>
+      <h1 class="text-2xl font-bold tracking-tight md:text-3xl">{fr.notFound.title}</h1>
+      <p class="mt-2 text-muted-foreground">
+        
+        <DecryptedText
+          client:visible
+          text={fr.notFound.message}
+          animateOn="view"
+          sequential
+          speed={18}
+          encryptedClassName="text-muted-foreground/60"
+        />
+      </p>
+      <a
+        href={localeUrl("fr")}
+        class="mt-4 inline-flex min-h-11 items-center font-medium underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        {fr.notFound.backHome}
+      </a>
+    </section>
+    <section data-not-found-locale="en" lang="en" aria-label={en.notFound.title}>
+      <h1 class="text-2xl font-bold tracking-tight md:text-3xl">{en.notFound.title}</h1>
+      <p class="mt-2 text-muted-foreground">
+        <DecryptedText
+          client:visible
+          text={en.notFound.message}
+          animateOn="view"
+          sequential
+          speed={18}
+          encryptedClassName="text-muted-foreground/60"
+        />
+      </p>
+      <a
+        href={localeUrl("en")}
+        class="mt-4 inline-flex min-h-11 items-center font-medium underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        {en.notFound.backHome}
+      </a>
+    </section>
+  </NotFoundLocale>
+</BaseLayout>

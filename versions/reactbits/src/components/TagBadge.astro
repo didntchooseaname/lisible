@@ -1,0 +1,26 @@
+---
+import { localeUrl, type Locale } from "@/i18n/ui";
+import { slugifyTag } from "@/lib/posts";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  tag: string;
+  locale: Locale;
+  count?: number;
+  class?: string;
+}
+
+const { tag, locale, count, class: className } = Astro.props;
+const href = localeUrl(locale, `tags/${slugifyTag(tag)}`);
+---
+
+<a
+  href={href}
+  class={cn(
+    "inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/50 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-accent hover:text-foreground",
+    className,
+  )}
+>
+  <span aria-hidden="true" class="text-accent">#</span>{tag}
+  {count !== undefined && <span class="text-muted-foreground">{count}</span>}
+</a>

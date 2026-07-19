@@ -1,0 +1,38 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { TagPills, type TagPill } from "@/components/react/TagPills";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getAllTags } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const tags = await getAllTags(locale);
+
+const pills: TagPill[] = tags.map((tag) => ({
+  href: localeUrl(locale, `tags/${tag.slug}`),
+  name: tag.name,
+  count: tag.count,
+}));
+
+const alternates = { fr: localeUrl("fr", "tags"), en: localeUrl("en", "tags") };
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.tags.title}
+  description={dict.tags.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{dict.tags.title}</h1>
+    <p class="mt-3 max-w-2xl text-muted-foreground">{dict.tags.description}</p>
+
+    <div class="mt-10">
+      <TagPills client:visible tags={pills} ariaLabel={dict.tags.all} />
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,97 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getArchives, postUrl } from "@/lib/posts";
+import { isoDate } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const strings = dict.platform.archives;
+
+const archives = await getArchives(locale);
+const totalCount = archives.reduce((sum, year) => sum + year.count, 0);
+
+const monthName = (month: number) =>
+  new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
+    month: "long",
+  }).format(new Date(Date.UTC(2000, month - 1, 15)));
+
+const alternates = {
+  fr: localeUrl("fr", "archives"),
+  en: localeUrl("en", "archives"),
+};
+---
+
+<BaseLayout locale={locale} title={strings.title} description={strings.description} alternates={alternates}>
+  <div class="py-10 md:py-14">
+    <div class="hud-corners border border-border/70 bg-card/50 p-6 backdrop-blur-sm md:p-8">
+      <p class="terminal-line" aria-hidden="true">
+        <span class="prompt-user">operator@lisible</span>:~$ tree ./blog --sort=date
+      </p>
+      <h1 class="font-display mt-3 text-3xl font-black uppercase tracking-[0.06em] md:text-4xl">
+        {strings.title}
+      </h1>
+      <p class="mt-2 max-w-2xl text-muted-foreground">{strings.description}</p>
+      <p class="mt-2 font-mono text-xs uppercase tracking-[0.18em] text-accent">
+        {strings.postsCount(totalCount)}
+      </p>
+    </div>
+
+    <div class="mt-10 flex max-w-3xl flex-col gap-10">
+      {
+        archives.map((year, yearIndex) => (
+          <section aria-labelledby={`archive-${year.year}`}>
+            <BlurFade client:visible inView delay={0.05 * yearIndex}>
+              <h2
+                id={`archive-${year.year}`}
+                class="hud-corners inline-flex items-center gap-3 border border-border/70 bg-card/50 px-4 py-1.5 font-display text-sm font-bold tracking-[0.2em]"
+              >
+                <span class="text-accent" aria-hidden="true">::</span>
+                {year.year}
+                <span class="font-mono text-[10px] font-normal uppercase tracking-[0.14em] text-muted-foreground">
+                  {strings.postsCount(year.count)}
+                </span>
+              </h2>
+
+              <div class="mt-4 flex flex-col gap-5 border-l border-border pl-5">
+                {year.months.map((month) => (
+                  <div>
+                    <h3 class="font-mono text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                      <span class="text-accent" aria-hidden="true">|-</span>
+                      {monthName(month.month)}
+                    </h3>
+                    <ul class="mt-2 flex flex-col">
+                      {month.posts.map((post) => (
+                        <li>
+                          <a
+                            href={postUrl(post)}
+                            class="group flex min-h-11 items-baseline gap-3 py-1.5 transition-colors hover:text-accent"
+                          >
+                            <time
+                              datetime={isoDate(post.data.pubDate)}
+                              class="shrink-0 font-mono text-xs text-muted-foreground"
+                            >
+                              {String(post.data.pubDate.getDate()).padStart(2, "0")}
+                            </time>
+                            <span class="font-medium leading-snug underline-offset-4 group-hover:underline group-hover:decoration-accent">
+                              {post.data.title}
+                            </span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </BlurFade>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

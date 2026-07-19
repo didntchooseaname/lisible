@@ -1,0 +1,91 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { GradientHeading } from "@/components/ui/gradient-heading";
+import { NeumorphEyebrow } from "@/components/ui/neumorph-eyebrow";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { postUrl, type Post } from "@/lib/posts";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+  name: string;
+  posts: Post[];
+}
+
+const { locale, name, posts } = Astro.props;
+const dict = t(locale);
+
+const totalMinutes = posts.reduce(
+  (sum, post) => sum + readingTime(post.body ?? ""),
+  0,
+);
+---
+
+<BaseLayout
+  locale={locale}
+  title={name}
+  description={dict.series.description(name)}
+>
+  <div class="py-10 md:py-14">
+    <p class="text-sm font-medium uppercase tracking-wider text-accent">
+      {dict.series.label}
+    </p>
+    <GradientHeading
+      as="h1"
+      size="lg"
+      weight="bold"
+      className="mt-2 tracking-tight"
+    >
+      {name}
+    </GradientHeading>
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      <NeumorphEyebrow className="border-border bg-secondary text-muted-foreground shadow-none">
+        {dict.series.postsCount(posts.length)}
+      </NeumorphEyebrow>
+      <NeumorphEyebrow className="border-border bg-secondary text-muted-foreground shadow-none">
+        {dict.series.cumulativeTime(totalMinutes)}
+      </NeumorphEyebrow>
+    </div>
+
+    <ol class="mt-10 flex flex-col gap-4">
+      {
+        posts.map((post, index) => (
+          <li>
+            <a
+              href={postUrl(post)}
+              class="group flex items-baseline gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:border-accent"
+            >
+              <span class="shrink-0 text-lg font-bold tabular-nums text-accent">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block font-semibold transition-colors group-hover:text-accent">
+                  {post.data.title}
+                </span>
+                <span class="mt-1 block text-sm text-muted-foreground">
+                  {post.data.description}
+                </span>
+                <span class="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                  <time datetime={isoDate(post.data.pubDate)}>
+                    {formatDate(post.data.pubDate, locale, "short")}
+                  </time>
+                  <span aria-hidden="true">&middot;</span>
+                  <span>{dict.post.readingTime(readingTime(post.body ?? ""))}</span>
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="mt-10">
+      <a
+        href={localeUrl(locale, "blog")}
+        class="text-sm text-muted-foreground underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        {dict.home.allPosts}
+      </a>
+    </p>
+  </div>
+</BaseLayout>

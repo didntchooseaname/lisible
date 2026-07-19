@@ -1,0 +1,73 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+import { getAllSeries, getSeriesPosts, postUrl } from "@/lib/posts";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+import { prettifySlug } from "@/lib/series";
+
+interface Props {
+  locale: Locale;
+  slug: string;
+}
+
+const { locale, slug } = Astro.props;
+const dict = t(locale);
+
+const posts = await getSeriesPosts(locale, slug);
+const cumulative = posts.reduce((sum, post) => sum + readingTime(post.body ?? ""), 0);
+const name = prettifySlug(slug);
+
+const alternates: Partial<Record<Locale, string>> = { [locale]: localeUrl(locale, `series/${slug}`) };
+const other = otherLocale(locale);
+const otherSeries = await getAllSeries(other);
+if (otherSeries.some((s) => s.slug === slug)) {
+  alternates[other] = localeUrl(other, `series/${slug}`);
+}
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${dict.series.label}: ${name}`}
+  description={dict.series.description(name)}
+  alternates={alternates}
+>
+  <div class="py-12 md:py-16">
+    <p class="text-sm font-medium text-muted-foreground">
+      <a
+        href={localeUrl(locale, "series")}
+        class="underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        {dict.series.listTitle}
+      </a>
+    </p>
+    <h1 class="type-title rise mt-3">{name}</h1>
+    <p class="rise rise-2 mt-4 flex flex-wrap items-center gap-x-2 text-muted-foreground">
+      <span>{dict.series.articlesCount(posts.length)}</span>
+      <span aria-hidden="true">&middot;</span>
+      <span>{dict.series.cumulativeTime(cumulative)}</span>
+    </p>
+
+    <hr class="wave-line mt-8 max-w-3xl" aria-hidden="true" />
+
+    <ol class="series-detail rise rise-3 mt-8 max-w-3xl">
+      {
+        posts.map((post, i) => (
+          <li class="series-detail-item">
+            <span class="series-detail-order" aria-hidden="true">{i + 1}</span>
+            <a href={postUrl(post)} class="series-detail-link">
+              <span class="series-detail-title">{post.data.title}</span>
+              <span class="series-detail-desc">{post.data.description}</span>
+              <span class="series-detail-meta">
+                <time datetime={isoDate(post.data.pubDate)}>
+                  {formatDate(post.data.pubDate, locale, "short")}
+                </time>
+                <span aria-hidden="true">&middot;</span>
+                {dict.post.readingTime(readingTime(post.body ?? ""))}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</BaseLayout>

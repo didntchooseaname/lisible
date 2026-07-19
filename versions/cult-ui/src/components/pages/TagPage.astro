@@ -1,0 +1,98 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import Pagination from "@/components/Pagination.astro";
+import { GradientHeading } from "@/components/ui/gradient-heading";
+import { NeumorphEyebrow } from "@/components/ui/neumorph-eyebrow";
+import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+import { FEATURES } from "@/site.config";
+import { getAllTags, paginate, type Post } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+  tagSlug: string;
+  tagName: string;
+  posts: Post[];
+  page?: number;
+}
+
+const { locale, tagSlug, tagName, posts, page = 1 } = Astro.props;
+const dict = t(locale);
+
+const paginated = FEATURES.pagination.enabled;
+const pageData = paginate(
+  posts,
+  paginated ? FEATURES.pagination.pageSize : posts.length || 1,
+  page,
+);
+
+const localePrefix = locale === "fr" ? "" : `${locale}/`;
+const base = `/${localePrefix}tags/${tagSlug}`.replace(/\/$/, "");
+
+const alternates: Partial<Record<Locale, string>> =
+  page === 1 ? { [locale]: localeUrl(locale, `tags/${tagSlug}`) } : {};
+if (page === 1) {
+  const other = otherLocale(locale);
+  const otherTags = await getAllTags(other);
+  if (otherTags.some((tag) => tag.slug === tagSlug)) {
+    alternates[other] = localeUrl(other, `tags/${tagSlug}`);
+  }
+}
+
+const prev =
+  paginated && pageData.currentPage > 1
+    ? pageData.currentPage - 1 <= 1
+      ? `${base}/`
+      : `${base}/${pageData.currentPage - 1}/`
+    : undefined;
+const next =
+  paginated && pageData.currentPage < pageData.totalPages
+    ? `${base}/${pageData.currentPage + 1}/`
+    : undefined;
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.tags.taggedWith(tagName)}
+  description={dict.tags.tagDescription(tagName)}
+  alternates={page === 1 ? alternates : undefined}
+  prev={prev}
+  next={next}
+>
+  <div class="py-10 md:py-14">
+    <p class="text-sm font-medium text-muted-foreground">
+      <a
+        href={localeUrl(locale, "tags")}
+        class="underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+      >
+        {dict.tags.title}
+      </a>
+    </p>
+    <GradientHeading
+      as="h1"
+      size="lg"
+      weight="bold"
+      className="mt-2 tracking-tight"
+    >
+      {dict.tags.taggedWith(tagName)}
+    </GradientHeading>
+    <NeumorphEyebrow className="mt-1 border-border bg-secondary text-muted-foreground shadow-none">
+      {dict.tags.postsCount(posts.length)}
+    </NeumorphEyebrow>
+
+    <div class="mt-8 grid gap-4 sm:grid-cols-2">
+      {pageData.items.map((post) => <PostCard post={post} headingLevel="h2" />)}
+    </div>
+
+    {
+      paginated && (
+        <Pagination
+          locale={locale}
+          currentPage={pageData.currentPage}
+          totalPages={pageData.totalPages}
+          base={base}
+        />
+      )
+    }
+  </div>
+</BaseLayout>

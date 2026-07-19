@@ -1,0 +1,92 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+import { getAllSeries, postUrl, type SeriesInfo } from "@/lib/posts";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+  series: SeriesInfo;
+}
+
+const { locale, series } = Astro.props;
+const dict = t(locale);
+const strings = dict.platform.series;
+
+const totalMinutes = series.posts.reduce(
+  (sum, post) => sum + readingTime(post.body ?? ""),
+  0,
+);
+
+const alternates: Partial<Record<Locale, string>> = {
+  [locale]: localeUrl(locale, `series/${series.slug}`),
+};
+const other = otherLocale(locale);
+const otherSeries = await getAllSeries(other);
+if (otherSeries.some((entry) => entry.slug === series.slug)) {
+  alternates[other] = localeUrl(other, `series/${series.slug}`);
+}
+---
+
+<BaseLayout
+  locale={locale}
+  title={strings.pageTitle(series.name)}
+  description={strings.pageDescription(series.name)}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <div class="hud-corners border border-border/70 bg-card/50 p-6 backdrop-blur-sm md:p-8">
+      <p class="section-label" aria-hidden="true">{strings.label.toLowerCase()}</p>
+      <h1 class="font-display mt-3 text-3xl font-black tracking-tight md:text-4xl">
+        <span class="text-accent text-glow" aria-hidden="true">::</span>
+        {series.name}
+      </h1>
+      <p class="mt-2 font-mono text-xs uppercase tracking-[0.18em] text-accent">
+        {strings.part(series.posts.length, series.posts.length)}
+        <span aria-hidden="true" class="text-muted-foreground">::</span>
+        {strings.totalReadingTime(totalMinutes)}
+      </p>
+    </div>
+
+    <BlurFade client:visible inView>
+      <ol class="mt-8 flex max-w-3xl flex-col gap-3">
+        {
+          series.posts.map((post, index) => {
+            const minutes = readingTime(post.body ?? "");
+            return (
+              <li>
+                <a
+                  href={postUrl(post)}
+                  class="hud-corners group flex items-start gap-4 border border-border bg-background/60 p-4 transition-colors hover:border-accent/70"
+                >
+                  <span
+                    class="font-mono text-lg font-bold text-accent"
+                    aria-hidden="true"
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span class="flex min-w-0 flex-col gap-1">
+                    <span class="font-medium leading-snug transition-colors group-hover:text-accent">
+                      {post.data.title}
+                    </span>
+                    <span class="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                      <time datetime={isoDate(post.data.pubDate)}>
+                        {formatDate(post.data.pubDate, locale, "short")}
+                      </time>
+                      <span aria-hidden="true" class="text-accent"> :: </span>
+                      {dict.post.readingTime(minutes)}
+                    </span>
+                    <span class="text-sm leading-relaxed text-muted-foreground">
+                      {post.data.description}
+                    </span>
+                  </span>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </BlurFade>
+  </div>
+</BaseLayout>

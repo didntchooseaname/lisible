@@ -1,0 +1,70 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import NotFoundLocale from "@shared/components/NotFoundLocale.astro";
+import { localeUrl, ui } from "@/i18n/ui";
+
+const fr = ui.fr;
+const en = ui.en;
+---
+
+<BaseLayout
+  locale="fr"
+  title={fr.notFound.title}
+  description={fr.notFound.message}
+>
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+  <NotFoundLocale
+    class="py-14 md:py-20"
+    frTitle={fr.notFound.title}
+    enTitle={en.notFound.title}
+    frDescription={fr.notFound.message}
+    enDescription={en.notFound.message}
+  >
+    
+    <svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false">
+      <defs>
+        <filter id="goo-filter">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"></feGaussianBlur>
+          <feColorMatrix
+            in="blur"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10"
+            result="goo"
+          ></feColorMatrix>
+          <feComposite in="SourceGraphic" in2="goo" operator="atop"></feComposite>
+        </filter>
+      </defs>
+    </svg>
+
+    <div class="goo-scene" aria-hidden="true">
+      <div class="goo-layer">
+        <div class="goo-blob goo-blob-1"></div>
+        <div class="goo-blob goo-blob-2"></div>
+        <div class="goo-blob goo-blob-3"></div>
+      </div>
+      <p class="goo-404">404</p>
+    </div>
+
+    <div class="mt-12 flex flex-col gap-12 md:flex-row md:gap-20">
+      <section data-not-found-locale="fr" aria-label={fr.notFound.title}>
+        <h1 class="text-2xl font-bold tracking-tight md:text-3xl">{fr.notFound.title}</h1>
+        <p class="mt-2 max-w-sm text-muted-foreground">{fr.notFound.message}</p>
+        <a
+          href={localeUrl("fr")}
+          class="mt-5 inline-flex min-h-11 items-center font-medium underline decoration-accent decoration-wavy underline-offset-4 transition-colors hover:text-accent"
+        >
+          {fr.notFound.backHome}
+        </a>
+      </section>
+      <section data-not-found-locale="en" lang="en" aria-label={en.notFound.title} class="md:mt-10">
+        <h1 class="text-2xl font-bold tracking-tight md:text-3xl">{en.notFound.title}</h1>
+        <p class="mt-2 max-w-sm text-muted-foreground">{en.notFound.message}</p>
+        <a
+          href={localeUrl("en")}
+          class="mt-5 inline-flex min-h-11 items-center font-medium underline decoration-accent decoration-wavy underline-offset-4 transition-colors hover:text-accent"
+        >
+          {en.notFound.backHome}
+        </a>
+      </section>
+    </div>
+  </NotFoundLocale>
+</BaseLayout>

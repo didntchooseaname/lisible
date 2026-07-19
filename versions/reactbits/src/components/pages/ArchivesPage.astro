@@ -1,0 +1,103 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import AnimatedContent from "@/components/ui/AnimatedContent";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, postUrl, type Post } from "@/lib/posts";
+import { isoDate } from "@/lib/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+
+const dateLocale = locale === "fr" ? "fr-FR" : "en-US";
+const monthName = (year: number, month: number) =>
+  new Intl.DateTimeFormat(dateLocale, { month: "long" }).format(
+    new Date(year, month, 1),
+  );
+const dayNumber = (date: Date) =>
+  new Intl.DateTimeFormat(dateLocale, { day: "2-digit" }).format(date);
+
+type Month = { month: number; posts: Post[] };
+type Year = { year: number; months: Month[] };
+
+const years: Year[] = [];
+for (const post of posts) {
+  const y = post.data.pubDate.getFullYear();
+  const m = post.data.pubDate.getMonth();
+  let year = years.find((entry) => entry.year === y);
+  if (!year) {
+    year = { year: y, months: [] };
+    years.push(year);
+  }
+  let month = year.months.find((entry) => entry.month === m);
+  if (!month) {
+    month = { month: m, posts: [] };
+    year.months.push(month);
+  }
+  month.posts.push(post);
+}
+
+const alternates = {
+  fr: localeUrl("fr", "archives"),
+  en: localeUrl("en", "archives"),
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.archives.title}
+  description={dict.archives.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{dict.archives.title}</h1>
+    <p class="mt-3 max-w-2xl text-muted-foreground">{dict.archives.description}</p>
+
+    {
+      years.length === 0 ? (
+        <p class="mt-10 text-muted-foreground">{dict.archives.empty}</p>
+      ) : (
+        <AnimatedContent client:visible distance={28} duration={0.5} className="mt-10">
+          <div class="archives">
+            {years.map((year) => (
+              <section class="archives__year" aria-labelledby={`arch-${year.year}`}>
+                <h2 id={`arch-${year.year}`} class="archives__year-label">
+                  {year.year}
+                </h2>
+                <div class="archives__months">
+                  {year.months.map((month) => (
+                    <div class="archives__month">
+                      <h3 class="archives__month-label">
+                        {monthName(year.year, month.month)}
+                      </h3>
+                      <ul class="archives__list">
+                        {month.posts.map((post) => (
+                          <li class="archives__item">
+                            <time
+                              class="archives__day"
+                              datetime={isoDate(post.data.pubDate)}
+                            >
+                              {dayNumber(post.data.pubDate)}
+                            </time>
+                            <a class="archives__link" href={postUrl(post)}>
+                              {post.data.title}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        </AnimatedContent>
+      )
+    }
+  </div>
+</BaseLayout>

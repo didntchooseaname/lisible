@@ -1,0 +1,183 @@
+---
+import { FEATURES, COMMENTS } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+import type { Post } from "@/lib/posts";
+
+interface Props {
+  post: Post;
+  locale: Locale;
+}
+
+const { post, locale } = Astro.props;
+const dict = t(locale).comments;
+const provider = COMMENTS.provider;
+
+if (FEATURES.comments) {
+  if (provider === "giscus") {
+    const g = COMMENTS.giscus;
+    if (!g.repo || !g.repoId || !g.category || !g.categoryId) {
+      throw new Error(
+        "FEATURES.comments (giscus provider) is enabled but COMMENTS.giscus is incomplete in shared/site.config.ts. " +
+          "Set repo, repoId, category, and categoryId from https://giscus.app or disable the feature flag.",
+      );
+    }
+  } else if (provider === "bluesky") {
+    const uri = post.data.bluesky ?? COMMENTS.bluesky.postUri;
+    if (!uri) {
+      throw new Error(
+        "FEATURES.comments (bluesky provider) is enabled but no postUri is set (COMMENTS.bluesky.postUri " +
+          "or the article's `bluesky` frontmatter). Set the root post at:// URI or disable the feature flag.",
+      );
+    }
+  }
+}
+
+type BskyReply = {
+  post?: {
+    uri?: string;
+    author?: { displayName?: string; handle?: string; avatar?: string };
+    record?: { text?: string };
+  };
+  replies?: BskyReply[];
+};
+
+let bskyReplies: BskyReply[] = [];
+let bskyUrl = "";
+if (provider === "bluesky") {
+  const uri = post.data.bluesky ?? COMMENTS.bluesky.postUri;
+  if (uri) {
+    const parts = uri.replace("at://", "").split("/");
+    const did = parts[0];
+    const rkey = parts[2];
+    bskyUrl = did && rkey ? `https://bsky.app/profile/${did}/post/${rkey}` : "";
+    try {
+      const endpoint = `https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri=${encodeURIComponent(uri)}`;
+      const res = await fetch(endpoint);
+      if (res.ok) {
+        const data = (await res.json()) as { thread?: BskyReply };
+        bskyReplies = data.thread?.replies ?? [];
+      }
+    } catch {
+    }
+  }
+}
+
+const giscusTheme = "preferred_color_scheme";
+---
+
+<section aria-labelledby="comments-title" class="mt-14 border-t border-border pt-8">
+  <h2 id="comments-title" class="text-lg font-bold tracking-tight">{dict.title}</h2>
+
+  {
+    provider === "giscus" && (
+      <>
+        <div
+          data-giscus
+          data-repo={COMMENTS.giscus.repo}
+          data-repo-id={COMMENTS.giscus.repoId}
+          data-category={COMMENTS.giscus.category}
+          data-category-id={COMMENTS.giscus.categoryId}
+          data-lang={locale}
+          class="mt-4 min-h-24"
+        >
+          <p class="text-sm text-muted-foreground">{dict.loading}</p>
+        </div>
+
+        <script define:vars={{ giscusTheme }}>
+          function currentTheme() {
+            return document.documentElement.classList.contains("dark") ? "dark" : "light";
+          }
+
+          function mountGiscus(container) {
+            if (container.dataset.mounted) return;
+            container.dataset.mounted = "true";
+            container.innerHTML = "";
+            const script = document.createElement("script");
+            script.src = "https://giscus.app/client.js";
+            script.async = true;
+            script.crossOrigin = "anonymous";
+            script.setAttribute("data-repo", container.dataset.repo);
+            script.setAttribute("data-repo-id", container.dataset.repoId);
+            script.setAttribute("data-category", container.dataset.category);
+            script.setAttribute("data-category-id", container.dataset.categoryId);
+            script.setAttribute("data-mapping", "pathname");
+            script.setAttribute("data-strict", "1");
+            script.setAttribute("data-reactions-enabled", "1");
+            script.setAttribute("data-emit-metadata", "0");
+            script.setAttribute("data-input-position", "top");
+            script.setAttribute("data-theme", giscusTheme === "preferred_color_scheme" ? currentTheme() : giscusTheme);
+            script.setAttribute("data-lang", container.dataset.lang || "fr");
+            script.setAttribute("data-loading", "lazy");
+            container.appendChild(script);
+          }
+
+          function setGiscusTheme(theme) {
+            const iframe = document.querySelector("iframe.giscus-frame");
+            if (!iframe || !iframe.contentWindow) return;
+            iframe.contentWindow.postMessage({ giscus: { setConfig: { theme } } }, "https://giscus.app");
+          }
+
+          function initComments() {
+            const container = document.querySelector("[data-giscus]");
+            if (!container) return;
+            const observer = new IntersectionObserver((entries, obs) => {
+              for (const entry of entries) {
+                if (entry.isIntersecting) {
+                  mountGiscus(container);
+                  obs.disconnect();
+                }
+              }
+            });
+            observer.observe(container);
+          }
+
+          const themeObserver = new MutationObserver(() => setGiscusTheme(currentTheme()));
+          themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+          document.addEventListener("astro:page-load", initComments);
+        </script>
+      </>
+    )
+  }
+
+  {
+    provider === "bluesky" && (
+      <div class="mt-4">
+        {bskyUrl && (
+          <p class="text-sm text-muted-foreground">
+            <a href={bskyUrl} rel="noopener noreferrer" class="font-medium text-foreground underline decoration-accent underline-offset-4 hover:text-accent">
+              Bluesky
+            </a>
+          </p>
+        )}
+        {bskyReplies.length > 0 && (
+          <ul class="mt-4 flex flex-col gap-3">
+            {bskyReplies.map((reply) => (
+              <li class="flex gap-3 rounded-lg border border-border p-3">
+                {reply.post?.author?.avatar && (
+                  <img
+                    src={reply.post.author.avatar}
+                    alt={reply.post.author.displayName ?? reply.post.author.handle ?? ""}
+                    width="36"
+                    height="36"
+                    loading="lazy"
+                    decoding="async"
+                    class="h-9 w-9 shrink-0 rounded-full border border-border object-cover"
+                  />
+                )}
+                <div class="min-w-0">
+                  <span class="text-sm font-medium">
+                    {reply.post?.author?.displayName ?? reply.post?.author?.handle}
+                  </span>
+                  {reply.post?.record?.text && (
+                    <p class="mt-1 text-sm text-muted-foreground">{reply.post.record.text}</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )
+  }
+</section>

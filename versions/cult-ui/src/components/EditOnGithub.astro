@@ -1,0 +1,48 @@
+---
+import { SITE } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  filePath: string;
+  locale: Locale;
+}
+
+const { filePath, locale } = Astro.props;
+const dict = t(locale);
+const repo = SITE.repo;
+const repoPath = [filePath.startsWith("/") ? "" : repo.contentBase, filePath]
+  .filter(Boolean)
+  .map((part) => part.replace(/^\/+|\/+$/g, ""))
+  .join("/");
+const editUrl = repo.url
+  ? `${repo.url.replace(/\/+$/, "")}/edit/${repo.branch}/${repoPath}`
+  : null;
+---
+
+{
+  editUrl && (
+    <a
+      href={editUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M12 20h9" />
+        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+      </svg>
+      {dict.post.editOnGithub}
+    </a>
+  )
+}

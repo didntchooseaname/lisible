@@ -1,0 +1,773 @@
+{
+  "kit": "Aceternity UI (https://ui.aceternity.com/components)",
+  "installation": "Primary: shadcn CLI against Aceternity's registry. Two forms: (1) direct URL: `npx shadcn@latest add https://ui.aceternity.com/registry/{name}.json`; (2) namespaced (shadcn CLI 3.0): add `\"@aceternity\": \"https://ui.aceternity.com/registry/{name}.json\"` under `registries` in components.json, then `npx shadcn@latest add @aceternity/<component>` (e.g. `npx shadcn@latest add @aceternity/bento-grid`). Requires prior `npx shadcn@latest init` (installs cn() utility in lib/utils.ts, CSS variables; recommended answers: New York style, Zinc base color, CSS variables). Manual copy-paste is also fully supported: `npm i motion clsx tailwind-merge`, add the cn() helper, then paste the component source from each doc page. An MCP server for registry search also exists.",
+  "dependencies": [
+    "motion (successor to framer-motion; used by nearly every component)",
+    "clsx",
+    "tailwind-merge",
+    "react-syntax-highlighter (Code Block only)",
+    "@tabler/icons-react (used in most demos: Floating Dock, Resizable Navbar, Bento Grid icons)",
+    "@radix-ui/react-hover-card + qss (Link Preview)",
+    "three / @react-three/fiber / three-globe (only 3D Globe, GitHub Globe, World Map — all marked skip)"
+  ],
+  "tailwindVersion": "Tailwind CSS v4 is the current target (site advertises Next.js 15 + Tailwind v4 throughout); v3 configs still documented per component. With Astro 5 + Tailwind v4 no tailwind.config.js is needed — just the cn() utility (clsx + tailwind-merge) and the shadcn CSS variables from init. A few components reference custom keyframes/utilities defined inline in the snippet (v4 @theme syntax shown in docs).",
+  "notes": "All components ship with \"use client\" and depend on motion — in Astro every one must be a React island (client:visible for below-fold, client:load for the navbar/tracing beam which use scroll listeners). motion v11+/motion package is React 19 compatible; components are plain function components, no React-19 blockers observed. Gotchas: (1) components are written for Next.js — several import next/link or next/image (Link Preview, card demos); swap for <a>/<img> in Astro. (2) Link Preview calls the external api.microlink.io service for screenshots (its next.config image-domain step is Next-specific; in Astro just use the URL directly) — consider isStatic mode with pre-captured images for a static blog. (3) Code Block bundles react-syntax-highlighter (~heavy); for a mostly-static blog prefer Astro/Shiki for plain blocks and use Aceternity's CodeBlock only where you need tabbed/multi-file interactive snippets. (4) Grid and Dot Backgrounds is essentially pure CSS and can be inlined into Astro components with zero JS — cheapest win. (5) Scroll components (Tracing Beam, Timeline, Sticky Scroll Reveal) use motion's useScroll and need real hydration, not server rendering only. (6) Everything three.js-based (3D Globe, GitHub Globe, World Map, 3D Marquee) is 500KB+ of deps — marked skip. (7) Registry install assumes shadcn project layout (components/ui, lib/utils); run shadcn init once even in Astro, or copy-paste manually.",
+  "components": [
+    {
+      "name": "Grid and Dot Backgrounds",
+      "url": "https://ui.aceternity.com/components/grid-and-dot-backgrounds",
+      "category": "background",
+      "blogUse": "Site-wide subtle grid/dot texture behind hero, 404, and section breaks; CSS-only so usable in pure Astro with zero JS",
+      "priority": "must"
+    },
+    {
+      "name": "Spotlight New",
+      "url": "https://ui.aceternity.com/components/spotlight-new",
+      "category": "background",
+      "blogUse": "Subtle animated spotlight gradient on the dark homepage hero",
+      "priority": "must"
+    },
+    {
+      "name": "Text Generate Effect",
+      "url": "https://ui.aceternity.com/components/text-generate-effect",
+      "category": "text-effect",
+      "blogUse": "Hero title / post h1 fading in word-by-word on load; restrained enough for Swiss-minimal",
+      "priority": "must"
+    },
+    {
+      "name": "Bento Grid",
+      "url": "https://ui.aceternity.com/components/bento-grid",
+      "category": "layout",
+      "blogUse": "Homepage featured-posts grid with one large + several small cards",
+      "priority": "must"
+    },
+    {
+      "name": "Card Hover Effect",
+      "url": "https://ui.aceternity.com/components/card-hover-effect",
+      "category": "card",
+      "blogUse": "Post list/grid where a soft highlight slides to the hovered post card",
+      "priority": "must"
+    },
+    {
+      "name": "Resizable Navbar",
+      "url": "https://ui.aceternity.com/components/resizable-navbar",
+      "category": "navigation",
+      "blogUse": "Main header: shrinks on scroll, includes mobile menu subcomponents; slot in theme switcher as a NavbarButton",
+      "priority": "must"
+    },
+    {
+      "name": "Codeblock",
+      "url": "https://ui.aceternity.com/components/code-block",
+      "category": "content",
+      "blogUse": "Syntax-highlighted code blocks in posts with filename header, line highlighting, and multi-tab file switching (react-syntax-highlighter)",
+      "priority": "must"
+    },
+    {
+      "name": "Tracing Beam",
+      "url": "https://ui.aceternity.com/components/tracing-beam",
+      "category": "scroll",
+      "blogUse": "Post page: gradient beam tracing reading progress alongside the prose column (TOC-adjacent affordance)",
+      "priority": "must"
+    },
+    {
+      "name": "Link Preview",
+      "url": "https://ui.aceternity.com/components/link-preview",
+      "category": "interaction",
+      "blogUse": "Hover preview cards for external links inside post prose (microlink API or static screenshots)",
+      "priority": "must"
+    },
+    {
+      "name": "Tabs",
+      "url": "https://ui.aceternity.com/components/tabs",
+      "category": "navigation",
+      "blogUse": "Tags page: animated tab switching between tag groups or post filters",
+      "priority": "must"
+    },
+    {
+      "name": "Timeline",
+      "url": "https://ui.aceternity.com/components/timeline",
+      "category": "content",
+      "blogUse": "About page career/history timeline, or year-grouped posts archive with sticky headers and scroll beam",
+      "priority": "must"
+    },
+    {
+      "name": "Placeholders And Vanish Input",
+      "url": "https://ui.aceternity.com/components/placeholders-and-vanish-input",
+      "category": "input",
+      "blogUse": "Newsletter CTA email input with rotating placeholder prompts and vanish-on-submit",
+      "priority": "must"
+    },
+    {
+      "name": "Stateful Button",
+      "url": "https://ui.aceternity.com/components/stateful-button",
+      "category": "interaction",
+      "blogUse": "Newsletter subscribe button with loading spinner and success check states",
+      "priority": "must"
+    },
+    {
+      "name": "Floating Navbar",
+      "url": "https://ui.aceternity.com/components/floating-navbar",
+      "category": "navigation",
+      "blogUse": "Alternative header: hides on scroll down, reveals on scroll up (pick this OR Resizable Navbar)",
+      "priority": "nice"
+    },
+    {
+      "name": "Navbar Menu",
+      "url": "https://ui.aceternity.com/components/navbar-menu",
+      "category": "navigation",
+      "blogUse": "Dropdown mega-menu nav if the blog grows sections; overkill for a minimal blog now",
+      "priority": "nice"
+    },
+    {
+      "name": "Floating Dock",
+      "url": "https://ui.aceternity.com/components/floating-dock",
+      "category": "navigation",
+      "blogUse": "Footer or fixed-corner macOS-style dock for social links (GitHub, X, RSS)",
+      "priority": "nice"
+    },
+    {
+      "name": "Sticky Banner",
+      "url": "https://ui.aceternity.com/components/sticky-banner",
+      "category": "navigation",
+      "blogUse": "Top announcement bar for a new post or newsletter launch; auto-hides on scroll",
+      "priority": "nice"
+    },
+    {
+      "name": "Sidebar",
+      "url": "https://ui.aceternity.com/components/sidebar",
+      "category": "navigation",
+      "blogUse": "Collapsible sidebar if you add a docs/series section; could host a TOC",
+      "priority": "nice"
+    },
+    {
+      "name": "Hover Border Gradient",
+      "url": "https://ui.aceternity.com/components/hover-border-gradient",
+      "category": "interaction",
+      "blogUse": "Primary CTA button (newsletter, 'read more') with animated gradient border on hover",
+      "priority": "nice"
+    },
+    {
+      "name": "Magnetic Button",
+      "url": "https://ui.aceternity.com/components/magnetic-button",
+      "category": "interaction",
+      "blogUse": "Micro-interaction on footer social icons or the theme switcher",
+      "priority": "nice"
+    },
+    {
+      "name": "Moving Border",
+      "url": "https://ui.aceternity.com/components/moving-border",
+      "category": "interaction",
+      "blogUse": "Featured-post or subscribe CTA button; slightly flashier than hover-border-gradient",
+      "priority": "nice"
+    },
+    {
+      "name": "Tailwind CSS buttons",
+      "url": "https://ui.aceternity.com/components/tailwindcss-buttons",
+      "category": "interaction",
+      "blogUse": "Copy-paste collection; several minimal variants suit a Swiss-style blog with zero JS",
+      "priority": "nice"
+    },
+    {
+      "name": "Flip Words",
+      "url": "https://ui.aceternity.com/components/flip-words",
+      "category": "text-effect",
+      "blogUse": "Hero subtitle rotating through topics you write about ('systems / rust / design')",
+      "priority": "nice"
+    },
+    {
+      "name": "Hero Highlight",
+      "url": "https://ui.aceternity.com/components/hero-highlight",
+      "category": "text-effect",
+      "blogUse": "Animated highlight sweep on one key phrase in the hero title",
+      "priority": "nice"
+    },
+    {
+      "name": "Pointer Highlight",
+      "url": "https://ui.aceternity.com/components/pointer-highlight",
+      "category": "text-effect",
+      "blogUse": "In-view pointer+border emphasis on a phrase in hero or about-page intro",
+      "priority": "nice"
+    },
+    {
+      "name": "Typewriter Effect",
+      "url": "https://ui.aceternity.com/components/typewriter-effect",
+      "category": "text-effect",
+      "blogUse": "Hero tagline typed out; use sparingly, competes with Text Generate Effect",
+      "priority": "nice"
+    },
+    {
+      "name": "Encrypted Text",
+      "url": "https://ui.aceternity.com/components/encrypted-text",
+      "category": "text-effect",
+      "blogUse": "404 page scramble/decrypt headline; fits a dark technical blog",
+      "priority": "nice"
+    },
+    {
+      "name": "Text Hover Effect",
+      "url": "https://ui.aceternity.com/components/text-hover-effect",
+      "category": "text-effect",
+      "blogUse": "Giant outline '404' text with hover stroke reveal on the 404 page",
+      "priority": "nice"
+    },
+    {
+      "name": "Squiggly Text",
+      "url": "https://ui.aceternity.com/components/squiggly-text",
+      "category": "text-effect",
+      "blogUse": "Playful 404 headline alternative",
+      "priority": "nice"
+    },
+    {
+      "name": "Noise Background",
+      "url": "https://ui.aceternity.com/components/noise-background",
+      "category": "background",
+      "blogUse": "Subtle animated noise/grain texture behind hero or newsletter section; keep intensity low for minimal look",
+      "priority": "nice"
+    },
+    {
+      "name": "Dotted Glow Background",
+      "url": "https://ui.aceternity.com/components/dotted-glow-background",
+      "category": "background",
+      "blogUse": "Soft glowing dot field behind newsletter CTA on dark theme",
+      "priority": "nice"
+    },
+    {
+      "name": "Spotlight",
+      "url": "https://ui.aceternity.com/components/spotlight",
+      "category": "background",
+      "blogUse": "Original SVG spotlight for the hero; alternative to Spotlight New",
+      "priority": "nice"
+    },
+    {
+      "name": "Background Beams",
+      "url": "https://ui.aceternity.com/components/background-beams",
+      "category": "background",
+      "blogUse": "Faint beam paths behind the newsletter CTA section; dark-native and reasonably subtle",
+      "priority": "nice"
+    },
+    {
+      "name": "Aurora Background",
+      "url": "https://ui.aceternity.com/components/aurora-background",
+      "category": "background",
+      "blogUse": "Hero backdrop; borderline too colorful for Swiss-minimal — dial down opacity if used",
+      "priority": "nice"
+    },
+    {
+      "name": "Background Gradient",
+      "url": "https://ui.aceternity.com/components/background-gradient",
+      "category": "card",
+      "blogUse": "Animated gradient border wrapper for one featured post card",
+      "priority": "nice"
+    },
+    {
+      "name": "Glowing Effect",
+      "url": "https://ui.aceternity.com/components/glowing-effect",
+      "category": "card",
+      "blogUse": "Pointer-following border glow on post cards; subtle on dark backgrounds",
+      "priority": "nice"
+    },
+    {
+      "name": "Card Spotlight",
+      "url": "https://ui.aceternity.com/components/card-spotlight",
+      "category": "card",
+      "blogUse": "Mouse-following spotlight on the featured post card",
+      "priority": "nice"
+    },
+    {
+      "name": "Direction Aware Hover",
+      "url": "https://ui.aceternity.com/components/direction-aware-hover",
+      "category": "card",
+      "blogUse": "Post cover-image cards where overlay slides in from the cursor's entry direction",
+      "priority": "nice"
+    },
+    {
+      "name": "Focus Cards",
+      "url": "https://ui.aceternity.com/components/focus-cards",
+      "category": "card",
+      "blogUse": "Image-led post grid that blurs siblings on hover",
+      "priority": "nice"
+    },
+    {
+      "name": "Expandable Card",
+      "url": "https://ui.aceternity.com/components/expandable-card",
+      "category": "card",
+      "blogUse": "Tags/archive page: click a post card to expand an inline excerpt before navigating",
+      "priority": "nice"
+    },
+    {
+      "name": "Tooltip Card",
+      "url": "https://ui.aceternity.com/components/tooltip-card",
+      "category": "card",
+      "blogUse": "Footnote/reference hover cards inside post prose",
+      "priority": "nice"
+    },
+    {
+      "name": "Terminal",
+      "url": "https://ui.aceternity.com/components/terminal",
+      "category": "content",
+      "blogUse": "Animated terminal window for CLI walkthroughs in technical posts",
+      "priority": "nice"
+    },
+    {
+      "name": "Compare",
+      "url": "https://ui.aceternity.com/components/compare",
+      "category": "content",
+      "blogUse": "Before/after image slider inside posts (design or refactor comparisons)",
+      "priority": "nice"
+    },
+    {
+      "name": "Lens",
+      "url": "https://ui.aceternity.com/components/lens",
+      "category": "interaction",
+      "blogUse": "Magnifier zoom on screenshots/diagrams inside posts",
+      "priority": "nice"
+    },
+    {
+      "name": "Animated Tooltip",
+      "url": "https://ui.aceternity.com/components/animated-tooltip",
+      "category": "interaction",
+      "blogUse": "Author avatar tooltip in post meta or a contributors row on the about page",
+      "priority": "nice"
+    },
+    {
+      "name": "Animated Modal",
+      "url": "https://ui.aceternity.com/components/animated-modal",
+      "category": "interaction",
+      "blogUse": "Search dialog or newsletter signup modal",
+      "priority": "nice"
+    },
+    {
+      "name": "Signup Form",
+      "url": "https://ui.aceternity.com/components/signup-form",
+      "category": "input",
+      "blogUse": "Adapt as newsletter/contact form layout on the about page",
+      "priority": "nice"
+    },
+    {
+      "name": "Sticky Scroll Reveal",
+      "url": "https://ui.aceternity.com/components/sticky-scroll-reveal",
+      "category": "scroll",
+      "blogUse": "About page: sticky text sections revealing as you scroll (story/now/setup)",
+      "priority": "nice"
+    },
+    {
+      "name": "Infinite Moving Cards",
+      "url": "https://ui.aceternity.com/components/infinite-moving-cards",
+      "category": "card",
+      "blogUse": "Marquee of reader quotes or tag chips on the about page; use sparingly",
+      "priority": "nice"
+    },
+    {
+      "name": "Lamp Effect",
+      "url": "https://ui.aceternity.com/components/lamp-effect",
+      "category": "background",
+      "blogUse": "Dark-native lamp glow above the newsletter or tags page heading; flashy but very dark-first",
+      "priority": "nice"
+    },
+    {
+      "name": "Hero Sections Free",
+      "url": "https://ui.aceternity.com/components/hero-sections-free",
+      "category": "section",
+      "blogUse": "Prebuilt full hero layouts to adapt for the homepage",
+      "priority": "nice"
+    },
+    {
+      "name": "Feature Sections Free",
+      "url": "https://ui.aceternity.com/components/feature-sections-free",
+      "category": "section",
+      "blogUse": "Prebuilt sections adaptable as 'what I write about' on the about page",
+      "priority": "nice"
+    },
+    {
+      "name": "Cards Sections Free",
+      "url": "https://ui.aceternity.com/components/cards-free",
+      "category": "section",
+      "blogUse": "Prebuilt card section layouts to seed the post list design",
+      "priority": "nice"
+    },
+    {
+      "name": "3D Globe",
+      "url": "https://ui.aceternity.com/components/3d-globe",
+      "category": "background",
+      "blogUse": "None for a minimal blog; three.js payload",
+      "priority": "skip"
+    },
+    {
+      "name": "Background Beams With Collision",
+      "url": "https://ui.aceternity.com/components/background-beams-with-collision",
+      "category": "background",
+      "blogUse": "Exploding beams — too flashy for minimal",
+      "priority": "skip"
+    },
+    {
+      "name": "Background Boxes",
+      "url": "https://ui.aceternity.com/components/background-boxes",
+      "category": "background",
+      "blogUse": "Interactive box grid — heavy DOM, too busy",
+      "priority": "skip"
+    },
+    {
+      "name": "Background Gradient Animation",
+      "url": "https://ui.aceternity.com/components/background-gradient-animation",
+      "category": "background",
+      "blogUse": "Full animated gradient bg — too loud for Swiss-minimal",
+      "priority": "skip"
+    },
+    {
+      "name": "Background Lines",
+      "url": "https://ui.aceternity.com/components/background-lines",
+      "category": "background",
+      "blogUse": "Animated wavy lines — too decorative",
+      "priority": "skip"
+    },
+    {
+      "name": "Background Ripple Effect",
+      "url": "https://ui.aceternity.com/components/background-ripple-effect",
+      "category": "background",
+      "blogUse": "Click-ripple grid — gimmicky for a blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Glowing Stars Effect",
+      "url": "https://ui.aceternity.com/components/glowing-stars-effect",
+      "category": "background",
+      "blogUse": "Star card bg — off-brand for minimal",
+      "priority": "skip"
+    },
+    {
+      "name": "Google Gemini Effect",
+      "url": "https://ui.aceternity.com/components/google-gemini-effect",
+      "category": "scroll",
+      "blogUse": "Scroll SVG showpiece — pure spectacle",
+      "priority": "skip"
+    },
+    {
+      "name": "Meteors",
+      "url": "https://ui.aceternity.com/components/meteors",
+      "category": "background",
+      "blogUse": "Meteor shower on cards — too playful",
+      "priority": "skip"
+    },
+    {
+      "name": "Parallax Hero Images",
+      "url": "https://ui.aceternity.com/components/parallax-hero-images",
+      "category": "background",
+      "blogUse": "Image-heavy parallax hero — not minimal",
+      "priority": "skip"
+    },
+    {
+      "name": "Scales",
+      "url": "https://ui.aceternity.com/components/scales",
+      "category": "background",
+      "blogUse": "Decorative scales background — too busy",
+      "priority": "skip"
+    },
+    {
+      "name": "Shooting Stars",
+      "url": "https://ui.aceternity.com/components/shooting-stars-and-stars-background",
+      "category": "background",
+      "blogUse": "Starfield — thematic mismatch",
+      "priority": "skip"
+    },
+    {
+      "name": "Sparkles",
+      "url": "https://ui.aceternity.com/components/sparkles",
+      "category": "background",
+      "blogUse": "Particle sparkles — canvas cost outweighs value on a minimal blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Vortex",
+      "url": "https://ui.aceternity.com/components/vortex",
+      "category": "background",
+      "blogUse": "Swirling particle vortex — far too flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Wavy Background",
+      "url": "https://ui.aceternity.com/components/wavy-background",
+      "category": "background",
+      "blogUse": "Animated canvas waves — too loud",
+      "priority": "skip"
+    },
+    {
+      "name": "Webcam Pixel Grid",
+      "url": "https://ui.aceternity.com/components/webcam-pixel-grid",
+      "category": "background",
+      "blogUse": "Webcam-driven effect — irrelevant and privacy-weird for a blog",
+      "priority": "skip"
+    },
+    {
+      "name": "3D Card Effect",
+      "url": "https://ui.aceternity.com/components/3d-card-effect",
+      "category": "card",
+      "blogUse": "Perspective-tilt cards — too showy for minimal post cards",
+      "priority": "skip"
+    },
+    {
+      "name": "ASCII Art",
+      "url": "https://ui.aceternity.com/components/ascii-art",
+      "category": "card",
+      "blogUse": "ASCII-rendered visuals — gimmick",
+      "priority": "skip"
+    },
+    {
+      "name": "Card Stack",
+      "url": "https://ui.aceternity.com/components/card-stack",
+      "category": "card",
+      "blogUse": "Auto-cycling stacked testimonial cards — no blog slot",
+      "priority": "skip"
+    },
+    {
+      "name": "Comet Card",
+      "url": "https://ui.aceternity.com/components/comet-card",
+      "category": "card",
+      "blogUse": "3D flourish card — too flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Draggable Card",
+      "url": "https://ui.aceternity.com/components/draggable-card",
+      "category": "card",
+      "blogUse": "Physics drag cards — toy interaction, not blog content",
+      "priority": "skip"
+    },
+    {
+      "name": "Evervault Card",
+      "url": "https://ui.aceternity.com/components/evervault-card",
+      "category": "card",
+      "blogUse": "Encrypted-text hover card — heavy gimmick",
+      "priority": "skip"
+    },
+    {
+      "name": "Glare Card",
+      "url": "https://ui.aceternity.com/components/glare-card",
+      "category": "card",
+      "blogUse": "Holographic glare — off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Keyboard",
+      "url": "https://ui.aceternity.com/components/keyboard",
+      "category": "card",
+      "blogUse": "Animated keyboard visual — no blog slot",
+      "priority": "skip"
+    },
+    {
+      "name": "Pixelated Canvas",
+      "url": "https://ui.aceternity.com/components/pixelated-canvas",
+      "category": "card",
+      "blogUse": "Pixelated image canvas — gimmick",
+      "priority": "skip"
+    },
+    {
+      "name": "Wobble Card",
+      "url": "https://ui.aceternity.com/components/wobble-card",
+      "category": "card",
+      "blogUse": "Wobbling gradient cards — too playful",
+      "priority": "skip"
+    },
+    {
+      "name": "Canvas Reveal Effect",
+      "url": "https://ui.aceternity.com/components/canvas-reveal-effect",
+      "category": "scroll",
+      "blogUse": "Dot-matrix hover reveal — heavy canvas, flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Container Scroll Animation",
+      "url": "https://ui.aceternity.com/components/container-scroll-animation",
+      "category": "scroll",
+      "blogUse": "Tablet-mockup scroll hero — product-landing pattern, not blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Hero Parallax",
+      "url": "https://ui.aceternity.com/components/hero-parallax",
+      "category": "scroll",
+      "blogUse": "Product-grid parallax hero — portfolio pattern, too heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Macbook Scroll",
+      "url": "https://ui.aceternity.com/components/macbook-scroll",
+      "category": "scroll",
+      "blogUse": "Macbook mockup scroll — product-landing showpiece",
+      "priority": "skip"
+    },
+    {
+      "name": "Parallax Scroll",
+      "url": "https://ui.aceternity.com/components/parallax-scroll",
+      "category": "scroll",
+      "blogUse": "Parallax image gallery — no gallery on a minimal blog",
+      "priority": "skip"
+    },
+    {
+      "name": "SVG Mask Effect",
+      "url": "https://ui.aceternity.com/components/svg-mask-effect",
+      "category": "interaction",
+      "blogUse": "Cursor mask text reveal — gimmick for prose",
+      "priority": "skip"
+    },
+    {
+      "name": "Canvas Text",
+      "url": "https://ui.aceternity.com/components/canvas-text",
+      "category": "text-effect",
+      "blogUse": "Canvas-rendered display text — hurts a11y/SEO for headings",
+      "priority": "skip"
+    },
+    {
+      "name": "Colorful Text",
+      "url": "https://ui.aceternity.com/components/colourful-text",
+      "category": "text-effect",
+      "blogUse": "Rainbow animated text — clashes with monochrome Swiss palette",
+      "priority": "skip"
+    },
+    {
+      "name": "Container Text Flip",
+      "url": "https://ui.aceternity.com/components/container-text-flip",
+      "category": "text-effect",
+      "blogUse": "Boxed word flipper — redundant with Flip Words, busier",
+      "priority": "skip"
+    },
+    {
+      "name": "Layout Text Flip",
+      "url": "https://ui.aceternity.com/components/layout-text-flip",
+      "category": "text-effect",
+      "blogUse": "Layout-animated word flip — redundant with Flip Words",
+      "priority": "skip"
+    },
+    {
+      "name": "Text Reveal Card",
+      "url": "https://ui.aceternity.com/components/text-reveal-card",
+      "category": "text-effect",
+      "blogUse": "Mouse-swipe text reveal card — gimmick",
+      "priority": "skip"
+    },
+    {
+      "name": "Notch",
+      "url": "https://ui.aceternity.com/components/notch",
+      "category": "navigation",
+      "blogUse": "Dynamic-island style notch — novelty nav, off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "File Upload",
+      "url": "https://ui.aceternity.com/components/file-upload",
+      "category": "input",
+      "blogUse": "No upload flows on a blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Gooey Input",
+      "url": "https://ui.aceternity.com/components/gooey-input",
+      "category": "input",
+      "blogUse": "Gooey SVG-filter input — too flashy vs vanish input",
+      "priority": "skip"
+    },
+    {
+      "name": "Dither Shader",
+      "url": "https://ui.aceternity.com/components/dither-shader",
+      "category": "background",
+      "blogUse": "WebGL dither shader — heavy, spectacle-only",
+      "priority": "skip"
+    },
+    {
+      "name": "Apple Cards Carousel",
+      "url": "https://ui.aceternity.com/components/apple-cards-carousel",
+      "category": "carousel",
+      "blogUse": "App-store style carousel — wrong genre for a minimal blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Animated Testimonials",
+      "url": "https://ui.aceternity.com/components/animated-testimonials",
+      "category": "carousel",
+      "blogUse": "Testimonial rotator — blogs rarely need testimonials",
+      "priority": "skip"
+    },
+    {
+      "name": "Carousel",
+      "url": "https://ui.aceternity.com/components/carousel",
+      "category": "carousel",
+      "blogUse": "Slide carousel — carousels fight minimal content-first design",
+      "priority": "skip"
+    },
+    {
+      "name": "Images Slider",
+      "url": "https://ui.aceternity.com/components/images-slider",
+      "category": "carousel",
+      "blogUse": "Full-bleed image slider — no slot",
+      "priority": "skip"
+    },
+    {
+      "name": "Container Cover",
+      "url": "https://ui.aceternity.com/components/container-cover",
+      "category": "layout",
+      "blogUse": "Cover/container showpiece — landing-page pattern",
+      "priority": "skip"
+    },
+    {
+      "name": "Layout Grid",
+      "url": "https://ui.aceternity.com/components/layout-grid",
+      "category": "layout",
+      "blogUse": "Click-to-expand photo grid — gallery pattern, not posts",
+      "priority": "skip"
+    },
+    {
+      "name": "GitHub Globe",
+      "url": "https://ui.aceternity.com/components/github-globe",
+      "category": "visualization",
+      "blogUse": "three.js globe — massive payload, zero blog value",
+      "priority": "skip"
+    },
+    {
+      "name": "World Map",
+      "url": "https://ui.aceternity.com/components/world-map",
+      "category": "visualization",
+      "blogUse": "Animated world map — irrelevant",
+      "priority": "skip"
+    },
+    {
+      "name": "Following Pointer",
+      "url": "https://ui.aceternity.com/components/following-pointer",
+      "category": "interaction",
+      "blogUse": "Custom cursor follower — cursor gimmicks conflict with reading-focused UX",
+      "priority": "skip"
+    },
+    {
+      "name": "Loader",
+      "url": "https://ui.aceternity.com/components/loader",
+      "category": "interaction",
+      "blogUse": "Static site has nothing to load; Stateful Button covers form feedback",
+      "priority": "skip"
+    },
+    {
+      "name": "Multi Step Loader",
+      "url": "https://ui.aceternity.com/components/multi-step-loader",
+      "category": "interaction",
+      "blogUse": "Multi-step loading screen — no such flow on a blog",
+      "priority": "skip"
+    },
+    {
+      "name": "3D Marquee",
+      "url": "https://ui.aceternity.com/components/3d-marquee",
+      "category": "3d",
+      "blogUse": "3D image marquee — heavy and flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "3D Pin",
+      "url": "https://ui.aceternity.com/components/3d-pin",
+      "category": "3d",
+      "blogUse": "3D perspective pin card — too showy",
+      "priority": "skip"
+    },
+    {
+      "name": "Images Badge",
+      "url": "https://ui.aceternity.com/components/images-badge",
+      "category": "interaction",
+      "blogUse": "Avatar-cluster social-proof badge — marketing pattern, not blog",
+      "priority": "skip"
+    }
+  ]
+}

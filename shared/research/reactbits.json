@@ -1,0 +1,990 @@
+{
+  "kit": "ReactBits (reactbits.dev)",
+  "installation": "Primary: shadcn CLI against the ReactBits registry — `npx shadcn@latest add https://reactbits.dev/r/<Name>-<TS|JS>-<TW|CSS>` (verified working, returns registry-item JSON; e.g. `npx shadcn@latest add https://reactbits.dev/r/SplitText-TS-TW`). Namespaced form after adding `\"@react-bits\": \"https://reactbits.dev/r/{name}\"` to components.json registries: `npx shadcn@latest add @react-bits/BlurText-TS-TW`. Alternative: jsrepo CLI — `npx jsrepo add https://reactbits.dev/<ts|js>/<tailwind|css>/<Category>/<Component>` (e.g. .../ts/tailwind/TextAnimations/SplitText). Manual copy-paste from each doc page also supported. Every component ships 4 variants: JS-CSS, JS-TW, TS-CSS, TS-TW. For this Astro+Tailwind v4 blog use the TS-TW variants.",
+  "dependencies": [
+    "gsap@^3.13.0 (SplitText, AnimatedContent, FadeContent, TextType, ScrollReveal/Float, Shuffle, ScrambledText, DotGrid, Masonry, MagicBento, PillNav, StaggeredMenu, FlowingMenu, CardNav, BounceCards)",
+    "@gsap/react@^2.1.2 (SplitText, Shuffle)",
+    "motion@^12.23.12 (BlurText, ShinyText, GradientText, RotatingText, DecryptedText, TrueFocus, VariableProximity, CountUp, Counter, AnimatedList, Dock, TiltedCard, Carousel, Stack, Stepper, ScrollVelocity)",
+    "ogl@^1.0.11 (only for WebGL backgrounds: Aurora, SoftAurora, DarkVeil, Particles, Grainient, Threads, FaultyTerminal, SpecularButton)",
+    "react-icons@^5.5.0 (CardNav, Carousel only)",
+    "react-router-dom@^6.30.1 (PillNav as shipped — strip it and use <a> in Astro)",
+    "zero-dep components need nothing: ClickSpark, Noise, SpotlightCard, GlitchText, StarBorder, GlareHover, Magnet, GradualBlur, BorderGlow, GooeyNav, LogoLoop, LetterGlitch, Waves, ProfileCard, Folder"
+  ],
+  "tailwindVersion": "TW variants are pure utility-class components with no plugin or tailwind.config requirement — they work as-is on Tailwind v4 (and v3). Exception: a few components reference custom animation utilities (verified in registry source: StarBorder uses animate-star-movement-top/bottom, GlitchText uses animate-glitch-before/after) — in v4 define those keyframes+utilities in your global CSS via @theme/@keyframes (docs provide the snippet; in v3 it went in tailwind.config). If you want zero Tailwind coupling for any component, the -CSS variants ship plain CSS instead.",
+  "components": [
+    {
+      "name": "Split Text",
+      "url": "https://reactbits.dev/text-animations/split-text",
+      "category": "text-effect",
+      "blogUse": "Homepage hero title — staggered per-character/word entrance on load (gsap + @gsap/react, ScrollTrigger)",
+      "priority": "must"
+    },
+    {
+      "name": "Blur Text",
+      "url": "https://reactbits.dev/text-animations/blur-text",
+      "category": "text-effect",
+      "blogUse": "Hero subtitle and section headings — blur-to-crisp reveal on viewport entry (motion, IntersectionObserver)",
+      "priority": "must"
+    },
+    {
+      "name": "Shiny Text",
+      "url": "https://reactbits.dev/text-animations/shiny-text",
+      "category": "text-effect",
+      "blogUse": "Subtle metallic sheen on nav links, 'Read more' links, newsletter CTA label — very at home on dark (motion)",
+      "priority": "must"
+    },
+    {
+      "name": "Glitch Text",
+      "url": "https://reactbits.dev/text-animations/glitch-text",
+      "category": "text-effect",
+      "blogUse": "404 page headline — CSS-only RGB-split glitch, zero deps (needs custom animate-glitch-* keyframes in Tailwind v4 CSS)",
+      "priority": "must"
+    },
+    {
+      "name": "Gradient Text",
+      "url": "https://reactbits.dev/text-animations/gradient-text",
+      "category": "text-effect",
+      "blogUse": "Single accent word in the hero headline — keep to one accent hue for the Swiss look (motion)",
+      "priority": "nice"
+    },
+    {
+      "name": "Text Type",
+      "url": "https://reactbits.dev/text-animations/text-type",
+      "category": "text-effect",
+      "blogUse": "Typewriter hero tagline alternative (gsap)",
+      "priority": "nice"
+    },
+    {
+      "name": "Rotating Text",
+      "url": "https://reactbits.dev/text-animations/rotating-text",
+      "category": "text-effect",
+      "blogUse": "Hero rotating keyword ('I write about X / Y / Z') (motion)",
+      "priority": "nice"
+    },
+    {
+      "name": "Decrypted Text",
+      "url": "https://reactbits.dev/text-animations/decrypted-text",
+      "category": "text-effect",
+      "blogUse": "404 message or about-page intro line — glyph-cycle resolve (motion)",
+      "priority": "nice"
+    },
+    {
+      "name": "Count Up",
+      "url": "https://reactbits.dev/text-animations/count-up",
+      "category": "text-effect",
+      "blogUse": "About page stats (posts written, years) and tags page post counts (motion)",
+      "priority": "nice"
+    },
+    {
+      "name": "Scroll Reveal",
+      "url": "https://reactbits.dev/text-animations/scroll-reveal",
+      "category": "text-effect",
+      "blogUse": "Post intro paragraph or pull-quotes unblur on scroll — use sparingly in prose (gsap)",
+      "priority": "nice"
+    },
+    {
+      "name": "Scroll Float",
+      "url": "https://reactbits.dev/text-animations/scroll-float",
+      "category": "text-effect",
+      "blogUse": "Section headings gently float on scroll on homepage (gsap)",
+      "priority": "nice"
+    },
+    {
+      "name": "Shuffle",
+      "url": "https://reactbits.dev/text-animations/shuffle",
+      "category": "text-effect",
+      "blogUse": "Alternate hero title reveal — characters shuffle before settling (gsap + @gsap/react)",
+      "priority": "nice"
+    },
+    {
+      "name": "Scrambled Text",
+      "url": "https://reactbits.dev/text-animations/scrambled-text",
+      "category": "text-effect",
+      "blogUse": "Hover scramble on footer wordmark or nav easter egg (gsap)",
+      "priority": "nice"
+    },
+    {
+      "name": "True Focus",
+      "url": "https://reactbits.dev/text-animations/true-focus",
+      "category": "text-effect",
+      "blogUse": "About-page tagline — sequential word focus/blur (motion)",
+      "priority": "nice"
+    },
+    {
+      "name": "Variable Proximity",
+      "url": "https://reactbits.dev/text-animations/variable-proximity",
+      "category": "text-effect",
+      "blogUse": "About-page display heading — variable-font weight follows cursor (motion; needs a variable font)",
+      "priority": "nice"
+    },
+    {
+      "name": "Fuzzy Text",
+      "url": "https://reactbits.dev/text-animations/fuzzy-text",
+      "category": "text-effect",
+      "blogUse": "Canvas-fuzzed '404' numeral — classic 404 treatment, alternative to Glitch Text",
+      "priority": "nice"
+    },
+    {
+      "name": "Text Pressure",
+      "url": "https://reactbits.dev/text-animations/text-pressure",
+      "category": "text-effect",
+      "blogUse": "Interactive variable-font heading — a bit showy for Swiss-minimal",
+      "priority": "nice"
+    },
+    {
+      "name": "Circular Text",
+      "url": "https://reactbits.dev/text-animations/circular-text",
+      "category": "text-effect",
+      "blogUse": "Rotating circular badge — decorative, off-style for a minimal blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Curved Loop",
+      "url": "https://reactbits.dev/text-animations/curved-loop",
+      "category": "text-effect",
+      "blogUse": "Curved marquee text — too flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Falling Text",
+      "url": "https://reactbits.dev/text-animations/falling-text",
+      "category": "text-effect",
+      "blogUse": "Physics falling words (matter-js dep) — gimmicky and heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Text Cursor",
+      "url": "https://reactbits.dev/text-animations/text-cursor",
+      "category": "text-effect",
+      "blogUse": "Cursor text trail — off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "ASCII Text",
+      "url": "https://reactbits.dev/text-animations/ascii-text",
+      "category": "text-effect",
+      "blogUse": "three.js ASCII-rendered text — heavy 3D",
+      "priority": "skip"
+    },
+    {
+      "name": "Scroll Velocity",
+      "url": "https://reactbits.dev/text-animations/scroll-velocity",
+      "category": "text-effect",
+      "blogUse": "Velocity-driven text marquee — too flashy for minimal blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Animated Content",
+      "url": "https://reactbits.dev/animations/animated-content",
+      "category": "interaction",
+      "blogUse": "Scroll-triggered entrance wrapper for post cards, homepage sections, footer — the workhorse reveal (gsap)",
+      "priority": "must"
+    },
+    {
+      "name": "Fade Content",
+      "url": "https://reactbits.dev/animations/fade-content",
+      "category": "interaction",
+      "blogUse": "Simple fade/slide-in wrapper for prose blocks, images, newsletter CTA (gsap)",
+      "priority": "must"
+    },
+    {
+      "name": "Click Spark",
+      "url": "https://reactbits.dev/animations/click-spark",
+      "category": "interaction",
+      "blogUse": "Sitewide click micro-interaction (canvas 2d, zero deps) — wrap the whole layout island",
+      "priority": "must"
+    },
+    {
+      "name": "Gradual Blur",
+      "url": "https://reactbits.dev/animations/gradual-blur",
+      "category": "interaction",
+      "blogUse": "Fixed bottom-edge progressive blur under long post lists / TOC sidebar — cinematic, very minimal (zero deps)",
+      "priority": "must"
+    },
+    {
+      "name": "Noise",
+      "url": "https://reactbits.dev/animations/noise",
+      "category": "background",
+      "blogUse": "Subtle animated film-grain overlay over the whole dark theme — signature minimal-dark texture (canvas 2d, zero deps)",
+      "priority": "must"
+    },
+    {
+      "name": "Star Border",
+      "url": "https://reactbits.dev/animations/star-border",
+      "category": "interaction",
+      "blogUse": "Animated border on the newsletter subscribe button (zero deps; needs animate-star-movement-* keyframes in v4 CSS)",
+      "priority": "nice"
+    },
+    {
+      "name": "Glare Hover",
+      "url": "https://reactbits.dev/animations/glare-hover",
+      "category": "interaction",
+      "blogUse": "Glare sweep on post-card cover images on hover (zero deps)",
+      "priority": "nice"
+    },
+    {
+      "name": "Magnet",
+      "url": "https://reactbits.dev/animations/magnet",
+      "category": "interaction",
+      "blogUse": "Magnetic hover on header CTA and footer social icons (zero deps)",
+      "priority": "nice"
+    },
+    {
+      "name": "Logo Loop",
+      "url": "https://reactbits.dev/animations/logo-loop",
+      "category": "interaction",
+      "blogUse": "Tech-stack logo marquee on the about page (zero deps)",
+      "priority": "nice"
+    },
+    {
+      "name": "Pixel Transition",
+      "url": "https://reactbits.dev/animations/pixel-transition",
+      "category": "interaction",
+      "blogUse": "Pixelated image swap on hover — off-style for Swiss minimal",
+      "priority": "skip"
+    },
+    {
+      "name": "Electric Border",
+      "url": "https://reactbits.dev/animations/electric-border",
+      "category": "interaction",
+      "blogUse": "Electric animated border — too flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Cursor Grid",
+      "url": "https://reactbits.dev/animations/cursor-grid",
+      "category": "interaction",
+      "blogUse": "Cursor-reactive grid effect — flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Orbit Images",
+      "url": "https://reactbits.dev/animations/orbit-images",
+      "category": "interaction",
+      "blogUse": "Orbiting images — off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Antigravity",
+      "url": "https://reactbits.dev/animations/antigravity",
+      "category": "interaction",
+      "blogUse": "Floating anti-gravity particles — flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Target Cursor",
+      "url": "https://reactbits.dev/animations/target-cursor",
+      "category": "interaction",
+      "blogUse": "Custom crosshair cursor — custom cursors hurt reading UX",
+      "priority": "skip"
+    },
+    {
+      "name": "Magic Rings",
+      "url": "https://reactbits.dev/animations/magic-rings",
+      "category": "interaction",
+      "blogUse": "Animated rings — decorative only",
+      "priority": "skip"
+    },
+    {
+      "name": "Laser Flow",
+      "url": "https://reactbits.dev/animations/laser-flow",
+      "category": "interaction",
+      "blogUse": "Laser beam effect — too flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Magnet Lines",
+      "url": "https://reactbits.dev/animations/magnet-lines",
+      "category": "interaction",
+      "blogUse": "Compass-needle line grid — decorative",
+      "priority": "skip"
+    },
+    {
+      "name": "Ghost Cursor",
+      "url": "https://reactbits.dev/animations/ghost-cursor",
+      "category": "interaction",
+      "blogUse": "Trailing ghost cursor — hurts reading UX",
+      "priority": "skip"
+    },
+    {
+      "name": "Strands",
+      "url": "https://reactbits.dev/animations/strands",
+      "category": "interaction",
+      "blogUse": "Interactive hair-strand effect — off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Sticker Peel",
+      "url": "https://reactbits.dev/animations/sticker-peel",
+      "category": "interaction",
+      "blogUse": "Peelable sticker — playful, off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Pixel Trail",
+      "url": "https://reactbits.dev/animations/pixel-trail",
+      "category": "interaction",
+      "blogUse": "Pixel cursor trail — off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Cubes",
+      "url": "https://reactbits.dev/animations/cubes",
+      "category": "interaction",
+      "blogUse": "3D cube grid animation — flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Metallic Paint",
+      "url": "https://reactbits.dev/animations/metallic-paint",
+      "category": "interaction",
+      "blogUse": "Metallic liquid paint on logos — heavy shader",
+      "priority": "skip"
+    },
+    {
+      "name": "Shape Blur",
+      "url": "https://reactbits.dev/animations/shape-blur",
+      "category": "interaction",
+      "blogUse": "Shader shape blur hover — heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Crosshair",
+      "url": "https://reactbits.dev/animations/crosshair",
+      "category": "interaction",
+      "blogUse": "Crosshair cursor — hurts reading UX",
+      "priority": "skip"
+    },
+    {
+      "name": "Image Trail",
+      "url": "https://reactbits.dev/animations/image-trail",
+      "category": "interaction",
+      "blogUse": "Images trailing the cursor — flashy portfolio effect",
+      "priority": "skip"
+    },
+    {
+      "name": "Ribbons",
+      "url": "https://reactbits.dev/animations/ribbons",
+      "category": "interaction",
+      "blogUse": "Ribbon cursor trails — flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Splash Cursor",
+      "url": "https://reactbits.dev/animations/splash-cursor",
+      "category": "interaction",
+      "blogUse": "Fluid-sim splash cursor (WebGL) — heavy and distracting",
+      "priority": "skip"
+    },
+    {
+      "name": "Meta Balls",
+      "url": "https://reactbits.dev/animations/meta-balls",
+      "category": "interaction",
+      "blogUse": "Gooey metaballs (WebGL) — flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Blob Cursor",
+      "url": "https://reactbits.dev/animations/blob-cursor",
+      "category": "interaction",
+      "blogUse": "Blob cursor follower — hurts reading UX",
+      "priority": "skip"
+    },
+    {
+      "name": "Pill Nav",
+      "url": "https://reactbits.dev/components/pill-nav",
+      "category": "navigation",
+      "blogUse": "Header nav — minimal pill with sliding active highlight; perfect Swiss fit. Gotcha: ships importing react-router-dom Link — swap for plain <a> in Astro (gsap)",
+      "priority": "must"
+    },
+    {
+      "name": "Spotlight Card",
+      "url": "https://reactbits.dev/components/spotlight-card",
+      "category": "card",
+      "blogUse": "Post cards in the homepage grid — cursor-following spotlight on dark surface, zero deps, very subtle",
+      "priority": "must"
+    },
+    {
+      "name": "Masonry",
+      "url": "https://reactbits.dev/components/masonry",
+      "category": "layout",
+      "blogUse": "Archive/tags page post grid with animated reflow (gsap + ResizeObserver)",
+      "priority": "must"
+    },
+    {
+      "name": "Animated List",
+      "url": "https://reactbits.dev/components/animated-list",
+      "category": "list",
+      "blogUse": "'Recent posts' list with staggered item reveals and keyboard navigation (motion)",
+      "priority": "nice"
+    },
+    {
+      "name": "Staggered Menu",
+      "url": "https://reactbits.dev/components/staggered-menu",
+      "category": "navigation",
+      "blogUse": "Mobile fullscreen nav overlay with staggered link animation (gsap)",
+      "priority": "nice"
+    },
+    {
+      "name": "Gooey Nav",
+      "url": "https://reactbits.dev/components/gooey-nav",
+      "category": "navigation",
+      "blogUse": "Alternative header nav with gooey active-indicator (zero deps) — slightly playful for Swiss",
+      "priority": "nice"
+    },
+    {
+      "name": "Card Nav",
+      "url": "https://reactbits.dev/components/card-nav",
+      "category": "navigation",
+      "blogUse": "Expandable header nav revealing card panels of links (gsap + react-icons)",
+      "priority": "nice"
+    },
+    {
+      "name": "Flowing Menu",
+      "url": "https://reactbits.dev/components/flowing-menu",
+      "category": "navigation",
+      "blogUse": "Tags index rendered as large flowing menu rows with marquee-on-hover (gsap)",
+      "priority": "nice"
+    },
+    {
+      "name": "Line Sidebar",
+      "url": "https://reactbits.dev/components/line-sidebar",
+      "category": "navigation",
+      "blogUse": "Minimal line-indicator sidebar — adaptable as post-page TOC with active-section lines",
+      "priority": "nice"
+    },
+    {
+      "name": "Dock",
+      "url": "https://reactbits.dev/components/dock",
+      "category": "navigation",
+      "blogUse": "Footer social-links dock with macOS proximity magnification (motion)",
+      "priority": "nice"
+    },
+    {
+      "name": "Magic Bento",
+      "url": "https://reactbits.dev/components/magic-bento",
+      "category": "layout",
+      "blogUse": "Homepage featured-posts bento grid with glow/tilt/magnet options — dial effects down for minimal (gsap)",
+      "priority": "nice"
+    },
+    {
+      "name": "Tilted Card",
+      "url": "https://reactbits.dev/components/tilted-card",
+      "category": "card",
+      "blogUse": "About-page portrait or featured-post cover with 3D pointer tilt (motion)",
+      "priority": "nice"
+    },
+    {
+      "name": "Profile Card",
+      "url": "https://reactbits.dev/components/profile-card",
+      "category": "card",
+      "blogUse": "About-page author card with holo glare/tilt (zero deps) — holo look is borderline for minimal",
+      "priority": "nice"
+    },
+    {
+      "name": "Border Glow",
+      "url": "https://reactbits.dev/components/border-glow",
+      "category": "card",
+      "blogUse": "Newsletter CTA card — cursor-following glowing border (zero deps)",
+      "priority": "nice"
+    },
+    {
+      "name": "Carousel",
+      "url": "https://reactbits.dev/components/carousel",
+      "category": "layout",
+      "blogUse": "Featured posts carousel on homepage (motion + react-icons)",
+      "priority": "nice"
+    },
+    {
+      "name": "Counter",
+      "url": "https://reactbits.dev/components/counter",
+      "category": "card",
+      "blogUse": "Odometer-style animated stats on about page (motion)",
+      "priority": "nice"
+    },
+    {
+      "name": "Glass Surface",
+      "url": "https://reactbits.dev/components/glass-surface",
+      "category": "card",
+      "blogUse": "Glassmorphic sticky header surface — glass clashes with flat Swiss style",
+      "priority": "skip"
+    },
+    {
+      "name": "Specular Button",
+      "url": "https://reactbits.dev/components/specular-button",
+      "category": "interaction",
+      "blogUse": "WebGL rim-light button (ogl) — a shader per button is overkill",
+      "priority": "skip"
+    },
+    {
+      "name": "Option Wheel",
+      "url": "https://reactbits.dev/components/option-wheel",
+      "category": "interaction",
+      "blogUse": "iOS-style option wheel — no blog use",
+      "priority": "skip"
+    },
+    {
+      "name": "Curved Input",
+      "url": "https://reactbits.dev/components/curved-input",
+      "category": "interaction",
+      "blogUse": "Decorative curved text input — off-style for newsletter form",
+      "priority": "skip"
+    },
+    {
+      "name": "Scroll Stack",
+      "url": "https://reactbits.dev/components/scroll-stack",
+      "category": "layout",
+      "blogUse": "Sticky stacking scroll cards — landing-page pattern, not blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Bubble Menu",
+      "url": "https://reactbits.dev/components/bubble-menu",
+      "category": "navigation",
+      "blogUse": "Bubble popup menu — playful, off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Circular Gallery",
+      "url": "https://reactbits.dev/components/circular-gallery",
+      "category": "layout",
+      "blogUse": "WebGL circular image gallery — heavy, off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Reflective Card",
+      "url": "https://reactbits.dev/components/reflective-card",
+      "category": "card",
+      "blogUse": "Reflective 3D card — too flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Stack",
+      "url": "https://reactbits.dev/components/stack",
+      "category": "card",
+      "blogUse": "Swipeable card stack (motion) — no clear blog slot",
+      "priority": "skip"
+    },
+    {
+      "name": "Fluid Glass",
+      "url": "https://reactbits.dev/components/fluid-glass",
+      "category": "card",
+      "blogUse": "three.js fluid glass lens — heavy 3D",
+      "priority": "skip"
+    },
+    {
+      "name": "Dome Gallery",
+      "url": "https://reactbits.dev/components/dome-gallery",
+      "category": "layout",
+      "blogUse": "3D dome image gallery — heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Chroma Grid",
+      "url": "https://reactbits.dev/components/chroma-grid",
+      "category": "layout",
+      "blogUse": "Chromatic team grid — too colorful for minimal dark",
+      "priority": "skip"
+    },
+    {
+      "name": "Folder",
+      "url": "https://reactbits.dev/components/folder",
+      "category": "interaction",
+      "blogUse": "Opening folder reveal — cute but off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Model Viewer",
+      "url": "https://reactbits.dev/components/model-viewer",
+      "category": "media",
+      "blogUse": "3D model viewer (three.js) — not blog content",
+      "priority": "skip"
+    },
+    {
+      "name": "Lanyard",
+      "url": "https://reactbits.dev/components/lanyard",
+      "category": "card",
+      "blogUse": "Physics badge on lanyard (three.js + rapier) — very heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Pixel Card",
+      "url": "https://reactbits.dev/components/pixel-card",
+      "category": "card",
+      "blogUse": "Pixel-noise hover card — off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Flying Posters",
+      "url": "https://reactbits.dev/components/flying-posters",
+      "category": "layout",
+      "blogUse": "WebGL flying posters on scroll — heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Card Swap",
+      "url": "https://reactbits.dev/components/card-swap",
+      "category": "card",
+      "blogUse": "Auto-swapping stacked cards — landing-page widget",
+      "priority": "skip"
+    },
+    {
+      "name": "Glass Icons",
+      "url": "https://reactbits.dev/components/glass-icons",
+      "category": "card",
+      "blogUse": "Glassy icon tiles — glass clashes with flat Swiss style",
+      "priority": "skip"
+    },
+    {
+      "name": "Decay Card",
+      "url": "https://reactbits.dev/components/decay-card",
+      "category": "card",
+      "blogUse": "SVG-distortion decay card — flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Elastic Slider",
+      "url": "https://reactbits.dev/components/elastic-slider",
+      "category": "interaction",
+      "blogUse": "Elastic value slider — no blog slot",
+      "priority": "skip"
+    },
+    {
+      "name": "Infinite Menu",
+      "url": "https://reactbits.dev/components/infinite-menu",
+      "category": "navigation",
+      "blogUse": "WebGL infinite sphere menu — heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Stepper",
+      "url": "https://reactbits.dev/components/stepper",
+      "category": "interaction",
+      "blogUse": "Multi-step wizard — no blog slot",
+      "priority": "skip"
+    },
+    {
+      "name": "Bounce Cards",
+      "url": "https://reactbits.dev/components/bounce-cards",
+      "category": "card",
+      "blogUse": "Bouncing photo cards (gsap) — playful, off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Dot Grid",
+      "url": "https://reactbits.dev/backgrounds/dot-grid",
+      "category": "background",
+      "blogUse": "Hero and 404 background — quiet interactive dot grid on canvas 2d, ideal Swiss-dark texture (gsap)",
+      "priority": "must"
+    },
+    {
+      "name": "Dark Veil",
+      "url": "https://reactbits.dev/backgrounds/dark-veil",
+      "category": "background",
+      "blogUse": "Homepage hero background — smooth dark shader, made for dark-first sites (ogl WebGL)",
+      "priority": "nice"
+    },
+    {
+      "name": "Aurora",
+      "url": "https://reactbits.dev/backgrounds/aurora",
+      "category": "background",
+      "blogUse": "Hero background aurora sweep — restrained colors keep it minimal (ogl)",
+      "priority": "nice"
+    },
+    {
+      "name": "Soft Aurora",
+      "url": "https://reactbits.dev/backgrounds/soft-aurora",
+      "category": "background",
+      "blogUse": "Muted aurora for hero or newsletter band — softer than Aurora (ogl)",
+      "priority": "nice"
+    },
+    {
+      "name": "Particles",
+      "url": "https://reactbits.dev/backgrounds/particles",
+      "category": "background",
+      "blogUse": "Sparse floating dust behind hero — subtle at low density (ogl)",
+      "priority": "nice"
+    },
+    {
+      "name": "Grainient",
+      "url": "https://reactbits.dev/backgrounds/grainient",
+      "category": "background",
+      "blogUse": "Grainy gradient hero/CTA background — pairs with the film-grain aesthetic (ogl)",
+      "priority": "nice"
+    },
+    {
+      "name": "Threads",
+      "url": "https://reactbits.dev/backgrounds/threads",
+      "category": "background",
+      "blogUse": "Fine fabric-like line field behind newsletter CTA or footer (ogl)",
+      "priority": "nice"
+    },
+    {
+      "name": "Waves",
+      "url": "https://reactbits.dev/backgrounds/waves",
+      "category": "background",
+      "blogUse": "Canvas 2d line-wave background for footer or about header (zero deps)",
+      "priority": "nice"
+    },
+    {
+      "name": "Letter Glitch",
+      "url": "https://reactbits.dev/backgrounds/letter-glitch",
+      "category": "background",
+      "blogUse": "404 page matrix-glitch background (canvas 2d, zero deps)",
+      "priority": "nice"
+    },
+    {
+      "name": "Faulty Terminal",
+      "url": "https://reactbits.dev/backgrounds/faulty-terminal",
+      "category": "background",
+      "blogUse": "404 page CRT-scanline background (ogl)",
+      "priority": "nice"
+    },
+    {
+      "name": "Dot Field",
+      "url": "https://reactbits.dev/backgrounds/dot-field",
+      "category": "background",
+      "blogUse": "Alternative dot background — redundant with Dot Grid",
+      "priority": "skip"
+    },
+    {
+      "name": "Floating Lines",
+      "url": "https://reactbits.dev/backgrounds/floating-lines",
+      "category": "background",
+      "blogUse": "Floating line field — redundant with Threads/Waves",
+      "priority": "skip"
+    },
+    {
+      "name": "Light Rays",
+      "url": "https://reactbits.dev/backgrounds/light-rays",
+      "category": "background",
+      "blogUse": "Volumetric rays on dark hero — borderline; slightly theatrical",
+      "priority": "skip"
+    },
+    {
+      "name": "Silk",
+      "url": "https://reactbits.dev/backgrounds/silk",
+      "category": "background",
+      "blogUse": "Silky wave shader — needs three + @react-three/fiber, too heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Beams",
+      "url": "https://reactbits.dev/backgrounds/beams",
+      "category": "background",
+      "blogUse": "3D light beams (three.js) — heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Galaxy",
+      "url": "https://reactbits.dev/backgrounds/galaxy",
+      "category": "background",
+      "blogUse": "Galaxy starfield — too much for minimal",
+      "priority": "skip"
+    },
+    {
+      "name": "Hyperspeed",
+      "url": "https://reactbits.dev/backgrounds/hyperspeed",
+      "category": "background",
+      "blogUse": "Highway hyperspeed (three.js + postprocessing) — very heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Ballpit",
+      "url": "https://reactbits.dev/backgrounds/ballpit",
+      "category": "background",
+      "blogUse": "3D physics ballpit (three.js) — heavy and playful",
+      "priority": "skip"
+    },
+    {
+      "name": "Balatro",
+      "url": "https://reactbits.dev/backgrounds/balatro",
+      "category": "background",
+      "blogUse": "Balatro-style swirl shader — too loud",
+      "priority": "skip"
+    },
+    {
+      "name": "Liquid Chrome",
+      "url": "https://reactbits.dev/backgrounds/liquid-chrome",
+      "category": "background",
+      "blogUse": "Liquid chrome shader — too loud",
+      "priority": "skip"
+    },
+    {
+      "name": "Liquid Ether",
+      "url": "https://reactbits.dev/backgrounds/liquid-ether",
+      "category": "background",
+      "blogUse": "Fluid-sim background — heavy and flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Iridescence",
+      "url": "https://reactbits.dev/backgrounds/iridescence",
+      "category": "background",
+      "blogUse": "Iridescent shader — too colorful",
+      "priority": "skip"
+    },
+    {
+      "name": "Plasma",
+      "url": "https://reactbits.dev/backgrounds/plasma",
+      "category": "background",
+      "blogUse": "Plasma shader — too loud",
+      "priority": "skip"
+    },
+    {
+      "name": "Plasma Wave",
+      "url": "https://reactbits.dev/backgrounds/plasma-wave",
+      "category": "background",
+      "blogUse": "Plasma wave shader — too loud",
+      "priority": "skip"
+    },
+    {
+      "name": "Prism",
+      "url": "https://reactbits.dev/backgrounds/prism",
+      "category": "background",
+      "blogUse": "3D prism shader — flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Prismatic Burst",
+      "url": "https://reactbits.dev/backgrounds/prismatic-burst",
+      "category": "background",
+      "blogUse": "Prismatic ray burst — flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Lightning",
+      "url": "https://reactbits.dev/backgrounds/lightning",
+      "category": "background",
+      "blogUse": "Lightning shader — flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Lightfall",
+      "url": "https://reactbits.dev/backgrounds/lightfall",
+      "category": "background",
+      "blogUse": "Falling light shader — flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Light Pillar",
+      "url": "https://reactbits.dev/backgrounds/light-pillar",
+      "category": "background",
+      "blogUse": "Light pillar shader — flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Side Rays",
+      "url": "https://reactbits.dev/backgrounds/side-rays",
+      "category": "background",
+      "blogUse": "Side light rays — redundant/flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Pixel Blast",
+      "url": "https://reactbits.dev/backgrounds/pixel-blast",
+      "category": "background",
+      "blogUse": "Pixel explosion (three.js) — heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Pixel Snow",
+      "url": "https://reactbits.dev/backgrounds/pixel-snow",
+      "category": "background",
+      "blogUse": "Pixel snowfall — seasonal gimmick",
+      "priority": "skip"
+    },
+    {
+      "name": "Color Bends",
+      "url": "https://reactbits.dev/backgrounds/color-bends",
+      "category": "background",
+      "blogUse": "Bending color field — too colorful",
+      "priority": "skip"
+    },
+    {
+      "name": "Evil Eye",
+      "url": "https://reactbits.dev/backgrounds/evil-eye",
+      "category": "background",
+      "blogUse": "Evil eye shader — thematic gimmick",
+      "priority": "skip"
+    },
+    {
+      "name": "Line Waves",
+      "url": "https://reactbits.dev/backgrounds/line-waves",
+      "category": "background",
+      "blogUse": "Line wave shader — redundant with Waves",
+      "priority": "skip"
+    },
+    {
+      "name": "Radar",
+      "url": "https://reactbits.dev/backgrounds/radar",
+      "category": "background",
+      "blogUse": "Radar sweep — thematic gimmick",
+      "priority": "skip"
+    },
+    {
+      "name": "Gradient Blinds",
+      "url": "https://reactbits.dev/backgrounds/gradient-blinds",
+      "category": "background",
+      "blogUse": "Gradient blinds shader — flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Grid Scan",
+      "url": "https://reactbits.dev/backgrounds/grid-scan",
+      "category": "background",
+      "blogUse": "Sci-fi grid scan — off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Grid Distortion",
+      "url": "https://reactbits.dev/backgrounds/grid-distortion",
+      "category": "background",
+      "blogUse": "Image grid distortion (WebGL) — heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Grid Motion",
+      "url": "https://reactbits.dev/backgrounds/grid-motion",
+      "category": "background",
+      "blogUse": "Scrolling image grid — busy",
+      "priority": "skip"
+    },
+    {
+      "name": "Ripple Grid",
+      "url": "https://reactbits.dev/backgrounds/ripple-grid",
+      "category": "background",
+      "blogUse": "Rippling grid (WebGL) — borderline but busier than Dot Grid",
+      "priority": "skip"
+    },
+    {
+      "name": "Shape Grid",
+      "url": "https://reactbits.dev/backgrounds/shape-grid",
+      "category": "background",
+      "blogUse": "Animated shape grid — busy",
+      "priority": "skip"
+    },
+    {
+      "name": "Dither",
+      "url": "https://reactbits.dev/backgrounds/dither",
+      "category": "background",
+      "blogUse": "Retro dither shader (three.js postprocessing) — heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Faulty Terminal duplicate check — Orb",
+      "url": "https://reactbits.dev/backgrounds/orb",
+      "category": "background",
+      "blogUse": "Glowing orb shader (ogl) — decorative hero orb, slightly showy",
+      "priority": "skip"
+    },
+    {
+      "name": "Ferrofluid",
+      "url": "https://reactbits.dev/backgrounds/ferrofluid",
+      "category": "background",
+      "blogUse": "Ferrofluid blob shader — flashy",
+      "priority": "skip"
+    }
+  ],
+  "notes": "1) Docs site is fully client-rendered (SPA) — the reliable machine-readable source is the shadcn registry at https://reactbits.dev/r/<Name>-<TS|JS>-<TW|CSS> (verified; returns registry-item JSON with code + dependencies). 2) SSR/Astro: all components are client-side animated React; browser APIs (canvas, WebGL, IntersectionObserver, ResizeObserver) are inside useEffect so they don't crash SSR, but every one must be a hydrated island (client:load for above-the-fold hero text, client:visible for backgrounds/cards). Backgrounds render nothing until hydration — give containers a fallback bg color to avoid flash. 3) React 19: components are plain function components; gsap@3.13 + @gsap/react@2.1 and motion@12 both support React 19 — no known blockers. 4) PillNav (a 'must') imports react-router-dom's Link — replace with <a> for Astro and drop that dep. 5) Two animation libraries coexist: gsap (~23 components) and motion (~16); expect both in the bundle if you mix — that's fine but prefer picking per-page. 6) OGL WebGL backgrounds (Aurora, DarkVeil, Particles, Grainient, Threads, SoftAurora, FaultyTerminal) add ~50KB and a GPU canvas — use at most one per page with client:visible. 7) three.js/@react-three/fiber components (Silk, Beams, Ballpit, Hyperspeed, Dither, ASCIIText, ModelViewer, Lanyard, FluidGlass, PixelBlast) and matter-js (FallingText) are heavy — all marked skip. 8) StarBorder and GlitchText require custom keyframes/utilities added to Tailwind v4 CSS (@theme + @keyframes; names: star-movement-top/bottom, glitch-before/after). 9) No built-in prefers-reduced-motion handling in most components — gate island hydration or pass reduced props yourself. 10) An official MCP server exists (docs at https://reactbits.dev/get-started/mcp) if you want in-editor component fetching."
+}

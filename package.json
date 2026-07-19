@@ -1,0 +1,19 @@
+{
+  "name": "lisible",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lisible, un framework de blog minimaliste et rapide, pensé pour la lecture. Six variantes visuelles, un seul socle.",
+  "type": "module",
+  "scripts": {
+    "init": "bun scripts/init.ts",
+    "new-post": "bun scripts/new-post.ts",
+    "dev": "bun scripts/run.ts dev",
+    "build": "bun scripts/run.ts build",
+    "preview": "bun scripts/run.ts preview",
+    "check-links": "bun scripts/check-links.ts",
+    "check-assets": "bun scripts/check-assets.ts",
+    "check:all": "bun run build && bun run check-links && bun run check-assets",
+    "variant": "bun scripts/run.ts which",
+    "preview:all": "bun scripts/preview-all.ts"
+  }
+}

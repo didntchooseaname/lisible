@@ -1,0 +1,99 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostList from "@/components/PostList.astro";
+import Pagination from "@/components/Pagination.astro";
+import VelocityBanner from "@/components/cyber/VelocityBanner";
+import { ShadowTitle } from "@/components/cyber/TextFx";
+import { RetroGrid } from "@/components/ui/retro-grid";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { ensureTrailingSlash, localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, groupByYear, pageCount, pageOf } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+  current?: number;
+}
+
+const { locale, current = 1 } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+const page = pageOf(posts, current);
+const years = groupByYear(page.items);
+
+const baseUrl = localeUrl(locale, "blog").replace(/\/$/, "");
+const pagePath = (n: number) => (n <= 1 ? `${baseUrl}/` : `${baseUrl}/${n}/`);
+
+const other = otherLocale(locale);
+const otherTotal = pageCount((await getPublishedPosts(other)).length);
+const alternates: Partial<Record<Locale, string>> = {
+  [locale]: pagePath(current),
+};
+if (current <= otherTotal) {
+  const otherBase = localeUrl(other, "blog").replace(/\/$/, "");
+  alternates[other] = current <= 1 ? `${otherBase}/` : `${otherBase}/${current}/`;
+}
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.blog.title}
+  description={dict.blog.description}
+  alternates={alternates}
+  relPrev={current > 1 ? ensureTrailingSlash(pagePath(current - 1)) : undefined}
+  relNext={current < page.total ? ensureTrailingSlash(pagePath(current + 1)) : undefined}
+>
+  
+  <section class="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-b border-border/70 py-14 md:py-20">
+    <RetroGrid
+      client:load
+      aria-hidden="true"
+      className="absolute inset-0"
+      opacity={0.3}
+      cellSize={46}
+      lightLineColor="var(--color-accent)"
+      darkLineColor="var(--color-accent)"
+    />
+    <div class="relative mx-auto w-full max-w-6xl px-4 md:px-6">
+      <p class="section-label" aria-hidden="true">{dict.cyber.blog.indexLabel}</p>
+      <h1 class="font-display mt-3 text-5xl font-black uppercase tracking-[0.06em] md:text-7xl">
+        <ShadowTitle client:load text={dict.blog.title.toUpperCase()} />
+      </h1>
+      <p class="mt-4 max-w-2xl text-muted-foreground">{dict.blog.description}</p>
+      <p class="mt-2 font-mono text-xs uppercase tracking-[0.18em] text-accent">
+        {dict.cyber.blog.countLabel(posts.length)}
+      </p>
+    </div>
+  </section>
+
+  
+  <div
+    aria-hidden="true"
+    class="pointer-events-none relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-b border-border/40 py-2 opacity-90"
+  >
+    <VelocityBanner client:visible text={dict.cyber.blog.velocity} />
+  </div>
+
+  <div class="py-10 md:py-14">
+    <div class="flex flex-col gap-12">
+      {
+        years.map(([year, yearPosts], yearIndex) => (
+          <section aria-labelledby={`year-${year}`}>
+            <BlurFade client:visible inView delay={0.05 * yearIndex}>
+              <h2
+                id={`year-${year}`}
+                class="hud-corners inline-flex items-center gap-3 border border-border/70 bg-card/50 px-4 py-1.5 font-display text-sm font-bold tracking-[0.2em] text-foreground"
+              >
+                <span class="text-accent" aria-hidden="true">::</span>
+                {year}
+              </h2>
+              <PostList posts={yearPosts} />
+            </BlurFade>
+          </section>
+        ))
+      }
+    </div>
+
+    <Pagination locale={locale} current={page.current} total={page.total} baseUrl={baseUrl} />
+  </div>
+</BaseLayout>

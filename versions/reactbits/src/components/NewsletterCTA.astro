@@ -1,0 +1,48 @@
+---
+import FadeContent from "@/components/ui/FadeContent";
+import StarBorder from "@/components/ui/StarBorder";
+import ShinyText from "@/components/ui/ShinyText";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+
+<FadeContent client:visible duration={600} threshold={0.15} className="opacity-0">
+  <section
+    aria-labelledby="newsletter-title"
+    class="rounded-lg border border-border bg-card p-6 md:p-8"
+  >
+    <h2 id="newsletter-title" class="text-xl font-bold tracking-tight">
+      {dict.newsletter.title}
+    </h2>
+    <p class="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">
+      {dict.newsletter.description}
+    </p>
+    <div class="mt-5 flex w-full max-w-md flex-col gap-2 sm:flex-row sm:items-center">
+      <label for="newsletter-email" class="sr-only">{dict.newsletter.emailLabel}</label>
+      <input
+        id="newsletter-email"
+        type="email"
+        inputmode="email"
+        placeholder={dict.newsletter.placeholder}
+        class="h-11 flex-1 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground"
+      />
+      <StarBorder as="button" type="button" color="var(--color-accent)" speed="5s">
+        <ShinyText
+          client:visible
+          text={dict.newsletter.button}
+          speed={3}
+          color="var(--color-foreground)"
+          shineColor="var(--color-accent)"
+        />
+      </StarBorder>
+    </div>
+    <p class="mt-3 text-xs text-muted-foreground">{dict.newsletter.note}</p>
+  </section>
+</FadeContent>

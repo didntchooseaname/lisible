@@ -1,0 +1,8 @@
+---
+import ArchivesPage from "@/components/pages/ArchivesPage.astro";
+import { FEATURES } from "@/site.config";
+
+if (!FEATURES.archives) return new Response(null, { status: 404 });
+---
+
+<ArchivesPage locale="en" />

@@ -1,0 +1,12 @@
+{
+  "kit": "MagicUI (magicui.design), 77 composants React + tailwind + motion",
+  "installation": "shadcn registry: bunx shadcn@latest add \"https://magicui.design/r/<name>.json\" -y -o ; ou MCP magicui via ToolSearch (mcp__magicui__getRegistryItem avec includeSource:true) ; composants dans src/components/ui/",
+  "tailwindVersion": "v4 compatible, classes utilitaires + cn()",
+  "dependencies": ["motion", "clsx", "tailwind-merge", "lucide-react (icones)"],
+  "cyberPicks": {
+    "must": ["terminal", "typing-animation", "hyper-text", "glyph-matrix", "flickering-grid", "magic-card", "neon-gradient-card", "border-beam", "animated-list", "number-ticker", "marquee", "shimmer-button", "scroll-progress", "blur-fade", "text-reveal", "lens", "file-tree", "ripple-button"],
+    "nice": ["warp-background", "interactive-grid-pattern", "animated-grid-pattern", "retro-grid", "orbiting-circles", "animated-beam", "smooth-cursor", "pointer", "ripple", "interactive-hover-button", "pulsating-button", "shine-border", "line-shadow-text", "morphing-text", "word-rotate", "scroll-based-velocity", "noise-texture", "dot-pattern", "meteors", "particles", "glare-hover", "progressive-blur", "pixel-image", "kinetic-text", "confetti", "cool-mode", "animated-circular-progress-bar", "sparkles-text", "code-comparison"],
+    "skip": ["globe", "icon-cloud", "video-text", "iphone", "android", "safari", "tweet-card", "client-tweet-card", "hero-video-dialog", "avatar-circles", "dotted-map", "comic-text", "aurora-text", "rainbow-button", "highlighter", "dia-text-reveal", "text-3d-flip", "spinning-text", "backlight", "hexagon-pattern", "striped-pattern", "grid-pattern", "animated-gradient-text", "animated-shiny-text", "shiny-button", "bento-grid", "dock", "text-animate", "scratch-to-reveal"]
+  },
+  "notes": "animated-theme-toggler deja utilise par le contrat commun (THEME.md). Un seul fond anime par page. Tous les neons derivent de var(--color-accent). Composants en ilots React avec directives adaptees."
+}

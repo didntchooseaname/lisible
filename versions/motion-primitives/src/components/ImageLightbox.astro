@@ -1,0 +1,48 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+<div id="image-lightbox" class="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label={dict.a11y.zoomImage}>
+  <div class="lightbox-toolbar">
+    <span class="lightbox-counter" aria-live="polite">
+      <span id="lightbox-current">1</span>
+      <span aria-hidden="true">/</span>
+      <span id="lightbox-total">1</span>
+    </span>
+    <div class="lightbox-actions">
+      <button type="button" id="lightbox-zoom-out" class="lightbox-btn" aria-label={dict.a11y.zoomOut}>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+      </button>
+      <button type="button" id="lightbox-zoom-reset" class="lightbox-btn" aria-label={dict.a11y.resetZoom}>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+      </button>
+      <button type="button" id="lightbox-zoom-in" class="lightbox-btn" aria-label={dict.a11y.zoomIn}>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+      </button>
+      <button type="button" id="lightbox-close" class="lightbox-btn" aria-label={dict.a11y.closeDialog}>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+  </div>
+
+  <button type="button" id="lightbox-prev" class="lightbox-nav lightbox-prev" aria-label={dict.a11y.prevImage}>
+    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+  </button>
+
+  <img id="lightbox-image" class="lightbox-image" src="" alt="" decoding="async" />
+
+  <button type="button" id="lightbox-next" class="lightbox-nav lightbox-next" aria-label={dict.a11y.nextImage}>
+    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+  </button>
+</div>
+
+<script>
+  import "@/scripts/image-lightbox";
+</script>

@@ -1,0 +1,72 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  current: number;
+  total: number;
+  prevUrl?: string;
+  nextUrl?: string;
+  baseUrl: string;
+  class?: string;
+}
+
+const { locale, current, total, prevUrl, nextUrl, baseUrl, class: className } =
+  Astro.props;
+const dict = t(locale);
+
+if (total <= 1) {
+}
+
+const pageUrl = (n: number) => (n <= 1 ? baseUrl : `${baseUrl}${n}/`);
+const pages = Array.from({ length: total }, (_, i) => i + 1);
+---
+
+{
+  total > 1 && (
+    <nav
+      class:list={["pagination", className]}
+      aria-label={dict.pagination.label}
+    >
+      {prevUrl ? (
+        <a href={prevUrl} class="pagination__edge" rel="prev">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          <span>{dict.pagination.prev}</span>
+        </a>
+      ) : (
+        <span class="pagination__edge pagination__edge--disabled" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          <span>{dict.pagination.prev}</span>
+        </span>
+      )}
+
+      <ol class="pagination__pages">
+        {pages.map((n) => (
+          <li>
+            {n === current ? (
+              <span class="pagination__page is-current" aria-current="page">
+                {n}
+              </span>
+            ) : (
+              <a class="pagination__page" href={pageUrl(n)}>
+                {n}
+              </a>
+            )}
+          </li>
+        ))}
+      </ol>
+
+      {nextUrl ? (
+        <a href={nextUrl} class="pagination__edge" rel="next">
+          <span>{dict.pagination.next}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      ) : (
+        <span class="pagination__edge pagination__edge--disabled" aria-hidden="true">
+          <span>{dict.pagination.next}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </span>
+      )}
+    </nav>
+  )
+}

@@ -1,0 +1,403 @@
+---
+import { FEATURES } from "@/site.config";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  palette?: boolean;
+  langHref?: string;
+  rssHref?: string;
+}
+
+const { locale, palette = false, langHref = localeUrl(locale), rssHref = localeUrl(locale, "rss.xml") } = Astro.props;
+const dict = t(locale);
+const p = dict.palette;
+
+const navItems = [
+  { href: localeUrl(locale, "blog"), label: p.goBlog },
+  { href: localeUrl(locale, "tags"), label: p.goTags },
+  ...(FEATURES.archives ? [{ href: localeUrl(locale, "archives"), label: p.goArchives }] : []),
+  { href: localeUrl(locale, "about"), label: p.goAbout },
+];
+
+const itemClass =
+  "flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm text-foreground transition-colors";
+const iconAttrs = {
+  xmlns: "http://www.w3.org/2000/svg",
+  width: "16",
+  height: "16",
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  "stroke-width": "2",
+  "stroke-linecap": "round",
+  "stroke-linejoin": "round",
+  "aria-hidden": "true",
+  class: "shrink-0 text-muted-foreground",
+} as const;
+---
+
+<dialog
+  data-search-modal
+  data-palette={palette ? "true" : undefined}
+  aria-label={palette ? p.placeholder : dict.search.title}
+  data-hint={palette ? p.hint : dict.search.hint}
+  data-no-results={palette ? p.noResults : dict.search.noResults}
+  data-dev-notice={dict.search.devNotice}
+  data-copied-url={p.copiedUrl}
+>
+  <div class="flex items-center gap-2 border-b border-border px-4">
+    <svg {...iconAttrs} width="18" height="18">
+      <circle cx="11" cy="11" r="8"></circle>
+      <path d="m21 21-4.3-4.3"></path>
+    </svg>
+    <input
+      type="search"
+      data-search-input
+      placeholder={palette ? p.placeholder : dict.search.placeholder}
+      aria-label={palette ? p.placeholder : dict.search.title}
+      autocomplete="off"
+      class="h-12 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground"
+    />
+    <button
+      type="button"
+      data-search-close
+      aria-label={dict.a11y.closeSearch}
+      class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+    >
+      <svg {...iconAttrs} width="18" height="18">
+        <path d="M18 6 6 18"></path>
+        <path d="m6 6 12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div data-palette-results class="max-h-[60vh] overflow-y-auto p-2">
+    {
+      palette && (
+        <>
+          <div data-section="actions">
+            <p data-section-title class="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {p.actionsSection}
+            </p>
+            <button type="button" data-cmd-item data-action="theme" data-cmd-text={p.toggleTheme.toLowerCase()} class={itemClass}>
+              <svg {...iconAttrs}>
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+              </svg>
+              <span>{p.toggleTheme}</span>
+            </button>
+            <a data-cmd-item href={langHref} data-cmd-text={p.changeLang.toLowerCase()} class={itemClass}>
+              <svg {...iconAttrs}>
+                <path d="M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6" />
+              </svg>
+              <span>{p.changeLang}</span>
+            </a>
+            <button type="button" data-cmd-item data-action="accent" data-cmd-text={p.resetAccent.toLowerCase()} class={itemClass}>
+              <svg {...iconAttrs}>
+                <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+                <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+                <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+                <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2Z" />
+              </svg>
+              <span>{p.resetAccent}</span>
+            </button>
+            <button type="button" data-cmd-item data-action="copy-url" data-cmd-text={p.copyUrl.toLowerCase()} class={itemClass}>
+              <svg {...iconAttrs}>
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              </svg>
+              <span>{p.copyUrl}</span>
+            </button>
+            <a data-cmd-item href={rssHref} data-cmd-text={p.openRss.toLowerCase()} class={itemClass}>
+              <svg {...iconAttrs}>
+                <path d="M4 11a9 9 0 0 1 9 9" />
+                <path d="M4 4a16 16 0 0 1 16 16" />
+                <circle cx="5" cy="19" r="1" />
+              </svg>
+              <span>{p.openRss}</span>
+            </a>
+          </div>
+
+          <div data-section="nav">
+            <p data-section-title class="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {p.navSection}
+            </p>
+            {navItems.map((item) => (
+              <a data-cmd-item href={item.href} data-cmd-text={item.label.toLowerCase()} class={itemClass}>
+                <svg {...iconAttrs}>
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+                <span>{item.label}</span>
+              </a>
+            ))}
+          </div>
+        </>
+      )
+    }
+
+    <div data-section="articles" hidden>
+      {palette && (
+        <p data-section-title class="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {p.searchSection}
+        </p>
+      )}
+      <div data-search-results></div>
+    </div>
+
+    <p data-cmd-message class="px-3 py-6 text-center text-sm text-muted-foreground">
+      {palette ? p.hint : dict.search.hint}
+    </p>
+  </div>
+</dialog>
+
+<style>
+  [data-cmd-item][data-active] {
+    background-color: var(--color-secondary);
+  }
+  [data-cmd-item]:hover {
+    background-color: var(--color-secondary);
+  }
+</style>
+
+<script>
+  type PagefindResult = {
+    data: () => Promise<{ url: string; excerpt: string; meta: { title?: string } }>;
+  };
+  type PagefindModule = {
+    options: (options: Record<string, unknown>) => Promise<void>;
+    init: () => void;
+    debouncedSearch: (query: string) => Promise<{ results: PagefindResult[] } | null>;
+  };
+
+  let pagefind: PagefindModule | null = null;
+  let loadFailed = false;
+  let activeIndex = -1;
+
+  function getModal(): HTMLDialogElement | null {
+    return document.querySelector<HTMLDialogElement>("[data-search-modal]");
+  }
+  function isPalette(modal: HTMLDialogElement): boolean {
+    return modal.dataset.palette === "true";
+  }
+  function getItems(modal: HTMLDialogElement): HTMLElement[] {
+    return [...modal.querySelectorAll<HTMLElement>("[data-cmd-item]")].filter((el) => {
+      const section = el.closest<HTMLElement>("[data-section]");
+      return !el.hidden && !(section && section.hidden);
+    });
+  }
+  function setActive(modal: HTMLDialogElement, index: number) {
+    const items = getItems(modal);
+    for (const el of modal.querySelectorAll<HTMLElement>("[data-cmd-item][data-active]")) {
+      el.removeAttribute("data-active");
+    }
+    if (items.length === 0) {
+      activeIndex = -1;
+      return;
+    }
+    activeIndex = ((index % items.length) + items.length) % items.length;
+    const el = items[activeIndex];
+    el.setAttribute("data-active", "");
+    el.scrollIntoView({ block: "nearest" });
+  }
+
+  async function ensurePagefind(): Promise<void> {
+    if (pagefind || loadFailed) return;
+    try {
+      const module = (await import(/* @vite-ignore */ "/pagefind/pagefind.js")) as PagefindModule;
+      await module.options({ excerptLength: 25 });
+      module.init();
+      pagefind = module;
+    } catch {
+      loadFailed = true;
+    }
+  }
+
+  function showMessage(modal: HTMLDialogElement, message: string | null) {
+    const el = modal.querySelector<HTMLElement>("[data-cmd-message]");
+    if (!el) return;
+    if (message) {
+      el.textContent = message;
+      el.hidden = false;
+    } else {
+      el.hidden = true;
+    }
+  }
+
+  function filterCommands(modal: HTMLDialogElement, query: string): number {
+    let visible = 0;
+    for (const section of modal.querySelectorAll<HTMLElement>('[data-section="actions"],[data-section="nav"]')) {
+      let sectionVisible = 0;
+      for (const item of section.querySelectorAll<HTMLElement>("[data-cmd-item]")) {
+        const text = item.dataset.cmdText ?? "";
+        const match = query === "" || text.includes(query);
+        item.hidden = !match;
+        if (match) sectionVisible += 1;
+      }
+      section.hidden = sectionVisible === 0;
+      visible += sectionVisible;
+    }
+    return visible;
+  }
+
+  async function renderArticles(modal: HTMLDialogElement, query: string): Promise<number> {
+    const section = modal.querySelector<HTMLElement>('[data-section="articles"]');
+    const container = modal.querySelector<HTMLElement>("[data-search-results]");
+    if (!section || !container) return 0;
+    container.innerHTML = "";
+    if (!query) {
+      section.hidden = true;
+      return 0;
+    }
+    if (loadFailed || !pagefind) {
+      section.hidden = true;
+      return 0;
+    }
+    const search = await pagefind.debouncedSearch(query);
+    if (!search) return 0;
+    const results = await Promise.all(search.results.slice(0, 8).map((r) => r.data()));
+    if (results.length === 0) {
+      section.hidden = true;
+      return 0;
+    }
+    for (const result of results) {
+      const link = document.createElement("a");
+      link.href = result.url;
+      link.setAttribute("data-cmd-item", "");
+      link.dataset.cmdText = (result.meta.title ?? "").toLowerCase();
+      link.className = "flex flex-col gap-0.5 rounded-md px-3 py-2 transition-colors";
+      const title = document.createElement("span");
+      title.className = "text-sm font-semibold";
+      title.textContent = result.meta.title ?? result.url;
+      const excerpt = document.createElement("span");
+      excerpt.className = "text-xs leading-relaxed text-muted-foreground";
+      excerpt.innerHTML = result.excerpt;
+      link.append(title, excerpt);
+      container.appendChild(link);
+    }
+    section.hidden = false;
+    return results.length;
+  }
+
+  async function update(modal: HTMLDialogElement, rawQuery: string) {
+    const query = rawQuery.trim().toLowerCase();
+    const commandCount = isPalette(modal) ? filterCommands(modal, query) : 0;
+    if (query) await ensurePagefind();
+    const articleCount = await renderArticles(modal, query);
+
+    if (!query) {
+      showMessage(modal, isPalette(modal) ? null : modal.dataset.hint ?? "");
+    } else if (loadFailed && articleCount === 0) {
+      showMessage(modal, commandCount > 0 ? null : modal.dataset.devNotice ?? "");
+    } else if (commandCount + articleCount === 0) {
+      showMessage(modal, modal.dataset.noResults ?? "");
+    } else {
+      showMessage(modal, null);
+    }
+    setActive(modal, 0);
+  }
+
+  async function openSearch(): Promise<void> {
+    const modal = getModal();
+    if (!modal || modal.open) return;
+    modal.showModal();
+    const input = modal.querySelector<HTMLInputElement>("[data-search-input]");
+    if (input) input.value = "";
+    input?.focus();
+    await update(modal, "");
+  }
+
+  function activate(modal: HTMLDialogElement, el: HTMLElement) {
+    const action = el.dataset.action;
+    if (action === "theme") {
+      modal.close();
+      requestAnimationFrame(() => document.querySelector<HTMLElement>("[data-theme-toggle]")?.click());
+      return;
+    }
+    if (action === "accent") {
+      try {
+        localStorage.removeItem("accent");
+      } catch {
+      }
+      (window as typeof window & { __applyAccent?: () => void }).__applyAccent?.();
+      modal.close();
+      return;
+    }
+    if (action === "copy-url") {
+      void navigator.clipboard?.writeText(window.location.href).catch(() => {});
+      showMessage(modal, modal.dataset.copiedUrl ?? "");
+      return;
+    }
+    el.click();
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest("[data-search-open]")) {
+      void openSearch();
+      return;
+    }
+    if (target?.closest("[data-search-close]")) {
+      getModal()?.close();
+      return;
+    }
+    const modal = getModal();
+    if (!modal) return;
+    const item = target?.closest<HTMLElement>("[data-cmd-item]");
+    if (item && modal.contains(item)) {
+      const action = item.dataset.action;
+      if (action) {
+        event.preventDefault();
+        activate(modal, item);
+      }
+      return;
+    }
+    if (modal.open && event.target === modal) modal.close();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      const modal = getModal();
+      if (modal?.open) modal.close();
+      else void openSearch();
+      return;
+    }
+    const modal = getModal();
+    if (!modal?.open) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActive(modal, activeIndex + 1);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActive(modal, activeIndex - 1);
+    } else if (event.key === "Enter") {
+      const items = getItems(modal);
+      const el = items[activeIndex];
+      if (el) {
+        event.preventDefault();
+        activate(modal, el);
+      }
+    }
+  });
+
+  document.addEventListener("input", (event) => {
+    const input = event.target as HTMLInputElement | null;
+    if (!input?.matches("[data-search-input]")) return;
+    const modal = getModal();
+    if (modal) void update(modal, input.value);
+  });
+
+  document.addEventListener("pointermove", (event) => {
+    const item = (event.target as HTMLElement | null)?.closest<HTMLElement>("[data-cmd-item]");
+    const modal = getModal();
+    if (!item || !modal?.open) return;
+    const index = getItems(modal).indexOf(item);
+    if (index >= 0 && index !== activeIndex) setActive(modal, index);
+  });
+
+  document.addEventListener("astro:before-swap", () => {
+    getModal()?.close();
+  });
+</script>

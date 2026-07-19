@@ -1,0 +1,18 @@
+---
+import SeriesPage from "@/components/pages/SeriesPage.astro";
+import { FEATURES } from "@/site.config";
+import { getAllSeries } from "@/lib/posts";
+
+export async function getStaticPaths() {
+  if (!FEATURES.series) return [];
+  const series = await getAllSeries("fr");
+  return series.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { name: entry.name, posts: entry.posts },
+  }));
+}
+
+const { name, posts } = Astro.props;
+---
+
+<SeriesPage locale="fr" name={name} posts={posts} />

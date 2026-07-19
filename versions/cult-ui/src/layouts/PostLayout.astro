@@ -1,0 +1,365 @@
+---
+import { render } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import TOC from "@/components/TOC.astro";
+import TagBadge from "@/components/TagBadge.astro";
+import JsonLd from "@/components/JsonLd.astro";
+import MobileToc from "@/components/react/MobileToc";
+import Cover from "@/components/Cover.astro";
+import RelatedPosts from "@/components/RelatedPosts.astro";
+import EditOnGithub from "@/components/EditOnGithub.astro";
+import KatexStyles from "@/components/KatexStyles.astro";
+import ImageLightbox from "@/components/ImageLightbox.astro";
+import { SITE, FEATURES } from "@/site.config";
+import { ensureTrailingSlash, otherLocale, t, type Locale } from "@/i18n/ui";
+import {
+  getAdjacentPosts,
+  getPostSeries,
+  getTranslation,
+  postLocale,
+  postSlug,
+  postUrl,
+  type Post,
+} from "@/lib/posts";
+import SeriesNav from "@/components/SeriesNav.astro";
+import PostShareIsland from "@/components/react/PostShareIsland";
+import Webmentions from "@/components/Webmentions.astro";
+import Comments from "@/components/Comments.astro";
+import DiscussionPlaceholders from "@shared/components/DiscussionPlaceholders.astro";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const locale = postLocale(post);
+const dict = t(locale);
+const { Content, headings } = await render(post);
+const { older, newer } = await getAdjacentPosts(post);
+const translation = await getTranslation(post);
+const minutes = readingTime(post.body ?? "");
+
+const currentPath = ensureTrailingSlash(Astro.url.pathname);
+const alternates: Partial<Record<Locale, string>> = { [locale]: currentPath };
+if (translation) {
+  alternates[otherLocale(locale)] = postUrl(translation);
+}
+
+const tocItems = headings
+  .filter((heading) => heading.depth === 2 || heading.depth === 3)
+  .map(({ slug, text, depth }) => ({ slug, text, depth }));
+
+const canonicalPostUrl = new URL(currentPath, SITE.url).toString();
+
+const ogImage = FEATURES.ogPerPost
+  ? `/og/${locale}/${postSlug(post)}.png`
+  : "/og-default.png";
+
+const cover = FEATURES.covers ? post.data.cover : undefined;
+
+const hasMath =
+  FEATURES.math && /(\$\$[\s\S]+?\$\$|\$[^\n$]+?\$)/.test(post.body ?? "");
+
+const editExtension = post.filePath?.endsWith(".mdx") ? "mdx" : "md";
+const filePath = `/shared/content/blog/${post.id}.${editExtension}`;
+
+const jsonLd = {
+  "@type": "BlogPosting",
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: isoDate(post.data.pubDate),
+  dateModified: isoDate(post.data.updatedDate ?? post.data.pubDate),
+  author: { "@type": "Person", name: SITE.author },
+  inLanguage: locale,
+  image: new URL(ogImage, SITE.url).toString(),
+  mainEntityOfPage: new URL(currentPath, SITE.url).toString(),
+};
+
+const series = FEATURES.series ? await getPostSeries(post) : null;
+
+const markdownUrl = FEATURES.llmsTxt
+  ? `${currentPath.replace(/\/$/, "")}.md`
+  : undefined;
+const markdownAbsoluteUrl = markdownUrl
+  ? new URL(markdownUrl, SITE.url).toString()
+  : undefined;
+
+---
+
+<BaseLayout
+  locale={locale}
+  title={post.data.title}
+  description={post.data.description}
+  ogType="article"
+  alternates={alternates}
+  image={ogImage}
+>
+  <JsonLd slot="head" data={jsonLd} />
+  {hasMath && <KatexStyles slot="head" />}
+
+  
+  <div
+    data-progress-bar
+    aria-hidden="true"
+    class="fixed inset-x-0 top-0 z-50 h-0.5 origin-left bg-accent"
+    style="transform: scaleX(0)"
+  >
+  </div>
+
+  <div class="py-10 md:py-14 lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-12">
+    <article data-pagefind-body class="min-w-0 max-w-[72ch]">
+      {
+        cover && SITE.coverPosition === "up" && (
+          <Cover
+            cover={cover}
+            alt={post.data.coverAlt ?? post.data.title}
+            class="article-cover"
+            priority
+          />
+        )
+      }
+      <header>
+        <h1 class="text-balance text-3xl font-bold tracking-tight md:text-4xl">
+          {post.data.title}
+        </h1>
+        <p class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+          <span>
+            {dict.post.publishedOn}{" "}
+            <time datetime={isoDate(post.data.pubDate)}>
+              {formatDate(post.data.pubDate, locale)}
+            </time>
+          </span>
+          <span aria-hidden="true">&middot;</span>
+          <span>{dict.post.readingTime(minutes)}</span>
+          {
+            post.data.draft && (
+              <>
+                <span aria-hidden="true">&middot;</span>
+                <span class="inline-flex items-center rounded-md border border-border px-1.5 py-0.5 text-xs font-medium">
+                  {dict.post.draft}
+                </span>
+              </>
+            )
+          }
+        </p>
+        {
+          post.data.updatedDate && (
+            <p class="mt-1 text-sm text-muted-foreground">
+              {dict.post.updatedOn}{" "}
+              <time datetime={isoDate(post.data.updatedDate)}>
+                {formatDate(post.data.updatedDate, locale)}
+              </time>
+            </p>
+          )
+        }
+        {
+          post.data.tags.length > 0 && (
+            <ul class="mt-4 flex flex-wrap gap-2" aria-label={dict.post.tags}>
+              {post.data.tags.map((tag) => (
+                <li>
+                  <TagBadge tag={tag} locale={locale} />
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </header>
+
+      
+      {series && <SeriesNav series={series} locale={locale} class="mt-8" />}
+
+      
+      {
+        tocItems.length > 0 && (
+          <div class="mt-8 lg:hidden">
+            <MobileToc
+              client:visible
+              items={tocItems}
+              title={dict.post.toc}
+              openLabel={dict.a11y.openToc}
+              closeLabel={dict.a11y.closeToc}
+            />
+          </div>
+        )
+      }
+
+      {
+        cover && SITE.coverPosition === "down" && (
+          <Cover
+            cover={cover}
+            alt={post.data.coverAlt ?? post.data.title}
+            class="article-cover-down"
+            priority
+          />
+        )
+      }
+
+      <div class="prose mt-10">
+        <Content />
+      </div>
+
+      {
+        (older || newer) && (
+          <nav
+            aria-label={dict.post.pagination}
+            class="mt-14 grid gap-4 border-t border-border pt-8 sm:grid-cols-2"
+          >
+            {older ? (
+              <a
+                href={postUrl(older)}
+                class="group flex flex-col gap-1 rounded-lg border border-border p-4 transition-colors hover:border-accent"
+              >
+                <span class="text-xs text-muted-foreground">{dict.post.prev}</span>
+                <span class="font-medium transition-colors group-hover:text-accent">
+                  {older.data.title}
+                </span>
+              </a>
+            ) : (
+              <span aria-hidden="true" />
+            )}
+            {newer && (
+              <a
+                href={postUrl(newer)}
+                class="group flex flex-col gap-1 rounded-lg border border-border p-4 text-right transition-colors hover:border-accent sm:col-start-2"
+              >
+                <span class="text-xs text-muted-foreground">{dict.post.next}</span>
+                <span class="font-medium transition-colors group-hover:text-accent">
+                  {newer.data.title}
+                </span>
+              </a>
+            )}
+          </nav>
+        )
+      }
+
+      {
+        (FEATURES.socialShare || FEATURES.aiButtons) && (
+          <PostShareIsland
+            client:visible
+            url={canonicalPostUrl}
+            title={post.data.title}
+            markdownUrl={markdownAbsoluteUrl}
+            showShare={FEATURES.socialShare}
+            showAi={FEATURES.aiButtons && Boolean(markdownAbsoluteUrl)}
+            labels={{
+              shareTitle: dict.share.title,
+              x: dict.share.x,
+              bluesky: dict.share.bluesky,
+              linkedin: dict.share.linkedin,
+              mastodon: dict.share.mastodon,
+              copyLink: dict.share.copyLink,
+              copied: dict.share.copied,
+              mastodonPrompt: dict.share.mastodonPrompt,
+              aiLabel: dict.ai.label,
+              aiMenuTitle: dict.ai.menuTitle,
+              copyMarkdown: dict.ai.copyMarkdown,
+              copiedMarkdown: dict.ai.copied,
+              openInClaude: dict.ai.openInClaude,
+              openInChatGPT: dict.ai.openInChatGPT,
+              viewMarkdown: dict.ai.viewMarkdown,
+            }}
+          />
+        )
+      }
+
+      {FEATURES.relatedPosts && <RelatedPosts post={post} />}
+
+      
+      <div class="mt-10 flex items-center justify-between gap-4">
+        <EditOnGithub filePath={filePath} locale={locale} />
+      </div>
+
+      
+      {FEATURES.webmentions && <Webmentions url={canonicalPostUrl} locale={locale} />}
+
+      
+      {FEATURES.comments && <Comments url={canonicalPostUrl} locale={locale} />}
+      {FEATURES.demoPlaceholders && <DiscussionPlaceholders locale={locale} />}
+    </article>
+
+    <aside class="hidden lg:block">
+      <div class="sticky top-24">
+        <TOC headings={headings} locale={locale} />
+      </div>
+    </aside>
+  </div>
+
+  
+  <button
+    type="button"
+    data-back-to-top
+    aria-label={dict.a11y.backToTop}
+    class="fixed bottom-6 right-6 z-40 inline-flex h-11 w-11 items-center justify-center rounded-md border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m18 15-6-6-6 6"></path>
+    </svg>
+  </button>
+
+  
+  <script>
+    import "@/scripts/github-card";
+  </script>
+
+  
+  <script>
+    import "@/scripts/vague2-runtime";
+  </script>
+
+  
+  {FEATURES.imageZoom && <ImageLightbox locale={locale} />}
+
+  <script>
+    let ticking = false;
+
+    function update() {
+      const doc = document.documentElement;
+
+      const bar = document.querySelector<HTMLElement>("[data-progress-bar]");
+      if (bar) {
+        const max = doc.scrollHeight - doc.clientHeight;
+        const progress = max > 0 ? Math.min(1, doc.scrollTop / max) : 0;
+        bar.style.transform = `scaleX(${progress})`;
+      }
+
+      const backToTop = document.querySelector<HTMLElement>("[data-back-to-top]");
+      if (backToTop) {
+        backToTop.classList.toggle("is-visible", doc.scrollTop > 500);
+      }
+    }
+
+    document.addEventListener(
+      "scroll",
+      () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          update();
+          ticking = false;
+        });
+      },
+      { passive: true },
+    );
+
+    document.addEventListener("astro:page-load", update);
+
+    document.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement | null;
+      if (!target?.closest("[data-back-to-top]")) return;
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    });
+  </script>
+</BaseLayout>

@@ -1,0 +1,341 @@
+---
+import { SITE } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+<div
+  class="relative"
+  data-accent-picker
+  data-default-accent={SITE.accent}
+  transition:persist="accent-picker"
+>
+  <button
+    type="button"
+    data-accent-open
+    aria-haspopup="dialog"
+    aria-expanded="false"
+    aria-controls="accent-popover"
+    aria-label={dict.accent.open}
+    class="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+  >
+    
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path
+        d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"
+      ></path>
+      <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
+      <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
+      <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
+      <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
+    </svg>
+  </button>
+
+  <div
+    id="accent-popover"
+    role="dialog"
+    aria-label={dict.accent.title}
+    hidden
+    class="absolute right-0 top-full z-50 mt-2 w-56 rounded-lg border border-border bg-card p-3 text-card-foreground shadow-xl"
+  >
+    
+    <div
+      data-accent-sv
+      role="slider"
+      tabindex="0"
+      aria-label={dict.accent.svLabel}
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="100"
+      data-valuetext={dict.accent.svValueText}
+    >
+      <div data-accent-sv-thumb></div>
+    </div>
+
+    
+    <div
+      class="mt-3"
+      data-accent-hue
+      role="slider"
+      tabindex="0"
+      aria-label={dict.accent.hueLabel}
+      aria-valuemin="0"
+      aria-valuemax="360"
+      aria-valuenow="0"
+      aria-orientation="horizontal"
+      data-valuetext={dict.accent.hueValueText}
+    >
+      <div data-accent-hue-thumb></div>
+    </div>
+
+    <div class="mt-3 flex items-center justify-between gap-2">
+      <span class="font-mono text-xs text-muted-foreground" data-accent-hex>{SITE.accent.toLowerCase()}</span>
+      <button
+        type="button"
+        data-accent-reset
+        class="rounded-sm px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+      >
+        {dict.accent.reset}
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const HEX = /^#[0-9a-fA-F]{6}$/;
+
+  let hue = 0;
+  let sat = 100;
+  let val = 100;
+
+  function clamp(n: number, min: number, max: number): number {
+    return Math.min(max, Math.max(min, n));
+  }
+
+
+  function hexToRgb(hex: string): [number, number, number] {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
+  function rgbToHex(rgb: [number, number, number]): string {
+    return "#" + rgb.map((c) => c.toString(16).padStart(2, "0")).join("");
+  }
+
+  function rgbToHsv([r, g, b]: [number, number, number]): [number, number, number] {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const d = max - min;
+    let h = 0;
+    if (d > 0) {
+      if (max === r) h = ((g - b) / d) % 6;
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+      if (h < 0) h += 360;
+    }
+    const s = max === 0 ? 0 : (d / max) * 100;
+    return [h, s, max * 100];
+  }
+
+  function hsvToRgb([h, s, v]: [number, number, number]): [number, number, number] {
+    s /= 100;
+    v /= 100;
+    const c = v * s;
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = v - c;
+    let rgb: [number, number, number];
+    if (h < 60) rgb = [c, x, 0];
+    else if (h < 120) rgb = [x, c, 0];
+    else if (h < 180) rgb = [0, c, x];
+    else if (h < 240) rgb = [0, x, c];
+    else if (h < 300) rgb = [x, 0, c];
+    else rgb = [c, 0, x];
+    return [
+      Math.round((rgb[0] + m) * 255),
+      Math.round((rgb[1] + m) * 255),
+      Math.round((rgb[2] + m) * 255),
+    ] as [number, number, number];
+  }
+
+
+  function root(): HTMLElement | null {
+    return document.querySelector<HTMLElement>("[data-accent-picker]");
+  }
+  function popover(): HTMLElement | null {
+    return document.getElementById("accent-popover");
+  }
+  function trigger(): HTMLButtonElement | null {
+    return document.querySelector<HTMLButtonElement>("[data-accent-open]");
+  }
+  function query<T extends HTMLElement>(sel: string): T | null {
+    return document.querySelector<T>(sel);
+  }
+
+  function currentHex(): string {
+    return rgbToHex(hsvToRgb([hue, sat, val]));
+  }
+
+  function defaultAccent(): string {
+    return root()?.dataset.defaultAccent ?? "#808080";
+  }
+
+  function syncFromStorage() {
+    const stored = localStorage.getItem("accent");
+    const hex = stored && HEX.test(stored) ? stored : defaultAccent();
+    [hue, sat, val] = rgbToHsv(hexToRgb(hex));
+    updateUi();
+  }
+
+  function fillTemplate(template: string): string {
+    return template
+      .replace("{s}", String(Math.round(sat)))
+      .replace("{v}", String(Math.round(val)))
+      .replace("{h}", String(Math.round(hue)));
+  }
+
+  function updateUi() {
+    const sv = query<HTMLElement>("[data-accent-sv]");
+    const svThumb = query<HTMLElement>("[data-accent-sv-thumb]");
+    const hueBar = query<HTMLElement>("[data-accent-hue]");
+    const hueThumb = query<HTMLElement>("[data-accent-hue-thumb]");
+    const hexOut = query<HTMLElement>("[data-accent-hex]");
+    if (!sv || !svThumb || !hueBar || !hueThumb || !hexOut) return;
+
+    sv.style.setProperty("--picker-hue", String(Math.round(hue)));
+    svThumb.style.left = `${sat}%`;
+    svThumb.style.top = `${100 - val}%`;
+    sv.setAttribute("aria-valuenow", String(Math.round(sat)));
+    sv.setAttribute("aria-valuetext", fillTemplate(sv.dataset.valuetext ?? ""));
+
+    hueThumb.style.left = `${(hue / 360) * 100}%`;
+    hueBar.setAttribute("aria-valuenow", String(Math.round(hue)));
+    hueBar.setAttribute("aria-valuetext", fillTemplate(hueBar.dataset.valuetext ?? ""));
+
+    hexOut.textContent = currentHex();
+  }
+
+  function commit() {
+    updateUi();
+    localStorage.setItem("accent", currentHex());
+    (window as { __applyAccent?: () => void }).__applyAccent?.();
+  }
+
+  function reset() {
+    localStorage.removeItem("accent");
+    (window as { __applyAccent?: () => void }).__applyAccent?.();
+    syncFromStorage();
+  }
+
+  function setOpen(next: boolean, refocusTrigger = false) {
+    const pop = popover();
+    const btn = trigger();
+    if (!pop || !btn) return;
+    pop.hidden = !next;
+    btn.setAttribute("aria-expanded", String(next));
+    if (next) {
+      syncFromStorage();
+      query<HTMLElement>("[data-accent-sv]")?.focus();
+    } else if (refocusTrigger) {
+      btn.focus();
+    }
+  }
+
+
+  function bindDrag(el: HTMLElement, onPoint: (e: PointerEvent) => void) {
+    el.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0 && e.pointerType === "mouse") return;
+      el.setPointerCapture(e.pointerId);
+      e.preventDefault();
+      onPoint(e);
+    });
+    el.addEventListener("pointermove", (e) => {
+      if (!el.hasPointerCapture(e.pointerId)) return;
+      onPoint(e);
+    });
+  }
+
+  function pointToSv(e: PointerEvent) {
+    const sv = query<HTMLElement>("[data-accent-sv]");
+    if (!sv) return;
+    const rect = sv.getBoundingClientRect();
+    sat = clamp(((e.clientX - rect.left) / rect.width) * 100, 0, 100);
+    val = clamp((1 - (e.clientY - rect.top) / rect.height) * 100, 0, 100);
+    commit();
+  }
+
+  function pointToHue(e: PointerEvent) {
+    const bar = query<HTMLElement>("[data-accent-hue]");
+    if (!bar) return;
+    const rect = bar.getBoundingClientRect();
+    hue = clamp(((e.clientX - rect.left) / rect.width) * 360, 0, 360);
+    commit();
+  }
+
+
+  function svKeydown(e: KeyboardEvent) {
+    const step = e.shiftKey ? 10 : 2;
+    if (e.key === "ArrowLeft") sat = clamp(sat - step, 0, 100);
+    else if (e.key === "ArrowRight") sat = clamp(sat + step, 0, 100);
+    else if (e.key === "ArrowUp") val = clamp(val + step, 0, 100);
+    else if (e.key === "ArrowDown") val = clamp(val - step, 0, 100);
+    else return;
+    e.preventDefault();
+    commit();
+  }
+
+  function hueKeydown(e: KeyboardEvent) {
+    const step = e.shiftKey ? 15 : 3;
+    if (e.key === "ArrowLeft" || e.key === "ArrowDown") hue = clamp(hue - step, 0, 360);
+    else if (e.key === "ArrowRight" || e.key === "ArrowUp") hue = clamp(hue + step, 0, 360);
+    else if (e.key === "Home") hue = 0;
+    else if (e.key === "End") hue = 360;
+    else return;
+    e.preventDefault();
+    commit();
+  }
+
+  function init() {
+    const el = root();
+    if (!el || el.hasAttribute("data-accent-init")) return;
+    el.setAttribute("data-accent-init", "");
+    const sv = query<HTMLElement>("[data-accent-sv]");
+    const hueBar = query<HTMLElement>("[data-accent-hue]");
+    if (sv) {
+      bindDrag(sv, pointToSv);
+      sv.addEventListener("keydown", svKeydown);
+    }
+    if (hueBar) {
+      bindDrag(hueBar, pointToHue);
+      hueBar.addEventListener("keydown", hueKeydown);
+    }
+    syncFromStorage();
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+    if (target.closest("[data-accent-open]")) {
+      setOpen(popover()?.hidden ?? true);
+      return;
+    }
+    if (target.closest("[data-accent-reset]")) {
+      reset();
+      return;
+    }
+    if (!target.closest("[data-accent-picker]")) setOpen(false);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const pop = popover();
+    if (pop && !pop.hidden) setOpen(false, true);
+  });
+
+  document.addEventListener("astro:before-swap", () => setOpen(false));
+  document.addEventListener("astro:page-load", () => {
+    init();
+    syncFromStorage();
+  });
+  init();
+</script>

@@ -1,0 +1,33 @@
+---
+import PostCard from "@/components/PostCard.astro";
+import { getRelatedPosts, type Post } from "@/lib/posts";
+import { postLocale } from "@/lib/posts";
+import { t } from "@/i18n/ui";
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const locale = postLocale(post);
+const dict = t(locale);
+const related = await getRelatedPosts(post, 3);
+---
+
+{
+  related.length > 0 && (
+    <section aria-labelledby="related-title" class="mt-14 border-t border-border pt-8">
+      <h2
+        id="related-title"
+        class="text-sm font-semibold uppercase tracking-wider text-muted-foreground"
+      >
+        {dict.post.related}
+      </h2>
+      <div class="mt-5 grid gap-4 sm:grid-cols-2">
+        {related.map((entry) => (
+          <PostCard post={entry} headingLevel="h3" />
+        ))}
+      </div>
+    </section>
+  )
+}

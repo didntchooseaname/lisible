@@ -1,0 +1,46 @@
+---
+import { t } from "@/i18n/ui";
+
+const locale = Astro.url.pathname.startsWith("/en/") ? "en" : "fr";
+const dict = t(locale as "fr" | "en").mdx;
+---
+
+<span
+  class="spoiler"
+  data-spoiler
+  role="button"
+  tabindex="0"
+  aria-label={`${dict.spoilerLabel}: ${dict.spoilerShow}`}
+>
+  <span class="spoiler-content"><slot /></span>
+</span>
+
+<script>
+  function reveal(el: HTMLElement) {
+    el.classList.toggle("is-revealed");
+  }
+
+  function onClick(event: MouseEvent) {
+    const target = (event.target as HTMLElement | null)?.closest<HTMLElement>(
+      "[data-spoiler]",
+    );
+    if (target) reveal(target);
+  }
+
+  function onKeyDown(event: KeyboardEvent) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const target = (event.target as HTMLElement | null)?.closest<HTMLElement>(
+      "[data-spoiler]",
+    );
+    if (!target) return;
+    event.preventDefault();
+    reveal(target);
+  }
+
+  document.addEventListener("astro:page-load", () => {
+    document.removeEventListener("click", onClick);
+    document.removeEventListener("keydown", onKeyDown);
+    document.addEventListener("click", onClick);
+    document.addEventListener("keydown", onKeyDown);
+  });
+</script>

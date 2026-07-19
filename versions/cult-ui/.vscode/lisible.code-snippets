@@ -1,0 +1,55 @@
+{
+  "Frontmatter article Lisible (FR)": {
+    "scope": "markdown,mdx",
+    "prefix": "lisible-fr",
+    "description": "Frontmatter complet d'un article Lisible (francais)",
+    "body": [
+      "---",
+      "title: \"${1:Titre de l'article}\"",
+      "description: \"${2:Description concise, 160 caracteres max}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "tags: [${4:\"tag\"}]",
+      "draft: ${5|true,false|}",
+      "---",
+      "",
+      "$0"
+    ]
+  },
+  "Frontmatter article Lisible (EN)": {
+    "scope": "markdown,mdx",
+    "prefix": "lisible-en",
+    "description": "Full frontmatter for a Lisible post (English)",
+    "body": [
+      "---",
+      "title: \"${1:Post title}\"",
+      "description: \"${2:Concise description, 160 characters max}\"",
+      "pubDate: ${3:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}",
+      "tags: [${4:\"tag\"}]",
+      "draft: ${5|true,false|}",
+      "---",
+      "",
+      "$0"
+    ]
+  },
+  "Frontmatter serie Lisible": {
+    "scope": "markdown,mdx",
+    "prefix": "lisible-serie",
+    "description": "Champs de serie a ajouter au frontmatter",
+    "body": ["series: ${1:mon-slug-de-serie}", "seriesOrder: ${2:1}"]
+  },
+  "Frontmatter cover Lisible": {
+    "scope": "markdown,mdx",
+    "prefix": "lisible-cover",
+    "description": "Champs de couverture a ajouter au frontmatter",
+    "body": [
+      "cover: ${1:/images/ma-couverture.svg}",
+      "coverAlt: \"${2:Description accessible de la couverture}\""
+    ]
+  },
+  "Callout Lisible": {
+    "scope": "markdown,mdx",
+    "prefix": "lisible-callout",
+    "description": "Bloc callout (note, tip, warning, caution, important)",
+    "body": [":::${1|note,tip,warning,caution,important|}[${2:Titre}]", "$0", ":::"]
+  }
+}

@@ -1,0 +1,106 @@
+---
+import { COMMENTS } from "@/site.config";
+import { t, type Locale } from "@/i18n/ui";
+import type { Post } from "@/lib/posts";
+
+interface Props {
+  post: Post;
+  locale: Locale;
+  url: string;
+  class?: string;
+}
+
+const { locale, url, class: className } = Astro.props;
+const dict = t(locale);
+const provider = COMMENTS.provider;
+const g = COMMENTS.giscus;
+const blueskyProfileUrl = `https://bsky.app/profile/${COMMENTS.bluesky.profile}`;
+---
+
+<section class:list={["not-prose comments", className]} aria-label={dict.comments.title}>
+  <h2 class="comments__title">{dict.comments.title}</h2>
+
+  {
+    provider === "giscus" ? (
+      <div data-giscus data-theme-light="light" data-theme-dark="dark">
+        <div class="comments__loading">{dict.comments.blueskyLoading}</div>
+      </div>
+    ) : (
+      <a
+        href={blueskyProfileUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="comments__bluesky"
+        data-share-url={url}
+      >
+        {dict.comments.blueskyReply}
+      </a>
+    )
+  }
+</section>
+
+{
+  provider === "giscus" && (
+    <script
+      is:inline
+      define:vars={{
+        repo: g.repo,
+        repoId: g.repoId,
+        category: g.category,
+        categoryId: g.categoryId,
+        mapping: g.mapping,
+        lang: locale,
+      }}
+    >
+      (function () {
+        const mount = document.querySelector("[data-giscus]");
+        if (!mount) return;
+        let loaded = false;
+        function currentTheme() {
+          return document.documentElement.classList.contains("dark")
+            ? mount.dataset.themeDark
+            : mount.dataset.themeLight;
+        }
+        function load() {
+          if (loaded) return;
+          loaded = true;
+          const s = document.createElement("script");
+          s.src = "https://giscus.app/client.js";
+          s.async = true;
+          s.crossOrigin = "anonymous";
+          s.setAttribute("data-repo", repo);
+          s.setAttribute("data-repo-id", repoId);
+          s.setAttribute("data-category", category);
+          s.setAttribute("data-category-id", categoryId);
+          s.setAttribute("data-mapping", mapping);
+          s.setAttribute("data-reactions-enabled", "1");
+          s.setAttribute("data-theme", currentTheme());
+          s.setAttribute("data-lang", lang);
+          mount.innerHTML = "";
+          mount.appendChild(s);
+        }
+        const observer = new IntersectionObserver(
+          (entries) => {
+            if (entries.some((e) => e.isIntersecting)) {
+              load();
+              observer.disconnect();
+            }
+          },
+          { rootMargin: "200px" },
+        );
+        observer.observe(mount);
+        new MutationObserver(() => {
+          const frame = document.querySelector("iframe.giscus-frame");
+          if (!frame) return;
+          frame.contentWindow.postMessage(
+            { giscus: { setConfig: { theme: currentTheme() } } },
+            "https://giscus.app",
+          );
+        }).observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ["class"],
+        });
+      })();
+    </script>
+  )
+}

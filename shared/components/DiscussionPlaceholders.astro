@@ -1,0 +1,79 @@
+---
+interface Props {
+  locale: "fr" | "en";
+}
+
+const { locale } = Astro.props;
+const copy = locale === "fr"
+  ? {
+      eyebrow: "Données de démonstration",
+      title: "Réactions et commentaires",
+      intro: "Cet aperçu local montre le rendu avant de connecter Giscus, Bluesky ou webmention.io.",
+      mentions: "Webmentions",
+      comments: "Commentaires",
+      liked: "a aimé cet article",
+      reposted: "a repartagé cet article",
+      reply: "La navigation et les exemples MDX rendent le parcours très clair.",
+      commentOne: "Les onglets fonctionnent au clavier et les étapes restent lisibles sur mobile.",
+      commentTwo: "Le diagramme et les notes de bas de page complètent bien la démonstration.",
+      configure: "Remplacez ces profils d’exemple dans shared/site.config.ts, configurez INTEGRATIONS, puis activez comments ou webmentions dans shared/features.ts.",
+    }
+  : {
+      eyebrow: "Demonstration data",
+      title: "Reactions and comments",
+      intro: "This local preview shows the final surface before connecting Giscus, Bluesky or webmention.io.",
+      mentions: "Webmentions",
+      comments: "Comments",
+      liked: "liked this post",
+      reposted: "reposted this post",
+      reply: "The navigation and MDX examples make the whole journey very clear.",
+      commentOne: "Tabs work with the keyboard and the steps remain readable on mobile.",
+      commentTwo: "The diagram and footnotes round out the demonstration nicely.",
+      configure: "Replace these example profiles in shared/site.config.ts, configure INTEGRATIONS, then enable comments or webmentions in shared/features.ts.",
+    };
+---
+
+<section class="discussion-demo" aria-labelledby="discussion-demo-title" data-pagefind-ignore>
+  <p class="discussion-demo__eyebrow">{copy.eyebrow}</p>
+  <h2 id="discussion-demo-title">{copy.title}</h2>
+  <p class="discussion-demo__intro">{copy.intro}</p>
+
+  <div class="discussion-demo__grid">
+    <section aria-labelledby="demo-webmentions-title">
+      <h3 id="demo-webmentions-title">{copy.mentions}</h3>
+      <ul class="discussion-demo__list">
+        <li><span class="discussion-demo__avatar" aria-hidden="true">A</span><p><a href="https://mastodon.social/@alice">alice@mastodon.social</a> {copy.liked}</p></li>
+        <li><span class="discussion-demo__avatar" aria-hidden="true">S</span><p><a href="https://bsky.app/profile/sam.example.com">sam@bsky.app</a> {copy.reposted}</p></li>
+        <li><span class="discussion-demo__avatar" aria-hidden="true">C</span><p><a href="mailto:camille@example.com">camille@example.com</a><br />{copy.reply}</p></li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="demo-comments-title">
+      <h3 id="demo-comments-title">{copy.comments}</h3>
+      <ul class="discussion-demo__list">
+        <li><span class="discussion-demo__avatar" aria-hidden="true">M</span><p><a href="mailto:maya@example.com">maya@example.com</a> <small>Giscus</small><br />{copy.commentOne}</p></li>
+        <li><span class="discussion-demo__avatar" aria-hidden="true">X</span><p><a href="https://bsky.app/profile/alex.example.com">alex@bsky.app</a> <small>Bluesky</small><br />{copy.commentTwo}</p></li>
+      </ul>
+    </section>
+  </div>
+
+  <p class="discussion-demo__configure">{copy.configure}</p>
+</section>
+
+<style>
+  .discussion-demo { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--color-border, currentColor); }
+  .discussion-demo__eyebrow { margin: 0 0 .45rem; color: var(--color-accent, currentColor); font: 700 .7rem/1.2 var(--font-mono, monospace); letter-spacing: .12em; text-transform: uppercase; }
+  .discussion-demo h2 { margin: 0; font-size: clamp(1.35rem, 3vw, 2rem); }
+  .discussion-demo__intro, .discussion-demo__configure { color: var(--color-muted-foreground, inherit); font-size: .9rem; }
+  .discussion-demo__grid { display: grid; gap: 1rem; margin-top: 1.25rem; }
+  .discussion-demo__grid > section { padding: 1rem; border: 1px solid var(--color-border, currentColor); border-radius: var(--radius, .75rem); background: var(--color-card, transparent); }
+  .discussion-demo h3 { margin: 0 0 .8rem; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; }
+  .discussion-demo__list { display: grid; gap: .8rem; margin: 0; padding: 0; list-style: none; }
+  .discussion-demo__list li { display: flex; gap: .7rem; align-items: flex-start; }
+  .discussion-demo__list p { margin: 0; font-size: .84rem; line-height: 1.5; }
+  .discussion-demo__list a { color: var(--color-foreground, inherit); font-weight: 650; text-decoration-color: var(--color-accent, currentColor); text-underline-offset: .2em; }
+  .discussion-demo__list small { padding: .1rem .35rem; border: 1px solid var(--color-border, currentColor); border-radius: 999px; color: var(--color-muted-foreground, inherit); }
+  .discussion-demo__avatar { display: grid; width: 2rem; height: 2rem; flex: 0 0 2rem; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--color-accent, currentColor) 16%, transparent); color: var(--color-accent, currentColor); font: 700 .75rem/1 var(--font-mono, monospace); }
+  .discussion-demo__configure { margin: 1rem 0 0; padding-left: .8rem; border-left: 2px solid var(--color-accent, currentColor); }
+  @media (min-width: 48rem) { .discussion-demo__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>

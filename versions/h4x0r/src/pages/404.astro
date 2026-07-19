@@ -1,0 +1,98 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import NotFoundLocale from "@shared/components/NotFoundLocale.astro";
+import { HyperTitle } from "@/components/cyber/TextFx";
+import { Ripple } from "@/components/ui/ripple";
+import { FlickeringGrid } from "@/components/ui/flickering-grid";
+import { localeUrl, ui } from "@/i18n/ui";
+
+const fr = ui.fr;
+const en = ui.en;
+---
+
+<BaseLayout
+  locale="fr"
+  title={fr.notFound.title}
+  description={fr.notFound.message}
+>
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+  <NotFoundLocale
+    class="relative -mx-4 overflow-hidden px-4 py-14 md:-mx-6 md:px-6 md:py-20"
+    frTitle={fr.notFound.title}
+    enTitle={en.notFound.title}
+    frDescription={fr.notFound.message}
+    enDescription={en.notFound.message}
+  >
+    
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+      <FlickeringGrid
+        client:load
+        squareSize={3}
+        gridGap={9}
+        flickerChance={0.3}
+        maxOpacity={0.14}
+        color="var(--color-destructive)"
+        className="absolute inset-0 [mask-image:radial-gradient(ellipse_70%_70%_at_50%_35%,black,transparent)]"
+      />
+      <Ripple client:load mainCircleSize={280} mainCircleOpacity={0.16} numCircles={7} />
+    </div>
+
+    <div class="relative flex flex-col items-start gap-10">
+      <div>
+        <p class="terminal-line" aria-hidden="true">
+          <span class="prompt-user">operator@lisible</span>:~$ ./resolve --route
+        </p>
+        <p
+          class="font-display text-glow-lg mt-4 text-7xl font-black tracking-[0.06em] text-accent md:text-8xl"
+          aria-hidden="true"
+        >
+          <HyperTitle client:load duration={1400} characters="0123456789ABCDEF" text="404" />
+        </p>
+        <div
+          class="mt-6 border border-destructive/50 bg-card/60 p-4 font-mono text-xs leading-relaxed text-muted-foreground backdrop-blur-sm md:text-[13px]"
+          data-not-found-locale="fr"
+          aria-hidden="true"
+        >
+          <p class="font-semibold uppercase tracking-[0.18em] text-destructive">
+            {fr.cyber.notFound.crash}
+          </p>
+          {fr.cyber.notFound.dump.map((line) => <p class="whitespace-pre">{line}</p>)}
+        </div>
+        <div
+          class="mt-6 border border-destructive/50 bg-card/60 p-4 font-mono text-xs leading-relaxed text-muted-foreground backdrop-blur-sm md:text-[13px]"
+          data-not-found-locale="en"
+          aria-hidden="true"
+        >
+          <p class="font-semibold uppercase tracking-[0.18em] text-destructive">
+            {en.cyber.notFound.crash}
+          </p>
+          {en.cyber.notFound.dump.map((line) => <p class="whitespace-pre">{line}</p>)}
+        </div>
+      </div>
+
+      <section data-not-found-locale="fr" aria-label={fr.notFound.title}>
+        <h1 class="text-2xl font-bold tracking-tight md:text-3xl">{fr.notFound.title}</h1>
+        <p class="mt-2 text-muted-foreground">{fr.notFound.message}</p>
+        <a
+          href={localeUrl("fr")}
+          class="hud-corners mt-5 inline-flex min-h-11 items-center gap-2 border border-accent/70 bg-accent/10 px-5 font-mono text-sm font-semibold uppercase tracking-wider text-foreground transition-all hover:bg-accent hover:text-accent-foreground hover:shadow-[var(--glow-md)]"
+        >
+          {fr.cyber.notFound.reboot}
+          <span aria-hidden="true">→</span>
+        </a>
+      </section>
+
+      <section data-not-found-locale="en" lang="en" aria-label={en.notFound.title}>
+        <h1 class="text-2xl font-bold tracking-tight md:text-3xl">{en.notFound.title}</h1>
+        <p class="mt-2 text-muted-foreground">{en.notFound.message}</p>
+        <a
+          href={localeUrl("en")}
+          class="hud-corners mt-5 inline-flex min-h-11 items-center gap-2 border border-accent/70 bg-accent/10 px-5 font-mono text-sm font-semibold uppercase tracking-wider text-foreground transition-all hover:bg-accent hover:text-accent-foreground hover:shadow-[var(--glow-md)]"
+        >
+          {en.cyber.notFound.reboot}
+          <span aria-hidden="true">→</span>
+        </a>
+      </section>
+    </div>
+  </NotFoundLocale>
+</BaseLayout>

@@ -1,0 +1,26 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getAllSeries } from "@/lib/posts";
+
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const dict = t(locale);
+const series = await getAllSeries(locale);
+const description = locale === "fr" ? "Tous les parcours éditoriaux, regroupés dans leur ordre de lecture." : "Every editorial path, grouped in reading order.";
+---
+
+<BaseLayout locale={locale} title={dict.nav.series} description={description} alternates={{ fr: localeUrl("fr", "series"), en: localeUrl("en", "series") }}>
+  <div class="py-10 md:py-14">
+    <div class="hud-corners border border-border/70 bg-card/50 p-6 backdrop-blur-sm md:p-8">
+      <p class="section-label">{dict.platform.series.label.toLowerCase()}</p>
+      <h1 class="font-display mt-3 text-3xl font-black tracking-tight md:text-4xl"><span class="text-accent text-glow" aria-hidden="true">::</span>{dict.nav.series}</h1>
+      <p class="mt-3 max-w-2xl text-muted-foreground">{description}</p>
+    </div>
+    <ul class="mt-8 grid gap-4 sm:grid-cols-2">
+      {series.map((entry) => (
+        <li><a href={localeUrl(locale, `series/${entry.slug}`)} class="hud-corners block border border-border bg-background/60 p-5 transition-colors hover:border-accent/70"><strong class="font-display block text-lg">{entry.name}</strong><span class="mt-2 block font-mono text-xs uppercase tracking-wider text-muted-foreground">{entry.posts.length} {dict.platform.series.episodes}</span></a></li>
+      ))}
+    </ul>
+  </div>
+</BaseLayout>

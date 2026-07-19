@@ -1,0 +1,23 @@
+---
+import BlogIndexPage from "@/components/pages/BlogIndexPage.astro";
+import { getPublishedPosts } from "@/lib/posts";
+import { FEATURES } from "@/site.config";
+
+export async function getStaticPaths() {
+  if (!FEATURES.pagination.enabled) return [];
+  const posts = await getPublishedPosts("en");
+  const total = Math.ceil(posts.length / FEATURES.pagination.pageSize);
+  return Array.from({ length: Math.max(0, total - 1) }, (_, i) => ({
+    params: { page: String(i + 2) },
+    props: { page: i + 2 },
+  }));
+}
+
+interface Props {
+  page: number;
+}
+
+const { page } = Astro.props;
+---
+
+<BlogIndexPage locale="en" page={page} />

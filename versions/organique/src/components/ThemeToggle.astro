@@ -1,0 +1,135 @@
+---
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  transition:persist="theme-toggle"
+  aria-label={dict.a11y.toggleTheme}
+  class="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+>
+  
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    class="hidden dark:block"
+  >
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="M12 2v2"></path>
+    <path d="M12 20v2"></path>
+    <path d="m4.93 4.93 1.41 1.41"></path>
+    <path d="m17.66 17.66 1.41 1.41"></path>
+    <path d="M2 12h2"></path>
+    <path d="M20 12h2"></path>
+    <path d="m6.34 17.66-1.41 1.41"></path>
+    <path d="m19.07 4.93-1.41 1.41"></path>
+  </svg>
+  
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    class="block dark:hidden"
+  >
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+  </svg>
+</button>
+
+<script>
+  type ViewTransitionLike = {
+    ready: Promise<void>;
+    finished: Promise<void>;
+  };
+  type DocWithVT = Document & {
+    startViewTransition?: (cb: () => void) => ViewTransitionLike;
+  };
+
+  const TOGGLE_DURATION = 500;
+
+  function applyThemeToggle() {
+    const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
+    document.documentElement.classList.toggle("dark", next === "dark");
+    localStorage.setItem("theme", next);
+    (window as { __applyAccent?: () => void }).__applyAccent?.();
+  }
+
+  function animatedToggle(button: HTMLElement) {
+    const doc = document as DocWithVT;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (typeof doc.startViewTransition !== "function" || prefersReduced) {
+      applyThemeToggle();
+      return;
+    }
+
+    const vw = window.visualViewport?.width ?? window.innerWidth;
+    const vh = window.visualViewport?.height ?? window.innerHeight;
+    const rect = button.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const maxRadius = Math.hypot(Math.max(x, vw - x), Math.max(y, vh - y));
+    const clipPath = [
+      `circle(0px at ${x}px ${y}px)`,
+      `circle(${maxRadius}px at ${x}px ${y}px)`,
+    ];
+
+    const root = document.documentElement;
+    root.dataset.magicuiThemeVt = "active";
+    root.style.setProperty("--magicui-theme-toggle-vt-duration", `${TOGGLE_DURATION}ms`);
+    root.style.setProperty("--magicui-theme-vt-clip-from", clipPath[0]);
+
+    const cleanup = () => {
+      delete root.dataset.magicuiThemeVt;
+      root.style.removeProperty("--magicui-theme-toggle-vt-duration");
+      root.style.removeProperty("--magicui-theme-vt-clip-from");
+    };
+
+    const transition = doc.startViewTransition(() => {
+      applyThemeToggle();
+    });
+
+    transition.finished.finally(cleanup);
+
+    transition.ready.then(() => {
+      document.documentElement.animate(
+        { clipPath },
+        {
+          duration: TOGGLE_DURATION,
+          easing: "ease-in-out",
+          fill: "forwards",
+          pseudoElement: "::view-transition-new(root)",
+        },
+      );
+    });
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    const button = target?.closest("[data-theme-toggle]") as HTMLElement | null;
+    if (!button) return;
+    animatedToggle(button);
+  });
+</script>

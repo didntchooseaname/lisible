@@ -1,0 +1,105 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import AboutStats from "@/components/react/AboutStats";
+import { CodeBlock } from "@/components/ui/code-block";
+import { GradientHeading } from "@/components/ui/gradient-heading";
+import {
+  TextureCard,
+  TextureCardContent,
+} from "@/components/ui/texture-card";
+import EditOnGithub from "@/components/EditOnGithub.astro";
+import { SITE } from "@/site.config";
+import { locales, localeUrl, t, type Locale } from "@/i18n/ui";
+import { getAllTags, getPublishedPosts } from "@/lib/posts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const posts = await getPublishedPosts(locale);
+const tags = await getAllTags(locale);
+
+const stats = [
+  { value: posts.length, label: dict.about.statsPosts },
+  { value: tags.length, label: dict.about.statsTags },
+  { value: locales.length, label: dict.about.statsLanguages },
+];
+
+const codeTabs = [
+  { label: "bun", language: "bash", code: "bun install\nbun run dev" },
+  { label: "build", language: "bash", code: "bun run build\nbun run preview" },
+];
+
+const alternates = { fr: localeUrl("fr", "about"), en: localeUrl("en", "about") };
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.about.title}
+  description={dict.about.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <GradientHeading as="h1" size="lg" weight="bold" className="tracking-tight">
+      {dict.about.title}
+    </GradientHeading>
+
+    
+    <TextureCard className="mt-8 max-w-2xl">
+      <TextureCardContent className="px-6 py-6">
+        <div class="prose">
+          {dict.about.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+          <p>
+            {SITE.social.github && (
+              <>
+                <a href={SITE.social.github}>GitHub</a> &middot;{" "}
+              </>
+            )}
+            <a href={localeUrl(locale, "rss.xml")}>RSS</a>
+          </p>
+        </div>
+      </TextureCardContent>
+    </TextureCard>
+
+    <section aria-labelledby="about-stats-title" class="mt-12 max-w-2xl">
+      <h2 id="about-stats-title" class="text-xl font-bold tracking-tight">
+        {dict.about.statsTitle}
+      </h2>
+      
+      <div class="mt-5">
+        <AboutStats
+          client:visible
+          locale={locale}
+          title={dict.about.statsTitle}
+          stats={stats}
+        />
+      </div>
+    </section>
+
+    <section aria-labelledby="about-stack-title" class="mt-12 max-w-2xl">
+      <h2 id="about-stack-title" class="text-xl font-bold tracking-tight">
+        {dict.about.stackTitle}
+      </h2>
+      <p class="mt-2 text-sm text-muted-foreground">
+        {dict.about.stackDescription}
+      </p>
+      
+      <div class="mt-5">
+        <CodeBlock
+          client:visible
+          tabs={codeTabs}
+          copyLabel={dict.code.copy}
+          copiedLabel={dict.code.copied}
+          copyAriaLabel={dict.code.copy}
+        />
+      </div>
+    </section>
+
+    <div class="mt-12 max-w-2xl border-t border-border pt-6">
+      <EditOnGithub filePath="src/components/pages/AboutPage.astro" locale={locale} />
+    </div>
+  </div>
+</BaseLayout>

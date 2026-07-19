@@ -1,0 +1,556 @@
+{
+  "kit": "cult/ui (Cult UI) — free, open-source animated React components built on shadcn/ui conventions + motion (framer-motion) + Tailwind CSS; ~78 free components, source at github.com/nolly-studio/cult-ui",
+  "installation": "shadcn registry, per-component. Two documented paths: (1) direct URL — `pnpm dlx shadcn@latest add https://cult-ui.com/r/{slug}.json` (e.g. `pnpm dlx shadcn@latest add https://cult-ui.com/r/minimal-card.json`); (2) registry alias — add `\"registries\": { \"@cult-ui\": \"https://cult-ui.com/r/{name}.json\" }` to components.json, then `npx shadcn@beta add @cult-ui/[component-name]`. Components are distributed as source (copied into your codebase), so manual copy-paste from docs/GitHub also works; shadcn itself is not mandatory but the `cn` util (clsx + tailwind-merge) is expected.",
+  "dependencies": [
+    "motion (framer-motion successor — core animation dep for most components)",
+    "clsx",
+    "tailwind-merge",
+    "tailwindcss@latest (v4)",
+    "@tailwindcss/postcss",
+    "@paper-design/shaders-react (only for shader heroes, e.g. hero-static-radial-gradient)",
+    "lucide-react (icons used in several demos/components, standard shadcn peer)"
+  ],
+  "tailwindVersion": "Tailwind CSS v4 (docs specify tailwindcss@latest + @tailwindcss/postcss; no tailwind.config needed, CSS-first config). Components use standard utility classes and also work in v3-era shadcn setups, but the documented install targets v4 — matches your Astro 5 + Tailwind v4 stack.",
+  "components": [
+    {
+      "name": "Gradient Heading",
+      "url": "https://www.cult-ui.com/docs/components/gradient-heading",
+      "category": "text-effect",
+      "blogUse": "Hero title and section headings (h1/h2) — variants default/pink/light, sizes lg–xxxl; 'light'/'default' variants stay restrained on dark backgrounds",
+      "priority": "must"
+    },
+    {
+      "name": "Text Animate",
+      "url": "https://www.cult-ui.com/docs/components/text-animate",
+      "category": "text-effect",
+      "blogUse": "Hero title/subtitle entrance animation (fadeInUp/calmInUp are subtle enough for Swiss-minimal); needs 'use client' → client:load island",
+      "priority": "must"
+    },
+    {
+      "name": "Minimal Card",
+      "url": "https://www.cult-ui.com/docs/components/minimal-card",
+      "category": "card",
+      "blogUse": "Post card grid on homepage and tags page — MinimalCard + MinimalCardImage/Title/Description map 1:1 to post cover/title/excerpt; literally the minimal aesthetic you want",
+      "priority": "must"
+    },
+    {
+      "name": "Code Block",
+      "url": "https://www.cult-ui.com/docs/components/code-block",
+      "category": "content",
+      "blogUse": "Post-page code blocks: tabs, copy button, dark-mode compatible, keyboard nav — hydrate as client:visible island inside MDX prose",
+      "priority": "must"
+    },
+    {
+      "name": "Direction Aware Tabs",
+      "url": "https://www.cult-ui.com/docs/components/direction-aware-tabs",
+      "category": "navigation",
+      "blogUse": "Tags page filter tabs (All / by-tag) with direction-correct slide animation; also usable for code-example tab groups",
+      "priority": "must"
+    },
+    {
+      "name": "Popover Form",
+      "url": "https://www.cult-ui.com/docs/components/popover-form",
+      "category": "interaction",
+      "blogUse": "Newsletter CTA: headless popover form with loading + success states and keyboard shortcuts — footer or end-of-post subscribe",
+      "priority": "must"
+    },
+    {
+      "name": "Texture Button",
+      "url": "https://www.cult-ui.com/docs/components/texture-button",
+      "category": "interaction",
+      "blogUse": "Site-wide button system (newsletter subscribe, 'read more', 404 back-home) — 'minimal' and 'secondary' variants fit a Swiss dark theme",
+      "priority": "must"
+    },
+    {
+      "name": "Stripe Bg Guides",
+      "url": "https://www.cult-ui.com/docs/components/stripe-bg-guides",
+      "category": "background",
+      "blogUse": "Subtle Stripe-style vertical grid guide lines behind hero/homepage — the most Swiss-grid-compatible background in the kit; contained + glowColor props, keep animation off or slow",
+      "priority": "must"
+    },
+    {
+      "name": "Side Panel",
+      "url": "https://www.cult-ui.com/docs/components/side-panel",
+      "category": "navigation",
+      "blogUse": "Mobile nav drawer and/or slide-in TOC panel on post pages (renderButton + children API)",
+      "priority": "must"
+    },
+    {
+      "name": "Expandable Card",
+      "url": "https://www.cult-ui.com/docs/components/expandable",
+      "category": "interaction",
+      "blogUse": "Collapsible TOC on mobile, expandable post-card details, FAQ-style sections on about page (generic condense/expand primitive; slug is 'expandable', not 'expandable-card')",
+      "priority": "nice"
+    },
+    {
+      "name": "Texture Card",
+      "url": "https://www.cult-ui.com/docs/components/texture-card",
+      "category": "card",
+      "blogUse": "Newsletter CTA card or about-page bio card (Header/Content/Footer/Separator subcomponents); neumorphic undertone — use sparingly in a flat design",
+      "priority": "nice"
+    },
+    {
+      "name": "Neumorph Eyebrow",
+      "url": "https://www.cult-ui.com/docs/components/neumorph-eyebrow",
+      "category": "text-effect",
+      "blogUse": "Kicker/eyebrow label above post titles or section headings ('Latest posts', tag badges)",
+      "priority": "nice"
+    },
+    {
+      "name": "Shift Card",
+      "url": "https://www.cult-ui.com/docs/components/shift-card",
+      "category": "card",
+      "blogUse": "Featured/pinned post card with hover shift micro-interaction on the homepage",
+      "priority": "nice"
+    },
+    {
+      "name": "Cutout Card",
+      "url": "https://www.cult-ui.com/docs/components/cutout-card",
+      "category": "card",
+      "blogUse": "Alternate card treatment for a featured post or about-page highlight",
+      "priority": "nice"
+    },
+    {
+      "name": "Animated Number",
+      "url": "https://www.cult-ui.com/docs/components/animated-number",
+      "category": "text-effect",
+      "blogUse": "About-page stats (posts written, years coding) or animated reading-time counter; spring-configurable, needs client JS",
+      "priority": "nice"
+    },
+    {
+      "name": "Typewriter",
+      "url": "https://www.cult-ui.com/docs/components/typewriter",
+      "category": "text-effect",
+      "blogUse": "Hero subtitle cycling through topics ('writing about X / Y / Z'); slightly gimmicky for strict minimalism",
+      "priority": "nice"
+    },
+    {
+      "name": "Squiggle Arrow",
+      "url": "https://www.cult-ui.com/docs/components/squiggle-arrow",
+      "category": "decoration",
+      "blogUse": "Hand-drawn SVG arrow pointing at the newsletter CTA or 404 'go home' link; direction + wavy/bouncy/smooth variants",
+      "priority": "nice"
+    },
+    {
+      "name": "Edge Blur",
+      "url": "https://www.cult-ui.com/docs/components/edge-blur",
+      "category": "background",
+      "blogUse": "Progressive blur fade at top/bottom viewport edges under sticky header / above footer — very fitting for minimal dark",
+      "priority": "nice"
+    },
+    {
+      "name": "Texture Overlay",
+      "url": "https://www.cult-ui.com/docs/components/texture-overlay",
+      "category": "background",
+      "blogUse": "Subtle grain/noise overlay on the dark page background — classic minimal-dark garnish",
+      "priority": "nice"
+    },
+    {
+      "name": "Background Texture",
+      "url": "https://www.cult-ui.com/docs/components/background-texture",
+      "category": "background",
+      "blogUse": "Alternative full-page subtle texture for body background",
+      "priority": "nice"
+    },
+    {
+      "name": "Grid Beam",
+      "url": "https://www.cult-ui.com/docs/components/grid-beam",
+      "category": "background",
+      "blogUse": "Hero background: soft glowing beams along grid dividers ('mono' colorVariant + dark theme keeps it subtle); canvas-based, client-only",
+      "priority": "nice"
+    },
+    {
+      "name": "Family Drawer",
+      "url": "https://www.cult-ui.com/docs/components/family-drawer",
+      "category": "navigation",
+      "blogUse": "Mobile menu / share sheet drawer (Family-app-style multi-view drawer)",
+      "priority": "nice"
+    },
+    {
+      "name": "Floating Panel",
+      "url": "https://www.cult-ui.com/docs/components/floating-panel",
+      "category": "interaction",
+      "blogUse": "Floating TOC or share/actions panel on post pages",
+      "priority": "nice"
+    },
+    {
+      "name": "Popover",
+      "url": "https://www.cult-ui.com/docs/components/popover",
+      "category": "interaction",
+      "blogUse": "Footnote/reference previews and definition popovers inside prose",
+      "priority": "nice"
+    },
+    {
+      "name": "Toolbar Expandable",
+      "url": "https://www.cult-ui.com/docs/components/toolbar-expandable",
+      "category": "navigation",
+      "blogUse": "Floating expandable toolbar: theme switcher + share + scroll-to-top cluster on post pages",
+      "priority": "nice"
+    },
+    {
+      "name": "Dynamic Island",
+      "url": "https://www.cult-ui.com/docs/components/dynamic-island",
+      "category": "interaction",
+      "blogUse": "Playful notification/now-playing widget in header; charming but not Swiss-minimal — garnish only",
+      "priority": "nice"
+    },
+    {
+      "name": "Family Button",
+      "url": "https://www.cult-ui.com/docs/components/family-button",
+      "category": "interaction",
+      "blogUse": "Expanding action button (share / like cluster) at end of posts",
+      "priority": "nice"
+    },
+    {
+      "name": "Intro Disclosure",
+      "url": "https://www.cult-ui.com/docs/components/intro-disclosure",
+      "category": "interaction",
+      "blogUse": "First-visit 'what's new on the blog' walkthrough with localStorage don't-show-again; dialog on desktop, drawer on mobile — probably overkill",
+      "priority": "nice"
+    },
+    {
+      "name": "Browser Window",
+      "url": "https://www.cult-ui.com/docs/components/browser-window",
+      "category": "content",
+      "blogUse": "Framing screenshots/demos inside technical posts",
+      "priority": "nice"
+    },
+    {
+      "name": "Terminal Animation",
+      "url": "https://www.cult-ui.com/docs/components/terminal-animation",
+      "category": "content",
+      "blogUse": "Animated terminal for dev-blog hero or CLI tutorials in posts",
+      "priority": "nice"
+    },
+    {
+      "name": "Hover Video Player",
+      "url": "https://www.cult-ui.com/docs/components/hover-video-player",
+      "category": "media",
+      "blogUse": "Hover-to-play video embeds in posts or on project cards",
+      "priority": "nice"
+    },
+    {
+      "name": "YouTube Video Player",
+      "url": "https://www.cult-ui.com/docs/components/youtube-video-player",
+      "category": "media",
+      "blogUse": "Lightweight-facade YouTube embeds inside posts",
+      "priority": "nice"
+    },
+    {
+      "name": "LightBoard",
+      "url": "https://www.cult-ui.com/docs/components/lightboard",
+      "category": "background",
+      "blogUse": "Playful LED-marquee '404 NOT FOUND' message on the 404 page — one flashy exception that works there",
+      "priority": "nice"
+    },
+    {
+      "name": "Bg Animate Button",
+      "url": "https://www.cult-ui.com/docs/components/bg-animate-button",
+      "category": "interaction",
+      "blogUse": "Animated-gradient CTA button; too loud for primary use, possible single newsletter CTA accent",
+      "priority": "nice"
+    },
+    {
+      "name": "Hero Static Radial Gradient",
+      "url": "https://www.cult-ui.com/docs/components/hero-static-radial-gradient",
+      "category": "background",
+      "blogUse": "Full hero section with shader radial gradient — visually closest hero to 'minimal dark', but pulls @paper-design/shaders-react (WebGL) — heavy for a blog",
+      "priority": "nice"
+    },
+    {
+      "name": "Bg Media Hero",
+      "url": "https://www.cult-ui.com/docs/components/bg-media-hero",
+      "category": "background",
+      "blogUse": "Hero with background image/video — only if you ever want a photographic hero",
+      "priority": "nice"
+    },
+    {
+      "name": "MacOS Dock",
+      "url": "https://www.cult-ui.com/docs/components/macos-dock",
+      "category": "navigation",
+      "blogUse": "Magnifying dock of social links in the footer; fun but off-brand for Swiss minimal",
+      "priority": "nice"
+    },
+    {
+      "name": "Neumorph Button",
+      "url": "https://www.cult-ui.com/docs/components/neumorph-button",
+      "category": "interaction",
+      "blogUse": "Theme-switcher toggle or icon buttons; neumorphism clashes with flat Swiss style — use only if you like the soft look",
+      "priority": "nice"
+    },
+    {
+      "name": "Gradient Button Group",
+      "url": "https://www.cult-ui.com/docs/components/gradient-button-group",
+      "category": "interaction",
+      "blogUse": "Grouped filter buttons on tags page; gradient styling is louder than needed",
+      "priority": "skip"
+    },
+    {
+      "name": "Border Beam Button",
+      "url": "https://www.cult-ui.com/docs/components/border-beam-button",
+      "category": "interaction",
+      "blogUse": "Animated border-beam CTA — too flashy for minimal blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Metal Button",
+      "url": "https://www.cult-ui.com/docs/components/metal-button",
+      "category": "interaction",
+      "blogUse": "Skeuomorphic metal button — off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Cosmic Button",
+      "url": "https://www.cult-ui.com/docs/components/cosmic-button",
+      "category": "interaction",
+      "blogUse": "Cosmic/glow button — off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Hero Dithering",
+      "url": "https://www.cult-ui.com/docs/components/hero-dithering",
+      "category": "background",
+      "blogUse": "Shader dithering hero — heavy WebGL, too flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Hero Color Panels",
+      "url": "https://www.cult-ui.com/docs/components/hero-color-panels",
+      "category": "background",
+      "blogUse": "Colorful panel hero — clashes with minimal dark palette",
+      "priority": "skip"
+    },
+    {
+      "name": "Hero Heatmap",
+      "url": "https://www.cult-ui.com/docs/components/hero-heatmap",
+      "category": "background",
+      "blogUse": "Heatmap shader hero — heavy/flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Hero Liquid Metal",
+      "url": "https://www.cult-ui.com/docs/components/hero-liquid-metal",
+      "category": "background",
+      "blogUse": "Liquid-metal shader hero — heavy/flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Logo Carousel",
+      "url": "https://www.cult-ui.com/docs/components/logo-carousel",
+      "category": "media",
+      "blogUse": "Client-logo marquee — marketing pattern, no blog fit",
+      "priority": "skip"
+    },
+    {
+      "name": "Tweet Grid",
+      "url": "https://www.cult-ui.com/docs/components/tweet-grid",
+      "category": "media",
+      "blogUse": "Grid of embedded tweets — external deps, not needed for a minimal blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Distorted Glass",
+      "url": "https://www.cult-ui.com/docs/components/distorted-glass",
+      "category": "background",
+      "blogUse": "Glass distortion effect — too flashy",
+      "priority": "skip"
+    },
+    {
+      "name": "Dither Image",
+      "url": "https://www.cult-ui.com/docs/components/dither-image",
+      "category": "media",
+      "blogUse": "Dithered image effect — stylistic mismatch (unless you adopt a retro art direction)",
+      "priority": "skip"
+    },
+    {
+      "name": "Fractal Grid",
+      "url": "https://www.cult-ui.com/docs/components/fractal-grid",
+      "category": "background",
+      "blogUse": "Fractal grid visual — busy, anti-minimal",
+      "priority": "skip"
+    },
+    {
+      "name": "Canvas Fractal Grid",
+      "url": "https://www.cult-ui.com/docs/components/canvas-fractal-grid",
+      "category": "background",
+      "blogUse": "Canvas fractal background — heavy and busy",
+      "priority": "skip"
+    },
+    {
+      "name": "Shader Lens Blur",
+      "url": "https://www.cult-ui.com/docs/components/shader-lens-blur",
+      "category": "background",
+      "blogUse": "WebGL lens blur — heavy shader dep",
+      "priority": "skip"
+    },
+    {
+      "name": "SVG Shapes",
+      "url": "https://www.cult-ui.com/docs/components/svg-shapes",
+      "category": "decoration",
+      "blogUse": "Decorative SVG shape packs — no blog role",
+      "priority": "skip"
+    },
+    {
+      "name": "SVG Shapes Animated",
+      "url": "https://www.cult-ui.com/docs/components/svg-shapes-animated",
+      "category": "decoration",
+      "blogUse": "Animated decorative shapes — no blog role",
+      "priority": "skip"
+    },
+    {
+      "name": "SVG Bands",
+      "url": "https://www.cult-ui.com/docs/components/svg-bands",
+      "category": "decoration",
+      "blogUse": "Decorative SVG bands — no blog role",
+      "priority": "skip"
+    },
+    {
+      "name": "Onboarding",
+      "url": "https://www.cult-ui.com/docs/components/onboarding",
+      "category": "interaction",
+      "blogUse": "App onboarding flow — blogs don't onboard",
+      "priority": "skip"
+    },
+    {
+      "name": "Expandable Screen",
+      "url": "https://www.cult-ui.com/docs/components/expandable-screen",
+      "category": "interaction",
+      "blogUse": "Full-screen expansion widget — app pattern, not blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Morph Surface",
+      "url": "https://www.cult-ui.com/docs/components/morph-surface",
+      "category": "interaction",
+      "blogUse": "Morphing surface widget — app pattern",
+      "priority": "skip"
+    },
+    {
+      "name": "Color Picker",
+      "url": "https://www.cult-ui.com/docs/components/color-picker",
+      "category": "input",
+      "blogUse": "Color input — no blog role",
+      "priority": "skip"
+    },
+    {
+      "name": "Choice Poll",
+      "url": "https://www.cult-ui.com/docs/components/choice-poll",
+      "category": "input",
+      "blogUse": "Poll widget — needs backend, out of scope",
+      "priority": "skip"
+    },
+    {
+      "name": "Feature Poll",
+      "url": "https://www.cult-ui.com/docs/components/feature-poll",
+      "category": "input",
+      "blogUse": "Feature poll — product pattern",
+      "priority": "skip"
+    },
+    {
+      "name": "Feature Voting",
+      "url": "https://www.cult-ui.com/docs/components/feature-voting",
+      "category": "input",
+      "blogUse": "Feature voting — product pattern",
+      "priority": "skip"
+    },
+    {
+      "name": "Vote Tally",
+      "url": "https://www.cult-ui.com/docs/components/vote-tally",
+      "category": "input",
+      "blogUse": "Vote tally display — product pattern",
+      "priority": "skip"
+    },
+    {
+      "name": "Poll Widget",
+      "url": "https://www.cult-ui.com/docs/components/poll-widget",
+      "category": "input",
+      "blogUse": "Embedded poll in a post could be fun, but needs a backend — skip for now",
+      "priority": "skip"
+    },
+    {
+      "name": "Prompt Library",
+      "url": "https://www.cult-ui.com/docs/components/prompt-library",
+      "category": "content",
+      "blogUse": "AI prompt library UI — unrelated",
+      "priority": "skip"
+    },
+    {
+      "name": "AI Instructions",
+      "url": "https://www.cult-ui.com/docs/components/ai-instructions",
+      "category": "content",
+      "blogUse": "AI instruction editor — unrelated",
+      "priority": "skip"
+    },
+    {
+      "name": "Timer",
+      "url": "https://www.cult-ui.com/docs/components/timer",
+      "category": "interaction",
+      "blogUse": "Timer widget — no blog role",
+      "priority": "skip"
+    },
+    {
+      "name": "Sortable List",
+      "url": "https://www.cult-ui.com/docs/components/sortable-list",
+      "category": "interaction",
+      "blogUse": "Drag-sortable list — app pattern",
+      "priority": "skip"
+    },
+    {
+      "name": "3D Carousel",
+      "url": "https://www.cult-ui.com/docs/components/three-d-carousel",
+      "category": "media",
+      "blogUse": "3D rotating carousel — flashy and heavy",
+      "priority": "skip"
+    },
+    {
+      "name": "Feature Carousel",
+      "url": "https://www.cult-ui.com/docs/components/feature-carousel",
+      "category": "media",
+      "blogUse": "Marketing feature carousel — off-pattern for a blog",
+      "priority": "skip"
+    },
+    {
+      "name": "Loading Carousel",
+      "url": "https://www.cult-ui.com/docs/components/loading-carousel",
+      "category": "media",
+      "blogUse": "Loading-state carousel — app pattern",
+      "priority": "skip"
+    },
+    {
+      "name": "Pixel Heading (Char)",
+      "url": "https://www.cult-ui.com/docs/components/pixel-heading-char",
+      "category": "text-effect",
+      "blogUse": "Pixel-art heading — retro aesthetic clashes with Swiss minimal (could be a fun 404 headline if you loosen up)",
+      "priority": "skip"
+    },
+    {
+      "name": "Pixel Heading (Word)",
+      "url": "https://www.cult-ui.com/docs/components/pixel-heading-word",
+      "category": "text-effect",
+      "blogUse": "Pixel-art heading per word — same as above",
+      "priority": "skip"
+    },
+    {
+      "name": "Pixel Paragraph",
+      "url": "https://www.cult-ui.com/docs/components/pixel-paragraph",
+      "category": "text-effect",
+      "blogUse": "Pixelated paragraph — off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Pixel Paragraph Inv",
+      "url": "https://www.cult-ui.com/docs/components/pixel-paragraph-inv",
+      "category": "text-effect",
+      "blogUse": "Inverted pixel paragraph — off-style",
+      "priority": "skip"
+    },
+    {
+      "name": "Text Gif",
+      "url": "https://www.cult-ui.com/docs/components/text-gif",
+      "category": "text-effect",
+      "blogUse": "GIF-filled text — too flashy for minimal design",
+      "priority": "skip"
+    }
+  ],
+  "notes": "1) Nearly every component is client-interactive ('use client' + motion) — in Astro each must be a React island (client:visible for below-fold like Code Block cards, client:load for header/nav); none of these render animations at SSR time, but they SSR their initial markup fine under @astrojs/react. 2) React 19: docs don't pin a React version; the kit is developed against current Next.js and `motion`, both React-19-compatible — but since components are copied source, any incompatibility is directly patchable. 3) Registry install assumes a shadcn-initialized project (components.json, cn util in lib/utils); run `npx shadcn@latest init` in the Astro project first, or copy sources manually and provide `cn` yourself. 4) Some components import sibling cult-ui components (e.g. Direction Aware Tabs demo uses BgAnimateButton) and shadcn primitives (Button, Dialog, Drawer for Intro Disclosure) — the CLI resolves these transitively. 5) Heavy deps to avoid on a minimal blog: shader heroes (Hero Dithering/Heatmap/Liquid Metal/Static Radial Gradient) require @paper-design/shaders-react (WebGL); Canvas Fractal Grid, Shader Lens Blur, Grid Beam, and Stripe Bg Guides are canvas/animation-loop based — if used as backgrounds, gate with prefers-reduced-motion and client:idle. 6) Slug gotcha: Expandable Card lives at /docs/components/expandable (r/expandable.json); /docs/components/expandable-card 404s. Slugs for non-deep-fetched components are inferred kebab-case from the sidebar names and a few (3D Carousel, Pixel Heading variants, LightBoard, MacOS Dock) may differ slightly — verify against the sidebar before scripting installs. 7) The /docs/components index itself 404s; the docs root (https://www.cult-ui.com/docs) carries the full sidebar. Homepage claims 78 free components; the sidebar enumerated ~78 across categories and this catalogue covers all of them — premium items (Cult Pro at pro.cult-ui.com: Apple device mockups, Analytics Chart, hero blocks, etc.) are paid and excluded. 8) Dark-first: components are dark-mode compatible (standard shadcn CSS-variable theming); your theme switcher itself isn't in this kit — build it with a Texture/Neumorph button inside the Toolbar Expandable."
+}
