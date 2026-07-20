@@ -83,7 +83,7 @@ const jsonLd = {
   <hr class="wave-line" aria-hidden="true" />
 </BaseLayout>
 
-<style>
+<style is:inline>
   .section-heading {
     display: flex;
     align-items: end;
@@ -115,7 +115,8 @@ const jsonLd = {
 
   .recent-grid {
     display: grid;
-    gap: 1rem;
+    column-gap: clamp(1.5rem, 3vw, 2.5rem);
+    row-gap: clamp(1.75rem, 3.5vw, 2.75rem);
   }
 
   @media (min-width: 680px) {

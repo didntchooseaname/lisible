@@ -368,8 +368,8 @@ const groups = [...grouped.entries()]
     const golden = 2.399963;
     const columns = w >= 1040 ? 4 : 3;
     const rows = Math.ceil(clusters.length / columns);
-    const padX = clamp(w * 0.065, 54, 86);
-    const padY = 76;
+    const padX = clamp(w * 0.045, 42, 64);
+    const padY = 58;
     const cellWidth = (w - padX * 2) / columns;
     const cellHeight = (h - padY * 2) / rows;
 
@@ -381,7 +381,7 @@ const groups = [...grouped.entries()]
       const rowOffset = incompleteRow ? (columns - rowItems) * cellWidth * 0.5 : 0;
       cluster.cx = padX + rowOffset + cellWidth * (column + 0.5) + Math.sin(cluster.phase) * cellWidth * 0.07;
       cluster.cy = padY + cellHeight * (row + 0.5) + Math.cos(cluster.phase) * cellHeight * 0.06;
-      cluster.r = Math.min(cellWidth, cellHeight) * 0.43;
+      cluster.r = Math.min(cellWidth, cellHeight) * 0.5;
       const count = cluster.nodeIndexes.length;
 
       cluster.nodeIndexes.forEach((nodeIndex, localIndex) => {
@@ -391,7 +391,7 @@ const groups = [...grouped.entries()]
         const angle = localIndex * golden + cluster.phase + rand() * 0.28;
         const radial = localIndex === 0
           ? 0
-          : cluster.r * (0.22 + 0.72 * Math.sqrt(localIndex / Math.max(1, count - 1)));
+          : cluster.r * (0.3 + 0.82 * Math.sqrt(localIndex / Math.max(1, count - 1)));
         node.hx = cluster.cx + Math.cos(angle) * radial;
         node.hy = cluster.cy + Math.sin(angle) * radial;
         node.p1 = rand() * Math.PI * 2;
@@ -411,9 +411,9 @@ const groups = [...grouped.entries()]
           const dx = b.hx - a.hx;
           const dy = b.hy - a.hy;
           const dist = Math.hypot(dx, dy) || 0.01;
-          const min = a.r + b.r + 10;
+          const min = a.r + b.r + 24;
           if (dist < min) {
-            const push = ((min - dist) / dist) * 0.24;
+            const push = ((min - dist) / dist) * 0.28;
             a.hx -= dx * push;
             a.hy -= dy * push;
             b.hx += dx * push;
@@ -424,10 +424,12 @@ const groups = [...grouped.entries()]
       for (const cluster of clusters) {
         for (const nodeIndex of cluster.nodeIndexes) {
           const node = nodes[nodeIndex]!;
-          node.hx += (cluster.cx - node.hx) * 0.006;
-          node.hy += (cluster.cy - node.hy) * 0.006;
-          node.hx = clamp(node.hx, node.r + 18, w - node.r - 18);
-          node.hy = clamp(node.hy, node.r + 26, h - node.r - 26);
+          node.hx += (cluster.cx - node.hx) * 0.004;
+          node.hy += (cluster.cy - node.hy) * 0.004;
+          const edgeX = Math.max(node.r + 28, 80);
+          const edgeY = Math.max(node.r + 34, 72);
+          node.hx = clamp(node.hx, edgeX, w - edgeX);
+          node.hy = clamp(node.hy, edgeY, h - edgeY);
         }
       }
     }
@@ -526,7 +528,7 @@ const groups = [...grouped.entries()]
       const dx = b.x - a.x;
       const dy = b.y - a.y;
       const distance = Math.hypot(dx, dy) || 0.01;
-      const target = link.crossCluster ? distance : a.r + b.r + 56;
+      const target = link.crossCluster ? distance : a.r + b.r + 78;
       const strength = link.crossCluster ? 0.004 : 0.16;
       const spring = (distance - target) * strength * dt;
       const fx = (dx / distance) * spring;
@@ -548,7 +550,7 @@ const groups = [...grouped.entries()]
         const dx = b.x - a.x;
         const dy = b.y - a.y;
         const distance = Math.hypot(dx, dy) || 0.01;
-        const minimum = a.r + b.r + 8;
+        const minimum = a.r + b.r + 22;
         if (distance >= minimum) continue;
         const push = (minimum - distance) * 0.12;
         const px = (dx / distance) * push;
@@ -562,6 +564,21 @@ const groups = [...grouped.entries()]
           b.y += py;
         }
       }
+    }
+
+    if (!field) return;
+    const w = field.clientWidth;
+    const h = field.clientHeight;
+    for (const node of nodes) {
+      const edgeX = Math.max(node.r + 28, 80);
+      const edgeY = Math.max(node.r + 34, 72);
+      const nextX = clamp(node.x, edgeX, w - edgeX);
+      const nextY = clamp(node.y, edgeY, h - edgeY);
+      if (nextX !== node.x) node.vx *= -0.16;
+      if (nextY !== node.y) node.vy *= -0.16;
+      node.x = nextX;
+      node.y = nextY;
+      updateCardPlacement(node);
     }
   }
 
@@ -840,8 +857,10 @@ const groups = [...grouped.entries()]
       event.preventDefault();
     }
     const node = nodes[drag.index]!;
-    const nextX = clamp(pointer.x + drag.offsetX, node.r + 12, field.clientWidth - node.r - 12);
-    const nextY = clamp(pointer.y + drag.offsetY, node.r + 20, field.clientHeight - node.r - 20);
+    const edgeX = Math.max(node.r + 28, 80);
+    const edgeY = Math.max(node.r + 34, 72);
+    const nextX = clamp(pointer.x + drag.offsetX, edgeX, field.clientWidth - edgeX);
+    const nextY = clamp(pointer.y + drag.offsetY, edgeY, field.clientHeight - edgeY);
     node.x = nextX;
     node.y = nextY;
     node.hx = nextX;
