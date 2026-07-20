@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title desc">
+  <title id="title">Demo profile portrait</title>
+  <desc id="desc">Abstract portrait made of geometric shapes.</desc>
+  <defs>
+    <linearGradient id="bg" x1="30" y1="18" x2="286" y2="302" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8b5cf6"/>
+      <stop offset=".52" stop-color="#06b6d4"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="92" fill="#101418"/>
+  <path d="M25 184C54 82 127 25 226 43c47 9 76 46 69 95-12 84-83 153-177 151-62-1-111-43-93-105Z" fill="url(#bg)" opacity=".92"/>
+  <circle cx="163" cy="121" r="58" fill="#f8fafc"/>
+  <path d="M72 281c13-70 48-105 91-105 44 0 81 35 93 105" fill="#f8fafc"/>
+  <path d="M109 111c8-40 29-59 61-57 31 2 49 22 52 61-29-2-55-12-76-31-8 15-20 24-37 27Z" fill="#17202a"/>
+  <circle cx="141" cy="124" r="5" fill="#17202a"/>
+  <circle cx="184" cy="124" r="5" fill="#17202a"/>
+  <path d="M145 148c12 9 25 9 37 0" fill="none" stroke="#17202a" stroke-width="5" stroke-linecap="round"/>
+</svg>

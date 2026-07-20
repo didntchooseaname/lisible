@@ -1,4 +1,5 @@
 ---
+import lightboxStyles from "@/styles/lightbox.css?raw";
 import { t, type Locale } from "@/i18n/ui";
 
 interface Props {
@@ -29,6 +30,7 @@ const iconAttrs = {
   aria-modal="true"
   aria-hidden="true"
   aria-label={dict.lightbox.close}
+  hidden
 >
   <div class="lightbox__toolbar">
     <p class="lightbox__counter" data-lightbox-counter>
@@ -62,3 +64,5 @@ const iconAttrs = {
     <svg {...iconAttrs} width="28" height="28"><path d="m9 18 6-6-6-6"></path></svg>
   </button>
 </div>
+
+<style is:inline set:html={lightboxStyles} />

@@ -5,6 +5,7 @@ import HomeTerminal from "@/components/cyber/HomeTerminal";
 import HomeStats from "@/components/cyber/HomeStats";
 import NewsletterCTA from "@/components/NewsletterCTA.astro";
 import JsonLd from "@/components/JsonLd.astro";
+import DemoProfileHero from "@shared/components/DemoProfileHero.astro";
 import { HyperTitle, TypeLine } from "@/components/cyber/TextFx";
 import { WordRotate } from "@/components/ui/word-rotate";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
@@ -77,8 +78,22 @@ const jsonLd = {
 >
   <JsonLd slot="head" data={jsonLd} />
 
+  <section class="py-12 md:py-16">
+    <DemoProfileHero
+      locale={locale}
+      variant="h4x0r"
+      title={SITE.title}
+      actions={[
+        { href: localeUrl(locale, "blog"), label: dict.nav.blog },
+        { href: localeUrl(locale, "series"), label: dict.nav.series },
+        { href: localeUrl(locale, "about"), label: dict.nav.about },
+      ]}
+    />
+  </section>
+
   
-  <section class="grid items-center gap-10 py-12 md:py-16 lg:min-h-[min(calc(100vh-11rem),42rem)] lg:grid-cols-[1.05fr_0.95fr]">
+  <section aria-labelledby="terminal-showcase-title" class="grid items-center gap-10 py-12 md:py-16 lg:min-h-[min(calc(100vh-11rem),42rem)] lg:grid-cols-[1.05fr_0.95fr]">
+    <h2 id="terminal-showcase-title" class="sr-only">{dict.cyber.home.terminalCmd}</h2>
     <div class="min-w-0">
       <p class="terminal-line" data-boot-reveal style="--reveal-i: 0">
         <span class="prompt-user">{dict.cyber.home.prompt.split(":~$")[0]}</span><span>:~$&nbsp;</span><TypeLine
@@ -90,7 +105,7 @@ const jsonLd = {
         />
       </p>
 
-      <h1 class="mt-6" data-boot-reveal style="--reveal-i: 1">
+      <div class="mt-6" data-boot-reveal style="--reveal-i: 1" aria-hidden="true">
         <HyperTitle
           client:load
           duration={1100}
@@ -98,7 +113,7 @@ const jsonLd = {
           className="font-display text-glow-lg block text-5xl font-black uppercase tracking-[0.08em] md:text-7xl"
           text={SITE.title.toUpperCase()}
         />
-      </h1>
+      </div>
 
       <div
         class="mt-4 flex items-center gap-3 font-mono text-sm uppercase tracking-[0.22em] text-accent"

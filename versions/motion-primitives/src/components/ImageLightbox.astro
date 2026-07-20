@@ -9,7 +9,7 @@ const { locale } = Astro.props;
 const dict = t(locale);
 ---
 
-<div id="image-lightbox" class="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label={dict.a11y.zoomImage}>
+<div id="image-lightbox" class="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-label={dict.a11y.zoomImage} hidden>
   <div class="lightbox-toolbar">
     <span class="lightbox-counter" aria-live="polite">
       <span id="lightbox-current">1</span>

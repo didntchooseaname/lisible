@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title">
+  <title id="title">Abstract demo avatar in green and blue</title>
+  <rect width="200" height="200" rx="48" fill="#0d1c1a"/>
+  <circle cx="100" cy="72" r="39" fill="#bbf7d0"/>
+  <path d="M32 184c9-54 31-81 68-81s60 27 68 81" fill="#38bdf8"/>
+  <path d="M62 63c12-28 31-40 56-34 20 5 31 20 31 44-17-10-31-22-42-37-13 18-28 27-45 27Z" fill="#14532d"/>
+</svg>

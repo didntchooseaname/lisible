@@ -17,7 +17,6 @@ const dict = t(locale);
 const hasSeries = FEATURES.series && (await getPublishedPosts(locale)).some((post) => Boolean(post.data.series));
 
 const navItems = [
-  { href: localeUrl(locale, "blog"), label: dict.nav.blog },
   { href: localeUrl(locale, "tags"), label: dict.nav.tags },
   ...(FEATURES.archives
     ? [{ href: localeUrl(locale, "archives"), label: dict.nav.archives }]
@@ -25,6 +24,8 @@ const navItems = [
   ...(hasSeries
     ? [{ href: localeUrl(locale, "series"), label: dict.nav.series }]
     : []),
+  { href: localeUrl(locale, "certifications"), label: dict.nav.certifications },
+  { href: localeUrl(locale, "friends"), label: dict.nav.friends },
   { href: localeUrl(locale, "about"), label: dict.nav.about },
 ];
 
@@ -40,7 +41,7 @@ function isActive(href: string): boolean {
 
 <header class="site-dock-wrap sticky top-0 z-40">
   <div
-    class="site-dock mx-auto flex min-h-16 w-full max-w-4xl flex-wrap items-center justify-between gap-x-4 gap-y-0 px-4 py-2 md:px-6"
+    class="site-dock mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-0 px-4 py-2 md:px-6"
   >
     <a
       href={localeUrl(locale)}
@@ -51,7 +52,7 @@ function isActive(href: string): boolean {
     </a>
 
     <nav aria-label={dict.nav.main} class="order-last w-full sm:order-none sm:w-auto">
-      <ul class="flex items-center justify-center gap-1">
+      <ul class="flex items-center justify-start gap-1 overflow-x-auto sm:justify-center">
         {
           navItems.map((item) => (
             <li>

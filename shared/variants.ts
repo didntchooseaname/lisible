@@ -25,8 +25,8 @@ export const VARIANTS = [
   },
   {
     id: "organique",
-    label: "Interactive constellation, floating dock",
-    description: "Constellation interactive, formes organiques et dock flottant",
+    label: "Interactive knowledge graph, floating dock",
+    description: "Knowledge graph interactif, formes organiques et dock flottant",
     port: 4325,
   },
   {

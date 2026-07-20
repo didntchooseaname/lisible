@@ -1,0 +1,357 @@
+---
+import profilePortrait from "../assets/demo-profile.svg?url";
+
+type Variant =
+  | "motion-primitives"
+  | "cult-ui"
+  | "aceternity"
+  | "reactbits"
+  | "organique"
+  | "h4x0r";
+
+interface Action {
+  href: string;
+  label: string;
+}
+
+interface Props {
+  locale: "fr" | "en";
+  variant: Variant;
+  title: string;
+  actions: Action[];
+}
+
+const { locale, variant, title, actions } = Astro.props;
+const copy =
+  locale === "fr"
+    ? {
+        kicker: "Profil de démonstration",
+        name: "Alex Morgan",
+        pronouns: "(iel)",
+        role: "Designer développeur et auteur technique",
+        intro:
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Je transforme des idées complexes en interfaces claires et en récits faciles à parcourir.",
+        links: "Raccourcis du profil de démonstration",
+        journal: "Journal",
+        projects: "Projets",
+        notes: "Notes",
+        contact: "Contact",
+      }
+    : {
+        kicker: "Demo profile",
+        name: "Alex Morgan",
+        pronouns: "(they/them)",
+        role: "Designer, developer and technical writer",
+        intro:
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. I turn complex ideas into clear interfaces and stories that are easy to explore.",
+        links: "Demo profile shortcuts",
+        journal: "Journal",
+        projects: "Projects",
+        notes: "Notes",
+        contact: "Contact",
+      };
+
+const shortcuts = [
+  { label: copy.journal, href: actions[0]?.href ?? "/", icon: "journal" },
+  { label: copy.projects, href: actions[1]?.href ?? actions[0]?.href ?? "/", icon: "projects" },
+  { label: copy.notes, href: actions[2]?.href ?? actions[0]?.href ?? "/", icon: "notes" },
+  { label: copy.contact, href: actions.at(-1)?.href ?? "/", icon: "contact" },
+];
+---
+
+<section class="demo-profile" data-demo-profile data-variant={variant} aria-labelledby="demo-profile-title">
+  <div class="demo-profile__aura" aria-hidden="true"></div>
+  <div class="demo-profile__media">
+    <img
+      class="demo-profile__portrait"
+      src={profilePortrait}
+      alt={locale === "fr" ? "Portrait abstrait du profil de démonstration Alex Morgan" : "Abstract portrait of demo profile Alex Morgan"}
+      width="320"
+      height="320"
+      loading="eager"
+      decoding="async"
+    />
+    <nav class="demo-profile__shortcuts" aria-label={copy.links}>
+      {
+        shortcuts.map((shortcut) => (
+          <a href={shortcut.href} aria-label={shortcut.label} title={shortcut.label}>
+            {shortcut.icon === "journal" && (
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h11.5A2.5 2.5 0 0 1 19 7v12.5H7.5A2.5 2.5 0 0 1 5 17Z" /><path d="M8 8h7M8 12h7M8 16h4" /></svg>
+            )}
+            {shortcut.icon === "projects" && (
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5h6l2-2h9v13h-17Z" /><path d="m8 14 2-2 2 2 4-4" /></svg>
+            )}
+            {shortcut.icon === "notes" && (
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9l3 3v14H6Z" /><path d="M14.5 3.5v4h4M9 12h6M9 16h4" /></svg>
+            )}
+            {shortcut.icon === "contact" && (
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h17v12h-17Z" /><path d="m4.5 8 7.5 5 7.5-5" /></svg>
+            )}
+            <span>{shortcut.label}</span>
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+
+  <div class="demo-profile__copy">
+    <p class="demo-profile__kicker">{copy.kicker} <span aria-hidden="true">/</span> {title}</p>
+    <div class="demo-profile__name">
+      <h1 id="demo-profile-title">{copy.name}</h1>
+      <span>{copy.pronouns}</span>
+    </div>
+    <p class="demo-profile__role">{copy.role}</p>
+    <p class="demo-profile__intro">{copy.intro}</p>
+    <nav class="demo-profile__actions" aria-label={locale === "fr" ? "Explorer la démonstration" : "Explore the demo"}>
+      {actions.map((action, index) => <a href={action.href} data-primary={index === 0 ? "" : undefined}>{action.label}</a>)}
+    </nav>
+  </div>
+</section>
+
+<style is:inline>
+  .demo-profile {
+    --profile-radius: 1.6rem;
+    --profile-border: var(--color-border);
+    --profile-surface: color-mix(in oklab, var(--color-card) 92%, var(--color-accent) 8%);
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    gap: clamp(1.5rem, 5vw, 4rem);
+    align-items: center;
+    padding: clamp(1.1rem, 3.5vw, 2.4rem);
+    overflow: hidden;
+    border: 1px solid var(--profile-border);
+    border-radius: var(--profile-radius);
+    background: var(--profile-surface);
+    box-shadow: 0 28px 80px -58px color-mix(in oklab, var(--color-accent) 70%, transparent);
+  }
+
+  .demo-profile__aura {
+    position: absolute;
+    z-index: -1;
+    width: 19rem;
+    height: 19rem;
+    right: -8rem;
+    bottom: -10rem;
+    border: 1px solid color-mix(in oklab, var(--color-accent) 38%, transparent);
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in oklab, var(--color-accent) 12%, transparent), transparent 68%);
+    pointer-events: none;
+  }
+
+  .demo-profile__media {
+    display: grid;
+    grid-template-columns: minmax(6.5rem, 9.5rem) minmax(0, 1fr);
+    gap: 0.8rem;
+    align-items: start;
+  }
+
+  .demo-profile__portrait {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border: 1px solid var(--profile-border);
+    border-radius: calc(var(--profile-radius) * 0.8);
+    background: var(--color-secondary);
+  }
+
+  .demo-profile__shortcuts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .demo-profile__shortcuts a {
+    display: grid;
+    min-height: 4.2rem;
+    place-items: center;
+    gap: 0.15rem;
+    padding: 0.45rem;
+    border: 1px solid var(--profile-border);
+    border-radius: calc(var(--profile-radius) * 0.62);
+    background: color-mix(in oklab, var(--color-background) 82%, transparent);
+    color: var(--color-muted-foreground);
+    font-size: 0.65rem;
+    font-weight: 650;
+    text-decoration: none;
+    transition: border-color 180ms ease-out, color 180ms ease-out, background-color 180ms ease-out;
+  }
+
+  .demo-profile__shortcuts a:hover,
+  .demo-profile__shortcuts a:focus-visible {
+    border-color: var(--color-accent);
+    background: color-mix(in oklab, var(--color-accent) 9%, var(--color-background));
+    color: color-mix(in oklab, var(--color-accent) 82%, var(--color-foreground));
+  }
+
+  .demo-profile__shortcuts svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .demo-profile__kicker {
+    color: color-mix(in oklab, var(--color-accent) 82%, var(--color-foreground));
+    font-size: 0.7rem;
+    font-weight: 750;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .demo-profile__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-top: 0.55rem;
+  }
+
+  .demo-profile__name h1 {
+    margin: 0;
+    font-size: clamp(2.8rem, 8vw, 6.2rem);
+    font-weight: 800;
+    letter-spacing: -0.055em;
+    line-height: 0.96;
+    text-wrap: balance;
+  }
+
+  .demo-profile__name > span,
+  .demo-profile__intro {
+    color: var(--color-muted-foreground);
+  }
+
+  .demo-profile__name > span {
+    font-size: 0.78rem;
+  }
+
+  .demo-profile__role {
+    margin-top: 0.85rem;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-weight: 700;
+  }
+
+  .demo-profile__intro {
+    max-width: 64ch;
+    margin-top: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .demo-profile__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1.4rem;
+  }
+
+  .demo-profile__actions a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    padding: 0.58rem 1rem;
+    border: 1px solid var(--profile-border);
+    border-radius: 999px;
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: border-color 180ms ease-out, color 180ms ease-out, background-color 180ms ease-out;
+  }
+
+  .demo-profile__actions a:hover,
+  .demo-profile__actions a:focus-visible {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .demo-profile__actions a[data-primary] {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-accent-foreground);
+  }
+
+  .demo-profile[data-variant="cult-ui"] {
+    --profile-radius: 2.3rem 1.15rem 2.1rem 1.35rem / 1.25rem 2.2rem 1.2rem 2rem;
+    --profile-surface: linear-gradient(135deg, color-mix(in oklab, var(--color-card) 94%, var(--color-accent) 6%), var(--color-background));
+  }
+
+  .demo-profile[data-variant="aceternity"] {
+    --profile-radius: 1.25rem;
+    --profile-border: color-mix(in oklab, var(--color-accent) 34%, var(--color-border));
+    --profile-surface:
+      linear-gradient(color-mix(in oklab, var(--color-border) 24%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklab, var(--color-border) 24%, transparent) 1px, transparent 1px),
+      color-mix(in oklab, var(--color-card) 92%, transparent);
+    background-size: 28px 28px;
+  }
+
+  .demo-profile[data-variant="reactbits"] {
+    --profile-radius: 1.1rem;
+    --profile-surface: radial-gradient(circle at 8% 10%, color-mix(in oklab, var(--color-accent) 19%, transparent), transparent 35%), var(--color-card);
+  }
+
+  .demo-profile[data-variant="organique"] {
+    --profile-radius: 2.5rem 1.4rem 2.3rem 1.6rem / 1.6rem 2.4rem 1.5rem 2.2rem;
+  }
+
+  .demo-profile[data-variant="organique"] .demo-profile__portrait {
+    border-radius: 38% 62% 48% 52% / 56% 42% 58% 44%;
+  }
+
+  .demo-profile[data-variant="organique"] .demo-profile__shortcuts a:nth-child(even) {
+    border-radius: 58% 42% 45% 55% / 44% 56% 48% 52%;
+  }
+
+  .demo-profile[data-variant="h4x0r"] {
+    --profile-radius: 0.25rem;
+    --profile-border: color-mix(in oklab, var(--color-accent) 48%, var(--color-border));
+    --profile-surface: linear-gradient(135deg, color-mix(in oklab, var(--color-accent) 7%, var(--color-card)), var(--color-background));
+    font-family: var(--font-mono);
+    box-shadow: 0 0 34px color-mix(in oklab, var(--color-accent) 12%, transparent);
+  }
+
+  .demo-profile[data-variant="h4x0r"] .demo-profile__portrait,
+  .demo-profile[data-variant="h4x0r"] .demo-profile__shortcuts a,
+  .demo-profile[data-variant="h4x0r"] .demo-profile__actions a {
+    border-radius: 0.2rem;
+  }
+
+  .demo-profile[data-variant="h4x0r"] .demo-profile__name h1 {
+    font-family: var(--font-display, var(--font-mono));
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  @media (min-width: 720px) {
+    .demo-profile {
+      grid-template-columns: minmax(12rem, 0.72fr) minmax(0, 1.28fr);
+    }
+
+    .demo-profile__media {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .demo-profile__media {
+      grid-template-columns: 1fr;
+    }
+
+    .demo-profile__portrait {
+      width: 7.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .demo-profile *,
+    .demo-profile *::before,
+    .demo-profile *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>

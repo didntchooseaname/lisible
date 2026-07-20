@@ -1,4 +1,4 @@
-# Lisible — motion-primitives
+# Lisible - motion-primitives
 
 This variant provides the Swiss editorial layout and typographic micro-interactions.
 

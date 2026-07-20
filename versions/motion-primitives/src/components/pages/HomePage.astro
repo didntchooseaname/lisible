@@ -1,9 +1,8 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import JsonLd from "@/components/JsonLd.astro";
-import { HeroIntro } from "@/components/react/HeroIntro";
-import { NewsletterCta } from "@/components/react/NewsletterCta";
 import { PostCardsGrid, type PostCardData } from "@/components/react/PostCardsGrid";
+import DemoProfileHero from "@shared/components/DemoProfileHero.astro";
 import { SITE, FEATURES } from "@/site.config";
 import { localeUrl, t, type Locale } from "@/i18n/ui";
 import {
@@ -79,24 +78,16 @@ const jsonLd = {
   <JsonLd slot="head" data={jsonLd} />
 
   <section class="py-14 md:py-20">
-    <HeroIntro
-      client:load
+    <DemoProfileHero
+      locale={locale}
+      variant="motion-primitives"
       title={SITE.title}
-      loopPrefix={dict.home.heroPrefix}
-      loopWords={[...dict.home.heroWords]}
+      actions={[
+        { href: localeUrl(locale, "blog"), label: dict.nav.blog },
+        { href: localeUrl(locale, "series"), label: dict.nav.series },
+        { href: localeUrl(locale, "about"), label: dict.nav.about },
+      ]}
     />
-    <div class="mt-10">
-      <NewsletterCta
-        client:visible
-        title={dict.newsletter.title}
-        description={dict.newsletter.description}
-        emailLabel={dict.newsletter.emailLabel}
-        placeholder={dict.newsletter.placeholder}
-        buttonLabel={dict.newsletter.button}
-        doneLabel={dict.newsletter.done}
-        note={dict.newsletter.note}
-      />
-    </div>
   </section>
 
   {

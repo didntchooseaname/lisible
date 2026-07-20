@@ -1,5 +1,4 @@
 import { createFocusTrap } from "@/lib/focus-trap";
-import "@/styles/lightbox.css";
 
 class ImageLightbox {
   private lightbox: HTMLElement | null = null;
@@ -146,6 +145,7 @@ class ImageLightbox {
   openLightbox(index: number) {
     this.currentIndex = index;
     this.updateImage();
+    this.lightbox?.removeAttribute("hidden");
     this.lightbox?.classList.add("active");
     this.lightbox?.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
@@ -156,6 +156,7 @@ class ImageLightbox {
   closeLightbox() {
     this.lightbox?.classList.remove("active");
     this.lightbox?.setAttribute("aria-hidden", "true");
+    this.lightbox?.setAttribute("hidden", "");
     document.body.style.overflow = "";
     this.resetZoom();
     this.focusTrap?.deactivate();

@@ -1,4 +1,4 @@
-# Lisible — cult/ui
+# Lisible - cult/ui
 
 This variant provides the editorial layout, gradient headings and textured controls.
 

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
+  <title id="title">Demo Inclusive Interfaces certificate badge</title>
+  <rect x="20" y="20" width="200" height="200" rx="68" fill="#102016" stroke="#4ade80" stroke-width="8"/>
+  <circle cx="120" cy="68" r="18" fill="#86efac"/>
+  <path d="M62 101c36 12 80 12 116 0M120 103v92M120 139l-42 51M120 139l42 51" fill="none" stroke="#86efac" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

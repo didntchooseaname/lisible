@@ -12,7 +12,7 @@ const btn =
   "inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card/80 text-muted-foreground backdrop-blur transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-30";
 ---
 
-<div id="image-lightbox" class="lightbox" aria-hidden="true">
+<div id="image-lightbox" class="lightbox" role="dialog" aria-modal="true" aria-hidden="true" hidden>
   <div class="lightbox__toolbar">
     <span class="lightbox__counter" aria-hidden="true">
       <span id="lightbox-current">1</span> / <span id="lightbox-total">1</span>
@@ -43,5 +43,4 @@ const btn =
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
   </button>
 </div>
-
 

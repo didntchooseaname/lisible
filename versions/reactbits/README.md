@@ -1,4 +1,4 @@
-# Lisible — ReactBits
+# Lisible - ReactBits
 
 This variant provides the dense animated components, pill navigation and dotted backgrounds.
 

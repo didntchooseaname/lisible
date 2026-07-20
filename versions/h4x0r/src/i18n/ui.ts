@@ -168,7 +168,7 @@ const fr = {
       countLabel: (n: number) => `${n} entrées consignées`,
     },
     tags: {
-      orbitLabel: "constellation des tags",
+      orbitLabel: "graphe des tags",
       scanLine: 'operator@lisible:~$ grep -rc "#tag" ./blog',
     },
     about: {
@@ -360,7 +360,7 @@ const en: Dict = {
       countLabel: (n: number) => `${n} entries logged`,
     },
     tags: {
-      orbitLabel: "tag constellation",
+      orbitLabel: "tag graph",
       scanLine: 'operator@lisible:~$ grep -rc "#tag" ./blog',
     },
     about: {

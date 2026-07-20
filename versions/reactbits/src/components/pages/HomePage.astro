@@ -1,10 +1,8 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PostCard from "@/components/PostCard.astro";
-import NewsletterCTA from "@/components/NewsletterCTA.astro";
 import JsonLd from "@/components/JsonLd.astro";
-import SplitText from "@/components/ui/SplitText";
-import BlurText from "@/components/ui/BlurText";
+import DemoProfileHero from "@shared/components/DemoProfileHero.astro";
 import ShinyText from "@/components/ui/ShinyText";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 import AnimatedContent from "@/components/ui/AnimatedContent";
@@ -68,31 +66,16 @@ const jsonLd = {
       </div>
     </div>
 
-    
-    <SplitText
-      client:load
-      tag="h1"
-      text={SITE.title}
-      textAlign="left"
-      splitType="chars"
-      delay={40}
-      duration={0.9}
-      from={{ opacity: 0, y: 24 }}
-      to={{ opacity: 1, y: 0 }}
-      className="text-balance text-4xl font-bold tracking-tight md:text-5xl"
+    <DemoProfileHero
+      locale={locale}
+      variant="reactbits"
+      title={SITE.title}
+      actions={[
+        { href: localeUrl(locale, "blog"), label: dict.nav.blog },
+        { href: localeUrl(locale, "series"), label: dict.nav.series },
+        { href: localeUrl(locale, "about"), label: dict.nav.about },
+      ]}
     />
-    
-    <BlurText
-      client:load
-      text={dict.site.tagline}
-      animateBy="words"
-      delay={70}
-      stepDuration={0.3}
-      className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground"
-    />
-    <div class="mt-10">
-      <NewsletterCTA locale={locale} />
-    </div>
   </section>
 
   {
