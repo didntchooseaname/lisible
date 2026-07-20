@@ -1001,8 +1001,7 @@ html {
   letter-spacing: 0.08em;
   color: var(--color-muted-foreground);
   border-top: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
-  background: color-mix(in oklab, var(--color-background) 72%, transparent);
-  backdrop-filter: blur(6px);
+  background: color-mix(in oklab, var(--color-background) 96%, var(--color-card));
 }
 .cyber-statusbar .status-accent {
   color: var(--color-accent);

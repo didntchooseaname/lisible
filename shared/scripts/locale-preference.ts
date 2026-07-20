@@ -131,7 +131,6 @@ function scheduleLocaleSync(): void {
 }
 
 document.addEventListener("click", (event) => {
-  if (location.pathname !== "/") return;
   const target = event.target instanceof Element ? event.target : null;
   const languageLink = target?.closest<HTMLAnchorElement>('a[hreflang="fr"], a[hreflang="en"]');
   if (languageLink?.hreflang !== "fr" && languageLink?.hreflang !== "en") return;
@@ -139,7 +138,17 @@ document.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopImmediatePropagation();
   document.querySelectorAll<HTMLDialogElement>("dialog[open]").forEach((dialog) => dialog.close());
-  switchLanding(languageLink.hreflang, true);
+  localStorage.setItem("lisible-locale", languageLink.hreflang);
+  if (isLandingPath()) {
+    switchLanding(languageLink.hreflang);
+    return;
+  }
+  if (navigating) return;
+  navigating = true;
+  const url = new URL(languageLink.href, location.href);
+  void navigate(`${url.pathname}${url.search}${url.hash}`).finally(() => {
+    navigating = false;
+  });
 }, { capture: true });
 
 scheduleLocaleSync();

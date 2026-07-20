@@ -12,19 +12,9 @@ const year = new Date().getFullYear();
 const rssPath = localeUrl(locale, "rss.xml");
 ---
 
-<footer class="cyber-content mt-16 border-t border-border bg-background/60 pb-8 backdrop-blur-sm">
+<footer class="mt-16 border-t border-border">
   <div
-    class="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 pt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground md:px-6"
-    aria-hidden="true"
-  >
-    <span class="status-dot"></span>
-    <span class="text-accent">{t(locale).cyber.hud.online}</span>
-    <span>::</span>
-    <span>{SITE.title.toUpperCase()} v6.0</span>
-    <span class="ml-auto hidden sm:inline">{t(locale).cyber.hud.sys}</span>
-  </div>
-  <div
-    class="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-4 py-4 text-sm text-muted-foreground sm:flex-row md:px-6"
+    class="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-muted-foreground sm:flex-row md:px-6"
   >
     <p class="font-mono text-xs">&copy; {year} <span data-preview-author>{SITE.author}</span></p>
     <p class="font-mono text-xs">

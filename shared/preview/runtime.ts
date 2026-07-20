@@ -24,11 +24,28 @@ function envelope<T extends PreviewFrameMessage>(message: Omit<T, "channel" | "v
   } as T;
 }
 
-function foreground(hex: string): string {
-  const channels = [1, 3, 5].map((index) => Number.parseInt(hex.slice(index, index + 2), 16) / 255);
-  const linear = channels.map((value) => value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
-  const luminance = 0.2126 * linear[0]! + 0.7152 * linear[1]! + 0.0722 * linear[2]!;
-  return luminance > 0.42 ? "#07110a" : "#ffffff";
+function accessibleAccent(hex: string, dark: boolean) {
+  const value = Number.parseInt(hex.slice(1), 16);
+  let rgb = [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+  const luminance = (channels: number[]) => {
+    const linear = channels.map((channel) => {
+      const normalized = channel / 255;
+      return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * linear[0]! + 0.7152 * linear[1]! + 0.0722 * linear[2]!;
+  };
+  const contrast = (a: number, b: number) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  for (let index = 0; index < 60; index += 1) {
+    if (dark ? contrast(luminance(rgb), 0) >= 3 : contrast(luminance(rgb), 1) >= 4.5) break;
+    rgb = rgb.map((channel) => dark
+      ? Math.min(255, Math.round(channel + (255 - channel) * 0.06) + 1)
+      : Math.max(0, Math.round(channel * 0.94) - 1));
+  }
+  const resolvedLuminance = luminance(rgb);
+  return {
+    accent: `rgb(${rgb.join(" ")})`,
+    foreground: contrast(resolvedLuminance, 0) >= 4.5 ? "#000000" : "#ffffff",
+  };
 }
 
 function applyTheme(settings: PreviewSettingsV1) {
@@ -40,6 +57,7 @@ function applyTheme(settings: PreviewSettingsV1) {
     if (settings.theme === "system") localStorage.removeItem("theme");
     else localStorage.setItem("theme", settings.theme);
   } catch {}
+  return dark;
 }
 
 function applyIdentity(settings: PreviewSettingsV1) {
@@ -65,13 +83,16 @@ function applySettings(settings: PreviewSettingsV1) {
   root.dataset.previewFeatured = String(settings.featured);
   root.dataset.previewRelated = String(settings.relatedPosts);
   root.dataset.previewMotion = settings.motion;
-  root.style.setProperty("--accent", settings.accent);
-  root.style.setProperty("--accent-foreground", foreground(settings.accent));
-  root.style.setProperty("--ring", settings.accent);
+  const dark = applyTheme(settings);
+  const colors = accessibleAccent(settings.accent, dark);
+  root.dataset.theme = settings.theme;
+  root.dataset.resolvedTheme = dark ? "dark" : "light";
+  root.style.setProperty("--accent", colors.accent);
+  root.style.setProperty("--accent-foreground", colors.foreground);
+  root.style.setProperty("--ring", colors.accent);
   try {
     localStorage.setItem("accent", settings.accent);
   } catch {}
-  applyTheme(settings);
   applyIdentity(settings);
   window.dispatchEvent(new CustomEvent("lisible:preview-settings", { detail: settings }));
 }
@@ -100,7 +121,7 @@ function announceReady() {
 
 window.addEventListener("message", onMessage);
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-  if (activeSettings?.theme === "system") applyTheme(activeSettings);
+  if (activeSettings?.theme === "system") applySettings(activeSettings);
 });
 document.addEventListener("astro:page-load", announceReady);
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", announceReady, { once: true });

@@ -5,7 +5,7 @@ import HomeTerminal from "@/components/cyber/HomeTerminal";
 import HomeStats from "@/components/cyber/HomeStats";
 import NewsletterCTA from "@/components/NewsletterCTA.astro";
 import JsonLd from "@/components/JsonLd.astro";
-import DemoProfileHero from "@shared/components/DemoProfileHero.astro";
+import ProfileHero from "@/components/cyber/ProfileHero.astro";
 import { HyperTitle, TypeLine } from "@/components/cyber/TextFx";
 import { WordRotate } from "@/components/ui/word-rotate";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
@@ -79,10 +79,8 @@ const jsonLd = {
   <JsonLd slot="head" data={jsonLd} />
 
   <section class="py-12 md:py-16">
-    <DemoProfileHero
+    <ProfileHero
       locale={locale}
-      variant="h4x0r"
-      title={SITE.title}
       actions={[
         { href: localeUrl(locale, "blog"), label: dict.nav.blog },
         { href: localeUrl(locale, "series"), label: dict.nav.series },

@@ -3,12 +3,12 @@ import appCssUrl from "@/styles/app.css?url";
 import { ClientRouter } from "astro:transitions";
 import LandingLocaleBootstrap from "@shared/components/LandingLocaleBootstrap.astro";
 import ExpressiveCodeLabelSpacing from "@shared/components/ExpressiveCodeLabelSpacing.astro";
+import AppearanceBootstrap from "@shared/components/AppearanceBootstrap.astro";
 import PreviewBridge from "@shared/components/PreviewBridge.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import SearchModal from "@/components/SearchModal.astro";
 import CommandPalette from "@/components/CommandPalette.astro";
-import { EdgeBlur } from "@/components/ui/edge-blur";
 import { SITE, FEATURES } from "@/site.config";
 import { ensureTrailingSlash, localeUrl, ogLocales, otherLocale, t, type Locale } from "@/i18n/ui";
 
@@ -52,50 +52,7 @@ const other = otherLocale(locale);
     <ExpressiveCodeLabelSpacing />
     <meta charset="utf-8" />
     <link rel="stylesheet" href={appCssUrl} />
-    <script is:inline define:vars={{ defaultAccent: SITE.accent }}>
-      (function () {
-        function applyTheme() {
-          const stored = localStorage.getItem("theme");
-          const theme = stored === "light" || stored === "dark"
-            ? stored
-            : (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
-          document.documentElement.classList.toggle("dark", theme === "dark");
-        }
-        function applyAccent() {
-          let hex = localStorage.getItem("accent");
-          if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) hex = defaultAccent;
-          const lum = (c) => {
-            const [r, g, b] = c.map((v) => {
-              v /= 255;
-              return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-            });
-            return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-          };
-          const dark = document.documentElement.classList.contains("dark");
-          let c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-          for (let i = 0; i < 60; i++) {
-            const L = lum(c);
-            if (dark ? (L + 0.05) / 0.05 >= 3 : 1.05 / (L + 0.05) >= 4.5) break;
-            c = c.map((v) => v + ((dark ? 255 : 0) - v) * 0.05);
-          }
-          const L = lum(c);
-          const fg = (L + 0.05) / 0.05 >= 1.05 / (L + 0.05) ? "#000000" : "#ffffff";
-          const accent = "rgb(" + c.map(Math.round).join(" ") + ")";
-          const s = document.documentElement.style;
-          s.setProperty("--accent", accent);
-          s.setProperty("--accent-foreground", fg);
-          s.setProperty("--ring", accent);
-        }
-        window.__applyAccent = applyAccent;
-        applyTheme();
-        applyAccent();
-        document.addEventListener("astro:after-swap", () => {
-          applyTheme();
-          applyAccent();
-        });
-        document.addEventListener("astro:page-load", applyAccent);
-      })();
-    </script>
+    <AppearanceBootstrap accent={SITE.accent} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <title>{pageTitle}</title>
@@ -159,10 +116,6 @@ const other = otherLocale(locale);
       <slot />
     </main>
     <Footer locale={locale} />
-    
-    <div aria-hidden="true">
-      <EdgeBlur position="bottom" height={48} />
-    </div>
     {
       FEATURES.commandPalette ? (
         <CommandPalette locale={locale} alternates={alternates} />
@@ -175,5 +128,6 @@ const other = otherLocale(locale);
       import "@/scripts/search-runtime";
     </script>
     <script>import "@shared/scripts/locale-preference";</script>
+    <script>import "@shared/scripts/diagram-fullscreen";</script>
   </body>
 </html>
