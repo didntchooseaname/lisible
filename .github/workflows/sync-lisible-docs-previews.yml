@@ -6,6 +6,7 @@ on:
     paths:
       - "versions/**"
       - "shared/**"
+      - "!shared/research/**"
       - ".github/workflows/sync-lisible-docs-previews.yml"
   workflow_dispatch:
 
