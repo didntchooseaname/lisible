@@ -1,3 +1,5 @@
+import { withPreviewLocaleBase } from "../../../../shared/preview/url";
+
 export const locales = ["fr", "en"] as const;
 export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = "fr";
@@ -489,5 +491,5 @@ export function ensureTrailingSlash(path: string): string {
 export function localeUrl(locale: Locale, path = ""): string {
   const prefix = locale === defaultLocale ? "" : `/${locale}`;
   const clean = path.replace(/^\/+/, "");
-  return ensureTrailingSlash(`${prefix}/${clean}` || "/");
+  return ensureTrailingSlash(withPreviewLocaleBase(locale, path, `${prefix}/${clean}` || "/"));
 }

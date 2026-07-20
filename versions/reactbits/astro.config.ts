@@ -4,6 +4,7 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import pagefind from "astro-pagefind";
 import pagefindDev from "../../shared/pagefind-dev";
+import { previewAstroConfig, previewBuildIntegration } from "../../shared/preview/build-config";
 import tailwindcss from "@tailwindcss/vite";
 import remarkDirective from "remark-directive";
 import expressiveCode, { pluginFramesTexts } from "astro-expressive-code";
@@ -62,6 +63,7 @@ for (const locale of locales) {
 }
 
 export default defineConfig({
+  ...previewAstroConfig(),
   devToolbar: { enabled: false },
   site: SITE.url,
   output: "static",
@@ -155,6 +157,7 @@ export default defineConfig({
       },
     }),
     pagefind(),
+    previewBuildIntegration(),
   ],
   vite: {
     plugins: [pagefindDev(), tailwindcss()],

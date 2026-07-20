@@ -15,7 +15,7 @@ const related = await getRelatedPosts(post, 3);
 
 {
   related.length > 0 && (
-    <aside class="related-posts mt-12" aria-label={dict.reading.related} data-pagefind-ignore>
+    <aside class="related-posts mt-12" aria-label={dict.reading.related} data-pagefind-ignore data-preview-related>
       <p class="section-label" aria-hidden="true">
         related
       </p>

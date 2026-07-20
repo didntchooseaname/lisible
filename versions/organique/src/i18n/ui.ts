@@ -1,4 +1,5 @@
 import { getRelativeLocaleUrl } from "astro:i18n";
+import { withPreviewLocaleBase } from "../../../../shared/preview/url";
 import { cardStrings } from "./cards";
 
 export const locales = ["fr", "en"] as const;
@@ -420,5 +421,5 @@ export function ensureTrailingSlash(path: string): string {
 }
 
 export function localeUrl(locale: Locale, path = ""): string {
-  return ensureTrailingSlash(getRelativeLocaleUrl(locale, path));
+  return ensureTrailingSlash(withPreviewLocaleBase(locale, path, getRelativeLocaleUrl(locale, path)));
 }

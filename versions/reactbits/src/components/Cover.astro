@@ -13,7 +13,7 @@ const { cover, alt, class: className, loading = "lazy" } = Astro.props;
 const isLocal = typeof cover !== "string";
 ---
 
-<figure class:list={["cover", className]}>
+<figure class:list={["cover", className]} data-preview-cover>
   {
     isLocal ? (
       <Image

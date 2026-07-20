@@ -2,6 +2,8 @@ import { navigate } from "astro:transitions/client";
 
 type Locale = "fr" | "en";
 
+const isPreviewBuild = import.meta.env.BASE_URL.startsWith("/_previews/");
+
 const landingSourcePath: Record<Locale, string> = {
   fr: "/landing/french/",
   en: "/?lisible-locale=en",
@@ -101,6 +103,7 @@ function syncLocale(): void {
 }
 
 function scheduleLocaleSync(): void {
+  if (isPreviewBuild || document.documentElement.dataset.lisiblePreview === "true") return;
   if (isLandingPath()) {
     syncLocale();
     return;

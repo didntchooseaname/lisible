@@ -25,7 +25,7 @@ const isPublicPath = typeof cover === "string";
 const loading = priority ? "eager" : "lazy";
 ---
 
-<figure class={cn("cover-frame", className)}>
+<figure class={cn("cover-frame", className)} data-preview-cover>
   {
     isPublicPath ? (
       <img

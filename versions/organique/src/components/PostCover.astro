@@ -15,7 +15,7 @@ const sizes = variant === "head" ? "(min-width: 768px) 72ch, 100vw" : "12rem";
 
 ---
 
-<figure class:list={["post-cover", `post-cover-${variant}`, isString && "post-cover-raw", className]}>
+<figure class:list={["post-cover", `post-cover-${variant}`, isString && "post-cover-raw", className]} data-preview-cover>
   {
     isString ? (
       <img src={cover} alt={alt} loading={variant === "head" ? "eager" : "lazy"} decoding="async" />

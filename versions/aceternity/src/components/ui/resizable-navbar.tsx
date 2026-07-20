@@ -257,6 +257,7 @@ export const NavbarLogo = ({
   return (
     <a
       href={href}
+      data-preview-site-title
       className="relative z-20 mr-4 inline-flex min-h-11 items-center px-2 text-lg font-bold tracking-tight text-foreground transition-colors hover:text-accent"
     >
       {title}

@@ -14,7 +14,7 @@ const isString = typeof cover === "string";
 const loading = eager ? "eager" : "lazy";
 ---
 
-<div class:list={["cover", className]}>
+<div class:list={["cover", className]} data-preview-cover>
   {
     isString ? (
       <img
