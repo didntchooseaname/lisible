@@ -12,9 +12,41 @@ coverAlt: "Schéma minimaliste de l'architecture en îlots: HTML statique et îl
 
 import { Tabs, Tab } from "@/components/ui/tabs";
 import { Steps, Step } from "@/components/ui/steps";
+import { Tree } from "@shared/components/ui/file-tree";
 import Spoiler from "@/components/Spoiler.astro";
 
 Cet article est la vitrine du blog. Il montre chaque possibilité de formatage et chaque fonctionnalité de l'application. Si quelque chose rend mal ici, c'est un bug du thème, pas du contenu.
+
+## File Tree interactif
+
+Le composant partagé fonctionne dans les six versions. Ouvrez les dossiers, sélectionnez un fichier ou utilisez le contrôle global.
+
+<Tree
+  client:load
+  initialExpandedItems={["src", "components"]}
+  initialSelectedId="home"
+  elements={[
+    {
+      id: "src",
+      name: "src",
+      type: "folder",
+      children: [
+        {
+          id: "components",
+          name: "components",
+          type: "folder",
+          children: [
+            { id: "home", name: "HomePage.astro", type: "file" },
+            { id: "card", name: "PostCard.astro", type: "file" },
+          ],
+        },
+        { id: "styles", name: "styles.css", type: "file" },
+      ],
+    },
+    { id: "config", name: "lisible.config.json", type: "file" },
+    { id: "package", name: "package.json", type: "file" },
+  ]}
+/>
 
 ## Fonctionnalités de l'application
 

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
+  <title id="title">Demo Web Foundations certificate badge</title>
+  <path d="M120 12 211 65v110l-91 53-91-53V65Z" fill="#111827" stroke="#22d3ee" stroke-width="8"/>
+  <circle cx="120" cy="116" r="62" fill="#22d3ee" opacity=".14"/>
+  <path d="m73 119 28 28 66-67" fill="none" stroke="#67e8f9" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="120" y="195" text-anchor="middle" fill="#f8fafc" font-family="system-ui,sans-serif" font-size="19" font-weight="700">WEB 101</text>
+</svg>

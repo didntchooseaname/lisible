@@ -1,4 +1,3 @@
-import "./image-lightbox.css";
 import { createFocusTrap, type FocusTrap } from "@/lib/focus-trap";
 
 const MAX_SCALE = 4;
@@ -31,7 +30,6 @@ class ImageLightbox {
 
     this.lightbox = document.getElementById("image-lightbox");
     if (!this.lightbox) return;
-    this.lightbox.removeAttribute("hidden");
     this.image = this.lightbox.querySelector<HTMLImageElement>("[data-lightbox-image]");
     this.stage = this.lightbox.querySelector<HTMLElement>("[data-lightbox-stage]");
     this.prevBtn = this.lightbox.querySelector<HTMLButtonElement>("[data-lightbox-prev]");
@@ -141,6 +139,7 @@ class ImageLightbox {
     if (!this.lightbox) return;
     this.currentIndex = index;
     this.updateImage();
+    this.lightbox.removeAttribute("hidden");
     this.lightbox.classList.add("active");
     this.lightbox.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
@@ -152,6 +151,7 @@ class ImageLightbox {
     if (!this.lightbox) return;
     this.lightbox.classList.remove("active");
     this.lightbox.setAttribute("aria-hidden", "true");
+    this.lightbox.setAttribute("hidden", "");
     document.body.style.overflow = "";
     this.resetZoom();
     this.focusTrap?.deactivate();

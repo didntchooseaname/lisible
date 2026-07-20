@@ -1,53 +1,122 @@
 ---
 import { t, localeUrl, type Locale } from "@/i18n/ui";
-import { postUrl, slugifyTag, type Post } from "@/lib/posts";
+import { postSlug, postUrl, slugifyTag, type Post } from "@/lib/posts";
 import { formatDate, isoDate, readingTime } from "@/lib/utils";
 import { FEATURES } from "@/site.config";
 import PostCover from "@/components/PostCover.astro";
 
 interface Props {
   locale: Locale;
+  posts: Post[];
   featured: Post[];
-  latest: Post[];
 }
 
-const { locale, featured, latest } = Astro.props;
+const { locale, posts, featured } = Astro.props;
 const dict = t(locale);
 
 interface NodeData {
   post: Post;
   order: number;
   isFeatured: boolean;
+  priority: boolean;
 }
 
-const groups: { id: string; label: string; nodes: NodeData[] }[] = [
-  {
-    id: "c-featured-title",
-    label: dict.home.featured,
-    nodes: featured.map((post, i) => ({ post, order: i, isFeatured: true })),
-  },
-  {
-    id: "c-latest-title",
-    label: dict.home.latest,
-    nodes: latest.map((post, i) => ({ post, order: featured.length + i, isFeatured: false })),
-  },
-];
+const featuredIds = new Set(featured.map((post) => post.id));
+const grouped = new Map<string, NodeData[]>();
+const groupLabels = new Map<string, string>();
+
+function groupFor(post: Post): { key: string; label: string; priority: number } {
+  if (post.data.series) {
+    return {
+      key: `series-${slugifyTag(post.data.series)}`,
+      label: post.data.series,
+      priority: 0,
+    };
+  }
+  const slug = postSlug(post);
+  const root = slug.includes("/") ? slug.split("/")[0] : "";
+  if (root) {
+    return {
+      key: `section-${slugifyTag(root)}`,
+      label: root.replace(/-/g, " ").replace(/^./, (character) => character.toUpperCase()),
+      priority: 1,
+    };
+  }
+  const tag = post.data.tags[0];
+  if (tag) return { key: `topic-${slugifyTag(tag)}`, label: tag, priority: 2 };
+  return { key: "other", label: locale === "fr" ? "Autres" : "Other", priority: 3 };
+}
+
+function initials(title: string): string {
+  const words = title
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (words.length === 0) return "X";
+  if (words.length === 1) return words[0]!.slice(0, 2).toUpperCase();
+  return `${words[0]![0]}${words[1]![0]}`.toUpperCase();
+}
+
+posts.forEach((post, order) => {
+  const group = groupFor(post);
+  const isFeatured = featuredIds.has(post.id);
+  const nodes = grouped.get(group.key) ?? [];
+  nodes.push({ post, order, isFeatured, priority: isFeatured || order < 7 });
+  grouped.set(group.key, nodes);
+  groupLabels.set(group.key, group.label);
+});
+
+const groups = [...grouped.entries()]
+  .map(([key, nodes]) => ({
+    id: `c-${key}-title`,
+    key,
+    label: groupLabels.get(key) ?? key,
+    nodes,
+    priority: nodes[0]?.post.data.series ? 0 : key.startsWith("section-") ? 1 : 2,
+  }))
+  .sort((a, b) => a.priority - b.priority || a.label.localeCompare(b.label, locale));
 ---
 
-<section class="constellation py-14 md:py-20" data-constellation aria-labelledby="constellation-heading">
-  <h2 id="constellation-heading" class="type-title">{dict.home.constellationTitle}</h2>
-  <p class="c-hint mt-4 text-sm md:text-base">{dict.home.constellationHint}</p>
+<section class="knowledge-graph py-14 md:py-20" data-knowledge-graph aria-labelledby="knowledge-graph-heading">
+  <div class="c-heading">
+    <div>
+      <p class="c-kicker">{dict.home.knowledgeGraphKicker}</p>
+      <h2 id="knowledge-graph-heading" class="type-title">{dict.home.knowledgeGraphTitle}</h2>
+      <p class="c-hint mt-4 text-sm md:text-base">{dict.home.knowledgeGraphHint}</p>
+    </div>
+    <dl class="c-overview" aria-label={dict.home.knowledgeGraphOverview}>
+      <div><dt>{dict.home.knowledgeGraphArticles}</dt><dd>{posts.length}</dd></div>
+      <div><dt>{dict.home.knowledgeGraphGroups}</dt><dd>{groups.length}</dd></div>
+      <div><dt>{dict.home.knowledgeGraphLinks}</dt><dd data-c-link-count>0</dd></div>
+    </dl>
+  </div>
 
-  <div class="c-field mt-10" data-c-field>
+  <div class="c-toolbar mt-7">
+    <div class="c-cluster-nav" role="group" aria-label={dict.home.knowledgeGraphFilters}>
+      {
+        groups.map((group) => (
+          <button type="button" class="c-cluster-chip" data-c-cluster-button={group.key} aria-pressed="false">
+            <span>{group.label}</span>
+            <small>{group.nodes.length}</small>
+          </button>
+        ))
+      }
+    </div>
+    <button type="button" class="c-reset" data-c-reset>{dict.home.knowledgeGraphReset}</button>
+  </div>
+
+  <div class="c-field mt-8" data-c-field>
     <canvas class="c-canvas" data-c-canvas aria-hidden="true"></canvas>
     {
       groups.map((group) => (
-        <div class="c-group" data-preview-featured={group.id === "c-featured-title" ? "" : undefined}>
-          <h3 class="c-group-label" id={group.id}>
-            {group.label}
+        <div class="c-group" data-c-group={group.key}>
+          <h3 class="c-group-label" id={group.id} data-c-cluster-label={group.key}>
+            <span>{group.label}</span>
+            <small>{group.nodes.length}</small>
           </h3>
           <ul class="c-list" aria-labelledby={group.id}>
-            {group.nodes.map(({ post, order, isFeatured }) => {
+            {group.nodes.map(({ post, order, isFeatured, priority }) => {
               const minutes = readingTime(post.body ?? "");
               const tagSlugs = post.data.tags.map((tag) => slugifyTag(tag)).join(" ");
               return (
@@ -56,9 +125,12 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
                   data-c-node
                   data-order={order}
                   data-tags={tagSlugs}
+                  data-cluster={group.key}
                   data-featured={isFeatured ? "" : undefined}
+                  data-priority={priority ? "" : undefined}
                 >
-                  <a class="c-node-link" href={postUrl(post)} draggable="false">
+                  <a class="c-node-link" href={postUrl(post)} draggable="false" title={post.data.title}>
+                    <span class="c-node-mark" aria-hidden="true">{initials(post.data.title)}</span>
                     <span class="c-node-title">
                       {post.data.title}
                       {post.data.draft && <span class="c-node-badge">{dict.post.draft}</span>}
@@ -120,7 +192,9 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
     el: HTMLElement;
     link: HTMLAnchorElement;
     tags: string[];
+    cluster: string;
     featured: boolean;
+    priority: boolean;
     x: number;
     y: number;
     vx: number;
@@ -138,6 +212,18 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
     b: number;
     shared: number;
     bend: number;
+    phase: number;
+    crossCluster: boolean;
+  }
+
+  interface CCluster {
+    id: string;
+    label: HTMLElement;
+    nodeIndexes: number[];
+    cx: number;
+    cy: number;
+    r: number;
+    phase: number;
   }
 
   interface DragState {
@@ -156,11 +242,13 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
   let ctx: CanvasRenderingContext2D | null = null;
   let nodes: CNode[] = [];
   let links: CLink[] = [];
+  let clusters: CCluster[] = [];
   let raf = 0;
   let live = false;
   let inView = true;
   let lastTime = 0;
   let activeIndex = -1;
+  let activeCluster = "";
   let drag: DragState | null = null;
   let suppressedClickIndex = -1;
   let suppressedClickUntil = 0;
@@ -227,21 +315,46 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
     else node.el.removeAttribute("data-edge");
   }
 
-  function setActiveIndex(index: number): void {
-    activeIndex = index;
+  function refreshGraphState(): void {
     const connected = new Set<number>();
-    if (index >= 0) {
+    if (activeIndex >= 0) {
       for (const link of links) {
-        if (link.a === index) connected.add(link.b);
-        if (link.b === index) connected.add(link.a);
+        if (link.a === activeIndex) connected.add(link.b);
+        if (link.b === activeIndex) connected.add(link.a);
       }
     }
     nodes.forEach((node, nodeIndex) => {
-      if (index < 0) node.el.removeAttribute("data-graph-state");
-      else if (nodeIndex === index) node.el.setAttribute("data-graph-state", "active");
+      if (activeIndex === nodeIndex) node.el.setAttribute("data-graph-state", "active");
       else if (connected.has(nodeIndex)) node.el.setAttribute("data-graph-state", "connected");
+      else if (activeIndex >= 0) node.el.setAttribute("data-graph-state", "muted");
+      else if (activeCluster && node.cluster === activeCluster) node.el.setAttribute("data-graph-state", "cluster");
+      else if (activeCluster) node.el.setAttribute("data-graph-state", "muted");
       else node.el.setAttribute("data-graph-state", "muted");
     });
+
+    if (activeIndex < 0 && !activeCluster) {
+      for (const node of nodes) node.el.removeAttribute("data-graph-state");
+    }
+
+    for (const cluster of clusters) {
+      cluster.label.toggleAttribute("data-active", cluster.id === activeCluster);
+      cluster.label.toggleAttribute("data-muted", Boolean(activeCluster) && cluster.id !== activeCluster);
+    }
+    section?.querySelectorAll<HTMLButtonElement>("[data-c-cluster-button]").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.cClusterButton === activeCluster));
+    });
+    section?.querySelector<HTMLElement>("[data-c-reset]")?.toggleAttribute("data-active", !activeCluster);
+  }
+
+  function setActiveIndex(index: number): void {
+    activeIndex = index;
+    refreshGraphState();
+  }
+
+  function setActiveCluster(cluster: string): void {
+    activeCluster = activeCluster === cluster ? "" : cluster;
+    activeIndex = -1;
+    refreshGraphState();
   }
 
   function layout(): void {
@@ -251,24 +364,46 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
     const n = nodes.length;
     if (n === 0 || w === 0 || h === 0) return;
 
-    const rMax = clamp(Math.min(w, h) * 0.115, 44, 76);
-    const rMin = rMax * 0.52;
     const rand = rng(n * 7919 + 17);
     const golden = 2.399963;
-    const cx = w / 2;
-    const cy = h / 2;
+    const columns = w >= 1040 ? 4 : 3;
+    const rows = Math.ceil(clusters.length / columns);
+    const padX = clamp(w * 0.065, 54, 86);
+    const padY = 76;
+    const cellWidth = (w - padX * 2) / columns;
+    const cellHeight = (h - padY * 2) / rows;
 
-    nodes.forEach((node, i) => {
-      node.r = rMax - (rMax - rMin) * (n === 1 ? 0 : i / (n - 1));
-      const frac = 0.3 + 0.7 * Math.sqrt((i + 0.55) / n);
-      const angle = i * golden + rand() * 0.9;
-      node.hx = cx + Math.cos(angle) * frac * (w / 2 - rMax - 26);
-      node.hy = cy + Math.sin(angle) * frac * (h / 2 - rMax - 30);
-      node.p1 = rand() * Math.PI * 2;
-      node.p2 = rand() * Math.PI * 2;
+    clusters.forEach((cluster, clusterIndex) => {
+      const row = Math.floor(clusterIndex / columns);
+      const column = clusterIndex % columns;
+      const incompleteRow = row === rows - 1 && clusters.length % columns !== 0;
+      const rowItems = incompleteRow ? clusters.length % columns : columns;
+      const rowOffset = incompleteRow ? (columns - rowItems) * cellWidth * 0.5 : 0;
+      cluster.cx = padX + rowOffset + cellWidth * (column + 0.5) + Math.sin(cluster.phase) * cellWidth * 0.07;
+      cluster.cy = padY + cellHeight * (row + 0.5) + Math.cos(cluster.phase) * cellHeight * 0.06;
+      cluster.r = Math.min(cellWidth, cellHeight) * 0.43;
+      const count = cluster.nodeIndexes.length;
+
+      cluster.nodeIndexes.forEach((nodeIndex, localIndex) => {
+        const node = nodes[nodeIndex]!;
+        const freshness = 1 - nodeIndex / Math.max(1, n - 1);
+        node.r = clamp(16 + freshness * 10 + (node.priority ? 3 : 0) + (node.featured ? 5 : 0), 16, 35);
+        const angle = localIndex * golden + cluster.phase + rand() * 0.28;
+        const radial = localIndex === 0
+          ? 0
+          : cluster.r * (0.22 + 0.72 * Math.sqrt(localIndex / Math.max(1, count - 1)));
+        node.hx = cluster.cx + Math.cos(angle) * radial;
+        node.hy = cluster.cy + Math.sin(angle) * radial;
+        node.p1 = rand() * Math.PI * 2;
+        node.p2 = rand() * Math.PI * 2;
+      });
+
+      const labelX = clamp(cluster.cx - cluster.r * 0.82, 18, w - 180);
+      const labelY = clamp(cluster.cy - cluster.r * 0.94, 18, h - 50);
+      cluster.label.style.transform = `translate3d(${labelX.toFixed(1)}px, ${labelY.toFixed(1)}px, 0)`;
     });
 
-    for (let iter = 0; iter < 70; iter++) {
+    for (let iter = 0; iter < 90; iter++) {
       for (let i = 0; i < n; i++) {
         for (let j = i + 1; j < n; j++) {
           const a = nodes[i]!;
@@ -276,9 +411,9 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
           const dx = b.hx - a.hx;
           const dy = b.hy - a.hy;
           const dist = Math.hypot(dx, dy) || 0.01;
-          const min = a.r + b.r + 54;
+          const min = a.r + b.r + 10;
           if (dist < min) {
-            const push = ((min - dist) / dist) * 0.32;
+            const push = ((min - dist) / dist) * 0.24;
             a.hx -= dx * push;
             a.hy -= dy * push;
             b.hx += dx * push;
@@ -286,9 +421,14 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
           }
         }
       }
-      for (const node of nodes) {
-        node.hx = clamp(node.hx, node.r + 18, w - node.r - 18);
-        node.hy = clamp(node.hy, node.r + 26, h - node.r - 26);
+      for (const cluster of clusters) {
+        for (const nodeIndex of cluster.nodeIndexes) {
+          const node = nodes[nodeIndex]!;
+          node.hx += (cluster.cx - node.hx) * 0.006;
+          node.hy += (cluster.cy - node.hy) * 0.006;
+          node.hx = clamp(node.hx, node.r + 18, w - node.r - 18);
+          node.hy = clamp(node.hy, node.r + 26, h - node.r - 26);
+        }
       }
     }
 
@@ -297,7 +437,7 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
       node.y = node.hy;
       node.vx = 0;
       node.vy = 0;
-      node.el.style.setProperty("--d", `${Math.round(node.r * 2 + 14)}px`);
+      node.el.style.setProperty("--d", `${Math.round(node.r * 2 + 12)}px`);
       updateCardPlacement(node);
     }
   }
@@ -305,14 +445,36 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
   function buildLinks(): void {
     links = [];
     const rand = rng(nodes.length * 31 + 5);
+    const candidates: CLink[] = [];
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const shared = nodes[i]!.tags.filter((tag) => nodes[j]!.tags.includes(tag)).length;
         if (shared > 0) {
-          links.push({ a: i, b: j, shared, bend: (rand() - 0.5) * 0.85 });
+          candidates.push({
+            a: i,
+            b: j,
+            shared,
+            bend: (rand() - 0.5) * 0.78,
+            phase: rand(),
+            crossCluster: nodes[i]!.cluster !== nodes[j]!.cluster,
+          });
         }
       }
     }
+    candidates.sort((a, b) =>
+      b.shared - a.shared || Number(b.crossCluster) - Number(a.crossCluster) || a.a - b.a,
+    );
+    const degree = Array.from({ length: nodes.length }, () => 0);
+    for (const candidate of candidates) {
+      const cap = candidate.shared > 1 ? 6 : 4;
+      if (degree[candidate.a]! >= cap || degree[candidate.b]! >= cap) continue;
+      links.push(candidate);
+      degree[candidate.a] = (degree[candidate.a] ?? 0) + 1;
+      degree[candidate.b] = (degree[candidate.b] ?? 0) + 1;
+      if (links.length >= nodes.length * 2.25) break;
+    }
+    const counter = section?.querySelector<HTMLElement>("[data-c-link-count]");
+    if (counter) counter.textContent = String(links.length);
   }
 
   function step(dt: number, time: number): void {
@@ -324,16 +486,16 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
         node.boost += (1 - node.boost) * Math.min(1, dt * 12);
         continue;
       }
-      let tx = node.hx + Math.sin(time * 0.33 + node.p1) * 13;
-      let ty = node.hy + Math.cos(time * 0.27 + node.p2) * 11;
+      let tx = node.hx + Math.sin(time * 0.28 + node.p1) * 6;
+      let ty = node.hy + Math.cos(time * 0.23 + node.p2) * 5;
 
       if (pointer.active && !drag) {
         const dxh = pointer.x - node.hx;
         const dyh = pointer.y - node.hy;
         const dh = Math.hypot(dxh, dyh);
-        const reach = node.r + 130;
+        const reach = node.r + 92;
         if (dh < reach) {
-          const f = (1 - dh / reach) * 0.6;
+          const f = (1 - dh / reach) * 0.38;
           tx += dxh * f;
           ty += dyh * f;
         }
@@ -352,7 +514,9 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
         ? 1
         : node.el.dataset.graphState === "connected"
           ? 0.38
-          : 0;
+          : node.el.dataset.graphState === "cluster"
+            ? 0.16
+            : 0;
       node.boost += (boostTarget - node.boost) * Math.min(1, dt * 9);
     }
 
@@ -362,8 +526,9 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
       const dx = b.x - a.x;
       const dy = b.y - a.y;
       const distance = Math.hypot(dx, dy) || 0.01;
-      const target = a.r + b.r + 112;
-      const spring = (distance - target) * 0.7 * dt;
+      const target = link.crossCluster ? distance : a.r + b.r + 56;
+      const strength = link.crossCluster ? 0.004 : 0.16;
+      const spring = (distance - target) * strength * dt;
       const fx = (dx / distance) * spring;
       const fy = (dy / distance) * spring;
       if (drag?.index !== link.a) {
@@ -383,7 +548,7 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
         const dx = b.x - a.x;
         const dy = b.y - a.y;
         const distance = Math.hypot(dx, dy) || 0.01;
-        const minimum = a.r + b.r + 24;
+        const minimum = a.r + b.r + 8;
         if (distance >= minimum) continue;
         const push = (minimum - distance) * 0.12;
         const px = (dx / distance) * push;
@@ -437,9 +602,73 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
     ctx.stroke();
   }
 
+  function pointOnCurve(
+    a: CNode,
+    b: CNode,
+    mx: number,
+    my: number,
+    progress: number,
+  ): { x: number; y: number } {
+    const inverse = 1 - progress;
+    return {
+      x: inverse * inverse * a.x + 2 * inverse * progress * mx + progress * progress * b.x,
+      y: inverse * inverse * a.y + 2 * inverse * progress * my + progress * progress * b.y,
+    };
+  }
+
+  function drawBackdrop(time: number): void {
+    if (!ctx || !field) return;
+    const width = field.clientWidth;
+    const height = field.clientHeight;
+    const random = rng(44017);
+
+    ctx.save();
+    for (let index = 0; index < 130; index++) {
+      const x = random() * width;
+      const y = random() * height;
+      const radius = 0.35 + random() * 1.15;
+      ctx.globalAlpha = 0.12 + random() * 0.22 + Math.sin(time * 0.45 + index) * 0.035;
+      ctx.fillStyle = index % 11 === 0 ? colors.accent : colors.line;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    for (const cluster of clusters) {
+      const muted = Boolean(activeCluster) && activeCluster !== cluster.id;
+      const radius = cluster.r * 1.32;
+      const gradient = ctx.createRadialGradient(cluster.cx, cluster.cy, 0, cluster.cx, cluster.cy, radius);
+      gradient.addColorStop(0, colors.accent);
+      gradient.addColorStop(0.42, colors.accent);
+      gradient.addColorStop(1, "transparent");
+      ctx.globalAlpha = muted ? 0.012 : cluster.id === activeCluster ? 0.085 : 0.027;
+      ctx.fillStyle = gradient;
+      ctx.fillRect(cluster.cx - radius, cluster.cy - radius, radius * 2, radius * 2);
+
+      ctx.globalAlpha = muted ? 0.025 : cluster.id === activeCluster ? 0.42 : 0.11;
+      ctx.strokeStyle = cluster.id === activeCluster ? colors.accent : colors.line;
+      ctx.lineWidth = cluster.id === activeCluster ? 1.2 : 0.75;
+      ctx.setLineDash([2.5, 8]);
+      ctx.lineDashOffset = time * (cluster.id === activeCluster ? -5 : -1.4) + cluster.phase * 8;
+      ctx.beginPath();
+      ctx.ellipse(
+        cluster.cx,
+        cluster.cy,
+        cluster.r * 1.02,
+        cluster.r * 0.78,
+        cluster.phase * 0.17,
+        0,
+        Math.PI * 2,
+      );
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function draw(time: number): void {
     if (!ctx || !field) return;
     ctx.clearRect(0, 0, field.clientWidth, field.clientHeight);
+    drawBackdrop(time);
 
     for (const link of links) {
       const a = nodes[link.a]!;
@@ -449,12 +678,17 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
       const my = (a.y + b.y) / 2 + (a.x - b.x) * bend * 0.35;
       const emphasized = activeIndex === link.a || activeIndex === link.b;
       const hasActiveNode = activeIndex >= 0;
-      ctx.globalAlpha = emphasized
-        ? Math.min(1, 0.72 + link.shared * 0.08)
+      const inActiveCluster = !activeCluster || a.cluster === activeCluster || b.cluster === activeCluster;
+      ctx.globalAlpha = !inActiveCluster
+        ? 0.025
+        : emphasized
+          ? Math.min(1, 0.72 + link.shared * 0.08)
         : hasActiveNode
           ? 0.07
-          : 0.24 + link.shared * 0.05;
-      ctx.strokeStyle = emphasized ? colors.accent : colors.line;
+          : activeCluster
+            ? 0.34 + link.shared * 0.06
+            : 0.18 + link.shared * 0.045;
+      ctx.strokeStyle = emphasized || (activeCluster && inActiveCluster) ? colors.accent : colors.line;
       ctx.lineWidth = emphasized ? 1.7 + Math.min(2, link.shared) * 0.25 : 0.9;
       ctx.shadowColor = emphasized ? colors.accent : "transparent";
       ctx.shadowBlur = emphasized ? 7 : 0;
@@ -462,6 +696,18 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
       ctx.moveTo(a.x, a.y);
       ctx.quadraticCurveTo(mx, my, b.x, b.y);
       ctx.stroke();
+
+      if (!hasActiveNode && inActiveCluster && (link.shared > 1 || link.crossCluster)) {
+        const progress = (time * (0.035 + link.shared * 0.008) + link.phase) % 1;
+        const particle = pointOnCurve(a, b, mx, my, progress);
+        ctx.globalAlpha = activeCluster ? 0.78 : 0.38;
+        ctx.fillStyle = colors.accent;
+        ctx.shadowColor = colors.accent;
+        ctx.shadowBlur = activeCluster ? 8 : 4;
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, activeCluster ? 1.8 : 1.25, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
     ctx.shadowBlur = 0;
 
@@ -506,6 +752,7 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
     sizeCanvas();
     layout();
     buildLinks();
+    refreshGraphState();
     const time = performance.now() / 1000;
     draw(time);
     place();
@@ -526,6 +773,14 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
       node.el.removeAttribute("data-dragging");
       node.el.removeAttribute("data-graph-state");
     }
+    for (const cluster of clusters) {
+      cluster.label.style.transform = "";
+      cluster.label.removeAttribute("data-active");
+      cluster.label.removeAttribute("data-muted");
+    }
+    activeIndex = -1;
+    activeCluster = "";
+    refreshGraphState();
     field?.removeAttribute("data-dragging");
   }
 
@@ -549,6 +804,7 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
     cleanups = [];
     nodes = [];
     links = [];
+    clusters = [];
     section = null;
     field = null;
     canvas = null;
@@ -557,6 +813,8 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
     suppressedClickIndex = -1;
     suppressedClickUntil = 0;
     activeIndex = -1;
+    activeCluster = "";
+    pointer.active = false;
     window.clearTimeout(resizeTimer);
   }
 
@@ -610,7 +868,7 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
   }
 
   function setup(): void {
-    section = document.querySelector<HTMLElement>("[data-constellation]");
+    section = document.querySelector<HTMLElement>("[data-knowledge-graph]");
     if (!section) return;
     field = section.querySelector<HTMLElement>("[data-c-field]");
     canvas = section.querySelector<HTMLCanvasElement>("[data-c-canvas]");
@@ -620,7 +878,9 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
       el,
       link: el.querySelector<HTMLAnchorElement>("a")!,
       tags: (el.dataset.tags ?? "").split(" ").filter(Boolean),
+      cluster: el.dataset.cluster ?? "misc",
       featured: el.hasAttribute("data-featured"),
+      priority: el.hasAttribute("data-priority"),
       x: 0,
       y: 0,
       vx: 0,
@@ -633,6 +893,29 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
       boost: 0,
     }));
     if (nodes.length === 0) return;
+
+    clusters = [...field.querySelectorAll<HTMLElement>("[data-c-group]")].map((group, index) => {
+      const id = group.dataset.cGroup ?? "misc";
+      return {
+        id,
+        label: group.querySelector<HTMLElement>("[data-c-cluster-label]")!,
+        nodeIndexes: nodes.flatMap((node, nodeIndex) => node.cluster === id ? [nodeIndex] : []),
+        cx: 0,
+        cy: 0,
+        r: 0,
+        phase: (index * 2.399963 + 0.42) % (Math.PI * 2),
+      };
+    }).filter((cluster) => Boolean(cluster.label));
+    buildLinks();
+
+    section.querySelectorAll<HTMLButtonElement>("[data-c-cluster-button]").forEach((button) => {
+      on(button, "click", () => setActiveCluster(button.dataset.cClusterButton ?? ""));
+    });
+    const reset = section.querySelector<HTMLButtonElement>("[data-c-reset]");
+    if (reset) on(reset, "click", () => {
+      activeCluster = "";
+      setActiveIndex(-1);
+    });
 
     on(field, "pointerdown", ((event: PointerEvent) => {
       if (!live || !field || event.button !== 0 || !event.isPrimary) return;
@@ -718,7 +1001,7 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
 
   function init(): void {
     teardown();
-    if (!document.querySelector("[data-constellation]")) return;
+    if (!document.querySelector("[data-knowledge-graph]")) return;
     const idle = (window as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number })
       .requestIdleCallback;
     if (idle) idle(setup, { timeout: 600 });

@@ -1,0 +1,120 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import avatarA from "@shared/assets/demo-friend-a.svg?url";
+import avatarB from "@shared/assets/demo-friend-b.svg?url";
+import avatarC from "@shared/assets/demo-friend-c.svg?url";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const isFrench = locale === "fr";
+const alternates = { fr: localeUrl("fr", "friends"), en: localeUrl("en", "friends") };
+const friends = [
+  { name: "Maya Chen", avatar: avatarA, bio: isFrench ? "Lorem ipsum dolor sit amet, recherche et design de systèmes." : "Lorem ipsum dolor sit amet, systems research and design." },
+  { name: "Noah Rivera", avatar: avatarB, bio: isFrench ? "Lorem ipsum dolor sit amet, interfaces inclusives et narration." : "Lorem ipsum dolor sit amet, inclusive interfaces and storytelling." },
+  { name: "Sam Okafor", avatar: avatarC, bio: isFrench ? "Lorem ipsum dolor sit amet, architecture web et outils ouverts." : "Lorem ipsum dolor sit amet, web architecture and open tools." },
+  { name: "Lina Park", avatar: avatarB, bio: isFrench ? "Lorem ipsum dolor sit amet, typographie et systèmes éditoriaux." : "Lorem ipsum dolor sit amet, typography and editorial systems." },
+  { name: "Eli Martin", avatar: avatarC, bio: isFrench ? "Lorem ipsum dolor sit amet, performance et qualité logicielle." : "Lorem ipsum dolor sit amet, performance and software quality." },
+  { name: "Ari Bell", avatar: avatarA, bio: isFrench ? "Lorem ipsum dolor sit amet, communautés et documentation." : "Lorem ipsum dolor sit amet, communities and documentation." },
+];
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.nav.friends}
+  description={isFrench ? "Communauté fictive utilisée pour la démonstration de Lisible." : "A fictional community used for the Lisible demo."}
+  alternates={alternates}
+>
+  <section class="friends-hero home-hero py-12 md:py-16">
+    <div class="hero-blob" aria-hidden="true"></div>
+    <p class="eyebrow">{isFrench ? "Communauté de démonstration" : "Demo community"}</p>
+    <h1 class="type-mega rise">{dict.nav.friends}</h1>
+    <p class="intro rise rise-2">
+      {isFrench
+        ? "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tous les noms, portraits et profils de cette page sont fictifs."
+        : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Every name, portrait and profile on this page is fictional."}
+    </p>
+  </section>
+  <section class="friends-grid pb-16" aria-label={dict.nav.friends}>
+    {
+      friends.map((friend, index) => (
+        <article class:list={["friend-card", index % 2 === 1 && "friend-card-alt"]}>
+          <img src={friend.avatar} alt={friend.name} width="160" height="160" loading={index < 2 ? "eager" : "lazy"} decoding="async" />
+          <div>
+            <h2>{friend.name}</h2>
+            <p>{friend.bio}</p>
+            <a href="https://example.com" target="_blank" rel="noopener noreferrer">
+              {isFrench ? "Portfolio fictif" : "Fictional portfolio"}
+              <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </article>
+      ))
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .eyebrow {
+    color: var(--color-accent);
+    font-size: 0.75rem;
+    font-weight: 750;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .intro {
+    max-width: 60ch;
+    margin-top: 1.5rem;
+    color: var(--color-muted-foreground);
+    font-size: clamp(1rem, 1.6vw, 1.25rem);
+    line-height: 1.7;
+  }
+  .friends-grid { display: grid; gap: 1rem; }
+  .friend-card {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: 1.1rem;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 1.8rem 0.9rem 1.6rem 1rem / 1rem 1.8rem 0.9rem 1.6rem;
+    background: color-mix(in oklab, var(--color-card) 94%, var(--color-accent) 6%);
+    transition: border-color 160ms ease-out, transform 160ms ease-out;
+  }
+  .friend-card-alt { border-radius: 0.9rem 1.8rem 1rem 1.6rem / 1.6rem 0.9rem 1.8rem 1rem; }
+  .friend-card:hover { border-color: color-mix(in oklab, var(--color-accent) 60%, var(--color-border)); transform: translateY(-2px); }
+  .friend-card > img {
+    width: 6.5rem;
+    height: 6.5rem;
+    object-fit: cover;
+    border: 1px solid var(--color-border);
+    border-radius: 44% 56% 52% 48% / 56% 44% 58% 42%;
+  }
+  .friend-card-alt > img { border-radius: 58% 42% 45% 55% / 44% 56% 48% 52%; }
+  .friend-card h2 { font-size: 1.15rem; font-weight: 800; }
+  .friend-card p { margin-top: 0.35rem; color: var(--color-muted-foreground); font-size: 0.9rem; line-height: 1.55; }
+  .friend-card a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.55rem;
+    color: var(--color-accent);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  @media (min-width: 720px) {
+    .friends-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 420px) {
+    .friend-card { grid-template-columns: 4.5rem minmax(0, 1fr); }
+    .friend-card > img { width: 4.5rem; height: 4.5rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .friend-card { transition: none; }
+  }
+</style>

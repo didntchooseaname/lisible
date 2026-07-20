@@ -27,6 +27,8 @@ const fr = {
     about: "À propos",
     archives: "Archives",
     series: "Séries",
+    certifications: "Certifications",
+    friends: "Amis",
     main: "Navigation principale",
   },
   home: {
@@ -34,9 +36,17 @@ const fr = {
     featured: "À la une",
     latest: "Derniers articles",
     allPosts: "Tous les articles",
-    constellationTitle: "La constellation",
-    constellationHint:
-      "Chaque bulle est un article, sa taille suit sa fraîcheur. Les fils relient les articles qui partagent un tag. Survolez pour explorer les liens, maintenez et déplacez un nœud, cliquez pour lire.",
+    recentCards: "À lire maintenant",
+    knowledgeGraphKicker: "Carte vivante des connaissances",
+    knowledgeGraphTitle: "Knowledge graph",
+    knowledgeGraphHint:
+      "Les articles de démonstration se regroupent par séries et thématiques. Explorez un groupe, survolez un nœud pour révéler ses connexions, déplacez-le ou ouvrez l'article.",
+    knowledgeGraphOverview: "Vue d'ensemble du knowledge graph",
+    knowledgeGraphArticles: "articles",
+    knowledgeGraphGroups: "groupes",
+    knowledgeGraphLinks: "connexions",
+    knowledgeGraphFilters: "Filtrer les groupes",
+    knowledgeGraphReset: "Vue globale",
   },
   blog: {
     title: "Blog",
@@ -224,6 +234,8 @@ const en: Dict = {
     about: "About",
     archives: "Archives",
     series: "Series",
+    certifications: "Certifications",
+    friends: "Friends",
     main: "Main navigation",
   },
   home: {
@@ -231,9 +243,17 @@ const en: Dict = {
     featured: "Featured",
     latest: "Latest posts",
     allPosts: "All posts",
-    constellationTitle: "The constellation",
-    constellationHint:
-      "Each bubble is a post, its size follows its freshness. Threads connect posts that share a tag. Hover to explore links, press and drag a node, click to read.",
+    recentCards: "Read now",
+    knowledgeGraphKicker: "Living knowledge map",
+    knowledgeGraphTitle: "Knowledge graph",
+    knowledgeGraphHint:
+      "Demo posts gather into series and topics. Explore a group, hover a node to reveal its connections, drag it or open the article.",
+    knowledgeGraphOverview: "Knowledge graph overview",
+    knowledgeGraphArticles: "articles",
+    knowledgeGraphGroups: "groups",
+    knowledgeGraphLinks: "connections",
+    knowledgeGraphFilters: "Filter groups",
+    knowledgeGraphReset: "Global view",
   },
   blog: {
     title: "Blog",

@@ -1,4 +1,4 @@
-# Lisible — reference core
+# Lisible - reference core
 
 This is the sober reference implementation used to validate shared behavior. It is not one of the six selectable visual variants.
 

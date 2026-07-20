@@ -12,9 +12,41 @@ coverAlt: "Minimalist diagram of the islands architecture: static HTML with inde
 
 import { Tabs, Tab } from "@/components/ui/tabs";
 import { Steps, Step } from "@/components/ui/steps";
+import { Tree } from "@shared/components/ui/file-tree";
 import Spoiler from "@/components/Spoiler.astro";
 
 This post is the blog's showcase. It demonstrates every formatting option and every application feature. If something renders badly here, it's a bug in the theme, not in the content.
+
+## Interactive File Tree
+
+The shared component works in all six versions. Open folders, select a file or use the global control.
+
+<Tree
+  client:load
+  initialExpandedItems={["src", "components"]}
+  initialSelectedId="home"
+  elements={[
+    {
+      id: "src",
+      name: "src",
+      type: "folder",
+      children: [
+        {
+          id: "components",
+          name: "components",
+          type: "folder",
+          children: [
+            { id: "home", name: "HomePage.astro", type: "file" },
+            { id: "card", name: "PostCard.astro", type: "file" },
+          ],
+        },
+        { id: "styles", name: "styles.css", type: "file" },
+      ],
+    },
+    { id: "config", name: "lisible.config.json", type: "file" },
+    { id: "package", name: "package.json", type: "file" },
+  ]}
+/>
 
 ## Application features
 

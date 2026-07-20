@@ -1,4 +1,4 @@
-# Lisible — H4X0R
+# Lisible - H4X0R
 
 This variant provides the immersive terminal HUD, boot sequence and interactive cyber background.
 

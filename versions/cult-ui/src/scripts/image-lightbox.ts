@@ -192,7 +192,9 @@ class ImageLightbox {
   openLightbox(index: number) {
     this.currentIndex = index;
     this.updateImage();
+    this.lightbox?.removeAttribute("hidden");
     this.lightbox?.classList.add("active");
+    this.lightbox?.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
     this.focusTrap?.activate();
     this.preloadAdjacentImages();
@@ -200,6 +202,8 @@ class ImageLightbox {
 
   closeLightbox() {
     this.lightbox?.classList.remove("active");
+    this.lightbox?.setAttribute("aria-hidden", "true");
+    this.lightbox?.setAttribute("hidden", "");
     document.body.style.overflow = "";
     this.resetZoom();
     this.focusTrap?.deactivate();

@@ -144,6 +144,7 @@ class ImageLightbox {
     this.lastFocused = document.activeElement as HTMLElement | null;
     this.currentIndex = index;
     this.update();
+    this.overlay.removeAttribute("hidden");
     this.overlay.classList.add("is-open");
     this.overlay.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
@@ -154,6 +155,7 @@ class ImageLightbox {
     if (!this.overlay) return;
     this.overlay.classList.remove("is-open");
     this.overlay.setAttribute("aria-hidden", "true");
+    this.overlay.setAttribute("hidden", "");
     document.body.style.overflow = "";
     this.resetZoom();
     this.lastFocused?.focus?.({ preventScroll: true });

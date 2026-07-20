@@ -1,0 +1,196 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, postSlug, postUrl } from "@/lib/posts";
+import foundationsBadge from "@shared/assets/demo-certificate-foundations.svg?url";
+import systemsBadge from "@shared/assets/demo-certificate-systems.svg?url";
+import accessibilityBadge from "@shared/assets/demo-certificate-accessibility.svg?url";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const isFrench = locale === "fr";
+const reviews = (await getPublishedPosts(locale)).filter((post) =>
+  postSlug(post).startsWith("certification-")
+);
+const reviewBySlug = new Map(
+  reviews.map((post) => [postSlug(post).replace(/^certification-/, ""), post]),
+);
+const alternates = {
+  fr: localeUrl("fr", "certifications"),
+  en: localeUrl("en", "certifications"),
+};
+
+const certifications = [
+  {
+    slug: "web-foundations",
+    title: "Web Foundations",
+    issuer: "Example Academy",
+    date: "2026",
+    image: foundationsBadge,
+    description: isFrench
+      ? "Lorem ipsum dolor sit amet, avec une base pratique en HTML sémantique, CSS moderne et performance."
+      : "Lorem ipsum dolor sit amet, with a practical foundation in semantic HTML, modern CSS and performance.",
+  },
+  {
+    slug: "systems-architecture",
+    title: "Systems Architecture",
+    issuer: "Demo Institute",
+    date: "2025",
+    image: systemsBadge,
+    description: isFrench
+      ? "Lorem ipsum dolor sit amet, de la conception modulaire aux observabilités et déploiements reproductibles."
+      : "Lorem ipsum dolor sit amet, from modular design to observability and repeatable deployments.",
+  },
+  {
+    slug: "inclusive-interfaces",
+    title: "Inclusive Interfaces",
+    issuer: "Open Learning Lab",
+    date: "2025",
+    image: accessibilityBadge,
+    description: isFrench
+      ? "Lorem ipsum dolor sit amet, contrastes, navigation clavier, lecteurs d'écran et tests utilisateurs."
+      : "Lorem ipsum dolor sit amet, covering contrast, keyboard navigation, screen readers and user testing.",
+  },
+];
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.nav.certifications}
+  description={isFrench ? "Certifications fictives et parcours de démonstration." : "Fictional certifications and a demo learning path."}
+  alternates={alternates}
+>
+  <section class="cert-hero home-hero py-12 md:py-16">
+    <div class="hero-blob" aria-hidden="true"></div>
+    <p class="eyebrow">{isFrench ? "Parcours de démonstration" : "Demo learning path"}</p>
+    <h1 class="type-mega rise">{dict.nav.certifications}</h1>
+    <p class="intro rise rise-2">
+      {isFrench
+        ? "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ces badges, organismes et parcours sont entièrement fictifs."
+        : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. These badges, organizations and learning paths are entirely fictional."}
+    </p>
+  </section>
+
+  <section class="cert-grid" aria-label={dict.nav.certifications}>
+    {
+      certifications.map((certification, index) => {
+        const article = reviewBySlug.get(certification.slug);
+        return (
+          <article class:list={["cert-card", index % 2 === 1 && "cert-card-alt"]}>
+            <div class="cert-orbit" aria-hidden="true"></div>
+            <div class="cert-badge-wrap">
+              <img src={certification.image} alt={`${certification.title}, ${certification.issuer}`} width="220" height="220" loading={index === 0 ? "eager" : "lazy"} decoding="async" />
+            </div>
+            <div class="cert-copy">
+              <p class="cert-date">{certification.date}</p>
+              <h2>{certification.title}</h2>
+              <p class="cert-issuer">{certification.issuer}</p>
+              <p>{certification.description}</p>
+              {article && (
+                <a href={postUrl(article)}>
+                  {isFrench ? "Lire l'article de démonstration" : "Read the demo article"}
+                  <span aria-hidden="true">→</span>
+                </a>
+              )}
+            </div>
+          </article>
+        );
+      })
+    }
+  </section>
+
+  <hr class="wave-line my-14" aria-hidden="true" />
+
+  <section class="reviews pb-16" aria-labelledby="reviews-heading">
+    <p class="eyebrow">{isFrench ? "Articles en série" : "Posts in this series"}</p>
+    <h2 id="reviews-heading" class="type-title">
+      {isFrench ? "Retours de démonstration" : "Demo reviews"}
+    </h2>
+    <div class="review-grid">
+      {reviews.map((post) => <PostCard post={post} />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .eyebrow,
+  .cert-date {
+    color: var(--color-accent);
+    font-size: 0.75rem;
+    font-weight: 750;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .intro {
+    max-width: 62ch;
+    margin-top: 1.5rem;
+    color: var(--color-muted-foreground);
+    font-size: clamp(1rem, 1.6vw, 1.25rem);
+    line-height: 1.7;
+  }
+  .cert-grid,
+  .review-grid { display: grid; gap: 1rem; }
+  .cert-card {
+    position: relative;
+    display: grid;
+    gap: 1.3rem;
+    align-items: center;
+    padding: clamp(1.1rem, 3vw, 1.8rem);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 2rem 1rem 1.8rem 1.2rem / 1.2rem 2rem 1rem 1.8rem;
+    background: color-mix(in oklab, var(--color-card) 94%, var(--color-accent) 6%);
+  }
+  .cert-card-alt { border-radius: 1.1rem 2rem 1.2rem 1.9rem / 1.9rem 1.1rem 2rem 1.2rem; }
+  .cert-orbit {
+    position: absolute;
+    top: -4rem;
+    right: -3rem;
+    width: 12rem;
+    height: 12rem;
+    border: 1px solid color-mix(in oklab, var(--color-accent) 32%, transparent);
+    border-radius: 44% 56% 48% 52% / 58% 44% 56% 42%;
+  }
+  .cert-badge-wrap {
+    display: grid;
+    min-height: 11rem;
+    place-items: center;
+    border-radius: 44% 56% 52% 48% / 56% 44% 58% 42%;
+    background: color-mix(in oklab, var(--color-secondary) 78%, transparent);
+  }
+  .cert-badge-wrap img {
+    width: min(10.5rem, 78%);
+    height: 10.5rem;
+    object-fit: contain;
+    transition: transform 220ms ease-out;
+  }
+  .cert-card:hover .cert-badge-wrap img { transform: scale(1.04) rotate(2deg); }
+  .cert-copy h2 { margin-top: 0.35rem; font-size: clamp(1.6rem, 3vw, 2.25rem); font-weight: 800; }
+  .cert-issuer,
+  .cert-copy > p:last-of-type { color: var(--color-muted-foreground); }
+  .cert-copy > p:last-of-type { margin-top: 0.9rem; line-height: 1.65; }
+  .cert-copy a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 1rem;
+    color: var(--color-accent);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+  .review-grid { margin-top: 2rem; }
+  @media (min-width: 700px) {
+    .cert-card { grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 1.3fr); }
+    .cert-card:nth-child(even) .cert-badge-wrap { order: 2; }
+    .review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cert-badge-wrap img { transition: none; }
+  }
+</style>

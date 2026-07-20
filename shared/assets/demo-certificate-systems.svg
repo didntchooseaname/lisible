@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
+  <title id="title">Demo Systems Architecture certificate badge</title>
+  <circle cx="120" cy="120" r="105" fill="#18181b" stroke="#a78bfa" stroke-width="8"/>
+  <path d="M72 76h96v66H72z" fill="none" stroke="#c4b5fd" stroke-width="9"/>
+  <path d="M94 166h52M120 142v24" stroke="#c4b5fd" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="91" cy="95" r="5" fill="#a78bfa"/>
+  <circle cx="108" cy="95" r="5" fill="#a78bfa"/>
+  <path d="m92 119 15-12 15 12 25-20" fill="none" stroke="#a78bfa" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

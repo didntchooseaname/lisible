@@ -72,6 +72,7 @@ async function main(): Promise<void> {
   const stylesheetErrors: string[] = [];
   let hasDiscussionMarkup = false;
   let hasDiscussionStyles = false;
+  let lightboxCount = 0;
   for (const file of files) {
     const size = (await stat(file)).size;
     const limit = limitFor(file);
@@ -81,6 +82,16 @@ async function main(): Promise<void> {
       const html = await readFile(file, "utf8");
       hasDiscussionMarkup ||= html.includes('class="discussion-demo"');
       hasDiscussionStyles ||= /\.discussion-demo__grid(?:\[[^\]]+\])?\s*\{/.test(html);
+      const lightbox = html.match(/<(?:div|section)\b[^>]*\bid=["']image-lightbox["'][^>]*>/i);
+      if (lightbox) {
+        lightboxCount += 1;
+        if (!/\bhidden(?:\s|=|>)/i.test(lightbox[0])) {
+          stylesheetErrors.push(`${relative(dist, file)}: image lightbox must be natively hidden.`);
+        }
+        if (!/\baria-hidden=["']true["']/i.test(lightbox[0])) {
+          stylesheetErrors.push(`${relative(dist, file)}: image lightbox must start aria-hidden.`);
+        }
+      }
       const stylesheets = [...html.matchAll(/<link\b[^>]*\brel=["']stylesheet["'][^>]*\bhref=["']([^"']+)["'][^>]*>/g)]
         .map((match) => match[1]!);
       const page = relative(dist, file);
@@ -101,6 +112,9 @@ async function main(): Promise<void> {
 
   if (hasDiscussionMarkup && !hasDiscussionStyles) {
     stylesheetErrors.push("Discussion placeholders are present without their component styles.");
+  }
+  if (lightboxCount === 0) {
+    stylesheetErrors.push("No image lightbox markup was found in the built HTML.");
   }
 
   if (violations.length === 0 && stylesheetErrors.length === 0) {

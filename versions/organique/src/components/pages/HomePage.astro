@@ -1,8 +1,9 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import Constellation from "@/components/Constellation.astro";
-import NewsletterCTA from "@/components/NewsletterCTA.astro";
+import KnowledgeGraph from "@/components/KnowledgeGraph.astro";
 import JsonLd from "@/components/JsonLd.astro";
+import PostCard from "@/components/PostCard.astro";
+import DemoProfileHero from "@shared/components/DemoProfileHero.astro";
 import { SITE, FEATURES } from "@/site.config";
 import { localeUrl, t, type Locale } from "@/i18n/ui";
 import { getPublishedPosts } from "@/lib/posts";
@@ -24,6 +25,7 @@ const featured = (
 
 const featuredIds = new Set(featured.map((p) => p.id));
 const latest = posts.filter((p) => !featuredIds.has(p.id)).slice(0, SITE.postsPerPage);
+const recent = posts.slice(0, 4);
 
 const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
 
@@ -46,20 +48,81 @@ const jsonLd = {
 >
   <JsonLd slot="head" data={jsonLd} />
 
-  
-  <section class="home-hero pb-10 pt-16 md:pb-16 md:pt-24">
+  <section class="home-hero py-10 md:py-16">
     <div class="hero-blob" aria-hidden="true"></div>
-    <h1 class="type-mega rise">{SITE.title}</h1>
-    <p class="hero-tagline rise rise-2 mt-7">{dict.site.tagline}</p>
-    <div class="hero-cta-offset rise rise-3 mt-14 max-w-xl">
-      <NewsletterCTA locale={locale} />
-    </div>
+    <DemoProfileHero
+      locale={locale}
+      variant="organique"
+      title={SITE.title}
+      actions={[
+        { href: localeUrl(locale, "blog"), label: dict.nav.blog },
+        { href: localeUrl(locale, "certifications"), label: dict.nav.certifications },
+        { href: localeUrl(locale, "friends"), label: dict.nav.friends },
+        { href: localeUrl(locale, "about"), label: dict.nav.about },
+      ]}
+    />
   </section>
 
   <hr class="wave-line" aria-hidden="true" />
 
-  
-  <Constellation locale={locale} featured={featured} latest={latest} />
+  <section id="recent" class="recent-section py-12 md:py-16" aria-labelledby="recent-heading">
+    <div class="section-heading">
+      <div>
+        <p>{dict.home.latest}</p>
+        <h2 id="recent-heading" class="type-title">{dict.home.recentCards}</h2>
+      </div>
+      <a href={localeUrl(locale, "blog")}>{dict.home.allPosts}</a>
+    </div>
+    <div class="recent-grid">
+      {recent.map((post) => <PostCard post={post} />)}
+    </div>
+  </section>
 
   <hr class="wave-line" aria-hidden="true" />
+  <KnowledgeGraph locale={locale} posts={posts} featured={featured} />
+  <hr class="wave-line" aria-hidden="true" />
 </BaseLayout>
+
+<style>
+  .section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .section-heading p {
+    margin-bottom: 0.35rem;
+    color: var(--color-accent);
+    font-size: 0.75rem;
+    font-weight: 750;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .section-heading > a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-background);
+    font-size: 0.875rem;
+    font-weight: 650;
+  }
+
+  .recent-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  @media (min-width: 680px) {
+    .recent-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 460px) {
+    .section-heading { align-items: start; flex-direction: column; }
+  }
+</style>

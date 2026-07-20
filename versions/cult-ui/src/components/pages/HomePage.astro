@@ -3,11 +3,10 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import PostCard from "@/components/PostCard.astro";
 import JsonLd from "@/components/JsonLd.astro";
 import HeroBackdrop from "@/components/react/HeroBackdrop";
-import NewsletterIsland from "@/components/react/NewsletterIsland";
 import TextureLink from "@/components/react/TextureLink";
+import DemoProfileHero from "@shared/components/DemoProfileHero.astro";
 import { GradientHeading } from "@/components/ui/gradient-heading";
 import { NeumorphEyebrow } from "@/components/ui/neumorph-eyebrow";
-import { TextAnimate } from "@/components/ui/text-animate";
 import { SITE, FEATURES } from "@/site.config";
 import { localeUrl, t, type Locale } from "@/i18n/ui";
 import { getPublishedPosts } from "@/lib/posts";
@@ -59,32 +58,16 @@ const jsonLd = {
     
     <HeroBackdrop client:idle />
     <div class="relative">
-      <NeumorphEyebrow className={eyebrowClass}>{dict.home.eyebrow}</NeumorphEyebrow>
-      <GradientHeading as="h1" size="xl" weight="bold" className="text-balance">
-        {SITE.title}
-      </GradientHeading>
-      <TextAnimate
-        client:load
-        as="p"
-        type="whipIn"
-        text={dict.site.tagline}
-        className="mt-2 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground"
+      <DemoProfileHero
+        locale={locale}
+        variant="cult-ui"
+        title={SITE.title}
+        actions={[
+          { href: localeUrl(locale, "blog"), label: dict.nav.blog },
+          { href: localeUrl(locale, "series"), label: dict.nav.series },
+          { href: localeUrl(locale, "about"), label: dict.nav.about },
+        ]}
       />
-      <div class="mt-10">
-        <NewsletterIsland
-          client:visible
-          title={dict.newsletter.title}
-          description={dict.newsletter.description}
-          emailLabel={dict.newsletter.emailLabel}
-          placeholder={dict.newsletter.placeholder}
-          buttonLabel={dict.newsletter.button}
-          successTitle={dict.newsletter.successTitle}
-          successMessage={dict.newsletter.successMessage}
-          note={dict.newsletter.note}
-          closeLabel={dict.a11y.closeNewsletter}
-          idSuffix={`home-${locale}`}
-        />
-      </div>
     </div>
   </section>
 

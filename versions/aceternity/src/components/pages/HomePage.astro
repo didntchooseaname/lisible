@@ -1,12 +1,10 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import NewsletterCTA from "@/components/NewsletterCTA.astro";
 import JsonLd from "@/components/JsonLd.astro";
+import DemoProfileHero from "@shared/components/DemoProfileHero.astro";
 import FeaturedBento from "@/components/react/FeaturedBento";
 import { GridDotBackground } from "@/components/ui/grid-dot-background";
 import { Spotlight } from "@/components/ui/spotlight-new";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
-import { FlipWords } from "@/components/ui/flip-words";
 import { HoverEffect } from "@/components/ui/card-hover-effect";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
 import { SITE, FEATURES } from "@/site.config";
@@ -82,19 +80,16 @@ const jsonLd = {
       <Spotlight client:idle />
     </div>
     <div class="relative">
-      <h1 class="text-balance text-4xl font-bold tracking-tight md:text-5xl">
-        <TextGenerateEffect client:load words={SITE.title} filter={false} duration={0.4} />
-      </h1>
-      <p class="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
-        {dict.site.tagline}
-      </p>
-      <p class="mt-2 text-sm font-medium text-muted-foreground">
-        {dict.home.topicsPrefix}
-        <FlipWords client:idle words={dict.home.topics} className="font-semibold text-accent" />
-      </p>
-      <div class="mt-10">
-        <NewsletterCTA locale={locale} />
-      </div>
+      <DemoProfileHero
+        locale={locale}
+        variant="aceternity"
+        title={SITE.title}
+        actions={[
+          { href: localeUrl(locale, "blog"), label: dict.nav.blog },
+          { href: localeUrl(locale, "series"), label: dict.nav.series },
+          { href: localeUrl(locale, "about"), label: dict.nav.about },
+        ]}
+      />
     </div>
   </section>
 

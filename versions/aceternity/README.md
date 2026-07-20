@@ -1,4 +1,4 @@
-# Lisible — Aceternity
+# Lisible - Aceternity
 
 This variant provides the spotlight, bento-grid and tracing-beam visual implementation.
 

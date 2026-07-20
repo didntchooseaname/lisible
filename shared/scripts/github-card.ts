@@ -190,9 +190,9 @@ function renderFallback(card: HTMLElement): void {
       ? "Les informations du dépôt sont temporairement indisponibles."
       : "Repository information is temporarily unavailable.",
   );
-  setText(card, STAR_SELECTORS, "—");
-  setText(card, FORK_SELECTORS, "—");
-  setText(card, LANGUAGE_SELECTORS, "—");
+  setText(card, STAR_SELECTORS, "N/A");
+  setText(card, FORK_SELECTORS, "N/A");
+  setText(card, LANGUAGE_SELECTORS, "N/A");
   card.setAttribute("data-github-error", "");
   finishCard(card);
 }

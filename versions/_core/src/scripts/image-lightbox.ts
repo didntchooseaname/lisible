@@ -111,13 +111,17 @@ class ImageLightbox {
   private open(index: number) {
     this.currentIndex = index;
     this.update();
+    this.overlay?.removeAttribute("hidden");
     this.overlay?.classList.add("is-open");
+    this.overlay?.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
     this.focusTrap?.activate();
   }
 
   private close() {
     this.overlay?.classList.remove("is-open");
+    this.overlay?.setAttribute("aria-hidden", "true");
+    this.overlay?.setAttribute("hidden", "");
     document.body.style.overflow = "";
     this.resetZoom();
     this.focusTrap?.deactivate();
