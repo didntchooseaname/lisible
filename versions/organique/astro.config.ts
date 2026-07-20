@@ -9,6 +9,7 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import pagefind from "astro-pagefind";
 import pagefindDev from "../../shared/pagefind-dev";
+import { previewAstroConfig, previewBuildIntegration } from "../../shared/preview/build-config";
 import tailwindcss from "@tailwindcss/vite";
 import remarkDirective from "remark-directive";
 import expressiveCode from "astro-expressive-code";
@@ -95,6 +96,7 @@ pluginCollapsibleSectionsTexts.addLocale("fr", expressiveCodeTexts.collapsibleSe
 pluginCollapsibleSectionsTexts.addLocale("en", expressiveCodeTexts.collapsibleSections.en);
 
 export default defineConfig({
+  ...previewAstroConfig(),
   devToolbar: { enabled: false },
   site: siteUrl,
   output: "static",
@@ -182,6 +184,7 @@ export default defineConfig({
       },
     }),
     pagefind(),
+    previewBuildIntegration(),
     katexAssets(),
   ],
   vite: {

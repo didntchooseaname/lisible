@@ -30,6 +30,7 @@ const isPublicPath = typeof cover === "string";
 {
   isPublicPath ? (
     <img
+      data-preview-cover
       src={cover}
       alt={alt}
       width={fallbackWidth}
@@ -40,6 +41,7 @@ const isPublicPath = typeof cover === "string";
     />
   ) : (
     <Image
+      data-preview-cover
       src={cover}
       alt={alt}
       width={width}

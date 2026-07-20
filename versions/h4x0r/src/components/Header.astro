@@ -54,7 +54,7 @@ const hudPath = currentPath === "/" || currentPath === "/en/" ? "~/home" : `~${c
       class="group inline-flex min-h-11 items-center gap-2 font-display text-base font-bold uppercase tracking-[0.18em] transition-colors hover:text-accent"
     >
       <span aria-hidden="true" class="font-mono text-accent">&gt;_</span>
-      <span class="text-glow">{SITE.title}</span>
+      <span class="text-glow" data-preview-site-title>{SITE.title}</span>
     </a>
 
     <nav aria-label={dict.nav.main} class="order-last w-full sm:order-none sm:w-auto">

@@ -25,7 +25,7 @@ const {
 const isString = typeof cover === "string";
 ---
 
-<figure class:list={["cover", className]} style={`aspect-ratio:${ratio}`}>
+<figure class:list={["cover", className]} style={`aspect-ratio:${ratio}`} data-preview-cover>
   {
     isString ? (
       <img

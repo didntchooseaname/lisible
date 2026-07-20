@@ -26,7 +26,7 @@ const rssPath = localeUrl(locale, "rss.xml");
   <div
     class="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-4 py-4 text-sm text-muted-foreground sm:flex-row md:px-6"
   >
-    <p class="font-mono text-xs">&copy; {year} {SITE.author}</p>
+    <p class="font-mono text-xs">&copy; {year} <span data-preview-author>{SITE.author}</span></p>
     <p class="font-mono text-xs">
       {dict.footer.poweredBy}{" "}
       <a

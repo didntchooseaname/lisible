@@ -1,0 +1,32 @@
+name: Sync Lisible Docs previews
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "versions/**"
+      - "shared/**"
+      - ".github/workflows/sync-lisible-docs-previews.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: sync-lisible-docs-previews
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the exact source revision in lisible-docs
+        env:
+          GH_TOKEN: ${{ secrets.LISIBLE_DOCS_ACTIONS_TOKEN }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: >-
+          gh api
+          --method POST
+          repos/didntchooseaname/lisible-docs/actions/workflows/sync-lisible.yml/dispatches
+          -f ref=main
+          -f inputs[source_sha]="$SOURCE_SHA"

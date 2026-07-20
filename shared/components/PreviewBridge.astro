@@ -1,0 +1,99 @@
+---
+const enabled = process.env.LISIBLE_PREVIEW === "1";
+---
+
+{
+  enabled && (
+    <>
+      <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+      <script is:inline>document.documentElement.dataset.lisiblePreview = "true";</script>
+      <style is:global>
+        html[data-preview-covers="false"] :where([data-preview-cover], .cover, .post-cover, .card-cover) {
+          display: none !important;
+        }
+
+        html[data-preview-featured="false"] [data-preview-featured] {
+          display: none !important;
+        }
+
+        html[data-preview-related="false"] :where([data-preview-related], .related, .related-posts) {
+          display: none !important;
+        }
+
+        html[data-preview-density="compact"] main {
+          --preview-section-space: 1.25rem;
+          font-size: 0.94em;
+        }
+
+        html[data-preview-density="compact"] main :where(section, article) {
+          padding-block: var(--preview-section-space, 1.25rem) !important;
+        }
+
+        html[data-preview-cover-position="up"] [data-preview-cover] {
+          order: -1;
+        }
+
+        html[data-preview-motion="reduced"] *,
+        html[data-preview-motion="reduced"] *::before,
+        html[data-preview-motion="reduced"] *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+
+        html[data-preview-variant] {
+          scrollbar-color: var(--accent, currentColor) color-mix(in srgb, var(--background, #090d0a) 86%, transparent);
+          scrollbar-width: thin;
+        }
+
+        html[data-preview-variant]::-webkit-scrollbar {
+          width: 10px;
+          height: 10px;
+        }
+
+        html[data-preview-variant]::-webkit-scrollbar-track {
+          background: color-mix(in srgb, var(--background, #090d0a) 90%, transparent);
+        }
+
+        html[data-preview-variant]::-webkit-scrollbar-thumb {
+          border: 2px solid color-mix(in srgb, var(--background, #090d0a) 88%, transparent);
+          border-radius: 999px;
+          background: color-mix(in srgb, var(--accent, currentColor) 76%, var(--muted-foreground, #647067));
+        }
+
+        html[data-preview-variant]::-webkit-scrollbar-thumb:hover {
+          background: var(--accent, currentColor);
+        }
+
+        html[data-preview-variant="motion-primitives"]::-webkit-scrollbar,
+        html[data-preview-variant="h4x0r"]::-webkit-scrollbar {
+          width: 7px;
+          height: 7px;
+        }
+
+        html[data-preview-variant="motion-primitives"]::-webkit-scrollbar-thumb,
+        html[data-preview-variant="h4x0r"]::-webkit-scrollbar-thumb {
+          border-width: 1px;
+          border-radius: 0;
+        }
+
+        html[data-preview-variant="cult-ui"]::-webkit-scrollbar-thumb {
+          border-radius: 0.45rem;
+          background: linear-gradient(var(--accent, currentColor), color-mix(in srgb, var(--accent, currentColor) 55%, var(--muted-foreground, #647067)));
+        }
+
+        html[data-preview-variant="aceternity"]::-webkit-scrollbar-thumb {
+          box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent, currentColor) 42%, transparent), 0 0 8px color-mix(in srgb, var(--accent, currentColor) 24%, transparent);
+        }
+
+        html[data-preview-variant="organique"]::-webkit-scrollbar-thumb {
+          border-width: 3px;
+        }
+      </style>
+      <script>
+        import "@shared/preview/runtime";
+      </script>
+    </>
+  )
+}

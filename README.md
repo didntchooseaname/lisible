@@ -2,6 +2,8 @@
 
 <img src="docs/banner.png" alt="Lisible" width="100%">
 
+<p><a href="https://lisible.xsec.fr/preview/"><strong>Open the live interactive previewer →</strong></a></p>
+
 One audited core, six visual variants. Bilingual, dark by default, fast, SEO-ready, accessible. You pick the look in a config file; everything else is already done.
 
 <p>

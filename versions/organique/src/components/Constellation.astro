@@ -42,7 +42,7 @@ const groups: { id: string; label: string; nodes: NodeData[] }[] = [
     <canvas class="c-canvas" data-c-canvas aria-hidden="true"></canvas>
     {
       groups.map((group) => (
-        <div class="c-group">
+        <div class="c-group" data-preview-featured={group.id === "c-featured-title" ? "" : undefined}>
           <h3 class="c-group-label" id={group.id}>
             {group.label}
           </h3>
