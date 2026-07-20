@@ -73,6 +73,31 @@ function applyIdentity(settings: PreviewSettingsV1) {
   document.documentElement.dataset.previewTitle = settings.title;
 }
 
+function applyCoverPosition(settings: PreviewSettingsV1) {
+  for (const article of document.querySelectorAll<HTMLElement>("article[data-pagefind-body]")) {
+    const marker = article.querySelector<HTMLElement>("[data-preview-cover]");
+    const header = article.querySelector<HTMLElement>("header");
+    if (!marker || !header) continue;
+
+    const cover = marker.closest<HTMLElement>("[data-post-cover]") ?? marker;
+    let headerBlock = header;
+    while (headerBlock.parentElement && headerBlock.parentElement !== article) {
+      headerBlock = headerBlock.parentElement;
+    }
+    if (headerBlock.parentElement !== article) continue;
+
+    cover.classList.toggle("cover--down", settings.variant === "motion-primitives" && settings.coverPosition === "down");
+    cover.classList.toggle("article-cover", settings.variant === "cult-ui" && settings.coverPosition === "up");
+    cover.classList.toggle("article-cover-down", settings.variant === "cult-ui" && settings.coverPosition === "down");
+    cover.classList.toggle("cover--head", settings.variant === "aceternity" && settings.coverPosition === "up");
+    cover.classList.toggle("cover--body", settings.variant === "aceternity" && settings.coverPosition === "down");
+    cover.classList.toggle("post-cover-down", settings.variant === "organique" && settings.coverPosition === "down");
+
+    if (settings.coverPosition === "up") article.insertBefore(cover, headerBlock);
+    else headerBlock.after(cover);
+  }
+}
+
 function applySettings(settings: PreviewSettingsV1) {
   activeSettings = settings;
   const root = document.documentElement;
@@ -94,6 +119,7 @@ function applySettings(settings: PreviewSettingsV1) {
     localStorage.setItem("accent", settings.accent);
   } catch {}
   applyIdentity(settings);
+  applyCoverPosition(settings);
   window.dispatchEvent(new CustomEvent("lisible:preview-settings", { detail: settings }));
 }
 
