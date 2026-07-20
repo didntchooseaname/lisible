@@ -1,0 +1,187 @@
+---
+import profilePortrait from "@shared/assets/demo-profile.svg?url";
+
+interface Action {
+  href: string;
+  label: string;
+}
+
+interface Props {
+  locale: "fr" | "en";
+  actions: Action[];
+}
+
+const { locale, actions } = Astro.props;
+const copy = locale === "fr"
+  ? {
+      command: "./inspect-profile --live",
+      record: "FICHE IDENTITÉ / 0xA11CE",
+      name: "Alex Morgan",
+      pronouns: "IEL / THEM",
+      role: "DESIGNER · DÉVELOPPEUR · AUTEUR TECHNIQUE",
+      intro: "Lorem ipsum dolor sit amet. Je transforme les systèmes complexes en interfaces nettes, rapides et simples à explorer.",
+      online: "SIGNAL ACTIF",
+      clearance: "ACCÈS PUBLIC",
+      node: "NŒUD ALEX-MORGAN",
+      routes: "ROUTES DISPONIBLES",
+    }
+  : {
+      command: "./inspect-profile --live",
+      record: "IDENTITY RECORD / 0xA11CE",
+      name: "Alex Morgan",
+      pronouns: "THEY / THEM",
+      role: "DESIGNER · DEVELOPER · TECHNICAL WRITER",
+      intro: "Lorem ipsum dolor sit amet. I turn complex systems into clear, fast interfaces that remain easy to explore.",
+      online: "SIGNAL ACTIVE",
+      clearance: "PUBLIC ACCESS",
+      node: "NODE ALEX-MORGAN",
+      routes: "AVAILABLE ROUTES",
+    };
+---
+
+<section class="profile-terminal hud-corners" aria-labelledby="profile-terminal-title">
+  <div class="profile-terminal__command" aria-hidden="true">
+    <span>root@lisible</span><span>:~/identity$</span><strong>{copy.command}</strong>
+    <i></i><small>{copy.online}</small>
+  </div>
+
+  <div class="profile-terminal__grid">
+    <div class="profile-terminal__visual">
+      <div class="profile-terminal__portrait-shell">
+        <img
+          src={profilePortrait}
+          alt={locale === "fr" ? "Portrait abstrait du profil de démonstration Alex Morgan" : "Abstract portrait of demo profile Alex Morgan"}
+          width="320"
+          height="320"
+          loading="eager"
+          decoding="async"
+        />
+        <span class="profile-terminal__scan" aria-hidden="true"></span>
+        <span class="profile-terminal__corner profile-terminal__corner--tl" aria-hidden="true"></span>
+        <span class="profile-terminal__corner profile-terminal__corner--br" aria-hidden="true"></span>
+      </div>
+      <div class="profile-terminal__identity" aria-hidden="true">
+        <span>{copy.node}</span>
+        <span>ID 41:4C:45:58</span>
+        <span>{copy.clearance}</span>
+      </div>
+    </div>
+
+    <div class="profile-terminal__copy">
+      <p class="profile-terminal__record">[ {copy.record} ]</p>
+      <div class="profile-terminal__heading">
+        <h1 id="profile-terminal-title">{copy.name}</h1>
+        <span>{copy.pronouns}</span>
+      </div>
+      <p class="profile-terminal__role">{copy.role}</p>
+      <p class="profile-terminal__intro">{copy.intro}</p>
+
+      <div class="profile-terminal__routes">
+        <span>{copy.routes}</span>
+        <nav aria-label={locale === "fr" ? "Explorer la démonstration" : "Explore the demo"}>
+          {actions.map((action, index) => (
+            <a href={action.href} data-primary={index === 0 ? "" : undefined}>
+              <span aria-hidden="true">{index === 0 ? ">" : "$"}</span>{action.label}
+            </a>
+          ))}
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:inline>
+  .profile-terminal {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid color-mix(in oklab, var(--color-accent) 48%, var(--color-border));
+    background:
+      linear-gradient(color-mix(in oklab, var(--color-accent) 5%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklab, var(--color-accent) 5%, transparent) 1px, transparent 1px),
+      color-mix(in oklab, var(--color-card) 88%, var(--color-background));
+    background-size: 24px 24px;
+    box-shadow: inset 0 0 5rem color-mix(in oklab, var(--color-accent) 5%, transparent), var(--glow-sm);
+    font-family: var(--font-mono);
+  }
+
+  .profile-terminal::after {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    content: "";
+    background: repeating-linear-gradient(0deg, transparent 0 3px, rgb(0 0 0 / 0.08) 3px 4px);
+    pointer-events: none;
+  }
+
+  .profile-terminal__command {
+    display: flex;
+    min-height: 2.8rem;
+    padding: 0.65rem 0.9rem;
+    align-items: center;
+    gap: 0.35rem;
+    border-bottom: 1px solid var(--color-border);
+    background: color-mix(in oklab, var(--color-background) 86%, transparent);
+    color: var(--color-muted-foreground);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+  }
+
+  .profile-terminal__command > span:first-child,
+  .profile-terminal__command strong,
+  .profile-terminal__command small { color: var(--color-accent); }
+  .profile-terminal__command strong { font-weight: 650; }
+  .profile-terminal__command i { width: 0.42rem; height: 0.8rem; margin-left: 0.15rem; background: var(--color-accent); animation: profile-cursor 1s steps(1) infinite; }
+  .profile-terminal__command small { margin-left: auto; font-size: 0.6rem; font-weight: 750; letter-spacing: 0.14em; }
+
+  .profile-terminal__grid {
+    display: grid;
+    gap: clamp(1.5rem, 5vw, 4.5rem);
+    padding: clamp(1.1rem, 4vw, 3rem);
+  }
+
+  .profile-terminal__visual { min-width: 0; }
+  .profile-terminal__portrait-shell { position: relative; width: min(100%, 20rem); aspect-ratio: 1; overflow: hidden; border: 1px solid var(--color-accent); background: var(--color-background); box-shadow: inset 0 0 2rem color-mix(in oklab, var(--color-accent) 12%, transparent); }
+  .profile-terminal__portrait-shell img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.55) contrast(1.12); }
+  .profile-terminal__portrait-shell::after { position: absolute; inset: 0; content: ""; background: linear-gradient(135deg, color-mix(in oklab, var(--color-accent) 18%, transparent), transparent 46%); mix-blend-mode: color; pointer-events: none; }
+  .profile-terminal__scan { position: absolute; inset-inline: 0; top: -12%; z-index: 2; height: 16%; border-bottom: 1px solid var(--color-accent); background: linear-gradient(transparent, color-mix(in oklab, var(--color-accent) 18%, transparent)); animation: profile-scan 4.8s linear infinite; }
+  .profile-terminal__corner { position: absolute; z-index: 3; width: 1.4rem; height: 1.4rem; border-color: var(--color-accent); }
+  .profile-terminal__corner--tl { top: 0.55rem; left: 0.55rem; border-top: 2px solid; border-left: 2px solid; }
+  .profile-terminal__corner--br { right: 0.55rem; bottom: 0.55rem; border-right: 2px solid; border-bottom: 2px solid; }
+
+  .profile-terminal__identity { display: grid; width: min(100%, 20rem); margin-top: 0.7rem; grid-template-columns: 1fr auto; gap: 0.3rem 1rem; color: var(--color-muted-foreground); font-size: 0.58rem; letter-spacing: 0.1em; }
+  .profile-terminal__identity span:first-child { color: var(--color-accent); }
+  .profile-terminal__identity span:last-child { grid-column: 1 / -1; }
+
+  .profile-terminal__copy { align-self: center; }
+  .profile-terminal__record { margin: 0; color: var(--color-accent); font-size: 0.68rem; font-weight: 750; letter-spacing: 0.15em; }
+  .profile-terminal__heading { display: flex; margin-top: 0.9rem; flex-wrap: wrap; align-items: baseline; gap: 0.8rem; }
+  .profile-terminal__heading h1 { margin: 0; color: var(--color-foreground); font-family: var(--font-display, var(--font-mono)); font-size: clamp(3rem, 9vw, 7rem); font-weight: 900; line-height: 0.82; letter-spacing: 0.035em; text-transform: uppercase; text-shadow: 0.045em 0 color-mix(in oklab, var(--color-accent) 70%, transparent); }
+  .profile-terminal__heading span { color: var(--color-muted-foreground); font-size: 0.64rem; letter-spacing: 0.14em; }
+  .profile-terminal__role { margin-top: 1.35rem; color: var(--color-accent); font-size: clamp(0.72rem, 1.5vw, 0.92rem); font-weight: 750; letter-spacing: 0.09em; }
+  .profile-terminal__intro { max-width: 62ch; margin-top: 1rem; color: var(--color-muted-foreground); font-family: var(--font-sans); line-height: 1.75; }
+
+  .profile-terminal__routes { margin-top: 2rem; padding-top: 0.85rem; border-top: 1px dashed var(--color-border); }
+  .profile-terminal__routes > span { color: var(--color-muted-foreground); font-size: 0.58rem; letter-spacing: 0.14em; }
+  .profile-terminal__routes nav { display: flex; margin-top: 0.75rem; flex-wrap: wrap; gap: 0.65rem; }
+  .profile-terminal__routes a { display: inline-flex; min-height: 2.75rem; padding: 0.62rem 0.9rem; align-items: center; gap: 0.45rem; border: 1px solid var(--color-border); color: var(--color-foreground); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-decoration: none; text-transform: uppercase; transition: border-color 160ms ease, color 160ms ease, background 160ms ease; }
+  .profile-terminal__routes a:hover, .profile-terminal__routes a:focus-visible, .profile-terminal__routes a[data-primary] { border-color: var(--color-accent); background: color-mix(in oklab, var(--color-accent) 10%, transparent); color: var(--color-accent); }
+
+  @media (min-width: 48rem) {
+    .profile-terminal__grid { grid-template-columns: minmax(13rem, 0.72fr) minmax(0, 1.28fr); align-items: center; }
+  }
+
+  @media (max-width: 32rem) {
+    .profile-terminal__command strong { display: none; }
+    .profile-terminal__command small { letter-spacing: 0.08em; }
+    .profile-terminal__portrait-shell { width: 10rem; }
+    .profile-terminal__identity { width: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .profile-terminal__scan, .profile-terminal__command i { animation: none; }
+  }
+
+  @keyframes profile-scan { to { transform: translateY(700%); } }
+  @keyframes profile-cursor { 50% { opacity: 0; } }
+</style>

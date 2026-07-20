@@ -3,6 +3,7 @@ import appCssUrl from "@/styles/app.css?url";
 import { ClientRouter } from "astro:transitions";
 import LandingLocaleBootstrap from "@shared/components/LandingLocaleBootstrap.astro";
 import ExpressiveCodeLabelSpacing from "@shared/components/ExpressiveCodeLabelSpacing.astro";
+import AppearanceBootstrap from "@shared/components/AppearanceBootstrap.astro";
 import PreviewBridge from "@shared/components/PreviewBridge.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
@@ -47,56 +48,7 @@ const other = otherLocale(locale);
     <ExpressiveCodeLabelSpacing />
     <meta charset="utf-8" />
     <link rel="stylesheet" href={appCssUrl} />
-    <script is:inline define:vars={{ siteAccent: SITE.accent }}>
-      (function () {
-        function applyTheme() {
-          const stored = localStorage.getItem("theme");
-          const theme = stored === "light" || stored === "dark"
-            ? stored
-            : (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
-          document.documentElement.classList.toggle("dark", theme === "dark");
-        }
-        function lum(rgb) {
-          const c = rgb.map(function (v) {
-            v /= 255;
-            return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-          });
-          return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
-        }
-        function contrast(a, b) {
-          return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
-        }
-        function applyAccent() {
-          const stored = localStorage.getItem("accent");
-          const hex = stored && /^#[0-9a-fA-F]{6}$/.test(stored) ? stored : siteAccent;
-          const n = parseInt(hex.slice(1), 16);
-          let rgb = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-          const dark = document.documentElement.classList.contains("dark");
-          for (let i = 0; i < 60; i++) {
-            if (dark ? contrast(lum(rgb), 0) >= 3 : contrast(lum(rgb), 1) >= 4.5) break;
-            rgb = rgb.map(function (v) {
-              return dark
-                ? Math.min(255, Math.round(v + (255 - v) * 0.06) + 1)
-                : Math.max(0, Math.round(v * 0.94) - 1);
-            });
-          }
-          const fg = contrast(lum(rgb), 0) >= 4.5 ? "#000000" : "#ffffff";
-          const accent = "rgb(" + rgb.join(" ") + ")";
-          const style = document.documentElement.style;
-          style.setProperty("--accent", accent);
-          style.setProperty("--accent-foreground", fg);
-          style.setProperty("--ring", accent);
-        }
-        window.__applyAccent = applyAccent;
-        applyTheme();
-        applyAccent();
-        document.addEventListener("astro:after-swap", function () {
-          applyTheme();
-          applyAccent();
-        });
-        document.addEventListener("astro:page-load", applyAccent);
-      })();
-    </script>
+    <AppearanceBootstrap accent={SITE.accent} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <title>{pageTitle}</title>
@@ -156,5 +108,6 @@ const other = otherLocale(locale);
     <Footer locale={locale} />
     <SearchModal locale={locale} />
     <script>import "@shared/scripts/locale-preference";</script>
+    <script>import "@shared/scripts/diagram-fullscreen";</script>
   </body>
 </html>

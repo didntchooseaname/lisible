@@ -1528,9 +1528,6 @@ dialog[data-search-modal]::backdrop {
   color: var(--color-foreground);
 }
 
-.footer-wave {
-  margin-top: 5rem;
-}
 .post-nav-card {
   border-radius: 1.8rem 1.2rem 1.7rem 1.1rem / 1.2rem 1.8rem 1.1rem 1.7rem !important;
 }
