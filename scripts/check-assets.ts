@@ -70,6 +70,8 @@ async function main(): Promise<void> {
   const files = await walk(dist);
   const violations: Violation[] = [];
   const stylesheetErrors: string[] = [];
+  let hasDiscussionMarkup = false;
+  let hasDiscussionStyles = false;
   for (const file of files) {
     const size = (await stat(file)).size;
     const limit = limitFor(file);
@@ -77,6 +79,8 @@ async function main(): Promise<void> {
 
     if (extname(file) === ".html") {
       const html = await readFile(file, "utf8");
+      hasDiscussionMarkup ||= html.includes('class="discussion-demo"');
+      hasDiscussionStyles ||= /\.discussion-demo__grid(?:\[[^\]]+\])?\s*\{/.test(html);
       const stylesheets = [...html.matchAll(/<link\b[^>]*\brel=["']stylesheet["'][^>]*\bhref=["']([^"']+)["'][^>]*>/g)]
         .map((match) => match[1]!);
       const page = relative(dist, file);
@@ -89,7 +93,14 @@ async function main(): Promise<void> {
         const target = join(dist, href.split(/[?#]/, 1)[0]!.replace(/^\//, ""));
         if (!existsSync(target)) stylesheetErrors.push(`${page}: missing stylesheet asset ${href}.`);
       }
+    } else if (extname(file) === ".css") {
+      const css = await readFile(file, "utf8");
+      hasDiscussionStyles ||= /\.discussion-demo__grid(?:\[[^\]]+\])?\s*\{/.test(css);
     }
+  }
+
+  if (hasDiscussionMarkup && !hasDiscussionStyles) {
+    stylesheetErrors.push("Discussion placeholders are present without their component styles.");
   }
 
   if (violations.length === 0 && stylesheetErrors.length === 0) {
