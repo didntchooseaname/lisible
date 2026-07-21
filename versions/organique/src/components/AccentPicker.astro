@@ -98,63 +98,6 @@ const dict = t(locale);
   </div>
 </div>
 
-<style>
-  .accent-pop {
-    user-select: none;
-  }
-  .accent-sv {
-    position: relative;
-    width: 180px;
-    height: 140px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-border);
-    cursor: crosshair;
-    touch-action: none;
-    background: linear-gradient(to bottom, transparent, #000),
-      linear-gradient(to right, #fff, hsl(0deg 0% 50%));
-  }
-
-  .accent-hue {
-    position: relative;
-    margin-top: 0.75rem;
-    width: 180px;
-    height: 0.875rem;
-    border-radius: 999px;
-    border: 1px solid var(--color-border);
-    cursor: ew-resize;
-    touch-action: none;
-    background: linear-gradient(
-      to right,
-      hsl(0deg 100% 50%),
-      hsl(60deg 100% 50%),
-      hsl(120deg 100% 50%),
-      hsl(180deg 100% 50%),
-      hsl(240deg 100% 50%),
-      hsl(300deg 100% 50%),
-      hsl(360deg 100% 50%)
-    );
-  }
-
-  .accent-cursor {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    box-shadow:
-      0 0 0 1px rgb(0 0 0 / 0.65),
-      inset 0 0 0 1px rgb(0 0 0 / 0.35);
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-  }
-
-  .accent-hue .accent-cursor {
-    top: 50%;
-  }
-</style>
-
 <script>
   const HEX = /^#[0-9a-fA-F]{6}$/;
 

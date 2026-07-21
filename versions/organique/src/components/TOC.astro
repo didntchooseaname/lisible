@@ -18,67 +18,136 @@ const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
       <h2 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {dict.post.toc}
       </h2>
-      <ul>
-        {items.map((heading) => (
-          <li>
-            <a
-              href={`#${heading.slug}`}
-              data-toc-link
-              data-depth={heading.depth}
-              class="toc-item"
-            >
-              <span class="toc-dot" aria-hidden="true" />
-              <span class="toc-label">{heading.text}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
+      <div
+        class="toc-scroll-shell"
+        data-toc-scroll-shell
+        data-scrollable="false"
+        data-at-top="true"
+        data-at-bottom="true"
+      >
+        <ul data-toc-scroll tabindex="0">
+          {items.map((heading) => (
+            <li>
+              <a
+                href={`#${heading.slug}`}
+                data-toc-link
+                data-depth={heading.depth}
+                class="toc-item"
+              >
+                <span class="toc-dot" aria-hidden="true" />
+                <span class="toc-label">{heading.text}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </nav>
   )
 }
 
 <script>
-  let observer: IntersectionObserver | null = null;
+  let resizeObserver: ResizeObserver | null = null;
+  let trackedHeadings: HTMLElement[] = [];
+  let pageScrollFrame = 0;
+  let activeId = "";
+
+  function keepActiveVisible(anchor: HTMLAnchorElement, scroller: HTMLElement) {
+    const item = anchor.getBoundingClientRect();
+    const viewport = scroller.getBoundingClientRect();
+    const inset = 10;
+    let delta = 0;
+
+    if (item.top < viewport.top + inset) delta = item.top - viewport.top - inset;
+    else if (item.bottom > viewport.bottom - inset) delta = item.bottom - viewport.bottom + inset;
+    if (Math.abs(delta) < 1) return;
+
+    scroller.scrollBy({
+      top: delta,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    });
+  }
+
+  function updateScrollState(scroller: HTMLElement, shell: HTMLElement) {
+    const remaining = scroller.scrollHeight - scroller.clientHeight - scroller.scrollTop;
+    shell.dataset.scrollable = String(scroller.scrollHeight > scroller.clientHeight + 1);
+    shell.dataset.atTop = String(scroller.scrollTop <= 1);
+    shell.dataset.atBottom = String(remaining <= 1);
+  }
 
   function setActive(id: string) {
     const toc = document.querySelector("[data-toc]");
     if (!toc) return;
+    if (activeId === id) return;
+    activeId = id;
+    let activeAnchor: HTMLAnchorElement | null = null;
     toc.querySelectorAll("[data-toc-link]").forEach((link) => {
       const anchor = link as HTMLAnchorElement;
       const active = decodeURIComponent(anchor.hash.slice(1)) === id;
       anchor.setAttribute("aria-current", active ? "true" : "false");
+      if (active) activeAnchor = anchor;
+    });
+
+    const scroller = toc.querySelector<HTMLElement>("[data-toc-scroll]");
+    if (activeAnchor && scroller) keepActiveVisible(activeAnchor, scroller);
+  }
+
+  function updateActiveFromPage() {
+    if (pageScrollFrame !== 0 || trackedHeadings.length === 0) return;
+
+    pageScrollFrame = requestAnimationFrame(() => {
+      pageScrollFrame = 0;
+      if (!document.querySelector("[data-toc]") || trackedHeadings.length === 0) return;
+
+      const documentBottom = document.documentElement.scrollHeight;
+      const atDocumentEnd = window.scrollY + window.innerHeight >= documentBottom - 2;
+      let current = trackedHeadings[0];
+
+      if (atDocumentEnd) {
+        current = trackedHeadings[trackedHeadings.length - 1];
+      } else {
+        for (const heading of trackedHeadings) {
+          if (heading.getBoundingClientRect().top > 112) break;
+          current = heading;
+        }
+      }
+
+      setActive(current.id);
     });
   }
 
   function initToc() {
-    observer?.disconnect();
-    observer = null;
+    resizeObserver?.disconnect();
+    resizeObserver = null;
+    if (pageScrollFrame !== 0) cancelAnimationFrame(pageScrollFrame);
+    pageScrollFrame = 0;
+    trackedHeadings = [];
+    activeId = "";
 
     const toc = document.querySelector("[data-toc]");
     if (!toc) return;
+
+    const scroller = toc.querySelector<HTMLElement>("[data-toc-scroll]");
+    const shell = toc.querySelector<HTMLElement>("[data-toc-scroll-shell]");
+    if (scroller && shell) {
+      const update = () => updateScrollState(scroller, shell);
+      scroller.addEventListener("scroll", update, { passive: true });
+      resizeObserver = new ResizeObserver(update);
+      resizeObserver.observe(scroller);
+      requestAnimationFrame(update);
+    }
 
     const ids = new Set(
       [...toc.querySelectorAll<HTMLAnchorElement>("[data-toc-link]")].map((link) =>
         decodeURIComponent(link.hash.slice(1)),
       ),
     );
-    const headings = [
+    trackedHeadings = [
       ...document.querySelectorAll<HTMLElement>("article h2[id], article h3[id]"),
     ].filter((heading) => ids.has(heading.id));
-    if (headings.length === 0) return;
-
-    observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActive(entry.target.id);
-          }
-        }
-      },
-      { rootMargin: "-96px 0px -70% 0px", threshold: 0 },
-    );
-    headings.forEach((heading) => observer?.observe(heading));
+    updateActiveFromPage();
   }
 
+  window.addEventListener("scroll", updateActiveFromPage, { passive: true });
+  window.addEventListener("resize", updateActiveFromPage, { passive: true });
   document.addEventListener("astro:page-load", initToc);
 </script>

@@ -51,12 +51,3 @@ const items: { code: Locale; label: string; ariaLabel: string; href: string }[] 
     }
   </ul>
 </nav>
-
-<script>
-  document.addEventListener("click", (event) => {
-    const link = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[hreflang="fr"], a[hreflang="en"]');
-    if (link?.hreflang === "fr" || link?.hreflang === "en") {
-      localStorage.setItem("lisible-locale", link.hreflang);
-    }
-  });
-</script>

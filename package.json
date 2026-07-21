@@ -12,8 +12,14 @@
     "preview": "bun scripts/run.ts preview",
     "check-links": "bun scripts/check-links.ts",
     "check-assets": "bun scripts/check-assets.ts",
-    "check:all": "bun run build && bun run check-links && bun run check-assets",
+    "sync-og-assets": "bun scripts/sync-og-assets.ts",
+    "check-og-assets": "bun scripts/sync-og-assets.ts --check",
+    "check-og-output": "bun scripts/check-og-output.ts",
+    "check:all": "bun run check-og-assets && bun run build && bun run check-links && bun run check-assets && bun run check-og-output organique",
     "variant": "bun scripts/run.ts which",
     "preview:all": "bun scripts/preview-all.ts"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.3"
   }
 }

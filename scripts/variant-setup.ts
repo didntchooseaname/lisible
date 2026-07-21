@@ -9,6 +9,31 @@ export function hasVariantDependencies(dir: string) {
   return existsSync(join(dir, "node_modules", ".bin", "astro"));
 }
 
+export function hasRootDependencies(root: string) {
+  return existsSync(join(root, "node_modules", "sharp", "package.json"));
+}
+
+export function installRootDependencies(
+  root: string,
+  { force = false }: InstallOptions = {},
+) {
+  if (!force && hasRootDependencies(root)) return 0;
+
+  console.log("[lisible] root: installing tooling dependencies...");
+  const install = Bun.spawnSync(["bun", "install"], {
+    cwd: root,
+    stdout: "inherit",
+    stderr: "inherit",
+  });
+
+  if (install.exitCode !== 0) {
+    console.error(
+      `[lisible] root: dependency installation failed (exit code ${install.exitCode}).`,
+    );
+  }
+  return install.exitCode;
+}
+
 export function installVariantDependencies(
   name: string,
   dir: string,

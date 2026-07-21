@@ -1,13 +1,25 @@
 <script is:inline>
   (() => {
-    if (location.pathname !== "/") return;
-    const stored = localStorage.getItem("lisible-locale");
+    if (location.pathname.startsWith("/_previews/")) return;
+    let stored = null;
+    try {
+      stored = localStorage.getItem("lisible-locale");
+    } catch {
+      // The body-level locale controller still handles navigation.
+    }
+
+    const legacyQuery = new URLSearchParams(location.search).get("lisible-locale");
     const detected = navigator.languages?.find((language) => /^(fr|en)(-|$)/i.test(language))
       ?? navigator.language;
-    const preferred = stored === "fr" || stored === "en"
-      ? stored
-      : /^fr(-|$)/i.test(detected ?? "") ? "fr" : "en";
-    document.documentElement.dataset.landingLocale = preferred;
-    if (preferred === "fr") document.documentElement.style.visibility = "hidden";
+    const preferred = legacyQuery === "fr" || legacyQuery === "en"
+      ? legacyQuery
+      : stored === "fr" || stored === "en"
+        ? stored
+        : /^fr(-|$)/i.test(detected ?? "") ? "fr" : "en";
+    const current = document.documentElement.lang === "fr" ? "fr" : "en";
+
+    if (current !== preferred) {
+      document.documentElement.style.visibility = "hidden";
+    }
   })();
 </script>

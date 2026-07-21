@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<svg data-og-accent="#22C55E" xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="#000000"/>
   <rect x="96" y="96" width="120" height="8" rx="4" fill="#22C55E"/>
   <text x="96" y="330" font-family="Inter, 'Inter Variable', system-ui, sans-serif" font-size="96" font-weight="700" letter-spacing="-2" fill="#FFFFFF">Lisible</text>

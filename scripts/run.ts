@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { VARIANTS, isPublicVariant } from "../shared/variants";
-import { installVariantDependencies } from "./variant-setup";
+import { installRootDependencies, installVariantDependencies } from "./variant-setup";
 
 const root = new URL("..", import.meta.url).pathname;
 const configPath = join(root, "lisible.config.json");
@@ -28,6 +28,18 @@ if (cmd === "which" || !cmd) {
 if (!["dev", "build", "preview"].includes(cmd)) {
   console.error(`Unknown command: ${cmd} (expected: dev, build, preview, which)`);
   process.exit(1);
+}
+
+const rootInstallExitCode = installRootDependencies(root);
+if (rootInstallExitCode !== 0) process.exit(rootInstallExitCode);
+
+if (cmd === "build") {
+  const ogCheck = Bun.spawnSync(["bun", "scripts/sync-og-assets.ts", "--check"], {
+    cwd: root,
+    stdout: "inherit",
+    stderr: "inherit",
+  });
+  if (ogCheck.exitCode !== 0) process.exit(ogCheck.exitCode);
 }
 
 const installExitCode = installVariantDependencies(variant, dir);
