@@ -1,8 +1,22 @@
 import { join } from "node:path";
 import { VARIANTS } from "../shared/variants";
-import { buildVariant, installVariantDependencies } from "./variant-setup";
+import {
+  buildVariant,
+  installRootDependencies,
+  installVariantDependencies,
+} from "./variant-setup";
 
 const root = new URL("..", import.meta.url).pathname;
+
+const rootInstallExitCode = installRootDependencies(root);
+if (rootInstallExitCode !== 0) process.exit(rootInstallExitCode);
+
+const ogCheck = Bun.spawnSync(["bun", "scripts/sync-og-assets.ts", "--check"], {
+  cwd: root,
+  stdout: "inherit",
+  stderr: "inherit",
+});
+if (ogCheck.exitCode !== 0) process.exit(ogCheck.exitCode);
 
 for (const { id: name } of VARIANTS) {
   const dir = join(root, "versions", name);

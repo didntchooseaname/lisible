@@ -3,7 +3,7 @@ import { stdin, stdout, exit } from "node:process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { VARIANTS } from "../shared/variants";
-import { installVariantDependencies } from "./variant-setup";
+import { installRootDependencies, installVariantDependencies } from "./variant-setup";
 
 const root = new URL("..", import.meta.url).pathname;
 const configPath = join(root, "lisible.config.json");
@@ -97,6 +97,12 @@ async function main() {
   }
 
   info(`\nPreparing the "${variant}" variant...`);
+  const rootInstallExitCode = installRootDependencies(root);
+  if (rootInstallExitCode !== 0) {
+    info("  Configuration unchanged. Fix the error, then run bun run init again.");
+    rl.close();
+    exit(rootInstallExitCode);
+  }
   const installExitCode = installVariantDependencies(variant, variantDir, {
     force: true,
   });
@@ -114,6 +120,18 @@ async function main() {
     accent: detailed ? accent : undefined,
     repoUrl: detailed ? repoUrl : undefined,
   });
+
+  const syncOg = Bun.spawnSync(["bun", "scripts/sync-og-assets.ts"], {
+    cwd: root,
+    stdout: "inherit",
+    stderr: "inherit",
+  });
+  if (syncOg.exitCode !== 0) {
+    info("  The configuration was written, but Open Graph assets could not be regenerated.");
+    info("  Fix the error, then run bun run sync-og-assets.");
+    rl.close();
+    exit(syncOg.exitCode);
+  }
 
   info("\nDone.");
   info(`  Active variant: ${variant}`);

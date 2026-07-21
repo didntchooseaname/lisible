@@ -243,6 +243,15 @@
   margin-block-start: 0.75em;
   font-style: normal;
 }
+
+.prose figure svg[viewBox],
+.inline-media-svg svg[viewBox],
+[data-infographic] svg[viewBox] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
 .prose table {
   display: block;
   width: max-content;
@@ -1280,12 +1289,237 @@ dialog[data-search-modal]::backdrop {
 .blob-button {
   border-radius: 58% 42% 55% 45% / 48% 56% 44% 52% !important;
 }
-.toc-organic ul {
-  margin-top: 0.9rem;
+
+.astro-route-announcer {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+#image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background-color: color-mix(in oklab, var(--color-background) 92%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+#image-lightbox.active {
   display: flex;
+  animation: lb-fade 0.2s ease-out;
+}
+
+@keyframes lb-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lb-controls {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.lb-btn,
+.lb-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-popover);
+  color: var(--color-popover-foreground);
+  cursor: pointer;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+}
+
+.lb-btn { border-radius: var(--radius-md); }
+
+.lb-btn:hover,
+.lb-nav:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-foreground);
+}
+
+.lb-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  border-radius: 999px;
+  transform: translateY(-50%);
+}
+
+.lb-prev { left: 1rem; }
+.lb-next { right: 1rem; }
+
+.lb-nav[disabled] {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.lb-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 1.5rem;
+}
+
+#lightbox-image {
+  max-width: 92vw;
+  max-height: 88vh;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  cursor: zoom-in;
+  touch-action: none;
+  user-select: none;
+  transition: transform 0.2s ease-out;
+}
+
+#lightbox-image.zoomed { cursor: grab; }
+#lightbox-image.zoomed.panning { cursor: grabbing; }
+
+.lb-counter {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background-color: var(--color-popover);
+  color: var(--color-popover-foreground);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  transform: translateX(-50%);
+}
+
+.accent-pop {
+  user-select: none;
+}
+
+.accent-sv {
+  position: relative;
+  width: 180px;
+  height: 140px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: crosshair;
+  touch-action: none;
+  background:
+    linear-gradient(to bottom, transparent, #000),
+    linear-gradient(to right, #fff, hsl(0deg 0% 50%));
+}
+
+.accent-hue {
+  position: relative;
+  width: 180px;
+  height: 0.875rem;
+  margin-top: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: ew-resize;
+  touch-action: none;
+  background: linear-gradient(
+    to right,
+    hsl(0deg 100% 50%),
+    hsl(60deg 100% 50%),
+    hsl(120deg 100% 50%),
+    hsl(180deg 100% 50%),
+    hsl(240deg 100% 50%),
+    hsl(300deg 100% 50%),
+    hsl(360deg 100% 50%)
+  );
+}
+
+.accent-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.65),
+    inset 0 0 0 1px rgb(0 0 0 / 0.35);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.accent-hue .accent-cursor {
+  top: 50%;
+}
+
+.toc-organic {
+  display: flex;
+  min-height: 0;
+  max-height: calc(100dvh - 7.5rem);
   flex-direction: column;
+}
+
+.toc-scroll-shell {
+  position: relative;
+  min-height: 0;
+  margin-top: 0.65rem;
+}
+
+.toc-scroll-shell::before,
+.toc-scroll-shell::after {
+  position: absolute;
+  z-index: 2;
+  right: 0.35rem;
+  left: 0;
+  height: 1.15rem;
+  pointer-events: none;
+  content: "";
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+}
+
+.toc-scroll-shell::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--color-background), transparent);
+}
+
+.toc-scroll-shell::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--color-background), transparent);
+}
+
+.toc-scroll-shell[data-scrollable="true"][data-at-top="false"]::before,
+.toc-scroll-shell[data-scrollable="true"][data-at-bottom="false"]::after {
+  opacity: 1;
+}
+
+.toc-organic ul {
+  display: flex;
+  max-height: calc(100dvh - 10rem);
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  scrollbar-color: color-mix(in oklab, var(--accent) 42%, var(--color-border)) transparent;
   border: none;
-  padding: 0;
+  padding: 0.25rem 0.35rem 0.25rem 0;
+}
+
+.toc-organic ul:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 3px;
 }
 
 .toc-organic .toc-item {
@@ -1538,6 +1772,99 @@ dialog[data-search-modal]::backdrop {
 body {
   overflow-x: clip;
 }
+
+.knowledge-graph:not(.is-live) .c-series-layer { display: none; }
+
+.knowledge-graph.is-live .c-series-layer { display: contents; }
+
+.knowledge-graph.is-live .c-series-parent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  width: 0;
+  height: 0;
+  will-change: transform;
+  transition: opacity 180ms ease-out;
+}
+
+.knowledge-graph.is-live .c-series-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  width: 10.5rem;
+  min-height: 3.15rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.05rem 0.55rem;
+  align-items: center;
+  padding: 0.48rem 0.65rem 0.5rem 0.78rem;
+  border: 1px solid color-mix(in oklab, var(--accent) 42%, var(--color-border));
+  border-radius: 1.15rem 0.8rem 1.05rem 0.9rem / 0.8rem 1.1rem 0.82rem 1.05rem;
+  background: color-mix(in oklab, var(--color-popover) 94%, transparent);
+  box-shadow: 0 0 24px color-mix(in oklab, var(--accent) 10%, transparent);
+  color: var(--color-foreground);
+  text-decoration: none;
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(10px);
+  transition: border-color 180ms ease-out, box-shadow 180ms ease-out, transform 180ms ease-out;
+}
+
+.knowledge-graph.is-live .c-series-link:hover,
+.knowledge-graph.is-live .c-series-link:focus-visible,
+.knowledge-graph.is-live .c-series-parent[data-graph-state="active"] .c-series-link {
+  border-color: var(--accent);
+  box-shadow: 0 0 32px color-mix(in oklab, var(--accent) 24%, transparent);
+  transform: translate(-50%, -50%) scale(1.04);
+}
+
+.knowledge-graph.is-live .c-series-parent[data-graph-state="muted"] { opacity: 0.16; }
+
+.knowledge-graph.is-live .c-series-kind {
+  grid-column: 1;
+  color: var(--accent);
+  font-size: 0.56rem;
+  font-weight: 760;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.knowledge-graph.is-live .c-series-link strong {
+  grid-column: 1;
+  overflow: hidden;
+  font-size: 0.68rem;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.knowledge-graph.is-live .c-series-link small {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  width: 1.45rem;
+  height: 1.45rem;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--accent) 13%, transparent);
+  color: var(--accent);
+  font-size: 0.62rem;
+  font-weight: 720;
+}
+
+.knowledge-graph.is-live .c-node-title { display: none; }
+
+.c-node-card-title { display: none; }
+
+.knowledge-graph.is-live .c-node-card .c-node-card-title {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--color-foreground);
+  font-size: 0.84rem;
+  line-height: 1.3;
+}
+
 .knowledge-graph:not(.is-live) .c-node-card {
   display: block;
 }

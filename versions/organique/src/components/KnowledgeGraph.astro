@@ -1,6 +1,6 @@
 ---
 import { t, localeUrl, type Locale } from "@/i18n/ui";
-import { postSlug, postUrl, slugifyTag, type Post } from "@/lib/posts";
+import { postSlug, postUrl, seriesUrl, slugifyTag, type Post } from "@/lib/posts";
 import { formatDate, isoDate, readingTime } from "@/lib/utils";
 import { FEATURES } from "@/site.config";
 import PostCover from "@/components/PostCover.astro";
@@ -24,15 +24,9 @@ interface NodeData {
 const featuredIds = new Set(featured.map((post) => post.id));
 const grouped = new Map<string, NodeData[]>();
 const groupLabels = new Map<string, string>();
+const seriesGrouped = new Map<string, { name: string; posts: Post[] }>();
 
 function groupFor(post: Post): { key: string; label: string; priority: number } {
-  if (post.data.series) {
-    return {
-      key: `series-${slugifyTag(post.data.series)}`,
-      label: post.data.series,
-      priority: 0,
-    };
-  }
   const slug = postSlug(post);
   const root = slug.includes("/") ? slug.split("/")[0] : "";
   if (root) {
@@ -65,6 +59,13 @@ posts.forEach((post, order) => {
   nodes.push({ post, order, isFeatured, priority: isFeatured || order < 7 });
   grouped.set(group.key, nodes);
   groupLabels.set(group.key, group.label);
+
+  if (post.data.series) {
+    const key = slugifyTag(post.data.series);
+    const entry = seriesGrouped.get(key) ?? { name: post.data.series, posts: [] };
+    entry.posts.push(post);
+    seriesGrouped.set(key, entry);
+  }
 });
 
 const groups = [...grouped.entries()]
@@ -73,9 +74,12 @@ const groups = [...grouped.entries()]
     key,
     label: groupLabels.get(key) ?? key,
     nodes,
-    priority: nodes[0]?.post.data.series ? 0 : key.startsWith("section-") ? 1 : 2,
+    priority: key.startsWith("section-") ? 1 : 2,
   }))
   .sort((a, b) => a.priority - b.priority || a.label.localeCompare(b.label, locale));
+const seriesParents = [...seriesGrouped.entries()]
+  .map(([key, entry]) => ({ key, ...entry }))
+  .sort((a, b) => a.name.localeCompare(b.name, locale));
 ---
 
 <section class="knowledge-graph pt-14 pb-8 md:pt-20 md:pb-10" data-knowledge-graph aria-labelledby="knowledge-graph-heading">
@@ -108,6 +112,17 @@ const groups = [...grouped.entries()]
 
   <div class="c-field mt-8" data-c-field>
     <canvas class="c-canvas" data-c-canvas aria-hidden="true"></canvas>
+    <div class="c-series-layer" aria-label={dict.series.listTitle}>
+      {seriesParents.map((series) => (
+        <div class="c-series-parent" data-c-series={series.key}>
+          <a class="c-series-link" href={seriesUrl(locale, series.name)} draggable="false">
+            <span class="c-series-kind">{dict.series.label}</span>
+            <strong>{series.name}</strong>
+            <small>{series.posts.length}</small>
+          </a>
+        </div>
+      ))}
+    </div>
     {
       groups.map((group) => (
         <div class="c-group" data-c-group={group.key}>
@@ -126,6 +141,7 @@ const groups = [...grouped.entries()]
                   data-order={order}
                   data-tags={tagSlugs}
                   data-cluster={group.key}
+                  data-series={post.data.series ? slugifyTag(post.data.series) : undefined}
                   data-featured={isFeatured ? "" : undefined}
                   data-priority={priority ? "" : undefined}
                 >
@@ -136,6 +152,7 @@ const groups = [...grouped.entries()]
                       {post.data.draft && <span class="c-node-badge">{dict.post.draft}</span>}
                     </span>
                     <span class="c-node-card">
+                      <strong class="c-node-card-title">{post.data.title}</strong>
                       {FEATURES.covers && post.data.cover && (
                         <PostCover
                           cover={post.data.cover}
@@ -193,6 +210,7 @@ const groups = [...grouped.entries()]
     link: HTMLAnchorElement;
     tags: string[];
     cluster: string;
+    series: string;
     featured: boolean;
     priority: boolean;
     x: number;
@@ -226,6 +244,19 @@ const groups = [...grouped.entries()]
     phase: number;
   }
 
+  interface CSeriesParent {
+    id: string;
+    el: HTMLElement;
+    memberIndexes: number[];
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    hx: number;
+    hy: number;
+    phase: number;
+  }
+
   interface DragState {
     index: number;
     pointerId: number;
@@ -243,12 +274,14 @@ const groups = [...grouped.entries()]
   let nodes: CNode[] = [];
   let links: CLink[] = [];
   let clusters: CCluster[] = [];
+  let seriesParents: CSeriesParent[] = [];
   let raf = 0;
   let live = false;
   let inView = true;
   let lastTime = 0;
   let activeIndex = -1;
   let activeCluster = "";
+  let activeSeries = "";
   let drag: DragState | null = null;
   let suppressedClickIndex = -1;
   let suppressedClickUntil = 0;
@@ -322,18 +355,35 @@ const groups = [...grouped.entries()]
         if (link.a === activeIndex) connected.add(link.b);
         if (link.b === activeIndex) connected.add(link.a);
       }
+      const series = nodes[activeIndex]?.series;
+      if (series) {
+        for (const parent of seriesParents) {
+          if (parent.id === series) parent.memberIndexes.forEach((index) => connected.add(index));
+        }
+      }
+    }
+    if (activeSeries) {
+      seriesParents
+        .find((parent) => parent.id === activeSeries)
+        ?.memberIndexes.forEach((index) => connected.add(index));
     }
     nodes.forEach((node, nodeIndex) => {
       if (activeIndex === nodeIndex) node.el.setAttribute("data-graph-state", "active");
       else if (connected.has(nodeIndex)) node.el.setAttribute("data-graph-state", "connected");
-      else if (activeIndex >= 0) node.el.setAttribute("data-graph-state", "muted");
+      else if (activeIndex >= 0 || activeSeries) node.el.setAttribute("data-graph-state", "muted");
       else if (activeCluster && node.cluster === activeCluster) node.el.setAttribute("data-graph-state", "cluster");
       else if (activeCluster) node.el.setAttribute("data-graph-state", "muted");
-      else node.el.setAttribute("data-graph-state", "muted");
+      else node.el.removeAttribute("data-graph-state");
     });
 
-    if (activeIndex < 0 && !activeCluster) {
-      for (const node of nodes) node.el.removeAttribute("data-graph-state");
+    for (const parent of seriesParents) {
+      const ownsActiveNode = activeIndex >= 0 && parent.memberIndexes.includes(activeIndex);
+      if (parent.id === activeSeries || ownsActiveNode) parent.el.setAttribute("data-graph-state", "active");
+      else if (activeIndex >= 0 || activeSeries) parent.el.setAttribute("data-graph-state", "muted");
+      else if (activeCluster && parent.memberIndexes.some((index) => nodes[index]?.cluster === activeCluster)) {
+        parent.el.setAttribute("data-graph-state", "cluster");
+      } else if (activeCluster) parent.el.setAttribute("data-graph-state", "muted");
+      else parent.el.removeAttribute("data-graph-state");
     }
 
     for (const cluster of clusters) {
@@ -348,12 +398,20 @@ const groups = [...grouped.entries()]
 
   function setActiveIndex(index: number): void {
     activeIndex = index;
+    if (index >= 0) activeSeries = "";
+    refreshGraphState();
+  }
+
+  function setActiveSeries(series: string): void {
+    activeSeries = series;
+    activeIndex = -1;
     refreshGraphState();
   }
 
   function setActiveCluster(cluster: string): void {
     activeCluster = activeCluster === cluster ? "" : cluster;
     activeIndex = -1;
+    activeSeries = "";
     refreshGraphState();
   }
 
@@ -368,8 +426,8 @@ const groups = [...grouped.entries()]
     const golden = 2.399963;
     const columns = w >= 1040 ? 4 : 3;
     const rows = Math.ceil(clusters.length / columns);
-    const padX = clamp(w * 0.045, 42, 64);
-    const padY = 58;
+    const padX = clamp(w * 0.065, 54, 86);
+    const padY = 76;
     const cellWidth = (w - padX * 2) / columns;
     const cellHeight = (h - padY * 2) / rows;
 
@@ -381,7 +439,7 @@ const groups = [...grouped.entries()]
       const rowOffset = incompleteRow ? (columns - rowItems) * cellWidth * 0.5 : 0;
       cluster.cx = padX + rowOffset + cellWidth * (column + 0.5) + Math.sin(cluster.phase) * cellWidth * 0.07;
       cluster.cy = padY + cellHeight * (row + 0.5) + Math.cos(cluster.phase) * cellHeight * 0.06;
-      cluster.r = Math.min(cellWidth, cellHeight) * 0.5;
+      cluster.r = Math.min(cellWidth, cellHeight) * 0.43;
       const count = cluster.nodeIndexes.length;
 
       cluster.nodeIndexes.forEach((nodeIndex, localIndex) => {
@@ -391,7 +449,7 @@ const groups = [...grouped.entries()]
         const angle = localIndex * golden + cluster.phase + rand() * 0.28;
         const radial = localIndex === 0
           ? 0
-          : cluster.r * (0.3 + 0.82 * Math.sqrt(localIndex / Math.max(1, count - 1)));
+          : cluster.r * (0.22 + 0.72 * Math.sqrt(localIndex / Math.max(1, count - 1)));
         node.hx = cluster.cx + Math.cos(angle) * radial;
         node.hy = cluster.cy + Math.sin(angle) * radial;
         node.p1 = rand() * Math.PI * 2;
@@ -411,9 +469,9 @@ const groups = [...grouped.entries()]
           const dx = b.hx - a.hx;
           const dy = b.hy - a.hy;
           const dist = Math.hypot(dx, dy) || 0.01;
-          const min = a.r + b.r + 24;
+          const min = a.r + b.r + 10;
           if (dist < min) {
-            const push = ((min - dist) / dist) * 0.28;
+            const push = ((min - dist) / dist) * 0.24;
             a.hx -= dx * push;
             a.hy -= dy * push;
             b.hx += dx * push;
@@ -424,12 +482,79 @@ const groups = [...grouped.entries()]
       for (const cluster of clusters) {
         for (const nodeIndex of cluster.nodeIndexes) {
           const node = nodes[nodeIndex]!;
-          node.hx += (cluster.cx - node.hx) * 0.004;
-          node.hy += (cluster.cy - node.hy) * 0.004;
-          const edgeX = Math.max(node.r + 28, 80);
-          const edgeY = Math.max(node.r + 34, 72);
-          node.hx = clamp(node.hx, edgeX, w - edgeX);
-          node.hy = clamp(node.hy, edgeY, h - edgeY);
+          node.hx += (cluster.cx - node.hx) * 0.006;
+          node.hy += (cluster.cy - node.hy) * 0.006;
+          node.hx = clamp(node.hx, node.r + 18, w - node.r - 18);
+          node.hy = clamp(node.hy, node.r + 26, h - node.r - 26);
+        }
+      }
+    }
+
+    const placedParents: CSeriesParent[] = [];
+    for (const parent of seriesParents) {
+      const members = parent.memberIndexes.map((index) => nodes[index]!).filter(Boolean);
+      const centerX = members.reduce((sum, node) => sum + node.hx, 0) / members.length;
+      const centerY = members.reduce((sum, node) => sum + node.hy, 0) / members.length;
+      const outward = Math.atan2(centerY - h / 2, centerX - w / 2);
+      let best = { x: centerX, y: centerY, score: Number.POSITIVE_INFINITY };
+      for (const radius of [82, 112, 146, 184, 224]) {
+        for (let angleIndex = 0; angleIndex < 24; angleIndex++) {
+          const angle = outward + parent.phase * 0.11 + (angleIndex / 24) * Math.PI * 2;
+          const x = clamp(centerX + Math.cos(angle) * radius, 92, w - 92);
+          const y = clamp(centerY + Math.sin(angle) * radius, 42, h - 42);
+          let score = radius * 0.12 + Math.abs(x - (centerX + Math.cos(outward) * radius)) * 0.01;
+          for (const node of nodes) {
+            const overlapX = node.r + 104 - Math.abs(x - node.hx);
+            const overlapY = node.r + 42 - Math.abs(y - node.hy);
+            if (overlapX > 0 && overlapY > 0) score += 100_000 + overlapX * overlapY;
+          }
+          for (const placed of placedParents) {
+            const overlapX = 180 - Math.abs(x - placed.hx);
+            const overlapY = 62 - Math.abs(y - placed.hy);
+            if (overlapX > 0 && overlapY > 0) score += 120_000 + overlapX * overlapY;
+          }
+          if (score < best.score) best = { x, y, score };
+        }
+      }
+      parent.hx = best.x;
+      parent.hy = best.y;
+      placedParents.push(parent);
+    }
+
+    for (let iter = 0; iter < 24; iter++) {
+      for (const parent of seriesParents) {
+        for (const node of nodes) {
+          const dx = node.hx - parent.hx;
+          const dy = node.hy - parent.hy;
+          const overlapX = node.r + 104 - Math.abs(dx);
+          const overlapY = node.r + 42 - Math.abs(dy);
+          if (overlapX <= 0 || overlapY <= 0) continue;
+          if (overlapX < overlapY) parent.hx -= (dx >= 0 ? 1 : -1) * overlapX * 0.42;
+          else parent.hy -= (dy >= 0 ? 1 : -1) * overlapY * 0.5;
+        }
+        parent.hx = clamp(parent.hx, 92, w - 92);
+        parent.hy = clamp(parent.hy, 42, h - 42);
+      }
+      for (let i = 0; i < seriesParents.length; i++) {
+        for (let j = i + 1; j < seriesParents.length; j++) {
+          const a = seriesParents[i]!;
+          const b = seriesParents[j]!;
+          const dx = b.hx - a.hx;
+          const dy = b.hy - a.hy;
+          const overlapX = 180 - Math.abs(dx);
+          const overlapY = 62 - Math.abs(dy);
+          if (overlapX <= 0 || overlapY <= 0) continue;
+          if (overlapX < overlapY) {
+            const push = overlapX * 0.24;
+            const direction = dx >= 0 ? 1 : -1;
+            a.hx -= direction * push;
+            b.hx += direction * push;
+          } else {
+            const push = overlapY * 0.3;
+            const direction = dy >= 0 ? 1 : -1;
+            a.hy -= direction * push;
+            b.hy += direction * push;
+          }
         }
       }
     }
@@ -441,6 +566,12 @@ const groups = [...grouped.entries()]
       node.vy = 0;
       node.el.style.setProperty("--d", `${Math.round(node.r * 2 + 12)}px`);
       updateCardPlacement(node);
+    }
+    for (const parent of seriesParents) {
+      parent.x = parent.hx;
+      parent.y = parent.hy;
+      parent.vx = 0;
+      parent.vy = 0;
     }
   }
 
@@ -522,13 +653,50 @@ const groups = [...grouped.entries()]
       node.boost += (boostTarget - node.boost) * Math.min(1, dt * 9);
     }
 
+    for (const parent of seriesParents) {
+      const tx = parent.hx + Math.sin(time * 0.19 + parent.phase) * 4;
+      const ty = parent.hy + Math.cos(time * 0.17 + parent.phase) * 3;
+      const followsDraggedMember = drag !== null && parent.memberIndexes.includes(drag.index);
+      const homeStrength = followsDraggedMember ? 1.4 : 10;
+      parent.vx += (tx - parent.x) * homeStrength * dt;
+      parent.vy += (ty - parent.y) * homeStrength * dt;
+      const damp = Math.exp(-3.6 * dt);
+      parent.vx *= damp;
+      parent.vy *= damp;
+      parent.x += parent.vx * dt;
+      parent.y += parent.vy * dt;
+    }
+
+    for (const parent of seriesParents) {
+      const followsDraggedMember = drag !== null && parent.memberIndexes.includes(drag.index);
+      for (const memberIndex of parent.memberIndexes) {
+        const node = nodes[memberIndex]!;
+        const dx = node.x - parent.x;
+        const dy = node.y - parent.y;
+        const distance = Math.hypot(dx, dy) || 0.01;
+        const target = node.r + 82;
+        const draggedMember = drag?.index === memberIndex;
+        const strength = draggedMember ? 20 : followsDraggedMember ? 1.8 : 0;
+        const spring = (distance - target) * strength * dt;
+        const fx = (dx / distance) * spring;
+        const fy = (dy / distance) * spring;
+        parent.vx += fx;
+        parent.vy += fy;
+        if (!draggedMember) {
+          const memberResponse = followsDraggedMember ? 0.52 : 0.35;
+          node.vx -= fx * memberResponse;
+          node.vy -= fy * memberResponse;
+        }
+      }
+    }
+
     for (const link of links) {
       const a = nodes[link.a]!;
       const b = nodes[link.b]!;
       const dx = b.x - a.x;
       const dy = b.y - a.y;
       const distance = Math.hypot(dx, dy) || 0.01;
-      const target = link.crossCluster ? distance : a.r + b.r + 78;
+      const target = link.crossCluster ? distance : a.r + b.r + 56;
       const strength = link.crossCluster ? 0.004 : 0.16;
       const spring = (distance - target) * strength * dt;
       const fx = (dx / distance) * spring;
@@ -550,7 +718,7 @@ const groups = [...grouped.entries()]
         const dx = b.x - a.x;
         const dy = b.y - a.y;
         const distance = Math.hypot(dx, dy) || 0.01;
-        const minimum = a.r + b.r + 22;
+        const minimum = a.r + b.r + 8;
         if (distance >= minimum) continue;
         const push = (minimum - distance) * 0.12;
         const px = (dx / distance) * push;
@@ -566,19 +734,51 @@ const groups = [...grouped.entries()]
       }
     }
 
-    if (!field) return;
-    const w = field.clientWidth;
-    const h = field.clientHeight;
-    for (const node of nodes) {
-      const edgeX = Math.max(node.r + 28, 80);
-      const edgeY = Math.max(node.r + 34, 72);
-      const nextX = clamp(node.x, edgeX, w - edgeX);
-      const nextY = clamp(node.y, edgeY, h - edgeY);
-      if (nextX !== node.x) node.vx *= -0.16;
-      if (nextY !== node.y) node.vy *= -0.16;
-      node.x = nextX;
-      node.y = nextY;
-      updateCardPlacement(node);
+    for (const parent of seriesParents) {
+      for (let collisionPass = 0; collisionPass < 4; collisionPass++) {
+        for (let index = 0; index < nodes.length; index++) {
+          const node = nodes[index]!;
+          const dx = node.x - parent.x;
+          const dy = node.y - parent.y;
+          const minimumX = node.r + 104;
+          const minimumY = node.r + 42;
+          if (Math.abs(dx) >= minimumX || Math.abs(dy) >= minimumY) continue;
+          const overlapX = minimumX - Math.abs(dx);
+          const overlapY = minimumY - Math.abs(dy);
+          if (overlapX < overlapY * 1.35) {
+            const push = overlapX + 3;
+            const direction = dx >= 0 ? 1 : -1;
+            parent.x -= direction * push * 0.72;
+            parent.vx = 0;
+            if (drag?.index !== index) node.x += direction * push * 0.28;
+          } else {
+            const push = overlapY + 3;
+            const direction = dy >= 0 ? 1 : -1;
+            parent.y -= direction * push * 0.72;
+            parent.vy = 0;
+            if (drag?.index !== index) node.y += direction * push * 0.28;
+          }
+        }
+      }
+      const fieldRect = field?.getBoundingClientRect();
+      if (fieldRect) {
+        for (const cluster of clusters) {
+          const labelRect = cluster.label.getBoundingClientRect();
+          const labelX = labelRect.left - fieldRect.left + labelRect.width / 2;
+          const labelY = labelRect.top - fieldRect.top + labelRect.height / 2;
+          const dx = labelX - parent.x;
+          const dy = labelY - parent.y;
+          const overlapX = 92 + labelRect.width / 2 + 8 - Math.abs(dx);
+          const overlapY = 28 + labelRect.height / 2 + 8 - Math.abs(dy);
+          if (overlapX <= 0 || overlapY <= 0) continue;
+          if (overlapX < overlapY * 1.35) parent.x -= (dx >= 0 ? 1 : -1) * overlapX * 0.72;
+          else parent.y -= (dy >= 0 ? 1 : -1) * overlapY * 0.78;
+        }
+      }
+      if (field) {
+        parent.x = clamp(parent.x, 92, field.clientWidth - 92);
+        parent.y = clamp(parent.y, 42, field.clientHeight - 42);
+      }
     }
   }
 
@@ -687,6 +887,31 @@ const groups = [...grouped.entries()]
     ctx.clearRect(0, 0, field.clientWidth, field.clientHeight);
     drawBackdrop(time);
 
+    for (const parent of seriesParents) {
+      for (const memberIndex of parent.memberIndexes) {
+        const node = nodes[memberIndex]!;
+        const emphasized = activeSeries === parent.id || activeIndex === memberIndex;
+        const dimmed = activeIndex >= 0 && !parent.memberIndexes.includes(activeIndex);
+        const dx = node.x - parent.x;
+        const dy = node.y - parent.y;
+        const bend = Math.sin(parent.phase + memberIndex * 1.7) * 0.11;
+        const mx = (parent.x + node.x) / 2 + dy * bend;
+        const my = (parent.y + node.y) / 2 - dx * bend;
+        ctx.globalAlpha = dimmed ? 0.025 : emphasized ? 0.88 : 0.24;
+        ctx.strokeStyle = colors.accent;
+        ctx.lineWidth = emphasized ? 2 : 1.15;
+        ctx.setLineDash(emphasized ? [] : [3, 5]);
+        ctx.shadowColor = emphasized ? colors.accent : "transparent";
+        ctx.shadowBlur = emphasized ? 8 : 0;
+        ctx.beginPath();
+        ctx.moveTo(parent.x, parent.y);
+        ctx.quadraticCurveTo(mx, my, node.x, node.y);
+        ctx.stroke();
+      }
+    }
+    ctx.setLineDash([]);
+    ctx.shadowBlur = 0;
+
     for (const link of links) {
       const a = nodes[link.a]!;
       const b = nodes[link.b]!;
@@ -735,6 +960,9 @@ const groups = [...grouped.entries()]
   function place(): void {
     for (const node of nodes) {
       node.el.style.transform = `translate3d(${node.x.toFixed(1)}px, ${node.y.toFixed(1)}px, 0)`;
+    }
+    for (const parent of seriesParents) {
+      parent.el.style.transform = `translate3d(${parent.x.toFixed(1)}px, ${parent.y.toFixed(1)}px, 0)`;
     }
   }
 
@@ -795,8 +1023,13 @@ const groups = [...grouped.entries()]
       cluster.label.removeAttribute("data-active");
       cluster.label.removeAttribute("data-muted");
     }
+    for (const parent of seriesParents) {
+      parent.el.style.transform = "";
+      parent.el.removeAttribute("data-graph-state");
+    }
     activeIndex = -1;
     activeCluster = "";
+    activeSeries = "";
     refreshGraphState();
     field?.removeAttribute("data-dragging");
   }
@@ -822,6 +1055,7 @@ const groups = [...grouped.entries()]
     nodes = [];
     links = [];
     clusters = [];
+    seriesParents = [];
     section = null;
     field = null;
     canvas = null;
@@ -831,6 +1065,7 @@ const groups = [...grouped.entries()]
     suppressedClickUntil = 0;
     activeIndex = -1;
     activeCluster = "";
+    activeSeries = "";
     pointer.active = false;
     window.clearTimeout(resizeTimer);
   }
@@ -839,6 +1074,10 @@ const groups = [...grouped.entries()]
     const el = (event.target as HTMLElement | null)?.closest<HTMLElement>("[data-c-node]");
     if (!el) return -1;
     return nodes.findIndex((node) => node.el === el);
+  }
+
+  function seriesIdFromEvent(event: Event): string {
+    return (event.target as HTMLElement | null)?.closest<HTMLElement>("[data-c-series]")?.dataset.cSeries ?? "";
   }
 
   function updatePointer(event: PointerEvent): void {
@@ -857,10 +1096,8 @@ const groups = [...grouped.entries()]
       event.preventDefault();
     }
     const node = nodes[drag.index]!;
-    const edgeX = Math.max(node.r + 28, 80);
-    const edgeY = Math.max(node.r + 34, 72);
-    const nextX = clamp(pointer.x + drag.offsetX, edgeX, field.clientWidth - edgeX);
-    const nextY = clamp(pointer.y + drag.offsetY, edgeY, field.clientHeight - edgeY);
+    const nextX = clamp(pointer.x + drag.offsetX, node.r + 12, field.clientWidth - node.r - 12);
+    const nextY = clamp(pointer.y + drag.offsetY, node.r + 20, field.clientHeight - node.r - 20);
     node.x = nextX;
     node.y = nextY;
     node.hx = nextX;
@@ -898,6 +1135,7 @@ const groups = [...grouped.entries()]
       link: el.querySelector<HTMLAnchorElement>("a")!,
       tags: (el.dataset.tags ?? "").split(" ").filter(Boolean),
       cluster: el.dataset.cluster ?? "misc",
+      series: el.dataset.series ?? "",
       featured: el.hasAttribute("data-featured"),
       priority: el.hasAttribute("data-priority"),
       x: 0,
@@ -912,6 +1150,24 @@ const groups = [...grouped.entries()]
       boost: 0,
     }));
     if (nodes.length === 0) return;
+
+    seriesParents = [...field.querySelectorAll<HTMLElement>("[data-c-series]")]
+      .map((el, index) => {
+        const id = el.dataset.cSeries ?? "";
+        return {
+          id,
+          el,
+          memberIndexes: nodes.flatMap((node, nodeIndex) => node.series === id ? [nodeIndex] : []),
+          x: 0,
+          y: 0,
+          vx: 0,
+          vy: 0,
+          hx: 0,
+          hy: 0,
+          phase: (index * 2.399963 + 1.1) % (Math.PI * 2),
+        };
+      })
+      .filter((parent) => Boolean(parent.id) && parent.memberIndexes.length > 0);
 
     clusters = [...field.querySelectorAll<HTMLElement>("[data-c-group]")].map((group, index) => {
       const id = group.dataset.cGroup ?? "misc";
@@ -933,6 +1189,7 @@ const groups = [...grouped.entries()]
     const reset = section.querySelector<HTMLButtonElement>("[data-c-reset]");
     if (reset) on(reset, "click", () => {
       activeCluster = "";
+      activeSeries = "";
       setActiveIndex(-1);
     });
 
@@ -967,21 +1224,33 @@ const groups = [...grouped.entries()]
       pointer.active = false;
     });
     on(field, "pointerover", (event) => {
-      if (!drag) setActiveIndex(nodeIndexFromEvent(event));
+      if (drag) return;
+      const series = seriesIdFromEvent(event);
+      if (series) setActiveSeries(series);
+      else setActiveIndex(nodeIndexFromEvent(event));
     });
     on(field, "pointerout", ((event: PointerEvent) => {
       if (drag) return;
-      const related = event.relatedTarget instanceof Element
-        ? event.relatedTarget.closest<HTMLElement>("[data-c-node]")
-        : null;
-      const nextIndex = related ? nodes.findIndex((node) => node.el === related) : -1;
-      setActiveIndex(nextIndex);
+      const related = event.relatedTarget instanceof Element ? event.relatedTarget : null;
+      const relatedSeries = related?.closest<HTMLElement>("[data-c-series]")?.dataset.cSeries ?? "";
+      if (relatedSeries) {
+        setActiveSeries(relatedSeries);
+        return;
+      }
+      const relatedNode = related?.closest<HTMLElement>("[data-c-node]") ?? null;
+      activeSeries = "";
+      setActiveIndex(relatedNode ? nodes.findIndex((node) => node.el === relatedNode) : -1);
     }) as EventListener);
     on(field, "focusin", (event) => {
-      setActiveIndex(nodeIndexFromEvent(event));
+      const series = seriesIdFromEvent(event);
+      if (series) setActiveSeries(series);
+      else setActiveIndex(nodeIndexFromEvent(event));
     });
     on(field, "focusout", () => {
-      if (!drag) setActiveIndex(-1);
+      if (!drag) {
+        activeSeries = "";
+        setActiveIndex(-1);
+      }
     });
     on(field, "dragstart", (event) => {
       if (nodeIndexFromEvent(event) >= 0) event.preventDefault();
