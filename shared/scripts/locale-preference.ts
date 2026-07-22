@@ -10,7 +10,7 @@ type NavigationRequest = {
 const isPreviewBuild = import.meta.env.BASE_URL.startsWith("/_previews/");
 const landingSourcePath: Record<Locale, string> = {
   fr: "/landing/french/",
-  en: "/?lisible-locale=en",
+  en: "/en/",
 };
 
 function storedLocale(): Locale | null {
