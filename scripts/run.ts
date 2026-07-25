@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { cpSync, existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { isPublicVariant, VARIANTS } from "../shared/variants";
 import { installRootDependencies, installVariantDependencies } from "./variant-setup";
@@ -6,7 +6,9 @@ import { installRootDependencies, installVariantDependencies } from "./variant-s
 const root = new URL("..", import.meta.url).pathname;
 const configPath = join(root, "lisible.config.json");
 const config = await Bun.file(configPath).json();
-const variant: unknown = config.variant;
+// LISIBLE_VARIANT lets deployment platforms pick the variant without editing
+// the configuration file.
+const variant: unknown = process.env.LISIBLE_VARIANT || config.variant;
 const known = VARIANTS.map(({ id }) => id);
 const selected = typeof variant === "string" ? variant : "";
 const dir = join(root, "versions", selected);
@@ -14,7 +16,9 @@ const dir = join(root, "versions", selected);
 if (!isPublicVariant(variant) || !existsSync(dir)) {
   console.error(`Unknown or missing variant: "${selected}".`);
   console.error(`Available variants: ${known.join(", ")}`);
-  console.error(`Select one in lisible.config.json (the "variant" field).`);
+  console.error(
+    `Select one in lisible.config.json (the "variant" field) or set LISIBLE_VARIANT.`,
+  );
   process.exit(1);
 }
 
@@ -52,4 +56,16 @@ const child = Bun.spawn(["bun", "run", cmd], {
   stderr: "inherit",
   stdin: "inherit",
 });
-process.exit(await child.exited);
+const exitCode = await child.exited;
+
+if (cmd === "build" && exitCode === 0) {
+  // Mirror the build into dist/ at the repository root so every deployment
+  // platform can publish a stable path regardless of the selected variant.
+  const source = join(dir, "dist");
+  const target = join(root, "dist");
+  rmSync(target, { recursive: true, force: true });
+  cpSync(source, target, { recursive: true });
+  console.log(`[lisible] build mirrored to dist/ (from versions/${selected}/dist).`);
+}
+
+process.exit(exitCode);

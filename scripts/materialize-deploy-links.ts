@@ -1,4 +1,12 @@
-import { copyFileSync, existsSync, readdirSync, realpathSync, statSync, unlinkSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  statSync,
+  unlinkSync,
+} from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -8,7 +16,17 @@ import { fileURLToPath } from "node:url";
 // directory instead of being maintained by hand: any tracked symlink is
 // covered automatically, including routes added later.
 
-const variant = process.argv[2] ?? "organique";
+const configVariant = (() => {
+  try {
+    const config = JSON.parse(
+      readFileSync(new URL("../lisible.config.json", import.meta.url), "utf8"),
+    );
+    return typeof config.variant === "string" ? config.variant : undefined;
+  } catch {
+    return undefined;
+  }
+})();
+const variant = process.argv[2] ?? process.env.LISIBLE_VARIANT ?? configVariant ?? "organique";
 if (process.env.CI !== "true") {
   throw new Error("Deployment links may only be materialized in CI.");
 }

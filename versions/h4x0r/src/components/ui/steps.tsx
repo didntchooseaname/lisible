@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
-import { FEATURES } from "@/site.config";
 
 export function Steps({ children }: { children?: ReactNode }) {
-  if (!FEATURES.mdxComponents) return <div>{children}</div>;
+  if (!__MDX_COMPONENTS_ENABLED__) return <div>{children}</div>;
   return (
     // biome-ignore lint/a11y/useSemanticElements: the styled step counter keeps div markup, list semantics come from the role
     <div className="steps not-prose" role="list">
@@ -12,7 +11,7 @@ export function Steps({ children }: { children?: ReactNode }) {
 }
 
 export function Step({ title, children }: { title: string; children?: ReactNode }) {
-  if (!FEATURES.mdxComponents) {
+  if (!__MDX_COMPONENTS_ENABLED__) {
     return (
       <div>
         <p>

@@ -1,6 +1,5 @@
 import { type ReactNode, useId, useLayoutEffect, useRef, useState } from "react";
 import { defaultLocale, type Locale, ui } from "@/i18n/ui";
-import { FEATURES } from "@/site.config";
 
 function currentLocale(): Locale {
   if (typeof document !== "undefined" && document.documentElement.lang === "en") {
@@ -46,7 +45,7 @@ export function Tabs({ tabs, label, children }: TabsProps) {
     });
   }, [active, baseId, label]);
 
-  if (!FEATURES.mdxComponents) {
+  if (!__MDX_COMPONENTS_ENABLED__) {
     return <div className="mdx-tabs mdx-tabs--plain">{children}</div>;
   }
 

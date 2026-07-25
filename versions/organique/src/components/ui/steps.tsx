@@ -1,11 +1,10 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { FEATURES } from "@/site.config";
 
 type StepsProps = React.ComponentProps<"ol">;
 
 function Steps({ className, ...props }: StepsProps) {
-  if (!FEATURES.mdxComponents) return <ol className={className} {...props} />;
+  if (!__MDX_COMPONENTS_ENABLED__) return <ol className={className} {...props} />;
   return <ol data-slot="steps" className={cn("mdx-steps", className)} {...props} />;
 }
 
@@ -14,7 +13,7 @@ type StepProps = React.ComponentProps<"li"> & {
 };
 
 function Step({ title, className, children, ...props }: StepProps) {
-  if (!FEATURES.mdxComponents) {
+  if (!__MDX_COMPONENTS_ENABLED__) {
     return (
       <li className={className} {...props}>
         <strong>{title}</strong>

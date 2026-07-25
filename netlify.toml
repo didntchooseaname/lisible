@@ -1,0 +1,19 @@
+# Netlify builds from the repository root: the run proxy builds the variant
+# selected in lisible.config.json (override with LISIBLE_VARIANT in the site
+# environment settings) and mirrors the output to dist/.
+
+[build]
+command = "curl -fsSL https://bun.sh/install | bash && export PATH=$HOME/.bun/bin:$PATH && CI=true bun scripts/materialize-deploy-links.ts && bun run build"
+publish = "dist"
+
+[[headers]]
+for = "/_astro/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/*"
+[headers.values]
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+X-Frame-Options = "SAMEORIGIN"

@@ -165,6 +165,7 @@ export default defineConfig({
     },
     define: {
       __FEATURE_IMAGE_ZOOM__: JSON.stringify(FEATURES.imageZoom),
+      __MDX_COMPONENTS_ENABLED__: JSON.stringify(FEATURES.mdxComponents),
     },
     preview: {
       allowedHosts,

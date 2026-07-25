@@ -39,14 +39,17 @@
     "check-variants": "bun scripts/check-variants.ts",
     "check-drift": "bun scripts/check-drift.ts",
     "test": "bun test",
+    "test:e2e": "bun x playwright test",
     "lint": "bun x biome check .",
     "format": "bun x biome format --write .",
     "typecheck": "bun scripts/check-variants.ts --typecheck-only"
   },
   "devDependencies": {
     "@astrojs/rss": "^4.0.19",
+    "@axe-core/playwright": "^4.12.1",
     "@biomejs/biome": "^2.5.5",
     "@happy-dom/global-registrator": "^20.11.1",
+    "@playwright/test": "^1.62.0",
     "@resvg/resvg-js": "^2.6.2",
     "clsx": "^2.1.1",
     "happy-dom": "^20.11.1",

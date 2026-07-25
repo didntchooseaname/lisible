@@ -19,7 +19,7 @@ cmds = [
   "echo '8611ba935af886f05a6f38740a15160326c15e5d5d07adef966130b4493607ed  /tmp/bun-linux-x64.zip' | sha256sum --check --strict",
   "unzip -q /tmp/bun-linux-x64.zip -d /tmp",
   "install -m 0755 /tmp/bun-linux-x64/bun /usr/local/bin/bun",
-  "/usr/local/bin/bun install --cwd versions/organique --frozen-lockfile",
+  "/usr/local/bin/bun install --frozen-lockfile",
 ]
 cacheDirectories = ["/root/.bun/install/cache"]
 paths = []
@@ -27,8 +27,8 @@ paths = []
 [phases.build]
 dependsOn = ["install"]
 cmds = [
-  "/usr/local/bin/bun scripts/materialize-deploy-links.ts organique",
-  "PATH=/usr/local/bin:$PATH /usr/local/bin/bun run --cwd versions/organique build",
+  "/usr/local/bin/bun scripts/materialize-deploy-links.ts",
+  "PATH=/usr/local/bin:$PATH /usr/local/bin/bun run build",
   "mkdir -p .deploy",
   "curl -fsSL https://github.com/caddyserver/caddy/releases/download/v2.11.4/caddy_2.11.4_linux_amd64.tar.gz -o /tmp/caddy_2.11.4_linux_amd64.tar.gz",
   "echo '527fbf917c39189a1e3b31d34fa955601680b2d5c8055d2a87b8b9588dec7bb9  /tmp/caddy_2.11.4_linux_amd64.tar.gz' | sha256sum --check --strict",
@@ -46,7 +46,7 @@ cmds = [
 }
 
 :{$PORT:3000} {
-	root * /app/versions/organique/dist
+	root * /app/dist
 	encode zstd gzip
 
 	header {
@@ -71,4 +71,4 @@ cmds = [
 [start]
 cmd = "/app/.deploy/caddy run --config /app/.deploy/Caddyfile --adapter caddyfile"
 runImage = "ubuntu:24.04"
-onlyIncludeFiles = [".deploy", "versions/organique/dist"]
+onlyIncludeFiles = [".deploy", "dist"]

@@ -14,8 +14,8 @@ One audited core, six visual variants. Bilingual, dark by default, fast, SEO-rea
 </p>
 
 <p>
-<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdidntchooseaname%2Flisible&amp;root-directory=versions%2Forganique&amp;build-command=bun%20run%20build&amp;install-command=bun%20install&amp;output-directory=dist"><img alt="Deploy with Vercel" src="https://vercel.com/button" height="32"></a>
-<a href="https://app.netlify.com/start/deploy?repository=https%3A%2F%2Fgithub.com%2Fdidntchooseaname%2Flisible&amp;base=versions%2Forganique"><img alt="Deploy to Netlify" src="https://www.netlify.com/img/deploy/button.svg" height="32"></a>
+<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdidntchooseaname%2Flisible"><img alt="Deploy with Vercel" src="https://vercel.com/button" height="32"></a>
+<a href="https://app.netlify.com/start/deploy?repository=https%3A%2F%2Fgithub.com%2Fdidntchooseaname%2Flisible"><img alt="Deploy to Netlify" src="https://www.netlify.com/img/deploy/button.svg" height="32"></a>
 </p>
 
 [Quick start](#quick-start) · [Deployment](#deployment) · [Variants](#variants) · [Configuration](#configuration) · [Features](#features) · [License](#license)
@@ -198,13 +198,13 @@ Prefer to configure by hand? Skip the wizard, set `variant` in `lisible.config.j
 
 ## Deployment
 
-Import the repository at its root into a Railpack- or Nixpacks-compatible platform and deploy. Both builders are configured in the repository, require no dashboard overrides, and build the **Organique** variant by default.
+Import the repository at its root and deploy: every configuration builds the variant selected in `lisible.config.json` (override it with a `LISIBLE_VARIANT` environment variable on the platform) and publishes the mirrored `dist/` directory.
 
-- Railpack auto-detects `railpack.json` and `Staticfile`.
-- Nixpacks auto-detects `nixpacks.toml`.
+- Vercel and Netlify are configured by `vercel.json` and `netlify.toml`.
+- Railpack auto-detects `railpack.json` and `Staticfile`; Nixpacks auto-detects `nixpacks.toml`.
 - The platform-provided `PORT` is used automatically.
 - The runtime tools are version-pinned; Nixpacks also checksum-verifies every downloaded Node, Bun and Caddy artifact.
-- Only the compiled Organique site and its Caddy runtime are copied into the final image.
+- Only the compiled site and its Caddy runtime are copied into the final image.
 
 The generated image serves static routes directly, compresses responses, caches fingerprinted Astro assets for one year, and renders the project 404 page for unknown routes. No deployment environment variable is required.
 

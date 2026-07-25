@@ -1,8 +1,7 @@
 import { type KeyboardEvent, type ReactNode, useEffect, useId, useRef, useState } from "react";
-import { FEATURES } from "@/site.config";
 
 export function Tab({ children }: { children?: ReactNode }) {
-  if (!FEATURES.mdxComponents) return <div>{children}</div>;
+  if (!__MDX_COMPONENTS_ENABLED__) return <div>{children}</div>;
   return (
     // biome-ignore lint/a11y/noNoninteractiveTabindex: the parent Tabs effect assigns role tabpanel, focus follows the ARIA APG
     <div data-tab-panel className="tab-panel" tabIndex={0}>
@@ -27,7 +26,7 @@ export function Tabs({
   const groupId = useId().replace(/[^a-zA-Z0-9-]/g, "");
 
   useEffect(() => {
-    if (!FEATURES.mdxComponents) return;
+    if (!__MDX_COMPONENTS_ENABLED__) return;
     const panels = panelsRef.current?.querySelectorAll<HTMLElement>("[data-tab-panel]");
     if (!panels) return;
     panels.forEach((panel, index) => {
@@ -39,7 +38,7 @@ export function Tabs({
     setReady(true);
   }, [active, groupId]);
 
-  if (!FEATURES.mdxComponents) return <div>{children}</div>;
+  if (!__MDX_COMPONENTS_ENABLED__) return <div>{children}</div>;
 
   function onKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     let next: number | null = null;

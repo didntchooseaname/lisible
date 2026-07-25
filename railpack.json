@@ -17,16 +17,12 @@
         },
         "...",
         {
-          "cmd": "bun install --cwd versions/organique --frozen-lockfile",
-          "customName": "Install Organique dependencies"
+          "cmd": "bun scripts/materialize-deploy-links.ts",
+          "customName": "Materialize shared files for the active variant"
         },
         {
-          "cmd": "bun scripts/materialize-deploy-links.ts organique",
-          "customName": "Materialize Organique shared files"
-        },
-        {
-          "cmd": "bun run --cwd versions/organique build",
-          "customName": "Build Organique"
+          "cmd": "bun run build",
+          "customName": "Build the active variant (set LISIBLE_VARIANT to override)"
         }
       ],
       "variables": {
@@ -36,7 +32,7 @@
       "caches": ["bun"],
       "deployOutputs": [
         {
-          "include": ["Caddyfile", "versions/organique/dist"]
+          "include": ["Caddyfile", "dist"]
         }
       ]
     }
@@ -49,7 +45,7 @@
       },
       {
         "step": "build",
-        "include": ["Caddyfile", "versions/organique/dist"]
+        "include": ["Caddyfile", "dist"]
       }
     ],
     "variables": {

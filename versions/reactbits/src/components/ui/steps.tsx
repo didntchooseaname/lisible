@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { FEATURES } from "@/site.config";
 
 interface StepProps {
   title?: string;
@@ -19,7 +18,7 @@ export function Step({ title, children }: StepProps) {
 }
 
 export function Steps({ children }: { children?: ReactNode }) {
-  if (!FEATURES.mdxComponents) {
+  if (!__MDX_COMPONENTS_ENABLED__) {
     return <div className="mdx-steps mdx-steps--plain">{children}</div>;
   }
   return <ol className="mdx-steps not-prose">{children}</ol>;

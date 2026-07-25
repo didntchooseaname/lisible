@@ -1,6 +1,5 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { FEATURES } from "@/site.config";
 
 type TabsProps = {
   tabs: string[];
@@ -26,7 +25,7 @@ function Tabs({ tabs, label, defaultTab, className, children }: TabsProps) {
     });
   }, [active]);
 
-  if (!FEATURES.mdxComponents) {
+  if (!__MDX_COMPONENTS_ENABLED__) {
     return <div className={cn("my-6", className)}>{children}</div>;
   }
 

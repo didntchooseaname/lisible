@@ -59,6 +59,19 @@ const other = otherLocale(locale);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <ExpressiveCodeLabelSpacing />
+    <script is:inline>
+      // Arms the one-time boot sequence before first paint: the overlay only
+      // shows under html.cyber-booting, cleared by the BootOverlay script.
+      (() => {
+        try {
+          if (sessionStorage.getItem("cyber-boot")) return;
+        } catch {
+          return;
+        }
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        document.documentElement.classList.add("cyber-booting");
+      })();
+    </script>
     <link rel="stylesheet" href={appCssUrl} />
     <AppearanceBootstrap accent={SITE.accent} />
     <meta name="generator" content={Astro.generator} />

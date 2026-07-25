@@ -1,2 +1,2 @@
-root: versions/organique/dist
+root: dist
 index_fallback: false
