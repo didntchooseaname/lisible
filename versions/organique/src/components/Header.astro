@@ -17,6 +17,7 @@ const dict = t(locale);
 const hasSeries = FEATURES.series && (await getPublishedPosts(locale)).some((post) => Boolean(post.data.series));
 
 const navItems = [
+  { href: localeUrl(locale, "blog"), label: dict.nav.blog },
   { href: localeUrl(locale, "tags"), label: dict.nav.tags },
   ...(FEATURES.archives
     ? [{ href: localeUrl(locale, "archives"), label: dict.nav.archives }]
@@ -34,7 +35,7 @@ const currentPath = Astro.url.pathname.endsWith("/")
   : `${Astro.url.pathname}/`;
 
 function isActive(href: string): boolean {
-  return currentPath === href || currentPath.startsWith(href);
+  return currentPath === href || currentPath.startsWith(`${href.replace(/\/$/, "")}/`);
 }
 ---
 

@@ -1,5 +1,5 @@
 import { h, s } from "hastscript";
-import { ui, defaultLocale, type Locale } from "#src/i18n/ui";
+import { ui, defaultLocale, type Locale } from "../i18n/ui";
 
 interface HastNode {
   type?: string;

@@ -44,3 +44,5 @@ function initHeadingAnchors() {
 
 initHeadingAnchors();
 document.addEventListener("astro:page-load", initHeadingAnchors);
+
+export {};

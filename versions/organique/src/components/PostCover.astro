@@ -13,12 +13,24 @@ const { cover, alt, variant = "head", class: className } = Astro.props;
 const isString = typeof cover === "string";
 const sizes = variant === "head" ? "(min-width: 768px) 72ch, 100vw" : "12rem";
 
+// A cover given as a plain path bypasses astro:assets, so it carries no
+// intrinsic size. Reserving the standard Open Graph ratio keeps it from
+// shifting the article once it loads.
+const rawWidth = 1200;
+const rawHeight = 630;
 ---
 
 <figure class:list={["post-cover", `post-cover-${variant}`, isString && "post-cover-raw", className]} data-preview-cover>
   {
     isString ? (
-      <img src={cover} alt={alt} loading={variant === "head" ? "eager" : "lazy"} decoding="async" />
+      <img
+        src={cover}
+        alt={alt}
+        width={rawWidth}
+        height={rawHeight}
+        loading={variant === "head" ? "eager" : "lazy"}
+        decoding="async"
+      />
     ) : (
       <Image
         src={cover as ImageMetadata}

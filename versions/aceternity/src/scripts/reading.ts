@@ -7,3 +7,5 @@ if (__F_IMAGEZOOM__) import("./image-lightbox");
 if (__F_HEADINGANCHORS__) import("./heading-anchors");
 if (__F_MERMAID__) import("./mermaid");
 if (__F_DRAWIO__) import("./drawio");
+
+export {};

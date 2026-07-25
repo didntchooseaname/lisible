@@ -24,8 +24,8 @@ import {
   postUrl,
   type Post,
 } from "@/lib/posts";
-import { ogImagePath } from "@/lib/og";
-import { articleMarkdown } from "@/lib/llms";
+import { ogImagePath } from "@shared/lib/og";
+import { postToMarkdown } from "@shared/lib/llms";
 import { getSeriesContext } from "@/lib/series";
 import { formatDate, isoDate, readingTime } from "@/lib/utils";
 
@@ -65,7 +65,7 @@ if (translation) {
 }
 
 const mdUrl = `${postUrl(post).replace(/\/$/, "")}.md`;
-const articleMd = FEATURES.aiButtons ? articleMarkdown(post, SITE.url) : "";
+const articleMd = FEATURES.aiButtons ? postToMarkdown(post, SITE.url, postUrl(post)) : "";
 
 const seriesContext =
   FEATURES.series && post.data.series ? await getSeriesContext(post) : null;

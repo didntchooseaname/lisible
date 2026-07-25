@@ -1,4 +1,4 @@
-import { WEBMENTIONS } from "#src/site.config";
+import { WEBMENTIONS } from "@/site.config";
 
 export interface WebmentionAuthor {
   name: string;

@@ -14,6 +14,7 @@ import { Tabs, Tab } from "@/components/ui/tabs";
 import { Steps, Step } from "@/components/ui/steps";
 import { Tree } from "@shared/components/ui/file-tree";
 import Spoiler from "@/components/Spoiler.astro";
+import Diagram from "@shared/components/Diagram.astro";
 
 This post is the blog's showcase. It demonstrates every formatting option and every application feature. If something renders badly here, it's a bug in the theme, not in the content.
 
@@ -330,6 +331,16 @@ export function visible() {
 ![Minimalist diagram of the islands architecture: static HTML with three interactive islands hydrated independently](/images/demo-ilots.svg)
 
 The alt attribute is mandatory and doubles as an implicit caption. The image must cause no layout shift while loading.
+
+### Inline SVG schematics
+
+These three schematics are **SVG written inline in the HTML**, not image files loaded through `<img>`. That is what makes the difference: an inline SVG inherits the page custom properties, so its strokes follow the accent picked in the header and its surfaces follow the active theme, live, with no JavaScript and no extra request. An SVG served through `<img>` stays isolated from the page and cannot do that.
+
+<Diagram id="islands" locale="en" />
+
+<Diagram id="pipeline" locale="en" />
+
+<Diagram id="tokens" locale="en" />
 
 ## Rich cards
 

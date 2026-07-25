@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { FEATURES } from "@/lib/features";
+import { FEATURES } from "@/site.config";
 
 type StepsProps = React.ComponentProps<"ol">;
 

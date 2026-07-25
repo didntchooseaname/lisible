@@ -316,7 +316,7 @@ const dict = t(locale);
     const target = event.target as HTMLElement | null;
     if (!target) return;
     if (target.closest("[data-accent-open]")) {
-      setOpen(popover()?.hidden ?? true);
+      setOpen(Boolean(popover()?.hidden ?? true));
       return;
     }
     if (target.closest("[data-accent-reset]")) {

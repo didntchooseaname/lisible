@@ -24,6 +24,8 @@ Thumbs.db
 /shared/THEME.md
 /shared/CYBER-BRIEF.md
 /shared/FEATURES.md
+/shared/research/
+/shared/reference/
 
 .vercel
 .netlify

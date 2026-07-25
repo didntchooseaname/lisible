@@ -2,7 +2,7 @@ import { h } from "hastscript";
 import type { Element, Root } from "hast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { cardLocaleFromPath, cardStrings } from "#src/i18n/cards";
+import { cardLocaleFromPath, cardStrings } from "../i18n/cards";
 
 const HEADINGS = new Set(["h2", "h3", "h4"]);
 

@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
+import { motion, type TargetAndTransition } from 'motion/react';
 import type { Transition } from 'motion/react';
 
 export type GlowEffectProps = {
@@ -140,7 +140,7 @@ export function GlowEffect({
           backfaceVisibility: 'hidden',
         } as React.CSSProperties
       }
-      animate={animations[mode]}
+      animate={animations[mode] as TargetAndTransition}
       className={cn(
         'pointer-events-none absolute inset-0 h-full w-full',
         'scale-[var(--scale)] transform-gpu',

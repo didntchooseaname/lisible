@@ -2,7 +2,7 @@ import { s } from "hastscript";
 import type { Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { ui, defaultLocale, type Locale } from "#src/i18n/ui";
+import { ui, defaultLocale, type Locale } from "../i18n/ui";
 
 type CalloutType = "note" | "tip" | "warning" | "caution" | "important";
 

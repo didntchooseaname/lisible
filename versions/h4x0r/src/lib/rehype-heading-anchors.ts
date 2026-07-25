@@ -2,7 +2,7 @@ import { h } from "hastscript";
 import type { Element, Root } from "hast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { cardLocaleFromPath } from "#src/i18n/cards";
+import { cardLocaleFromPath } from "../i18n/cards";
 
 const LABELS = {
   fr: { copy: "Copier le lien vers cette section", copied: "Lien copié" },

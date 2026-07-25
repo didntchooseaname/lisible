@@ -1,8 +1,9 @@
 import { h, s } from "hastscript";
+import type { Properties } from "hast";
 import type { Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { ui, defaultLocale, type Locale } from "#src/i18n/ui";
+import { ui, defaultLocale, type Locale } from "../i18n/ui";
 
 const iconBtn = (
   paths: Array<[string, Record<string, unknown>]>,
@@ -22,8 +23,8 @@ const iconBtn = (
         "stroke-linecap": "round",
         "stroke-linejoin": "round",
         "aria-hidden": "true",
-      },
-      paths.map(([tag, attrs]) => s(tag, attrs)),
+      } as Properties,
+      paths.map(([tag, attrs]) => s(tag, attrs as Properties)),
     ),
   ]);
 

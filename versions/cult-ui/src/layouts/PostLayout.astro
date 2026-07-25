@@ -1,4 +1,5 @@
 ---
+import { ogImagePath as ogImageUrl } from "@shared/lib/og";
 import { render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import TOC from "@/components/TOC.astro";
@@ -53,7 +54,7 @@ const tocItems = headings
 const canonicalPostUrl = new URL(currentPath, SITE.url).toString();
 
 const ogImage = FEATURES.ogPerPost
-  ? `/og/${locale}/${postSlug(post)}.png`
+  ? ogImageUrl(locale, postSlug(post))
   : "/og-default.png";
 
 const cover = FEATURES.covers ? post.data.cover : undefined;

@@ -14,12 +14,12 @@ const dict = t(locale);
 const isFrench = locale === "fr";
 const alternates = { fr: localeUrl("fr", "friends"), en: localeUrl("en", "friends") };
 const friends = [
-  { name: "Maya Chen", avatar: avatarA, bio: isFrench ? "Lorem ipsum dolor sit amet, recherche et design de systèmes." : "Lorem ipsum dolor sit amet, systems research and design." },
-  { name: "Noah Rivera", avatar: avatarB, bio: isFrench ? "Lorem ipsum dolor sit amet, interfaces inclusives et narration." : "Lorem ipsum dolor sit amet, inclusive interfaces and storytelling." },
-  { name: "Sam Okafor", avatar: avatarC, bio: isFrench ? "Lorem ipsum dolor sit amet, architecture web et outils ouverts." : "Lorem ipsum dolor sit amet, web architecture and open tools." },
-  { name: "Lina Park", avatar: avatarB, bio: isFrench ? "Lorem ipsum dolor sit amet, typographie et systèmes éditoriaux." : "Lorem ipsum dolor sit amet, typography and editorial systems." },
-  { name: "Eli Martin", avatar: avatarC, bio: isFrench ? "Lorem ipsum dolor sit amet, performance et qualité logicielle." : "Lorem ipsum dolor sit amet, performance and software quality." },
-  { name: "Ari Bell", avatar: avatarA, bio: isFrench ? "Lorem ipsum dolor sit amet, communautés et documentation." : "Lorem ipsum dolor sit amet, communities and documentation." },
+  { name: "Maya Chen", avatar: avatarA, bio: isFrench ? "Recherche et design de systèmes." : "Systems research and design." },
+  { name: "Noah Rivera", avatar: avatarB, bio: isFrench ? "Interfaces inclusives et narration." : "Inclusive interfaces and storytelling." },
+  { name: "Sam Okafor", avatar: avatarC, bio: isFrench ? "Architecture web et outils ouverts." : "Web architecture and open tools." },
+  { name: "Lina Park", avatar: avatarB, bio: isFrench ? "Typographie et systèmes éditoriaux." : "Typography and editorial systems." },
+  { name: "Eli Martin", avatar: avatarC, bio: isFrench ? "Performance et qualité logicielle." : "Performance and software quality." },
+  { name: "Ari Bell", avatar: avatarA, bio: isFrench ? "Communautés et documentation." : "Communities and documentation." },
 ];
 ---
 
@@ -35,8 +35,8 @@ const friends = [
     <h1 class="type-mega rise">{dict.nav.friends}</h1>
     <p class="intro rise rise-2">
       {isFrench
-        ? "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tous les noms, portraits et profils de cette page sont fictifs."
-        : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Every name, portrait and profile on this page is fictional."}
+        ? "Tous les noms, portraits et profils de cette page sont fictifs."
+        : "Every name, portrait and profile on this page is fictional."}
     </p>
   </section>
   <section class="friends-grid pb-16" aria-label={dict.nav.friends}>

@@ -3,8 +3,8 @@ import type { ElementContent } from "hast";
 import type { Root, Paragraph } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { cardLocaleFromPath } from "#src/i18n/cards";
-import { contentStrings } from "#src/i18n/content";
+import { cardLocaleFromPath } from "../i18n/cards";
+import { contentStrings } from "../i18n/content";
 
 type CalloutKind = "note" | "tip" | "warning" | "caution" | "important";
 
@@ -129,7 +129,7 @@ const remarkCallouts: Plugin<[], Root> = () => {
           hProperties: { class: "callout-title" },
           hChildren: titleChildren,
         },
-      } as unknown as Paragraph;
+      } as unknown as DirectiveNode["children"][number];
 
       directive.children.unshift(titleNode);
 

@@ -156,3 +156,5 @@ function mountAll() {
 
 mountAll();
 document.addEventListener("astro:page-load", mountAll);
+
+export {};

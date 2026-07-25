@@ -3,6 +3,7 @@ import { stdin, stdout, exit } from "node:process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { VARIANTS } from "../shared/variants";
+import { DEMO_PROFILE, SITE_DEFAULTS } from "../shared/site.config";
 import { installRootDependencies, installVariantDependencies } from "./variant-setup";
 
 const root = new URL("..", import.meta.url).pathname;
@@ -60,13 +61,13 @@ async function main() {
   const mode = (await ask("\nSetup mode: (q)uick or (d)etailed", "q")).toLowerCase();
   const detailed = mode.startsWith("d");
 
-  const title = await ask("\nSite title", "Lisible");
+  const title = await ask("\nSite title", SITE_DEFAULTS.title);
   const url = await ask("Site URL", "https://example.com");
-  let author = "Lisible";
-  let accent = "#22C55E";
+  let author = DEMO_PROFILE.name;
+  let accent = SITE_DEFAULTS.accent;
   let repoUrl = "";
   if (detailed) {
-    author = await ask("Author name (shown in the footer)", author);
+    author = await ask("Author name (also replaces the demo profile)", author);
     while (true) {
       const a = await ask("Accent color (hex)", accent);
       if (HEX.test(a)) {
@@ -136,9 +137,11 @@ async function main() {
   info("\nDone.");
   info(`  Active variant: ${variant}`);
   info("  Next steps:");
-  info("    bun run dev        start the dev server");
-  info("    bun run build      build the static site");
-  info("    bun run preview:all install, build and compare every variant");
+  info("    bun run dev          start the dev server");
+  info("    bun run build        build the static site");
+  info("    bun run new-post     scaffold an article in both locales");
+  info("    bun run check:all    build and verify every variant");
+  info("    bun run preview:all  install, build and compare every variant");
   info(
     "\n  Fine-tune shared settings in shared/site.config.ts and theme copy in versions/" +
       variant +
@@ -161,6 +164,7 @@ function writeConfig(variant: string) {
   writeFileSync(configPath, JSON.stringify(json, null, 2) + "\n");
 }
 
+/** Rewrites the first `key: "value"` pair, leaving any trailing type assertion. */
 function replaceFirst(
   src: string,
   key: string,
@@ -169,6 +173,27 @@ function replaceFirst(
   const re = new RegExp(`(\\b${key}:\\s*)"[^"]*"`);
   if (!re.test(src)) return { out: src, hit: false };
   return { out: src.replace(re, `$1${JSON.stringify(value)}`), hit: true };
+}
+
+/** Rewrites `key: "value"` inside a specific object literal. */
+function replaceInBlock(
+  src: string,
+  block: string,
+  key: string,
+  value: string,
+): { out: string; hit: boolean } {
+  const re = new RegExp(`(\\b${block}\\s*=\\s*\\{[\\s\\S]*?\\b${key}:\\s*)"[^"]*"`);
+  if (!re.test(src)) return { out: src, hit: false };
+  return { out: src.replace(re, `$1${JSON.stringify(value)}`), hit: true };
+}
+
+function slugify(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "author";
 }
 
 function patchSiteConfig(
@@ -181,10 +206,10 @@ function patchSiteConfig(
   }
   let src = readFileSync(p, "utf8");
   const misses: string[] = [];
+
   for (const [key, value] of [
     ["title", vals.title],
     ["url", vals.url],
-    ["author", vals.author],
     ["accent", vals.accent],
   ] as const) {
     if (value === undefined) continue;
@@ -192,11 +217,30 @@ function patchSiteConfig(
     src = r.out;
     if (!r.hit) misses.push(key);
   }
+
+  // SITE_DEFAULTS.author derives from the demo persona, so the name and its
+  // handle are what actually need rewriting.
+  if (vals.author !== undefined) {
+    const slug = slugify(vals.author);
+    const handle = slug.split("-")[0] ?? slug;
+    for (const [key, value] of [
+      ["name", vals.author],
+      ["handle", handle],
+      ["slug", slug],
+    ] as const) {
+      const r = replaceInBlock(src, "DEMO_PROFILE", key, value);
+      src = r.out;
+      if (!r.hit) misses.push(`DEMO_PROFILE.${key}`);
+    }
+  }
+
   if (vals.repoUrl) {
+    // repo.url carries an `as string` assertion, so match only the literal.
     const re = /(repo:\s*\{[^}]*?\burl:\s*)"[^"]*"/s;
     if (re.test(src)) src = src.replace(re, `$1${JSON.stringify(vals.repoUrl)}`);
     else misses.push("repo.url");
   }
+
   writeFileSync(p, src);
   if (misses.length) {
     info(

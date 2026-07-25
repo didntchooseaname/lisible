@@ -1,4 +1,5 @@
 ---
+import { ogImagePath as ogImageUrl } from "@shared/lib/og";
 import { render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import TOC from "@/components/TOC.astro";
@@ -58,7 +59,7 @@ const ImageLightbox = __FEATURE_IMAGE_ZOOM__
   ? (await import("@/components/ImageLightbox.astro")).default
   : null;
 
-const ogImagePath = FEATURES.ogPerPost ? `/og/${locale}/${slug}.png` : "/og-default.png";
+const ogImagePath = FEATURES.ogPerPost ? ogImageUrl(locale, slug) : "/og-default.png";
 
 const markdownPath = FEATURES.llmsTxt ? `${localeUrl(locale, "blog")}${slug}.md` : undefined;
 

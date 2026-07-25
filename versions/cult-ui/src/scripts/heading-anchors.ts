@@ -54,3 +54,5 @@ function bind() {
 
 bind();
 document.addEventListener("astro:page-load", bind);
+
+export {};

@@ -123,3 +123,5 @@ function observeAll() {
 
 observeAll();
 document.addEventListener("astro:page-load", observeAll);
+
+export {};

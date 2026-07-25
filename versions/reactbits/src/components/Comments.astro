@@ -14,7 +14,7 @@ const { locale, url, class: className } = Astro.props;
 const dict = t(locale);
 const provider = COMMENTS.provider;
 const g = COMMENTS.giscus;
-const blueskyProfileUrl = `https://bsky.app/profile/${COMMENTS.bluesky.profile}`;
+const blueskyProfileUrl = `https://bsky.app/profile/${COMMENTS.bluesky.actor}`;
 ---
 
 <section class:list={["not-prose comments", className]} aria-label={dict.comments.title}>

@@ -1,0 +1,114 @@
+/*
+ * Print and PDF export, shared by every variant.
+ *
+ * A blog built for reading has to survive being printed: chrome, navigation and
+ * decoration are dropped, the prose reverts to ink on paper, and link targets are
+ * spelled out so a paper copy stays usable.
+ */
+@media print {
+  :root,
+  :root.dark {
+    color-scheme: light;
+    --color-background: #ffffff;
+    --color-foreground: #111111;
+    --color-card: #ffffff;
+    --color-muted-foreground: #444444;
+    --color-border: #bbbbbb;
+    --color-secondary: #f2f2f2;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+
+  /* Chrome and decoration carry no meaning on paper. */
+  header,
+  footer,
+  nav,
+  dialog,
+  video,
+  iframe,
+  [data-search-open],
+  [data-theme-toggle],
+  [data-accent-picker],
+  [data-print-hidden],
+  .site-dock-wrap,
+  .demo-profile__aura,
+  .hero-blob,
+  .brand-blob {
+    display: none !important;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  article {
+    max-width: none !important;
+  }
+
+  /* Animations and sticky offsets fight pagination. */
+  *,
+  *::before,
+  *::after {
+    position: static !important;
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+  }
+
+  a {
+    color: inherit !important;
+    text-decoration: underline;
+  }
+
+  /* A printed link is useless without its destination. */
+  article a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.75em;
+    word-break: break-all;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    break-after: avoid-page;
+  }
+
+  p,
+  blockquote,
+  figure,
+  table,
+  pre {
+    break-inside: avoid;
+  }
+
+  img,
+  svg {
+    max-width: 100% !important;
+    break-inside: avoid;
+  }
+
+  pre,
+  code,
+  .expressive-code {
+    border: 1px solid #cccccc !important;
+    background: #fafafa !important;
+    color: #111111 !important;
+  }
+
+  pre {
+    white-space: pre-wrap !important;
+    word-break: break-word;
+  }
+
+  @page {
+    margin: 18mm 16mm;
+  }
+}

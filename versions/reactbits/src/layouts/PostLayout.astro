@@ -1,4 +1,5 @@
 ---
+import { ogImagePath as ogImageUrl } from "@shared/lib/og";
 import { render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import TOC from "@/components/TOC.astro";
@@ -19,7 +20,7 @@ import {
   getTranslation,
   postFilePath,
   postLocale,
-  postOgPath,
+  postSlug,
   postUrl,
   type Post,
 } from "@/lib/posts";
@@ -45,7 +46,9 @@ const minutes = readingTime(post.body ?? "");
 const related = FEATURES.relatedPosts ? await getRelatedPosts(post, 3) : [];
 const series = FEATURES.series ? await getSeries(post) : undefined;
 
-const ogImagePath = FEATURES.ogPerPost ? postOgPath(post) : undefined;
+const ogImagePath = FEATURES.ogPerPost
+  ? ogImageUrl(postLocale(post), postSlug(post))
+  : undefined;
 
 const hasMath =
   FEATURES.math &&

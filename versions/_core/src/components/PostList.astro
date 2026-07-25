@@ -1,7 +1,7 @@
 ---
 import { postLocale, postUrl, type Post } from "@/lib/posts";
-import { formatDate, isoDate } from "@/lib/utils";
-import { t } from "@/i18n/ui";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+import { localeUrl, t } from "@/i18n/ui";
 
 interface Props {
   posts: Post[];
@@ -15,8 +15,9 @@ const { posts } = Astro.props;
     posts.map((post) => {
       const locale = postLocale(post);
       const dict = t(locale);
+      const minutes = readingTime(post.body ?? "");
       return (
-        <li>
+        <li class="py-1">
           <a
             href={postUrl(post)}
             class="group flex min-h-11 flex-col gap-1 py-3.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
@@ -36,6 +37,25 @@ const { posts } = Astro.props;
               {formatDate(post.data.pubDate, locale, "short")}
             </time>
           </a>
+          {/* Scent of information: a bare title and date give nothing to scan. */}
+          <p class="max-w-[62ch] text-sm leading-relaxed text-muted-foreground">
+            {post.data.description}
+          </p>
+          <p class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 pb-3.5 text-xs text-muted-foreground">
+            <span>{dict.post.readingTime(minutes)}</span>
+            {post.data.tags.length > 0 && (
+              <span class="flex flex-wrap gap-1.5">
+                {post.data.tags.slice(0, 3).map((tag) => (
+                  <a
+                    href={localeUrl(locale, `tags/${tag}`)}
+                    class="rounded-md border border-border px-1.5 py-0.5 transition-colors hover:border-accent hover:text-accent"
+                  >
+                    {tag}
+                  </a>
+                ))}
+              </span>
+            )}
+          </p>
         </li>
       );
     })

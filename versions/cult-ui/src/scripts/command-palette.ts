@@ -1,3 +1,7 @@
+// Pagefind is emitted into dist/ at build time; keep the specifier out of
+// static resolution so it is looked up at runtime only.
+const PAGEFIND_URL = "/pagefind/pagefind.js";
+
 async function navigate(href: string): Promise<void> {
   const mod = await import("astro:transitions/client");
   await mod.navigate(href);
@@ -88,9 +92,7 @@ function filterStatic(query: string) {
 async function ensurePagefind() {
   if (pagefind || loadFailed) return;
   try {
-    const mod = (await import(
-      /* @vite-ignore */ "/pagefind/pagefind.js"
-    )) as PagefindModule;
+    const mod = (await import(/* @vite-ignore */ PAGEFIND_URL)) as PagefindModule;
     await mod.options({ excerptLength: 20 });
     mod.init();
     pagefind = mod;
@@ -307,3 +309,5 @@ document.addEventListener("astro:page-load", bind);
 document.addEventListener("astro:before-swap", () => palette()?.close());
 
 bind();
+
+export {};

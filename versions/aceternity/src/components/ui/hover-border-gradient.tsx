@@ -22,6 +22,8 @@ export function HoverBorderGradient({
     duration?: number;
     clockwise?: boolean;
   } & React.HTMLAttributes<HTMLElement>
+    // `as` can render an anchor, so anchor attributes must be accepted too.
+    & Pick<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "target" | "rel">
 >) {
   const [hovered, setHovered] = useState<boolean>(false);
   const [direction, setDirection] = useState<Direction>("TOP");

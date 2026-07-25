@@ -3,7 +3,7 @@ import type { Element, ElementContent } from "hast";
 import type { Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { cardLocaleFromPath, diagramStrings } from "#src/i18n/diagrams";
+import { cardLocaleFromPath, diagramStrings } from "../i18n/diagrams";
 
 const svg = (paths: ElementContent[], size = "16"): ElementContent =>
   h(

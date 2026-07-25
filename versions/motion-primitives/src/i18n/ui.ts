@@ -494,9 +494,15 @@ export function ensureTrailingSlash(path: string): string {
   return `${path}/`;
 }
 
+/** A path whose last segment carries an extension points at a file, never a directory. */
+export function isFilePath(path: string): boolean {
+  return (path.split("/").pop() ?? "").includes(".");
+}
+
 export function localeUrl(locale: Locale, path = ""): string {
   const prefix = locale === defaultLocale ? "" : `/${locale}`;
   const cleanPath = path.replace(/^\/+/, "");
   const joined = `${prefix}/${cleanPath}`.replace(/\/{2,}/g, "/");
-  return ensureTrailingSlash(withPreviewLocaleBase(locale, path, joined));
+  const url = withPreviewLocaleBase(locale, path, joined);
+  return isFilePath(path) ? url.replace(/\/$/, "") : ensureTrailingSlash(url);
 }

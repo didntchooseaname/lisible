@@ -34,3 +34,5 @@ document.addEventListener("astro:page-load", () => {
   document.removeEventListener("click", onClick);
   document.addEventListener("click", onClick);
 });
+
+export {};

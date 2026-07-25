@@ -1,7 +1,8 @@
 ---
+import interWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
+import monoWoff2 from "@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url";
 import appCssUrl from "@/styles/app.css?url";
 import { ClientRouter } from "astro:transitions";
-import LandingLocaleBootstrap from "@shared/components/LandingLocaleBootstrap.astro";
 import ExpressiveCodeLabelSpacing from "@shared/components/ExpressiveCodeLabelSpacing.astro";
 import AppearanceBootstrap from "@shared/components/AppearanceBootstrap.astro";
 import PreviewBridge from "@shared/components/PreviewBridge.astro";
@@ -45,12 +46,11 @@ const other = otherLocale(locale);
 
 <html lang={locale}>
   <head>
-    <LandingLocaleBootstrap />
-    <ExpressiveCodeLabelSpacing />
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ExpressiveCodeLabelSpacing />
     <link rel="stylesheet" href={appCssUrl} />
     <AppearanceBootstrap accent={SITE.accent} />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
@@ -64,6 +64,9 @@ const other = otherLocale(locale);
       title={SITE.title}
       href={new URL(rssPath, SITE.url)}
     />
+
+    <link rel="preload" href={interWoff2} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={monoWoff2} as="font" type="font/woff2" crossorigin />
 
 
     {

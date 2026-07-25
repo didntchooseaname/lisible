@@ -17,3 +17,5 @@ document.addEventListener("click", async (event) => {
   anchor.classList.add("copied");
   window.setTimeout(() => anchor.classList.remove("copied"), 1400);
 });
+
+export {};

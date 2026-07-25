@@ -5,3 +5,5 @@ document.addEventListener("click", (event) => {
   const revealed = spoiler.classList.toggle("is-revealed");
   spoiler.setAttribute("aria-expanded", revealed ? "true" : "false");
 });
+
+export {};

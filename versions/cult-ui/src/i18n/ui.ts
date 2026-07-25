@@ -1,5 +1,5 @@
 import { getRelativeLocaleUrl } from "astro:i18n";
-import { withPreviewLocaleBase } from "../../../../shared/preview/url";
+import { withPreviewLocaleBase } from "@shared/preview/url";
 import { codeTexts } from "./code";
 
 export const locales = ["fr", "en"] as const;
@@ -452,6 +452,12 @@ export function ensureTrailingSlash(path: string): string {
   return `${path}/`;
 }
 
+/** A path whose last segment carries an extension points at a file, never a directory. */
+export function isFilePath(path: string): boolean {
+  return (path.split("/").pop() ?? "").includes(".");
+}
+
 export function localeUrl(locale: Locale, path = ""): string {
-  return ensureTrailingSlash(withPreviewLocaleBase(locale, path, getRelativeLocaleUrl(locale, path)));
+  const url = withPreviewLocaleBase(locale, path, getRelativeLocaleUrl(locale, path));
+  return isFilePath(path) ? url.replace(/\/$/, "") : ensureTrailingSlash(url);
 }

@@ -1,9 +1,12 @@
+import type { RehypePlugins, RemarkPlugins } from "astro";
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import pagefind from "astro-pagefind";
 import pagefindDev from "../../shared/pagefind-dev";
+import { rehypeImageDimensions } from "../../shared/markdown/rehype-image-dimensions";
+import { katexAssets } from "../../shared/integrations/katex-assets";
 import { previewAstroConfig, previewBuildIntegration } from "../../shared/preview/build-config";
 import tailwindcss from "@tailwindcss/vite";
 import remarkDirective from "remark-directive";
@@ -26,11 +29,9 @@ import remarkMermaid from "./src/lib/remark-mermaid";
 import remarkDrawio from "./src/lib/remark-drawio";
 import rehypeHeadingAnchors from "./src/lib/rehype-heading-anchors";
 import { FEATURES, SITE } from "./src/site.config";
-import { assertFeatureConfig } from "./src/lib/feature-guards";
 
-assertFeatureConfig();
 
-const remarkPlugins = [remarkDirective];
+const remarkPlugins: RemarkPlugins = [remarkDirective];
 if (FEATURES.callouts) remarkPlugins.push(remarkCallouts);
 if (FEATURES.drawio) remarkPlugins.push(remarkDrawio);
 remarkPlugins.push(remarkGithubCard);
@@ -38,7 +39,7 @@ if (FEATURES.math) remarkPlugins.push(remarkMath);
 if (FEATURES.mermaid) remarkPlugins.push(remarkMermaid);
 remarkPlugins.push(remarkLinkCard);
 
-const rehypePlugins = [];
+const rehypePlugins: RehypePlugins = [rehypeImageDimensions];
 if (FEATURES.headingAnchors)
   rehypePlugins.push(rehypeHeadingIds, rehypeHeadingAnchors);
 if (FEATURES.math) rehypePlugins.push(rehypeKatex);
@@ -146,7 +147,6 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
-      filter: (page) => !page.endsWith("/landing/french/"),
       i18n: {
         defaultLocale: "fr",
         locales: {
@@ -156,6 +156,7 @@ export default defineConfig({
       },
     }),
     pagefind(),
+    katexAssets(FEATURES.math),
     previewBuildIntegration(),
   ],
   vite: {

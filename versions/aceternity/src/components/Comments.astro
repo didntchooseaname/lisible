@@ -22,10 +22,10 @@ const giscusLang = locale === "fr" ? "fr" : "en";
       <div
         class="mt-4"
         data-giscus
-        data-repo={COMMENTS.repo}
-        data-repo-id={COMMENTS.repoId}
-        data-category={COMMENTS.category}
-        data-category-id={COMMENTS.categoryId}
+        data-repo={COMMENTS.giscus.repo}
+        data-repo-id={COMMENTS.giscus.repoId}
+        data-category={COMMENTS.giscus.category}
+        data-category-id={COMMENTS.giscus.categoryId}
         data-lang={giscusLang}
       />
     )
@@ -36,7 +36,7 @@ const giscusLang = locale === "fr" ? "fr" : "en";
       <div
         class="mt-4"
         data-bluesky-comments
-        data-post-uri={COMMENTS.postUri}
+        data-post-uri={COMMENTS.bluesky.postUri}
         data-empty={dict.webmentions.empty}
       />
     )

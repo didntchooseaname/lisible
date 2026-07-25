@@ -2,8 +2,8 @@ import { h } from "hastscript";
 import type { Root, Code, Paragraph } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { cardLocaleFromPath } from "#src/i18n/cards";
-import { contentStrings } from "#src/i18n/content";
+import { cardLocaleFromPath } from "../i18n/cards";
+import { contentStrings } from "../i18n/content";
 import { diagramShell } from "./diagram-hast";
 
 const remarkMermaid: Plugin<[], Root> = () => {

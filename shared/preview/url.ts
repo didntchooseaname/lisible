@@ -19,9 +19,7 @@ export function withPreviewBase(path: string): string {
   return `${base.slice(0, -1)}${absolute}${suffix}`;
 }
 
-export function withPreviewLocaleBase(locale: "fr" | "en", path: string, url: string): string {
-  const isFrenchHome = locale === "fr" && path.replace(/^\/+|\/+$/g, "") === "";
-  if (previewBase() !== "/" && isFrenchHome) return withPreviewBase("/landing/french/");
+export function withPreviewLocaleBase(_locale: "fr" | "en", _path: string, url: string): string {
   return withPreviewBase(url);
 }
 

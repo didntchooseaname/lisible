@@ -8,7 +8,7 @@ import {
   cardLocaleFromPath,
   isCalloutVariant,
   type CalloutVariant,
-} from "#src/i18n/callouts";
+} from "../i18n/callouts";
 
 const icon = (paths: ElementContent[]): ElementContent =>
   h(

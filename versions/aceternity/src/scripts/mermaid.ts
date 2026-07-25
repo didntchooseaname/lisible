@@ -268,3 +268,5 @@ themeObserver.observe(document.documentElement, {
   attributes: true,
   attributeFilter: ["class"],
 });
+
+export {};

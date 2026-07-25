@@ -101,3 +101,5 @@ function init(): void {
 }
 
 init();
+
+export {};

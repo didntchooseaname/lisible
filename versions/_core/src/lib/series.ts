@@ -1,6 +1,7 @@
+import { seriesSlug } from "@shared/lib/posts";
 import { getPublishedPosts, postLocale, type Post } from "@/lib/posts";
 import { readingTime } from "@/lib/utils";
-import type { Locale } from "#src/i18n/ui";
+import type { Locale } from "@/i18n/ui";
 
 export function seriesTitle(slug: string): string {
   return slug
@@ -22,7 +23,7 @@ export async function getSeriesPosts(
   slug: string,
 ): Promise<Post[]> {
   const posts = await getPublishedPosts(locale);
-  return sortSeries(posts.filter((p) => p.data.series === slug));
+  return sortSeries(posts.filter((p) => p.data.series && seriesSlug(p.data.series) === slug));
 }
 
 export interface SeriesInfo {
@@ -36,7 +37,7 @@ export async function getAllSeries(locale: Locale): Promise<SeriesInfo[]> {
   const posts = await getPublishedPosts(locale);
   const map = new Map<string, Post[]>();
   for (const post of posts) {
-    const slug = post.data.series;
+    const slug = post.data.series ? seriesSlug(post.data.series) : undefined;
     if (!slug) continue;
     const list = map.get(slug) ?? [];
     list.push(post);
@@ -67,7 +68,7 @@ export interface SeriesContext {
 export async function getSeriesContext(
   post: Post,
 ): Promise<SeriesContext | null> {
-  const slug = post.data.series;
+  const slug = post.data.series ? seriesSlug(post.data.series) : undefined;
   if (!slug) return null;
   const locale = postLocale(post);
   const posts = await getSeriesPosts(locale, slug);

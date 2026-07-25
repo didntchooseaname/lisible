@@ -151,7 +151,7 @@ const mdJson = JSON.stringify(markdown).replace(/</g, "\\u003c");
   document.addEventListener("click", (event) => {
     const target = event.target as HTMLElement | null;
     if (target?.closest("[data-ai-open]")) {
-      setOpen(menu()?.hidden ?? true);
+      setOpen(Boolean(menu()?.hidden ?? true));
       return;
     }
     if (target?.closest("[data-ai-copy]")) {

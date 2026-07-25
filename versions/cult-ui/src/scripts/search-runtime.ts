@@ -3,3 +3,5 @@ if (__FEATURE_COMMAND_PALETTE__) {
 } else {
   void import("@/scripts/search-modal");
 }
+
+export {};

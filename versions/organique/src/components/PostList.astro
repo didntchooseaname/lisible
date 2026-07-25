@@ -1,7 +1,7 @@
 ---
 import { postLocale, postUrl, type Post } from "@/lib/posts";
-import { formatDate, isoDate } from "@/lib/utils";
-import { t } from "@/i18n/ui";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+import { localeUrl, t } from "@/i18n/ui";
 
 interface Props {
   posts: Post[];
@@ -15,6 +15,7 @@ const { posts } = Astro.props;
     posts.map((post) => {
       const locale = postLocale(post);
       const dict = t(locale);
+      const minutes = readingTime(post.body ?? "");
       return (
         <li>
           <a href={postUrl(post)} class="row-link">
@@ -30,8 +31,65 @@ const { posts } = Astro.props;
               {formatDate(post.data.pubDate, locale, "short")}
             </time>
           </a>
+          {/* Scent of information: a bare title and date give nothing to scan. */}
+          <p class="row-excerpt">{post.data.description}</p>
+          <p class="row-meta">
+            <span>{dict.post.readingTime(minutes)}</span>
+            {post.data.tags.length > 0 && (
+              <span class="row-tags">
+                {post.data.tags.slice(0, 3).map((tag) => (
+                  <a href={localeUrl(locale, `tags/${tag}`)} class="row-tag">
+                    {tag}
+                  </a>
+                ))}
+              </span>
+            )}
+          </p>
         </li>
       );
     })
   }
 </ul>
+
+<style is:inline>
+  .organic-rows .row-excerpt {
+    max-width: 62ch;
+    margin-top: 0.35rem;
+    color: var(--color-muted-foreground);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .organic-rows .row-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.9rem;
+    margin-top: 0.55rem;
+    color: var(--color-muted-foreground);
+    font-size: 0.78rem;
+  }
+
+  .organic-rows .row-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .organic-rows .row-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1rem 0.55rem;
+    border: 1px solid var(--color-border);
+    border-radius: 52% 48% 46% 54% / 48% 52% 48% 52%;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 160ms ease-out, color 160ms ease-out;
+  }
+
+  .organic-rows .row-tag:hover,
+  .organic-rows .row-tag:focus-visible {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+</style>

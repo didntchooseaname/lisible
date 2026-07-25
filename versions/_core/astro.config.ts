@@ -1,9 +1,12 @@
+import type { RehypePlugins, RemarkPlugins } from "astro";
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import pagefind from "astro-pagefind";
 import pagefindDev from "../../shared/pagefind-dev";
+import { rehypeImageDimensions } from "../../shared/markdown/rehype-image-dimensions";
+import { katexAssets } from "../../shared/integrations/katex-assets";
 import tailwindcss from "@tailwindcss/vite";
 import remarkDirective from "remark-directive";
 import expressiveCode, { pluginFramesTexts } from "astro-expressive-code";
@@ -26,13 +29,13 @@ import { pluginLanguageBadge } from "./src/lib/expressive-code/language-badge";
 import { codeStrings } from "./src/i18n/code";
 import { FEATURES, SITE } from "./src/site.config";
 
-const remarkPlugins = [remarkDirective, remarkGithubCard, remarkLinkCard];
+const remarkPlugins: RemarkPlugins = [remarkDirective, remarkGithubCard, remarkLinkCard];
 if (FEATURES.callouts) remarkPlugins.push(remarkCallouts);
 if (FEATURES.drawio) remarkPlugins.push(remarkDrawio);
 if (FEATURES.mermaid) remarkPlugins.push(remarkMermaid);
 if (FEATURES.math) remarkPlugins.push(remarkMath);
 
-const rehypePlugins = [rehypeTaskCheckboxes];
+const rehypePlugins: RehypePlugins = [rehypeImageDimensions, rehypeTaskCheckboxes];
 if (FEATURES.headingAnchors) rehypePlugins.push(rehypeHeadingAnchors);
 if (FEATURES.math) rehypePlugins.push(rehypeKatex);
 
@@ -148,7 +151,6 @@ export default defineConfig({
     react(),
     mdx(),
     sitemap({
-      filter: (page) => !page.endsWith("/landing/french/"),
       i18n: {
         defaultLocale: "fr",
         locales: {
@@ -158,6 +160,7 @@ export default defineConfig({
       },
     }),
     pagefind(),
+    katexAssets(FEATURES.math),
   ],
   vite: {
     plugins: [pagefindDev(), tailwindcss()],

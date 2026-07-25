@@ -144,6 +144,13 @@ export function prepareSvg(svgEl: SVGSVGElement): void {
   if (viewBox?.width && viewBox?.height) {
     svgEl.setAttribute("width", `${viewBox.width}`);
     svgEl.setAttribute("height", `${viewBox.height}`);
+    // The pan layer is a flex container, so without a fixed basis the diagram
+    // shrinks to the column width and the fit transform then scales that down
+    // again: the result is an unreadable thumbnail. Pin the intrinsic size and
+    // let the transform be the only thing that scales.
+    svgEl.style.width = `${viewBox.width}px`;
+    svgEl.style.height = `${viewBox.height}px`;
+    svgEl.style.flex = "0 0 auto";
   }
   svgEl.style.display = "block";
   svgEl.style.maxWidth = "none";

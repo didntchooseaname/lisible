@@ -1,3 +1,7 @@
+// Pagefind is emitted into dist/ at build time; keep the specifier out of
+// static resolution so it is looked up at runtime only.
+const PAGEFIND_URL = "/pagefind/pagefind.js";
+
 type PagefindResult = {
   data: () => Promise<{
     url: string;
@@ -34,9 +38,7 @@ function renderMessage(modal: HTMLDialogElement, message: string) {
 async function ensurePagefind(): Promise<void> {
   if (pagefind || loadFailed) return;
   try {
-    const module = (await import(
-      /* @vite-ignore */ "/pagefind/pagefind.js"
-    )) as PagefindModule;
+    const module = (await import(/* @vite-ignore */ PAGEFIND_URL)) as PagefindModule;
     await module.options({ excerptLength: 25 });
     module.init();
     pagefind = module;
@@ -143,3 +145,5 @@ document.addEventListener("input", (event) => {
 document.addEventListener("astro:before-swap", () => {
   getModal()?.close();
 });
+
+export {};

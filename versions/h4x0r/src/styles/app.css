@@ -3,3 +3,4 @@
 @import "@fontsource-variable/orbitron";
 @import "./global.css";
 @import "../scripts/command-palette.css";
+@import "../../../../shared/print.css";

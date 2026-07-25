@@ -290,3 +290,5 @@ const themeObserver = new MutationObserver(() => {
   }, 60);
 });
 themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+export {};

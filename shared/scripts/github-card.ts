@@ -221,3 +221,5 @@ function initGithubCards(): void {
 
 initGithubCards();
 document.addEventListener("astro:page-load", initGithubCards);
+
+export {};

@@ -110,3 +110,5 @@ function initAll() {
 
 document.addEventListener("astro:page-load", initAll);
 if (document.readyState !== "loading") initAll();
+
+export {};

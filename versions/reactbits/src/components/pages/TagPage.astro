@@ -27,8 +27,10 @@ const paged = paginate(posts, page, pageSize, baseUrl);
 
 const other = otherLocale(locale);
 const otherTags = await getAllTags(other);
-const pagePath = (loc: Locale, n: number) =>
-  n <= 1 ? localeUrl(loc, `tags/${tagSlug}`) : `${localeUrl(loc, `tags/${tagSlug}`)}${n}/`;
+const pagePath = (loc: Locale, n: number) => {
+  const base = localeUrl(loc, `tags/${tagSlug}`);
+  return n <= 1 ? base : `${base}${n}/`;
+};
 const alternates: Partial<Record<Locale, string>> = {
   [locale]: pagePath(locale, paged.current),
 };

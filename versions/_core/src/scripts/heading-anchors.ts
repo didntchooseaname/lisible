@@ -39,3 +39,5 @@ function onClick(event: MouseEvent) {
 }
 
 document.addEventListener("click", onClick);
+
+export {};

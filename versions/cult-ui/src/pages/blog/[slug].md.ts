@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
-import { FEATURES } from "@/site.config";
-import { getPublishedPosts, postSlug, type Post } from "@/lib/posts";
-import { postToMarkdown } from "@/lib/llms";
+import { postToMarkdown } from "@shared/lib/llms";
+import { FEATURES, SITE } from "@/site.config";
+import { getPublishedPosts, postSlug, postUrl, type Post } from "@/lib/posts";
 
 export async function getStaticPaths() {
   if (!FEATURES.llmsTxt) return [];
@@ -12,9 +12,10 @@ export async function getStaticPaths() {
   }));
 }
 
-export const GET: APIRoute = ({ props }) => {
+export const GET: APIRoute = ({ props, site }) => {
   const { post } = props as { post: Post };
-  return new Response(postToMarkdown(post), {
+  const base = site?.toString() ?? SITE.url;
+  return new Response(postToMarkdown(post, base, postUrl(post)), {
     headers: { "Content-Type": "text/markdown; charset=utf-8" },
   });
 };

@@ -23,6 +23,11 @@ const {
 } = Astro.props;
 
 const isString = typeof cover === "string";
+// A cover given as a plain path bypasses astro:assets, so it carries no
+// intrinsic size. Reserving the standard Open Graph ratio keeps it from
+// shifting the article once it loads.
+const rawWidth = 1200;
+const rawHeight = 630;
 ---
 
 <figure class:list={["cover", className]} style={`aspect-ratio:${ratio}`} data-preview-cover>
@@ -31,6 +36,8 @@ const isString = typeof cover === "string";
       <img
         src={cover as string}
         alt={alt}
+        width={rawWidth}
+        height={rawHeight}
         loading={loading}
         decoding="async"
         class="cover__img"

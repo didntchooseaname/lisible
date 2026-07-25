@@ -325,3 +325,5 @@ document.addEventListener("astro:before-swap", () => {
   document.body.style.overflow = "";
   lightbox.cleanupImages();
 });
+
+export {};

@@ -22,3 +22,5 @@ function onClick(event: MouseEvent) {
 }
 
 document.addEventListener("astro:page-load", initHeadingAnchors);
+
+export {};

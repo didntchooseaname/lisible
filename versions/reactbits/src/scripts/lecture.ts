@@ -15,3 +15,5 @@ if (__FEATURE_DRAWIO__) {
 if (__FEATURE_IMAGE_ZOOM__) {
   import("./image-lightbox");
 }
+
+export {};

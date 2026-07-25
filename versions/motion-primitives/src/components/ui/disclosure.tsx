@@ -108,8 +108,11 @@ export function DisclosureTrigger({
   return (
     <>
       {React.Children.map(children, (child) => {
-        return React.isValidElement(child)
-          ? React.cloneElement(child, {
+        if (!React.isValidElement(child)) return child;
+        // React 19 types cloneElement against the child's own props, which are
+        // unknown here: the trigger wraps whatever element the caller passes.
+        const element = child as React.ReactElement<Record<string, unknown>>;
+        return React.cloneElement(element, {
               onClick: toggle,
               role: 'button',
               'aria-expanded': open,
@@ -120,13 +123,9 @@ export function DisclosureTrigger({
                   toggle();
                 }
               },
-              className: cn(
-                className,
-                (child as React.ReactElement).props.className
-              ),
-              ...(child as React.ReactElement).props,
-            })
-          : child;
+              className: cn(className, element.props.className as string | undefined),
+              ...element.props,
+            });
       })}
     </>
   );

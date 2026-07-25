@@ -4,6 +4,8 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import pagefind from "astro-pagefind";
 import pagefindDev from "../../shared/pagefind-dev";
+import { rehypeImageDimensions } from "../../shared/markdown/rehype-image-dimensions";
+import { katexAssets } from "../../shared/integrations/katex-assets";
 import { previewAstroConfig, previewBuildIntegration } from "../../shared/preview/build-config";
 import tailwindcss from "@tailwindcss/vite";
 import remarkDirective from "remark-directive";
@@ -25,36 +27,7 @@ import remarkDrawio from "./src/lib/remark-drawio";
 import rehypeHeadingAnchors from "./src/lib/rehype-heading-anchors";
 import { pluginLanguageBadge } from "./src/lib/expressive-code/language-badge";
 import { codeStrings } from "./src/i18n/code";
-import { COMMENTS, FEATURES, SITE, WEBMENTIONS } from "./src/site.config";
-
-if (FEATURES.webmentions && !WEBMENTIONS.domain) {
-  throw new Error(
-    "[lisible] FEATURES.webmentions is enabled but WEBMENTIONS.domain is empty. " +
-      "Set the domain registered with webmention.io in shared/site.config.ts " +
-      "(for example: domain: \"blog.example.com\") or disable the feature flag.",
-  );
-}
-if (FEATURES.comments) {
-  const g = COMMENTS.giscus;
-  if (
-    COMMENTS.provider === "giscus" &&
-    !(g.repo && g.repoId && g.category && g.categoryId)
-  ) {
-    throw new Error(
-      "[lisible] FEATURES.comments is enabled with the \"giscus\" provider, but " +
-        "COMMENTS.giscus is incomplete (repo, repoId, category, categoryId). " +
-        "Get these values from https://giscus.app and add them to shared/site.config.ts, " +
-        "or disable the feature flag.",
-    );
-  }
-  if (COMMENTS.provider === "bluesky" && !COMMENTS.bluesky.handle) {
-    throw new Error(
-      "[lisible] FEATURES.comments is enabled with the \"bluesky\" provider, but " +
-        "INTEGRATIONS.comments.bluesky.postUri is empty in shared/site.config.ts. " +
-        "Set the root post at:// URI or disable the feature flag.",
-    );
-  }
-}
+import { FEATURES, SITE } from "./src/site.config";
 
 for (const locale of ["fr", "en"] as const) {
   pluginFramesTexts.overrideTexts(locale, {
@@ -169,7 +142,6 @@ export default defineConfig({
     react(),
     mdx(),
     sitemap({
-      filter: (page) => !page.endsWith("/landing/french/"),
       i18n: {
         defaultLocale: "fr",
         locales: {
@@ -179,6 +151,7 @@ export default defineConfig({
       },
     }),
     pagefind(),
+    katexAssets(FEATURES.math),
     previewBuildIntegration(),
   ],
   vite: {
@@ -212,6 +185,7 @@ export default defineConfig({
         remarkLinkCard,
       ],
       rehypePlugins: [
+        rehypeImageDimensions,
         rehypeTaskCheckboxes,
         ...(FEATURES.math ? [rehypeKatex] : []),
         ...(FEATURES.headingAnchors ? [rehypeHeadingIds, rehypeHeadingAnchors] : []),

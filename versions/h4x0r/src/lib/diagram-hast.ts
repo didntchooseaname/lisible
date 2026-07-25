@@ -1,6 +1,6 @@
 import { h } from "hastscript";
 import type { ElementContent } from "hast";
-import type { ContentStrings } from "#src/i18n/content";
+import type { ContentStrings } from "@/i18n/content";
 
 const toolbarIcon = (paths: string[], size = 15): ElementContent =>
   h(

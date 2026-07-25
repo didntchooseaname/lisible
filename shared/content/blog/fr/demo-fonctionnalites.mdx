@@ -14,6 +14,7 @@ import { Tabs, Tab } from "@/components/ui/tabs";
 import { Steps, Step } from "@/components/ui/steps";
 import { Tree } from "@shared/components/ui/file-tree";
 import Spoiler from "@/components/Spoiler.astro";
+import Diagram from "@shared/components/Diagram.astro";
 
 Cet article est la vitrine du blog. Il montre chaque possibilité de formatage et chaque fonctionnalité de l'application. Si quelque chose rend mal ici, c'est un bug du thème, pas du contenu.
 
@@ -330,6 +331,16 @@ export function visible() {
 ![Schéma minimaliste de l'architecture en îlots: du HTML statique, trois îlots interactifs hydratés indépendamment](/images/demo-ilots.svg)
 
 L'attribut alt est obligatoire et sert de légende implicite. L'image ne doit provoquer aucun décalage de mise en page au chargement.
+
+### Schémas SVG intégrés
+
+Ces trois schémas sont des **SVG écrits en ligne dans le HTML**, pas des fichiers image chargés par `<img>`. C'est ce qui change tout: un SVG inline hérite des variables CSS de la page, donc ses traits suivent l'accent choisi dans l'en-tête et ses surfaces suivent le thème actif, en direct, sans JavaScript et sans requête supplémentaire. Un SVG servi via `<img>` reste isolé de la page et ne peut pas faire ça.
+
+<Diagram id="islands" locale="fr" />
+
+<Diagram id="pipeline" locale="fr" />
+
+<Diagram id="tokens" locale="fr" />
 
 ## Cartes enrichies
 

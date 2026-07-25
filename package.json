@@ -15,11 +15,16 @@
     "sync-og-assets": "bun scripts/sync-og-assets.ts",
     "check-og-assets": "bun scripts/sync-og-assets.ts --check",
     "check-og-output": "bun scripts/check-og-output.ts",
-    "check:all": "bun run check-og-assets && bun run build && bun run check-links && bun run check-assets && bun run check-og-output organique",
+    "check:all": "bun scripts/check-variants.ts",
     "variant": "bun scripts/run.ts which",
-    "preview:all": "bun scripts/preview-all.ts"
+    "preview:all": "bun scripts/preview-all.ts",
+    "check-variants": "bun scripts/check-variants.ts",
+    "typecheck": "bun scripts/check-variants.ts --typecheck-only"
   },
   "devDependencies": {
+    "@astrojs/rss": "^4.0.19",
+    "@resvg/resvg-js": "^2.6.2",
+    "satori": "^0.29.0",
     "sharp": "^0.35.3"
   }
 }

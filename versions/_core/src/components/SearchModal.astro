@@ -1,4 +1,6 @@
 ---
+// Pagefind is emitted into dist/ at build time; keep the specifier
+// out of static resolution so it is looked up at runtime only.
 import { FEATURES } from "@/site.config";
 import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
 
@@ -196,6 +198,7 @@ const iconPaths: Record<string, string> = {
 </dialog>
 
 <script>
+  const PAGEFIND_URL = "/pagefind/pagefind.js";
   type PagefindResult = {
     data: () => Promise<{
       url: string;
@@ -284,9 +287,7 @@ const iconPaths: Record<string, string> = {
   async function ensurePagefind(): Promise<void> {
     if (pagefind || loadFailed) return;
     try {
-      const module = (await import(
-        /* @vite-ignore */ "/pagefind/pagefind.js"
-      )) as PagefindModule;
+      const module = (await import(/* @vite-ignore */ PAGEFIND_URL)) as PagefindModule;
       await module.options({ excerptLength: 25 });
       module.init();
       pagefind = module;

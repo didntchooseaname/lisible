@@ -141,7 +141,7 @@ const remarkCallouts: Plugin<[], Root> = () => {
           {
             type: "paragraph",
             data: { hName: "div", hProperties: { class: "callout-body" } },
-            children: bodyChildren,
+            children: bodyChildren as unknown as Paragraph["children"],
           },
         ];
       } else {
@@ -160,7 +160,7 @@ const remarkCallouts: Plugin<[], Root> = () => {
           {
             type: "paragraph",
             data: { hName: "div", hProperties: { class: "callout-body" } },
-            children: bodyChildren,
+            children: bodyChildren as unknown as Paragraph["children"],
           },
         ];
       }

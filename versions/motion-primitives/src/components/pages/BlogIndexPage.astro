@@ -12,7 +12,7 @@ import {
   postUrl,
   type Post,
 } from "@/lib/posts";
-import { formatDate, isoDate } from "@/lib/utils";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
 
 interface Props {
   locale: Locale;
@@ -43,6 +43,9 @@ function toRowData(post: Post): PostRowData {
     url: postUrl(post),
     title: post.data.title,
     dateISO: isoDate(post.data.pubDate),
+    description: post.data.description,
+    readingLabel: dict.post.readingTime(readingTime(post.body ?? "")),
+    tags: post.data.tags.slice(0, 3).map((tag) => ({ label: tag, url: localeUrl(locale, `tags/${tag}`) })),
     dateLabel: formatDate(post.data.pubDate, locale, "short"),
     draftLabel: post.data.draft ? dict.post.draft : undefined,
   };

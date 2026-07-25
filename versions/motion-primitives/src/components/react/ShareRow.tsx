@@ -19,7 +19,7 @@ type ShareRowProps = {
   labels: ShareLabels;
 };
 
-const MASTODON_KEY = "mastodon:instance";
+const MASTODON_KEY = "mastodon-instance";
 
 function MagneticItem({ children }: { children: ReactNode }) {
   return (

@@ -1,5 +1,6 @@
 ---
 import profilePortrait from "../assets/demo-profile.svg?url";
+import { DEMO_PROFILE } from "../site.config";
 
 type Variant =
   | "motion-primitives"
@@ -26,11 +27,10 @@ const copy =
   locale === "fr"
     ? {
         kicker: "Profil de démonstration",
-        name: "Alex Morgan",
-        pronouns: "(iel)",
-        role: "Designer développeur et auteur technique",
-        intro:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Je transforme des idées complexes en interfaces claires et en récits faciles à parcourir.",
+        name: DEMO_PROFILE.name,
+        pronouns: `(${DEMO_PROFILE.pronouns.fr})`,
+        role: DEMO_PROFILE.role.fr,
+        intro: DEMO_PROFILE.intro.fr,
         links: "Raccourcis du profil de démonstration",
         journal: "Journal",
         projects: "Projets",
@@ -39,11 +39,10 @@ const copy =
       }
     : {
         kicker: "Demo profile",
-        name: "Alex Morgan",
-        pronouns: "(they/them)",
-        role: "Designer, developer and technical writer",
-        intro:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. I turn complex ideas into clear interfaces and stories that are easy to explore.",
+        name: DEMO_PROFILE.name,
+        pronouns: `(${DEMO_PROFILE.pronouns.en})`,
+        role: DEMO_PROFILE.role.en,
+        intro: DEMO_PROFILE.intro.en,
         links: "Demo profile shortcuts",
         journal: "Journal",
         projects: "Projects",
@@ -65,7 +64,9 @@ const shortcuts = [
     <img
       class="demo-profile__portrait"
       src={profilePortrait}
-      alt={locale === "fr" ? "Portrait abstrait du profil de démonstration Alex Morgan" : "Abstract portrait of demo profile Alex Morgan"}
+      alt={locale === "fr"
+        ? `Portrait abstrait du profil de démonstration ${DEMO_PROFILE.name}`
+        : `Abstract portrait of demo profile ${DEMO_PROFILE.name}`}
       width="320"
       height="320"
       loading="eager"
@@ -300,6 +301,10 @@ const shortcuts = [
 
   .demo-profile[data-variant="organique"] .demo-profile__portrait {
     border-radius: 38% 62% 48% 52% / 56% 42% 58% 44%;
+  }
+
+  .demo-profile[data-variant="organique"] .demo-profile__shortcuts a {
+    border-radius: 46% 54% 52% 48% / 52% 46% 54% 48%;
   }
 
   .demo-profile[data-variant="organique"] .demo-profile__shortcuts a:nth-child(even) {

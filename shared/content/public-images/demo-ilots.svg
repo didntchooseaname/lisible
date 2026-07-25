@@ -1,26 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="480" viewBox="0 0 960 480" role="img" aria-label="Architecture en ilots: HTML statique et trois ilots interactifs">
-  <rect x="24" y="24" width="912" height="432" rx="12" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="6 6"/>
-  <text x="48" y="64" font-family="monospace" font-size="20" fill="#64748b">page HTML statique (0 ko de JS)</text>
-  <g>
-    <rect x="72" y="104" width="380" height="88" rx="8" fill="#64748b" fill-opacity="0.15" stroke="#64748b" stroke-width="2"/>
-    <text x="92" y="154" font-family="monospace" font-size="18" fill="#64748b">header + contenu rendu au build</text>
-  </g>
-  <g>
-    <rect x="508" y="104" width="380" height="88" rx="8" fill="#22c55e" fill-opacity="0.18" stroke="#22c55e" stroke-width="2"/>
-    <text x="528" y="144" font-family="monospace" font-size="18" fill="#16a34a">ilot: switcher de theme</text>
-    <text x="528" y="172" font-family="monospace" font-size="16" fill="#16a34a">client:load</text>
-  </g>
-  <g>
-    <rect x="72" y="240" width="380" height="88" rx="8" fill="#22c55e" fill-opacity="0.18" stroke="#22c55e" stroke-width="2"/>
-    <text x="92" y="280" font-family="monospace" font-size="18" fill="#16a34a">ilot: recherche</text>
-    <text x="92" y="308" font-family="monospace" font-size="16" fill="#16a34a">client:idle</text>
-  </g>
-  <g>
-    <rect x="508" y="240" width="380" height="88" rx="8" fill="#64748b" fill-opacity="0.15" stroke="#64748b" stroke-width="2"/>
-    <text x="528" y="290" font-family="monospace" font-size="18" fill="#64748b">article, prose statique</text>
-  </g>
-  <g>
-    <rect x="72" y="368" width="816" height="64" rx="8" fill="#22c55e" fill-opacity="0.18" stroke="#22c55e" stroke-width="2"/>
-    <text x="92" y="408" font-family="monospace" font-size="18" fill="#16a34a">ilot: carrousel en pied de page, client:visible</text>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Architecture en ilots</title>
+  <desc id="desc">Un document HTML statique dans lequel trois ilots interactifs sont hydrates independamment les uns des autres.</desc>
+  <style>
+    /*
+      Referenced through an img tag, this file falls back to the default palette
+      and follows the system theme. Inlined in a page, the custom properties win,
+      so the schema follows the active theme and the accent the reader picked.
+    */
+    .surface { fill: var(--color-card, #0b0f14); }
+    .shell { fill: none; stroke: var(--color-border, #23303d); stroke-width: 2; stroke-dasharray: 7 9; }
+    .island { fill: var(--island-fill, #102319); stroke: var(--color-accent, #22c55e); stroke-width: 2.4; }
+    .thread { fill: none; stroke: var(--thread, #2f6f4a); stroke-width: 2; }
+    .pin { fill: var(--color-accent, #22c55e); }
+    .label { fill: var(--color-foreground, #e6edf3); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 30px; font-weight: 650; }
+    .muted { fill: var(--color-muted-foreground, #8a9aa8); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 24px; letter-spacing: 0.06em; }
+
+    @media (prefers-color-scheme: light) {
+      .surface { fill: var(--color-card, #ffffff); }
+      .shell { stroke: var(--color-border, #d8e0e7); }
+      .island { fill: var(--island-fill, #e7f8ee); }
+      .thread { stroke: var(--thread, #7fc3a0); }
+      .label { fill: var(--color-foreground, #0d1117); }
+      .muted { fill: var(--color-muted-foreground, #5b6b78); }
+    }
+  </style>
+
+  <rect class="surface" width="1200" height="630" rx="28"/>
+  <path class="shell" d="M74 52h1052c14 0 25 12 24 26l-24 474c-1 15-11 26-25 26H87c-14 0-25-11-25-26L38 78c-1-14 10-26 24-26Z"/>
+  <text class="muted" x="104" y="116">document statique</text>
+
+  <path class="island" d="M132 210c56-30 202-33 254 8 49 39 41 172-11 202-56 32-195 26-245-11-51-39-51-170 2-199Z"/>
+  <text class="label" x="259" y="330" text-anchor="middle">Recherche</text>
+  <circle class="pin" cx="259" cy="374" r="8"/>
+
+  <path class="island" d="M480 210c56-30 202-33 254 8 49 39 41 172-11 202-56 32-195 26-245-11-51-39-51-170 2-199Z"/>
+  <text class="label" x="607" y="330" text-anchor="middle">Theme</text>
+  <circle class="pin" cx="607" cy="374" r="8"/>
+
+  <path class="island" d="M828 210c56-30 202-33 254 8 49 39 41 172-11 202-56 32-195 26-245-11-51-39-51-170 2-199Z"/>
+  <text class="label" x="955" y="330" text-anchor="middle">Diagramme</text>
+  <circle class="pin" cx="955" cy="374" r="8"/>
+
+  <path class="thread" d="M259 374c116 68 232 68 348 0"/>
+  <path class="thread" d="M607 374c116 68 232 62 348-6"/>
+
+  <text class="muted" x="600" y="512" text-anchor="middle">trois ilots hydrates a la demande</text>
 </svg>

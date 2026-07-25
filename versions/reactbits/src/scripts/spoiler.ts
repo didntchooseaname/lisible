@@ -7,3 +7,5 @@ document.addEventListener("click", (event) => {
   const label = revealed ? spoiler.dataset.labelHide : spoiler.dataset.labelShow;
   if (label) spoiler.setAttribute("aria-label", label);
 });
+
+export {};

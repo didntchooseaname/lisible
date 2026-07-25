@@ -3,7 +3,7 @@ import type { ElementContent } from "hast";
 import type { Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { cardLocaleFromPath, cardStrings, type CardLocale } from "#src/i18n/cards";
+import { cardLocaleFromPath, cardStrings, type CardLocale } from "../i18n/cards";
 
 const controlIcon = (children: ElementContent[]): ElementContent =>
   h(

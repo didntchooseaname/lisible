@@ -1,0 +1,270 @@
+---
+/**
+ * Inline schematic illustrations for the demo content.
+ *
+ * They are inlined rather than referenced through `<img>` on purpose: an inline
+ * `<svg>` inherits the page custom properties, so the strokes follow the accent
+ * the reader picks in the header and the surfaces follow the active theme, live,
+ * with no JavaScript and no second request.
+ */
+type DiagramId = "islands" | "pipeline" | "tokens";
+
+interface Props {
+  id: DiagramId;
+  locale: "fr" | "en";
+  caption?: string;
+}
+
+const { id, locale, caption } = Astro.props;
+
+const copy = {
+  islands: {
+    fr: {
+      title: "Architecture en îlots",
+      alt: "Une page HTML statique dans laquelle trois îlots interactifs sont hydratés indépendamment les uns des autres.",
+      caption: "Le document est statique; seuls les îlots reçoivent du JavaScript.",
+      shell: "Document statique",
+      nodes: ["Recherche", "Thème", "Diagramme"],
+      note: "hydratés à la demande",
+    },
+    en: {
+      title: "Islands architecture",
+      alt: "A static HTML page in which three interactive islands are hydrated independently of one another.",
+      caption: "The document is static; only the islands receive JavaScript.",
+      shell: "Static document",
+      nodes: ["Search", "Theme", "Diagram"],
+      note: "hydrated on demand",
+    },
+  },
+  pipeline: {
+    fr: {
+      title: "Chaîne de publication",
+      alt: "Les fichiers MDX passent par la construction Astro, produisent des pages HTML statiques, puis le dossier de distribution.",
+      caption: "Du fichier source à la page servie, sans serveur applicatif.",
+      steps: ["Articles .mdx", "astro build", "HTML statique", "dist/"],
+    },
+    en: {
+      title: "Publishing pipeline",
+      alt: "MDX files go through the Astro build, produce static HTML pages, then the distribution folder.",
+      caption: "From source file to served page, with no application server.",
+      steps: ["Posts .mdx", "astro build", "Static HTML", "dist/"],
+    },
+  },
+  tokens: {
+    fr: {
+      title: "Jetons de thème",
+      alt: "Un jeton d'accent unique alimente les bordures, les liens et les surfaces, en thème sombre comme en thème clair.",
+      caption: "Un seul jeton d'accent alimente toute l'interface.",
+      source: "--accent",
+      targets: ["Bordures", "Liens", "Surfaces"],
+    },
+    en: {
+      title: "Theme tokens",
+      alt: "A single accent token feeds borders, links and surfaces, in dark theme as well as light theme.",
+      caption: "One accent token feeds the whole interface.",
+      source: "--accent",
+      targets: ["Borders", "Links", "Surfaces"],
+    },
+  },
+} as const;
+
+const text = copy[id][locale];
+const titleId = `diagram-${id}-title`;
+const descId = `diagram-${id}-desc`;
+---
+
+<figure class="lisible-diagram" data-diagram={id}>
+  <svg
+    viewBox="0 0 640 300"
+    role="img"
+    aria-labelledby={`${titleId} ${descId}`}
+    preserveAspectRatio="xMidYMid meet"
+  >
+    <title id={titleId}>{text.title}</title>
+    <desc id={descId}>{text.alt}</desc>
+
+    {
+      id === "islands" && (
+        <>
+          <path
+            class="shell"
+            d="M28 26h584c8 0 14 7 13 15l-6 214c-1 9-7 15-15 15H34c-8 0-14-7-14-15l-5-214c0-8 5-15 13-15Z"
+          />
+          <text class="label muted" x="44" y="56">{(text as { shell: string }).shell}</text>
+          <path class="rule" d="M44 70h552" />
+
+          {[0, 1, 2].map((index) => {
+            const x = 62 + index * 186;
+            return (
+              <>
+                <path
+                  class="island"
+                  d={`M${x} 110c30-16 108-18 136 4 26 21 22 92-6 108-30 17-104 14-131-6-27-21-27-91 1-106Z`}
+                />
+                <text class="label strong" x={x + 68} y="176" text-anchor="middle">
+                  {(text as { nodes: readonly string[] }).nodes[index]}
+                </text>
+                <circle class="pin" cx={x + 68} cy="200" r="4" />
+              </>
+            );
+          })}
+
+          <path class="thread" d="M130 204C176 240 270 240 316 204" />
+          <path class="thread" d="M316 204C362 240 456 240 502 204" />
+          <text class="label muted" x="320" y="268" text-anchor="middle">
+            {(text as { note: string }).note}
+          </text>
+        </>
+      )
+    }
+
+    {
+      id === "pipeline" && (
+        <>
+          {(text as { steps: readonly string[] }).steps.map((step, index) => {
+            const x = 26 + index * 154;
+            return (
+              <>
+                <path
+                  class="island"
+                  d={`M${x} 108c22-14 92-16 116 2 22 17 20 74-5 86-26 13-88 11-112-5-23-16-21-71 1-83Z`}
+                />
+                <text class="label strong" x={x + 62} y="156" text-anchor="middle">
+                  {step}
+                </text>
+                {index < 3 && (
+                  <path class="thread arrow" d={`M${x + 126} 150h22`} marker-end="url(#lisible-arrow)" />
+                )}
+              </>
+            );
+          })}
+          <text class="label muted" x="320" y="240" text-anchor="middle">
+            {(text as { title: string }).title}
+          </text>
+          <defs>
+            <marker
+              id="lisible-arrow"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path class="arrowhead" d="M0 1.5 9 5 0 8.5Z" />
+            </marker>
+          </defs>
+        </>
+      )
+    }
+
+    {
+      id === "tokens" && (
+        <>
+          <path
+            class="island source"
+            d="M42 112c26-18 104-20 132 2 25 20 21 82-6 96-29 15-100 12-126-6-26-19-26-78 0-92Z"
+          />
+          <text class="label strong" x="110" y="166" text-anchor="middle">
+            {(text as { source: string }).source}
+          </text>
+
+          {(text as { targets: readonly string[] }).targets.map((target, index) => {
+            const y = 66 + index * 84;
+            return (
+              <>
+                <path class="thread" d={`M198 160C280 160 300 ${y + 24} 392 ${y + 24}`} />
+                <path
+                  class="island"
+                  d={`M396 ${y}c22-11 158-12 182 2 20 12 18 36-4 44-24 9-152 8-176-3-21-9-21-35-2-43Z`}
+                />
+                <text class="label" x="488" y={y + 30} text-anchor="middle">
+                  {target}
+                </text>
+              </>
+            );
+          })}
+        </>
+      )
+    }
+  </svg>
+  <figcaption>{caption ?? text.caption}</figcaption>
+</figure>
+
+<style is:inline>
+  .lisible-diagram {
+    margin: 2rem 0;
+  }
+
+  .lisible-diagram svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 640 / 300;
+    border: 1px solid var(--color-border);
+    border-radius: 1.4rem 0.8rem 1.3rem 0.9rem / 0.9rem 1.3rem 0.85rem 1.25rem;
+    background: var(--color-card);
+  }
+
+  .lisible-diagram .shell {
+    fill: color-mix(in oklab, var(--color-accent) 4%, transparent);
+    stroke: var(--color-border);
+    stroke-width: 1.5;
+  }
+
+  .lisible-diagram .rule {
+    fill: none;
+    stroke: var(--color-border);
+    stroke-width: 1;
+    stroke-dasharray: 3 6;
+  }
+
+  .lisible-diagram .island {
+    fill: color-mix(in oklab, var(--color-accent) 12%, var(--color-background));
+    stroke: color-mix(in oklab, var(--color-accent) 62%, var(--color-border));
+    stroke-width: 1.6;
+  }
+
+  .lisible-diagram .island.source {
+    fill: color-mix(in oklab, var(--color-accent) 24%, var(--color-background));
+    stroke: var(--color-accent);
+  }
+
+  .lisible-diagram .thread {
+    fill: none;
+    stroke: color-mix(in oklab, var(--color-accent) 48%, var(--color-border));
+    stroke-width: 1.4;
+  }
+
+  .lisible-diagram .arrowhead {
+    fill: color-mix(in oklab, var(--color-accent) 62%, var(--color-border));
+    stroke: none;
+  }
+
+  .lisible-diagram .pin {
+    fill: var(--color-accent);
+  }
+
+  .lisible-diagram .label {
+    fill: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: 15px;
+  }
+
+  .lisible-diagram .label.strong {
+    font-weight: 650;
+  }
+
+  .lisible-diagram .label.muted {
+    fill: var(--color-muted-foreground);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+  }
+
+  .lisible-diagram figcaption {
+    margin-top: 0.7rem;
+    color: var(--color-muted-foreground);
+    font-size: 0.86rem;
+    text-align: center;
+  }
+</style>

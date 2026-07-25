@@ -8,6 +8,7 @@ export interface TimelinePost {
   dateIso: string;
   dateLabel: string;
   readingLabel: string;
+  tags: { label: string; url: string }[];
   draftLabel?: string;
 }
 
@@ -43,6 +44,18 @@ export default function BlogTimeline({ years }: { years: TimelineYear[] }) {
                 <span aria-hidden="true">&middot;</span>
                 <span>{post.readingLabel}</span>
               </span>
+              {post.tags.length > 0 && (
+                <span className="mt-1 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag.url}
+                      className="rounded-md border border-border px-1.5 py-0.5"
+                    >
+                      {tag.label}
+                    </span>
+                  ))}
+                </span>
+              )}
             </a>
           </li>
         ))}

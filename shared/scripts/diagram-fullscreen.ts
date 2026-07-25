@@ -339,3 +339,5 @@ document.addEventListener("keydown", (event) => {
 });
 document.addEventListener("astro:page-load", init);
 init();
+
+export {};

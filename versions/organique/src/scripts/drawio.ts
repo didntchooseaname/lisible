@@ -152,3 +152,5 @@ function initDrawio() {
 }
 
 document.addEventListener("astro:page-load", initDrawio);
+
+export {};

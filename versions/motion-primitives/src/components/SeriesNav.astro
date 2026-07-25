@@ -1,10 +1,10 @@
 ---
 import { localeUrl, t, type Locale } from "@/i18n/ui";
-import { postSlug, postUrl, type SeriesInfo } from "@/lib/posts";
+import { postSlug, postUrl, type SeriesPosition } from "@/lib/posts";
 import { readingTime } from "@/lib/utils";
 
 interface Props {
-  series: SeriesInfo;
+  series: SeriesPosition;
   locale: Locale;
   class?: string;
   footer?: boolean;

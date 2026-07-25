@@ -1,0 +1,10 @@
+---
+import SeriesIndexPage from "@/components/pages/SeriesIndexPage.astro";
+import { FEATURES } from "@/site.config";
+
+export function getStaticPaths() {
+  return FEATURES.series ? [{ params: {} }] : [];
+}
+---
+
+<SeriesIndexPage locale="en" />

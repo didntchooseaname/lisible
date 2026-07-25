@@ -3,7 +3,7 @@ import { h } from "hastscript";
 import type { Element, ElementContent, Root, Text } from "hast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { cardLocaleFromPath, type CardLocale } from "#src/i18n/cards";
+import { cardLocaleFromPath, type CardLocale } from "../i18n/cards";
 
 const anchorLabels: Record<CardLocale, string> = {
   fr: "Copier le lien vers cette section",

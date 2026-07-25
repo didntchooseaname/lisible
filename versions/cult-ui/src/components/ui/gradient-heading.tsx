@@ -45,11 +45,14 @@ const headingVariants = cva(
   }
 )
 
-export interface HeadingProps extends VariantProps<typeof headingVariants> {
+export interface HeadingProps
+  extends VariantProps<typeof headingVariants>,
+    // The rendered element is a real heading, so it accepts id, aria-* and the
+    // rest of the DOM attributes the pages pass through.
+    Omit<React.HTMLAttributes<HTMLHeadingElement>, "color"> {
   asChild?: boolean
   as?: "h1" | "h2" | "h3" | "h4" | "p" | "span" | "div"
   children: React.ReactNode
-  className?: string
 }
 
 const GradientHeading = React.forwardRef<HTMLHeadingElement, HeadingProps>(

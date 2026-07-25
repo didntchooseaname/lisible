@@ -1,14 +1,12 @@
-import { fileURLToPath } from "node:url";
-import path from "node:path";
-import { cpSync, existsSync, mkdirSync } from "node:fs";
-import { createReadStream } from "node:fs";
-import type { AstroIntegration } from "astro";
+import type { RehypePlugins, RemarkPlugins } from "astro";
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import pagefind from "astro-pagefind";
 import pagefindDev from "../../shared/pagefind-dev";
+import { rehypeImageDimensions } from "../../shared/markdown/rehype-image-dimensions";
+import { katexAssets } from "../../shared/integrations/katex-assets";
 import { previewAstroConfig, previewBuildIntegration } from "../../shared/preview/build-config";
 import tailwindcss from "@tailwindcss/vite";
 import remarkDirective from "remark-directive";
@@ -36,7 +34,7 @@ import { FEATURES, SITE } from "./src/site.config";
 const siteUrl = SITE.url;
 const siteHost = new URL(siteUrl).host;
 
-const remarkPlugins = [
+const remarkPlugins: RemarkPlugins = [
   remarkDirective,
   remarkGithubCard,
   remarkLinkCard,
@@ -46,49 +44,12 @@ const remarkPlugins = [
   ...(FEATURES.math ? [remarkMath] : []),
 ];
 
-const rehypePlugins = [
+const rehypePlugins: RehypePlugins = [
+  rehypeImageDimensions,
   rehypeTaskCheckboxes,
   ...(FEATURES.headingAnchors ? [rehypeHeadingIds, rehypeHeadingAnchors] : []),
   ...(FEATURES.math ? [rehypeKatex] : []),
 ];
-
-function katexAssets(): AstroIntegration {
-  const katexDir = path.resolve("node_modules/katex/dist");
-  return {
-    name: "katex-assets",
-    hooks: {
-      "astro:config:setup": ({ updateConfig }) => {
-        if (!FEATURES.math) return;
-        updateConfig({
-          vite: {
-            plugins: [
-              {
-                name: "katex-dev-serve",
-                configureServer(server: { middlewares: { use: (path: string, fn: (req: { url?: string }, res: { setHeader: (k: string, v: string) => void }, next: () => void) => void) => void } }) {
-                  server.middlewares.use("/katex", (req, res, next) => {
-                    const rel = (req.url ?? "").split("?")[0] ?? "";
-                    const file = path.join(katexDir, rel);
-                    if (!file.startsWith(katexDir) || !existsSync(file)) return next();
-                    if (file.endsWith(".css")) res.setHeader("Content-Type", "text/css");
-                    if (file.endsWith(".woff2")) res.setHeader("Content-Type", "font/woff2");
-                    createReadStream(file).pipe(res as unknown as NodeJS.WritableStream);
-                  });
-                },
-              },
-            ],
-          },
-        });
-      },
-      "astro:build:done": ({ dir }) => {
-        if (!FEATURES.math) return;
-        const out = path.join(fileURLToPath(dir), "katex");
-        mkdirSync(out, { recursive: true });
-        cpSync(path.join(katexDir, "katex.min.css"), path.join(out, "katex.min.css"));
-        cpSync(path.join(katexDir, "fonts"), path.join(out, "fonts"), { recursive: true });
-      },
-    },
-  };
-}
 
 pluginFramesTexts.addLocale("fr", expressiveCodeTexts.frames.fr);
 pluginFramesTexts.addLocale("en", expressiveCodeTexts.frames.en);
@@ -174,7 +135,6 @@ export default defineConfig({
     react(),
     mdx(),
     sitemap({
-      filter: (page) => !page.endsWith("/landing/french/"),
       i18n: {
         defaultLocale: "fr",
         locales: {
@@ -185,7 +145,7 @@ export default defineConfig({
     }),
     pagefind(),
     previewBuildIntegration(),
-    katexAssets(),
+    katexAssets(FEATURES.math),
   ],
   vite: {
     plugins: [pagefindDev(), tailwindcss()],

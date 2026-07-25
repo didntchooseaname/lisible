@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  variant:
+    name: ${{ matrix.variant }}
+    runs-on: ubuntu-latest
+    strategy:
+      # One failing variant must not hide the state of the others.
+      fail-fast: false
+      matrix:
+        variant:
+          - _core
+          - motion-primitives
+          - cult-ui
+          - aceternity
+          - reactbits
+          - organique
+          - h4x0r
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install root tooling
+        run: bun install --frozen-lockfile
+
+      - name: Install variant dependencies
+        working-directory: versions/${{ matrix.variant }}
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck, build, links, assets and Open Graph
+        run: bun scripts/check-variants.ts ${{ matrix.variant }}
+
+  dependencies:
+    name: dependencies up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Report outdated dependencies
+        # Informational: the project targets the latest of everything, but a
+        # fresh upstream release must not turn every pull request red.
+        continue-on-error: true
+        run: |
+          for variant in versions/*/; do
+            echo "== ${variant}"
+            (cd "${variant}" && bun install --frozen-lockfile >/dev/null && bun outdated)
+          done

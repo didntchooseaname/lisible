@@ -39,6 +39,7 @@ const years = groupByYear(current.items).map(([year, yearPosts]) => ({
     dateIso: isoDate(post.data.pubDate),
     dateLabel: formatDate(post.data.pubDate, locale, "short"),
     readingLabel: dict.post.readingTime(readingTime(post.body ?? "")),
+    tags: post.data.tags.slice(0, 3).map((tag) => ({ label: tag, url: localeUrl(locale, `tags/${tag}`) })),
     draftLabel: post.data.draft ? dict.post.draft : undefined,
   })),
 }));

@@ -21,3 +21,5 @@ document.addEventListener("click", (event) => {
     feedbackTimer = window.setTimeout(() => bubble.remove(), 1600);
   });
 });
+
+export {};

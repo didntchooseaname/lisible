@@ -34,7 +34,7 @@ const canonicalUrl = new URL(ensureTrailingSlash(Astro.url.pathname), SITE.url).
       <div
         class="mt-4 min-h-16"
         data-comments-bluesky
-        data-handle={COMMENTS.bluesky.handle}
+        data-handle={COMMENTS.bluesky.actor}
         data-url={canonicalUrl}
         data-loading-text={strings.loading}
         data-error-text={strings.error}

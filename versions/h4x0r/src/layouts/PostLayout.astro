@@ -1,4 +1,5 @@
 ---
+import { ogImagePath as ogImageUrl } from "@shared/lib/og";
 import { render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import TOC from "@/components/TOC.astro";
@@ -34,7 +35,6 @@ import {
   type Post,
 } from "@/lib/posts";
 import { formatDate, isoDate, readingTime } from "@/lib/utils";
-import katexCssUrl from "katex/dist/katex.min.css?url";
 
 interface Props {
   post: Post;
@@ -65,7 +65,7 @@ if (translation) {
 }
 
 const ogImagePath = FEATURES.ogPerPost
-  ? `/og/blog/${locale}/${postSlug(post)}.png`
+  ? ogImageUrl(locale, postSlug(post))
   : undefined;
 const markdownPath = `${locale === "fr" ? "" : "/en"}/blog/${postSlug(post)}.md`;
 
@@ -93,7 +93,7 @@ const jsonLd = {
 >
   <Fragment slot="head">
     <JsonLd data={jsonLd} />
-    {withMath && <link rel="stylesheet" href={katexCssUrl} />}
+    {withMath && <link rel="stylesheet" href="/katex/katex.min.css" />}
   </Fragment>
 
   
@@ -113,7 +113,7 @@ const jsonLd = {
         showCoverUp && (
           <figure class="post-cover hud-corners" data-post-cover>
             <Cover
-              cover={cover}
+              cover={cover!}
               alt={post.data.coverAlt ?? ""}
               loading="eager"
               width={1400}
@@ -182,7 +182,7 @@ const jsonLd = {
         showCoverDown && (
           <figure class="post-cover hud-corners" data-post-cover>
             <Cover
-              cover={cover}
+              cover={cover!}
               alt={post.data.coverAlt ?? ""}
               loading="eager"
               width={1400}

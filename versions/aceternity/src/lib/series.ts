@@ -1,4 +1,5 @@
-import type { Locale } from "#src/i18n/ui";
+import { seriesSlug } from "@shared/lib/posts";
+import type { Locale } from "@/i18n/ui";
 import { getPublishedPosts, postLocale, seriesUrl, type Post } from "@/lib/posts";
 import { readingTime } from "@/lib/utils";
 
@@ -34,7 +35,7 @@ export async function getSeriesPosts(
 ): Promise<Post[]> {
   const posts = await getPublishedPosts(locale);
   return posts
-    .filter((post) => post.data.series === slug)
+    .filter((post) => post.data.series && seriesSlug(post.data.series) === slug)
     .sort(
       (a, b) =>
         (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0) ||
@@ -56,7 +57,7 @@ export interface SeriesContext {
 export async function getSeriesContext(
   post: Post,
 ): Promise<SeriesContext | undefined> {
-  const slug = post.data.series;
+  const slug = post.data.series ? seriesSlug(post.data.series) : undefined;
   if (!slug) return undefined;
   const locale = postLocale(post);
   const posts = await getSeriesPosts(locale, slug);
@@ -77,7 +78,7 @@ export async function getAllSeries(locale: Locale): Promise<string[]> {
   const posts = await getPublishedPosts(locale);
   const slugs = new Set<string>();
   for (const post of posts) {
-    if (post.data.series) slugs.add(post.data.series);
+    if (post.data.series) slugs.add(seriesSlug(post.data.series));
   }
   return [...slugs].sort();
 }

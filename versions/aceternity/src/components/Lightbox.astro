@@ -9,7 +9,7 @@ interface Props {
 const { locale } = Astro.props;
 const dict = t(locale);
 
-const iconAttrs = {
+const iconAttrs: astroHTML.JSX.SVGAttributes = {
   xmlns: "http://www.w3.org/2000/svg",
   width: "20",
   height: "20",

@@ -1,5 +1,6 @@
 ---
 import profilePortrait from "@shared/assets/demo-profile.svg?url";
+import { DEMO_PROFILE } from "@shared/site.config";
 
 interface Action {
   href: string;
@@ -16,25 +17,25 @@ const copy = locale === "fr"
   ? {
       command: "./inspect-profile --live",
       record: "FICHE IDENTITÉ / 0xA11CE",
-      name: "Alex Morgan",
-      pronouns: "IEL / THEM",
-      role: "DESIGNER · DÉVELOPPEUR · AUTEUR TECHNIQUE",
-      intro: "Lorem ipsum dolor sit amet. Je transforme les systèmes complexes en interfaces nettes, rapides et simples à explorer.",
+      name: DEMO_PROFILE.name,
+      pronouns: DEMO_PROFILE.pronouns.fr.toUpperCase(),
+      role: DEMO_PROFILE.role.fr.toUpperCase(),
+      intro: DEMO_PROFILE.intro.fr,
       online: "SIGNAL ACTIF",
       clearance: "ACCÈS PUBLIC",
-      node: "NŒUD ALEX-MORGAN",
+      node: `NŒUD ${DEMO_PROFILE.slug.toUpperCase()}`,
       routes: "ROUTES DISPONIBLES",
     }
   : {
       command: "./inspect-profile --live",
       record: "IDENTITY RECORD / 0xA11CE",
-      name: "Alex Morgan",
-      pronouns: "THEY / THEM",
-      role: "DESIGNER · DEVELOPER · TECHNICAL WRITER",
-      intro: "Lorem ipsum dolor sit amet. I turn complex systems into clear, fast interfaces that remain easy to explore.",
+      name: DEMO_PROFILE.name,
+      pronouns: DEMO_PROFILE.pronouns.en.toUpperCase(),
+      role: DEMO_PROFILE.role.en.toUpperCase(),
+      intro: DEMO_PROFILE.intro.en,
       online: "SIGNAL ACTIVE",
       clearance: "PUBLIC ACCESS",
-      node: "NODE ALEX-MORGAN",
+      node: `NODE ${DEMO_PROFILE.slug.toUpperCase()}`,
       routes: "AVAILABLE ROUTES",
     };
 ---
@@ -50,7 +51,9 @@ const copy = locale === "fr"
       <div class="profile-terminal__portrait-shell">
         <img
           src={profilePortrait}
-          alt={locale === "fr" ? "Portrait abstrait du profil de démonstration Alex Morgan" : "Abstract portrait of demo profile Alex Morgan"}
+          alt={locale === "fr"
+            ? `Portrait abstrait du profil de démonstration ${DEMO_PROFILE.name}`
+            : `Abstract portrait of demo profile ${DEMO_PROFILE.name}`}
           width="320"
           height="320"
           loading="eager"

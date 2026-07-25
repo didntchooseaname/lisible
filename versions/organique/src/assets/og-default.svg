@@ -1,7 +1,9 @@
 <svg data-og-accent="#22C55E" xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="#000000"/>
-  <rect x="100" y="262" width="72" height="10" rx="5" fill="#22C55E"/>
-  <text x="100" y="380" font-family="Inter, 'Inter Variable', system-ui, sans-serif" font-size="92" font-weight="700" fill="#FFFFFF" letter-spacing="-2">Lisible</text>
-  <text x="100" y="446" font-family="Inter, 'Inter Variable', system-ui, sans-serif" font-size="34" font-weight="400" fill="#A3A3A3">l'auteur</text>
-  <circle cx="1084" cy="116" r="8" fill="#22C55E"/>
+  <path d="M900 96c86-44 236-16 258 84 22 98-46 226-148 254-104 28-214-34-226-134-12-102 32-162 116-204Z" fill="#22C55E" opacity="0.14"/>
+  <path d="M934 150c62-32 170-12 186 60 16 70-34 162-106 182-74 20-154-24-162-96-8-72 22-116 82-146Z" fill="none" stroke="#22C55E" stroke-width="3"/>
+  <circle cx="1046" cy="286" r="10" fill="#22C55E"/>
+  <text x="100" y="330" font-family="Inter, 'Inter Variable', ui-sans-serif, system-ui, sans-serif" font-size="94" font-weight="700" fill="#FFFFFF" letter-spacing="-3">Lisible</text>
+  <text x="100" y="396" font-family="Inter, 'Inter Variable', ui-sans-serif, system-ui, sans-serif" font-size="34" font-weight="400" fill="#A3A3A3">Constellation d'articles, formes organiques</text>
+  <path d="M100 470c76-30 152 30 228 0s152 30 228 0" fill="none" stroke="#22C55E" stroke-width="3" opacity="0.7"/>
 </svg>

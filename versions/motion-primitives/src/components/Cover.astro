@@ -12,6 +12,11 @@ interface Props {
 const { cover, alt, class: className, eager = false } = Astro.props;
 const isString = typeof cover === "string";
 const loading = eager ? "eager" : "lazy";
+// A cover given as a plain path bypasses astro:assets, so it carries no
+// intrinsic size. Reserving the standard Open Graph ratio keeps it from
+// shifting the article once it loads.
+const rawWidth = 1200;
+const rawHeight = 630;
 ---
 
 <div class:list={["cover", className]} data-preview-cover>
@@ -20,6 +25,8 @@ const loading = eager ? "eager" : "lazy";
       <img
         src={cover}
         alt={alt}
+        width={rawWidth}
+        height={rawHeight}
         class="cover-img"
         loading={loading}
         decoding="async"
