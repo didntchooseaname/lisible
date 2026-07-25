@@ -1,0 +1,51 @@
+name: Bug report
+description: Something does not work as expected
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: variant
+    attributes:
+      label: Variant
+      description: Which variant is affected?
+      options:
+        - motion-primitives
+        - cult-ui
+        - aceternity
+        - reactbits
+        - organique
+        - h4x0r
+        - _core
+        - all variants
+        - not variant specific (scripts, shared core, docs)
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, with screenshots if visual.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. bun run init, pick variant X
+        2. bun run dev
+        3. Open /blog and ...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Output of "bun --version", your OS, and the browser if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Output of bun run check:all
+      description: Paste the failing part if the checks fail, or say "checks pass".
+      render: shell

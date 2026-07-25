@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest an improvement to the framework
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What limitation or friction motivates this request?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What would you like to happen?
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      description: Where would this land?
+      options:
+        - shared core (all variants benefit)
+        - a single variant
+        - scripts and tooling
+        - documentation
+        - not sure
+    validations:
+      required: true
+  - type: textarea
+    id: flags
+    attributes:
+      label: Feature flag impact
+      description: Should this be toggleable? Does it change the meaning of an existing flag in shared/features.ts?

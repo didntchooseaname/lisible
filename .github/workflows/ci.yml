@@ -14,6 +14,19 @@ permissions:
   contents: read
 
 jobs:
+  style:
+    name: editorial style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Check editorial style rules
+        run: bun scripts/check-style.ts
+
   variant:
     name: ${{ matrix.variant }}
     runs-on: ubuntu-latest

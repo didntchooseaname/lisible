@@ -1,0 +1,46 @@
+name: Variant proposal
+description: Propose a new visual variant built on the shared core
+labels: ["variant-proposal"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Variant name
+      description: Short, lowercase, kebab case.
+    validations:
+      required: true
+  - type: textarea
+    id: direction
+    attributes:
+      label: Visual direction
+      description: The look and feel in a few sentences, with references or mockups if you have them.
+    validations:
+      required: true
+  - type: input
+    id: kit
+    attributes:
+      label: UI kit (if any)
+      description: The component library the variant would draw from, or "none, hand made".
+    validations:
+      required: true
+  - type: input
+    id: license
+    attributes:
+      label: License of the kit and of every copied component
+      description: Required. Components can only be included if their license allows redistribution under MIT or is compatible with it. Link the license.
+    validations:
+      required: true
+  - type: checkboxes
+    id: commitments
+    attributes:
+      label: Feature parity commitments
+      description: A variant ships complete or not at all.
+      options:
+        - label: Both locales (French and English) on every page
+          required: true
+        - label: Every feature flag in shared/features.ts honored (or a documented exception)
+          required: true
+        - label: Dark first theme with light mode and the shared accent system
+          required: true
+        - label: Reduced motion respected on every animation
+          required: true

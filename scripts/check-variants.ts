@@ -42,6 +42,9 @@ if (rootInstall !== 0) process.exit(rootInstall);
 const ogCheck = run(["bun", "scripts/sync-og-assets.ts", "--check"], root, "sync-og-assets --check");
 if (ogCheck !== 0) process.exit(ogCheck);
 
+const styleCheck = run(["bun", "scripts/check-style.ts"], root, "check-style");
+if (styleCheck !== 0) process.exit(styleCheck);
+
 const failures: string[] = [];
 
 for (const variant of targets) {

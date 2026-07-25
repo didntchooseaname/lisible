@@ -32,6 +32,7 @@
     "sync-og-assets": "bun scripts/sync-og-assets.ts",
     "check-og-assets": "bun scripts/sync-og-assets.ts --check",
     "check-og-output": "bun scripts/check-og-output.ts",
+    "check-style": "bun scripts/check-style.ts",
     "check:all": "bun scripts/check-variants.ts",
     "variant": "bun scripts/run.ts which",
     "preview:all": "bun scripts/preview-all.ts",
