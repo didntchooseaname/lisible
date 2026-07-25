@@ -49,6 +49,9 @@ if (ogCheck !== 0) process.exit(ogCheck);
 const styleCheck = run(["bun", "scripts/check-style.ts"], root, "check-style");
 if (styleCheck !== 0) process.exit(styleCheck);
 
+const conformance = run(["bun", "scripts/check-conformance.ts"], root, "check-conformance");
+if (conformance !== 0) process.exit(conformance);
+
 const failures: string[] = [];
 
 for (const variant of targets) {

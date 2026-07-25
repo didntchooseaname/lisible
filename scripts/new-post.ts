@@ -1,5 +1,6 @@
 import { access, mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { SHARED_FEATURES } from "../shared/features";
 
 type Locale = "fr" | "en";
 
@@ -16,6 +17,10 @@ const CONTENT_DIR = join(import.meta.dirname, "../shared/content/blog");
 function fail(message: string): never {
   console.error(`Error: ${message}`);
   process.exit(1);
+}
+
+if (!SHARED_FEATURES.newPostCli) {
+  fail("the new-post scaffolder is disabled (features.newPostCli in lisible.config.json).");
 }
 
 function slugify(value: string): string {

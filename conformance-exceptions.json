@@ -1,0 +1,15 @@
+{
+  "$comment": "Deliberate deviations from the cross variant contract, checked by scripts/check-conformance.ts. Every entry must carry a reason: an undeclared deviation fails CI.",
+  "unreadFlags": {
+    "mdxComponents": {
+      "variants": ["aceternity", "cult-ui", "motion-primitives"],
+      "reason": "These variants render the MDX components unconditionally; honoring the flag is scheduled with the client script convergence work."
+    }
+  },
+  "scriptLevelFlags": {
+    "newPostCli": "Read by scripts/new-post.ts, not by variants.",
+    "linkCheck": "Read by scripts/check-links.ts, not by variants."
+  },
+  "extraRoutes": {},
+  "sharedShims": []
+}
