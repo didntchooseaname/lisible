@@ -1,26 +1,7 @@
-export const SHARED_FEATURES = {
-  callouts: true,
-  mdxComponents: true,
-  imageZoom: true,
-  headingAnchors: true,
-  relatedPosts: true,
-  math: true,
-  mermaid: true,
-  drawio: true,
-  ogPerPost: true,
-  llmsTxt: true,
-  aiButtons: true,
-  socialShare: true,
-  styledRss: true,
-  webmentions: false,
-  comments: false,
-  demoPlaceholders: true,
-  newPostCli: true,
-  linkCheck: true,
-  covers: true,
-  pinned: true,
-  pagination: { enabled: true, pageSize: 6 },
-  archives: true,
-  series: true,
-  commandPalette: true,
-} as const;
+import { CONFIG } from "./config";
+
+/**
+ * Feature flags shared by every variant. Defaults live in shared/config.ts;
+ * users override them in lisible.config.json under "features".
+ */
+export const SHARED_FEATURES = CONFIG.features;

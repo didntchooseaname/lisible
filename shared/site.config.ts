@@ -1,47 +1,25 @@
 import type { PublicVariant } from "./variants";
+import { CONFIG, PROFILE } from "./config";
 
 export type Variant = "_core" | PublicVariant;
 
 /**
  * The demo persona every variant shows in its hero, and the author the metadata
- * credits. Kept in one place so replacing it is a single edit rather than a hunt
- * through each variant's components.
+ * credits. The name, handle and slug follow site.author in lisible.config.json;
+ * the descriptive texts are defined in shared/config.ts.
  */
-export const DEMO_PROFILE = {
-  name: "Alex Morgan",
-  handle: "alex",
-  slug: "alex-morgan",
-  pronouns: { fr: "iel", en: "they/them" },
-  role: {
-    fr: "Designer développeur et auteur technique",
-    en: "Designer, developer and technical writer",
-  },
-  intro: {
-    fr:
-      "Je conçois des interfaces de lecture et j'écris sur ce qui les rend rapides: "
-      + "architecture en îlots, budget de performance, typographie et accessibilité. "
-      + "Ce profil est un gabarit: remplacez-le dans shared/site.config.ts.",
-    en:
-      "I design reading interfaces and write about what makes them fast: islands "
-      + "architecture, performance budgets, typography and accessibility. "
-      + "This profile is a template: replace it in shared/site.config.ts.",
-  },
-} as const;
+export const DEMO_PROFILE = PROFILE;
 
 export const SITE_DEFAULTS = {
-  title: "Lisible",
-  author: DEMO_PROFILE.name,
-  url: "https://blog.example.com",
-  accent: "#22C55E",
-  postsPerPage: 6,
-  featuredCount: 2,
-  coverPosition: "down" as "up" | "down",
+  title: CONFIG.site.title,
+  author: PROFILE.name,
+  url: CONFIG.site.url,
+  accent: CONFIG.site.accent,
+  postsPerPage: CONFIG.site.postsPerPage,
+  featuredCount: CONFIG.site.featuredCount,
+  coverPosition: CONFIG.site.coverPosition,
   social: {
-    github: "https://github.com/didntchooseaname/lisible",
-    bluesky: `https://bsky.app/profile/${DEMO_PROFILE.handle}.example.com`,
-    mastodon: `https://mastodon.social/@${DEMO_PROFILE.handle}`,
-    linkedin: `https://www.linkedin.com/in/${DEMO_PROFILE.slug}/`,
-    email: "mailto:hello@example.com",
+    ...CONFIG.social,
     rss: "/rss.xml",
   },
   framework: {
@@ -49,31 +27,12 @@ export const SITE_DEFAULTS = {
     url: "https://github.com/didntchooseaname/lisible",
   },
   repo: {
-    url: "" as string,
-    branch: "main" as string,
+    url: CONFIG.repo.url,
+    branch: CONFIG.repo.branch,
   },
 } as const;
 
-export const INTEGRATIONS = {
-  // The shipped site uses local demo placeholders. Replace these empty values,
-  // then enable the matching flag in shared/features.ts for live integrations.
-  webmentions: {
-    domain: "",
-  },
-  comments: {
-    provider: "giscus" as "giscus" | "bluesky",
-    giscus: {
-      repo: "" as `${string}/${string}` | "",
-      repoId: "",
-      category: "",
-      categoryId: "",
-      mapping: "pathname" as "pathname" | "url" | "title" | "og:title",
-    },
-    bluesky: {
-      postUri: "",
-    },
-  },
-} as const;
+export const INTEGRATIONS = CONFIG.integrations;
 
 export function siteForVariant(variant: Variant) {
   return {
@@ -120,9 +79,9 @@ export function assertIntegrationsConfig(features: {
 
   if (features.webmentions && !WEBMENTIONS_CONFIG.domain.trim()) {
     errors.push(
-      "FEATURES.webmentions is enabled but INTEGRATIONS.webmentions.domain is empty. " +
-        "Set the domain verified by webmention.io in shared/site.config.ts, " +
-        "or set FEATURES.webmentions to false in shared/features.ts.",
+      "features.webmentions is enabled but integrations.webmentions.domain is empty. " +
+        "Set the domain verified by webmention.io in lisible.config.json, " +
+        "or set features.webmentions to false.",
     );
   }
 
@@ -133,23 +92,23 @@ export function assertIntegrationsConfig(features: {
       );
       if (missing.length > 0) {
         errors.push(
-          "FEATURES.comments is enabled with the giscus provider, but " +
-            `INTEGRATIONS.comments.giscus is incomplete (missing: ${missing.join(", ")}). ` +
+          "features.comments is enabled with the giscus provider, but " +
+            `integrations.comments.giscus is incomplete (missing: ${missing.join(", ")}). ` +
             "Generate these values at https://giscus.app and add them to " +
-            "shared/site.config.ts, or set FEATURES.comments to false.",
+            "lisible.config.json, or set features.comments to false.",
         );
       }
     } else if (COMMENTS_CONFIG.provider === "bluesky") {
       if (!COMMENTS_CONFIG.bluesky.postUri.trim()) {
         errors.push(
-          "FEATURES.comments is enabled with the bluesky provider, but " +
-            "INTEGRATIONS.comments.bluesky.postUri is empty. Set the root post at:// URI " +
-            "in shared/site.config.ts, or set FEATURES.comments to false.",
+          "features.comments is enabled with the bluesky provider, but " +
+            "integrations.comments.bluesky.postUri is empty. Set the root post at:// URI " +
+            "in lisible.config.json, or set features.comments to false.",
         );
       }
     } else {
       errors.push(
-        `Invalid INTEGRATIONS.comments.provider: "${COMMENTS_CONFIG.provider}". ` +
+        `Invalid integrations.comments.provider: "${COMMENTS_CONFIG.provider}". ` +
           'Accepted values: "giscus" or "bluesky".',
       );
     }

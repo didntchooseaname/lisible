@@ -1,7 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/didntchooseaname/lisible/blob/main/docs/lisible.config.schema.json",
+  "$id": "https://raw.githubusercontent.com/didntchooseaname/lisible/main/docs/lisible.config.schema.json",
   "title": "Lisible configuration",
+  "description": "User configuration for a Lisible blog. Everything is optional except variant: absent fields fall back to the framework defaults.",
   "type": "object",
   "additionalProperties": false,
   "required": ["variant"],
@@ -10,6 +11,7 @@
       "type": "string"
     },
     "variant": {
+      "description": "The active visual variant, built and served by dev, build and preview.",
       "type": "string",
       "enum": [
         "motion-primitives",
@@ -19,6 +21,166 @@
         "organique",
         "h4x0r"
       ]
+    },
+    "site": {
+      "description": "Identity of the site.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "description": "Site title, shown in the header, metadata and feeds.",
+          "type": "string",
+          "default": "Lisible"
+        },
+        "url": {
+          "description": "Canonical URL of the deployed site, with protocol and no trailing path.",
+          "type": "string",
+          "default": "https://blog.example.com"
+        },
+        "author": {
+          "description": "Author name. Replaces the demo persona name and derives its handle and slug.",
+          "type": "string",
+          "default": "Alex Morgan"
+        },
+        "accent": {
+          "description": "Accent color as a six digit hex value. Drives the theme accent and the Open Graph assets.",
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "default": "#22C55E"
+        },
+        "postsPerPage": {
+          "description": "Number of posts per page on paginated listings.",
+          "type": "number",
+          "default": 6
+        },
+        "featuredCount": {
+          "description": "Number of featured posts highlighted on the home page.",
+          "type": "number",
+          "default": 2
+        },
+        "coverPosition": {
+          "description": "Vertical alignment of post cover images.",
+          "type": "string",
+          "enum": ["up", "down"],
+          "default": "down"
+        }
+      }
+    },
+    "social": {
+      "description": "Social links shown in the footer and metadata. Set a link to an empty string to hide it.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "github": { "type": "string" },
+        "bluesky": { "type": "string" },
+        "mastodon": { "type": "string" },
+        "linkedin": { "type": "string" },
+        "email": { "type": "string", "description": "A mailto: link." }
+      }
+    },
+    "features": {
+      "description": "Feature flags. Every flag is optional and defaults to the value listed here.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "callouts": { "type": "boolean", "default": true, "description": "Markdown callout blocks (note, warning, tip and friends)." },
+        "mdxComponents": { "type": "boolean", "default": true, "description": "MDX components (Tabs, Steps, Spoiler) available in content." },
+        "imageZoom": { "type": "boolean", "default": true, "description": "Click to zoom lightbox on article images." },
+        "headingAnchors": { "type": "boolean", "default": true, "description": "Anchor links on article headings." },
+        "relatedPosts": { "type": "boolean", "default": true, "description": "Related articles block at the end of a post." },
+        "math": { "type": "boolean", "default": true, "description": "KaTeX rendering for math syntax." },
+        "mermaid": { "type": "boolean", "default": true, "description": "Mermaid diagrams in fenced code blocks." },
+        "drawio": { "type": "boolean", "default": true, "description": "Embedded draw.io diagrams." },
+        "ogPerPost": { "type": "boolean", "default": true, "description": "A generated Open Graph image per article." },
+        "llmsTxt": { "type": "boolean", "default": true, "description": "llms.txt, llms-full.txt and raw markdown per article." },
+        "aiButtons": { "type": "boolean", "default": true, "description": "Open in Claude and Open in ChatGPT buttons on articles." },
+        "socialShare": { "type": "boolean", "default": true, "description": "Share buttons on articles." },
+        "styledRss": { "type": "boolean", "default": true, "description": "Human readable XSL stylesheet on RSS feeds." },
+        "webmentions": { "type": "boolean", "default": false, "description": "Webmentions display. Requires integrations.webmentions.domain." },
+        "comments": { "type": "boolean", "default": false, "description": "Comments on articles. Requires integrations.comments." },
+        "demoPlaceholders": { "type": "boolean", "default": true, "description": "Local demo placeholders for discussion features." },
+        "newPostCli": { "type": "boolean", "default": true, "description": "The bun run new-post scaffolder." },
+        "linkCheck": { "type": "boolean", "default": true, "description": "External link checking in bun run check-links." },
+        "covers": { "type": "boolean", "default": true, "description": "Cover images on posts and cards." },
+        "pinned": { "type": "boolean", "default": true, "description": "Pinned posts stay on top of listings." },
+        "pagination": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Pagination of the blog listing.",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "pageSize": { "type": "number", "default": 6 }
+          }
+        },
+        "archives": { "type": "boolean", "default": true, "description": "The archives page grouped by year." },
+        "series": { "type": "boolean", "default": true, "description": "Article series with navigation between parts." },
+        "commandPalette": { "type": "boolean", "default": true, "description": "Ctrl+K or Cmd+K search palette." }
+      }
+    },
+    "integrations": {
+      "description": "Third party integrations backing the webmentions and comments flags.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "webmentions": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "domain": {
+              "type": "string",
+              "default": "",
+              "description": "The domain verified on webmention.io."
+            }
+          }
+        },
+        "comments": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": ["giscus", "bluesky"],
+              "default": "giscus"
+            },
+            "giscus": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Values generated at https://giscus.app.",
+              "properties": {
+                "repo": { "type": "string", "default": "" },
+                "repoId": { "type": "string", "default": "" },
+                "category": { "type": "string", "default": "" },
+                "categoryId": { "type": "string", "default": "" },
+                "mapping": {
+                  "type": "string",
+                  "enum": ["pathname", "url", "title", "og:title"],
+                  "default": "pathname"
+                }
+              }
+            },
+            "bluesky": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "postUri": {
+                  "type": "string",
+                  "default": "",
+                  "description": "The at:// URI of the root post hosting the thread."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "repo": {
+      "description": "Repository of the blog itself, used by the Edit on GitHub link.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "url": { "type": "string", "default": "", "description": "Repository URL. Empty disables Edit on GitHub." },
+        "branch": { "type": "string", "default": "main" }
+      }
     }
   }
 }

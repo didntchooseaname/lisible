@@ -190,8 +190,8 @@ async function main() {
     exit(installExitCode);
   }
 
-  writeConfig(variant);
-  patchSiteConfig({
+  writeConfig({
+    variant,
     title,
     url,
     author: detailed ? author : undefined,
@@ -220,7 +220,8 @@ async function main() {
   info("    bun run check:all    build and verify every variant");
   info("    bun run preview:all  install, build and compare every variant");
   info(
-    "\n  Fine-tune shared settings in shared/site.config.ts and theme copy in versions/" +
+    "\n  Fine-tune shared settings in lisible.config.json (autocompleted from its JSON schema)" +
+      "\n  and theme copy in versions/" +
       variant +
       "/src/i18n/ui.ts.\n",
   );
@@ -228,7 +229,14 @@ async function main() {
   exit(0);
 }
 
-function writeConfig(variant: string) {
+function writeConfig(vals: {
+  variant: string;
+  title: string;
+  url: string;
+  author?: string;
+  accent?: string;
+  repoUrl?: string;
+}) {
   let json: any = {};
   if (existsSync(configPath)) {
     try {
@@ -237,93 +245,13 @@ function writeConfig(variant: string) {
       json = {};
     }
   }
-  json.variant = variant;
+  json.$schema ??= "./docs/lisible.config.schema.json";
+  json.variant = vals.variant;
+  json.site = { ...json.site, title: vals.title, url: vals.url };
+  if (vals.author !== undefined) json.site.author = vals.author;
+  if (vals.accent !== undefined) json.site.accent = vals.accent;
+  if (vals.repoUrl) json.repo = { ...json.repo, url: vals.repoUrl };
   writeFileSync(configPath, JSON.stringify(json, null, 2) + "\n");
-}
-
-/** Rewrites the first `key: "value"` pair, leaving any trailing type assertion. */
-function replaceFirst(
-  src: string,
-  key: string,
-  value: string,
-): { out: string; hit: boolean } {
-  const re = new RegExp(`(\\b${key}:\\s*)"[^"]*"`);
-  if (!re.test(src)) return { out: src, hit: false };
-  return { out: src.replace(re, `$1${JSON.stringify(value)}`), hit: true };
-}
-
-/** Rewrites `key: "value"` inside a specific object literal. */
-function replaceInBlock(
-  src: string,
-  block: string,
-  key: string,
-  value: string,
-): { out: string; hit: boolean } {
-  const re = new RegExp(`(\\b${block}\\s*=\\s*\\{[\\s\\S]*?\\b${key}:\\s*)"[^"]*"`);
-  if (!re.test(src)) return { out: src, hit: false };
-  return { out: src.replace(re, `$1${JSON.stringify(value)}`), hit: true };
-}
-
-function slugify(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "") || "author";
-}
-
-function patchSiteConfig(
-  vals: { title: string; url: string; author?: string; accent?: string; repoUrl?: string },
-) {
-  const p = join(root, "shared", "site.config.ts");
-  if (!existsSync(p)) {
-    info("  Note: shared/site.config.ts not found, skipped (set values manually).");
-    return;
-  }
-  let src = readFileSync(p, "utf8");
-  const misses: string[] = [];
-
-  for (const [key, value] of [
-    ["title", vals.title],
-    ["url", vals.url],
-    ["accent", vals.accent],
-  ] as const) {
-    if (value === undefined) continue;
-    const r = replaceFirst(src, key, value);
-    src = r.out;
-    if (!r.hit) misses.push(key);
-  }
-
-  // SITE_DEFAULTS.author derives from the demo persona, so the name and its
-  // handle are what actually need rewriting.
-  if (vals.author !== undefined) {
-    const slug = slugify(vals.author);
-    const handle = slug.split("-")[0] ?? slug;
-    for (const [key, value] of [
-      ["name", vals.author],
-      ["handle", handle],
-      ["slug", slug],
-    ] as const) {
-      const r = replaceInBlock(src, "DEMO_PROFILE", key, value);
-      src = r.out;
-      if (!r.hit) misses.push(`DEMO_PROFILE.${key}`);
-    }
-  }
-
-  if (vals.repoUrl) {
-    // repo.url carries an `as string` assertion, so match only the literal.
-    const re = /(repo:\s*\{[^}]*?\burl:\s*)"[^"]*"/s;
-    if (re.test(src)) src = src.replace(re, `$1${JSON.stringify(vals.repoUrl)}`);
-    else misses.push("repo.url");
-  }
-
-  writeFileSync(p, src);
-  if (misses.length) {
-    info(
-      `  Note: could not auto-set ${misses.join(", ")} in shared/site.config.ts, set manually.`,
-    );
-  }
 }
 
 main();
