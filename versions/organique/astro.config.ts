@@ -33,6 +33,10 @@ import { FEATURES, SITE } from "./src/site.config";
 
 const siteUrl = SITE.url;
 const siteHost = new URL(siteUrl).host;
+const allowedHosts = [
+  siteHost,
+  ...(process.env.LISIBLE_ALLOWED_HOSTS?.split(",").filter(Boolean) ?? []),
+];
 
 const remarkPlugins: RemarkPlugins = [
   remarkDirective,
@@ -156,7 +160,7 @@ export default defineConfig({
       __FEATURE_IMAGE_ZOOM__: JSON.stringify(FEATURES.imageZoom),
     },
     preview: {
-      allowedHosts: [siteHost],
+      allowedHosts,
     },
     build: {
       chunkSizeWarningLimit: 1000,

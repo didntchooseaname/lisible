@@ -6,7 +6,7 @@ import TOC from "@/components/TOC.astro";
 import TagBadge from "@/components/TagBadge.astro";
 import JsonLd from "@/components/JsonLd.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
-import EditOnGithub from "@/components/EditOnGithub.astro";
+import EditOnGitHub from "@/components/EditOnGitHub.astro";
 import PostCover from "@/components/PostCover.astro";
 import ShareRow from "@/components/ShareRow.astro";
 import AiActions from "@/components/AiActions.astro";
@@ -184,7 +184,7 @@ const jsonLd = {
 
       {FEATURES.relatedPosts && <RelatedPosts posts={related} locale={locale} />}
 
-      <EditOnGithub filePath={editFilePath} locale={locale} />
+      <EditOnGitHub filePath={editFilePath} locale={locale} />
 
       {FEATURES.webmentions && <Webmentions locale={locale} url={absoluteUrl} />}
 

@@ -29,6 +29,12 @@ import { pluginLanguageBadge } from "./src/lib/expressive-code/language-badge";
 import { codeStrings } from "./src/i18n/code";
 import { FEATURES, SITE } from "./src/site.config";
 
+const siteHost = new URL(SITE.url).host;
+const allowedHosts = [
+  siteHost,
+  ...(process.env.LISIBLE_ALLOWED_HOSTS?.split(",").filter(Boolean) ?? []),
+];
+
 for (const locale of ["fr", "en"] as const) {
   pluginFramesTexts.overrideTexts(locale, {
     copyButtonTooltip: codeStrings[locale].copy,
@@ -166,7 +172,7 @@ export default defineConfig({
       __FEATURE_COMMAND_PALETTE__: JSON.stringify(FEATURES.commandPalette),
     },
     preview: {
-      allowedHosts: ["blog.example.com"],
+      allowedHosts,
     },
     build: {
       chunkSizeWarningLimit: 1000,

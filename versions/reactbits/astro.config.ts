@@ -30,6 +30,12 @@ import { pluginLanguageBadge } from "./src/lib/expressive-code-language-badge";
 import { locales, ui } from "./src/i18n/ui";
 import { FEATURES, SITE } from "./src/site.config";
 
+const siteHost = new URL(SITE.url).host;
+const allowedHosts = [
+  siteHost,
+  ...(process.env.LISIBLE_ALLOWED_HOSTS?.split(",").filter(Boolean) ?? []),
+];
+
 const remarkPlugins: RemarkPlugins = [
   remarkDirective,
   ...(FEATURES.callouts ? [remarkCallouts] : []),
@@ -166,7 +172,7 @@ export default defineConfig({
       __FEATURE_IMAGE_ZOOM__: JSON.stringify(FEATURES.imageZoom),
     },
     preview: {
-      allowedHosts: ["5.xsec.fr"],
+      allowedHosts,
     },
     build: {
       chunkSizeWarningLimit: 1000,

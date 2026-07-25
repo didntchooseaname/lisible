@@ -2,7 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { AboutStats } from "@/components/react/AboutStats";
 import { InView } from "@/components/ui/in-view";
-import EditOnGithub from "@/components/EditOnGithub.astro";
+import EditOnGitHub from "@/components/EditOnGitHub.astro";
 import { SITE } from "@/site.config";
 import { locales, localeUrl, t, type Locale } from "@/i18n/ui";
 import { getAllTags, getPublishedPosts } from "@/lib/posts";
@@ -66,7 +66,7 @@ const editHref = githubEditUrl(SITE.repo, aboutFile);
     {
       editHref && (
         <div class="mt-10 border-t border-border pt-6">
-          <EditOnGithub href={editHref} label={dict.post.editOnGithub} />
+          <EditOnGitHub href={editHref} label={dict.post.editOnGithub} />
         </div>
       )
     }

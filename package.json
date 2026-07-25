@@ -2,7 +2,24 @@
   "name": "lisible",
   "version": "0.1.0",
   "private": true,
-  "description": "Lisible, un framework de blog minimaliste et rapide, pensé pour la lecture. Six variantes visuelles, un seul socle.",
+  "description": "A minimal, fast, reading-first blog framework for Astro: six visual variants, one shared core.",
+  "license": "MIT",
+  "homepage": "https://github.com/didntchooseaname/lisible",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/didntchooseaname/lisible.git"
+  },
+  "bugs": {
+    "url": "https://github.com/didntchooseaname/lisible/issues"
+  },
+  "keywords": [
+    "astro",
+    "blog",
+    "blog-template",
+    "static-site",
+    "i18n",
+    "bun"
+  ],
   "type": "module",
   "scripts": {
     "init": "bun scripts/init.ts",

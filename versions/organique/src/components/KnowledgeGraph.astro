@@ -287,7 +287,7 @@ const seriesParents = [...seriesGrouped.entries()]
   let suppressedClickUntil = 0;
   let resizeTimer = 0;
   let cleanups: (() => void)[] = [];
-  const colors = { accent: "#22c55e", line: "#888888" };
+  const colors = { accent: "", line: "" };
   const pointer = { x: 0, y: 0, active: false };
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 

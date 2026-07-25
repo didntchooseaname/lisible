@@ -31,6 +31,12 @@ import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badg
 import { ui } from "./src/i18n/ui";
 import { FEATURES, SITE } from "./src/site.config";
 
+const siteHost = new URL(SITE.url).host;
+const allowedHosts = [
+  siteHost,
+  ...(process.env.LISIBLE_ALLOWED_HOSTS?.split(",").filter(Boolean) ?? []),
+];
+
 const remarkPlugins: RemarkPlugins = [
   remarkDirective,
   remarkGithubCard,
@@ -162,7 +168,7 @@ export default defineConfig({
       __FEATURE_HEADING_ANCHORS__: JSON.stringify(FEATURES.headingAnchors),
     },
     preview: {
-      allowedHosts: ["blog.example.com"],
+      allowedHosts,
     },
     build: {
       chunkSizeWarningLimit: 1000,

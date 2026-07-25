@@ -5,7 +5,7 @@ import AboutBeams from "@/components/cyber/AboutBeams";
 import LensFigure from "@/components/cyber/LensFigure";
 import { RevealText, TypeLine } from "@/components/cyber/TextFx";
 import { BlurFade } from "@/components/ui/blur-fade";
-import EditOnGithub from "@/components/reading/EditOnGithub.astro";
+import EditOnGitHub from "@/components/reading/EditOnGitHub.astro";
 import { SITE } from "@/site.config";
 import { localeUrl, t, type Locale } from "@/i18n/ui";
 import { getPublishedPosts, postSlug } from "@/lib/posts";
@@ -60,7 +60,7 @@ const alternates = { fr: localeUrl("fr", "about"), en: localeUrl("en", "about") 
         {
           SITE.repo.url && (
             <p>
-              <EditOnGithub
+              <EditOnGitHub
                 locale={locale}
                 filePath={`src/pages/${locale === "en" ? "en/" : ""}about.astro`}
               />

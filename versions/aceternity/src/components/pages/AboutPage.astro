@@ -2,7 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import AboutAuthor from "@/components/react/AboutAuthor";
 import AboutLinks from "@/components/react/AboutLinks";
-import EditOnGithub from "@/components/EditOnGithub.astro";
+import EditOnGitHub from "@/components/EditOnGitHub.astro";
 import { SITE } from "@/site.config";
 import { localeUrl, t, type Locale } from "@/i18n/ui";
 
@@ -49,7 +49,7 @@ const alternates = { fr: localeUrl("fr", "about"), en: localeUrl("en", "about") 
       />
     </div>
     <div class="mt-10 flex justify-end border-t border-border pt-6">
-      <EditOnGithub filePath="src/components/pages/AboutPage.astro" locale={locale} />
+      <EditOnGitHub filePath="src/components/pages/AboutPage.astro" locale={locale} />
     </div>
   </div>
 </BaseLayout>

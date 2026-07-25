@@ -8,7 +8,7 @@ import JsonLd from "@/components/JsonLd.astro";
 import MobileToc from "@/components/react/MobileToc";
 import Cover from "@/components/Cover.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
-import EditOnGithub from "@/components/EditOnGithub.astro";
+import EditOnGitHub from "@/components/EditOnGitHub.astro";
 import KatexStyles from "@/components/KatexStyles.astro";
 import ImageLightbox from "@/components/ImageLightbox.astro";
 import { SITE, FEATURES } from "@/site.config";
@@ -268,7 +268,7 @@ const markdownAbsoluteUrl = markdownUrl
 
       
       <div class="mt-10 flex items-center justify-between gap-4">
-        <EditOnGithub filePath={filePath} locale={locale} />
+        <EditOnGitHub filePath={filePath} locale={locale} />
       </div>
 
       
@@ -316,7 +316,7 @@ const markdownAbsoluteUrl = markdownUrl
 
   
   <script>
-    import "@/scripts/vague2-runtime";
+    import "@/scripts/post-runtime";
   </script>
 
   

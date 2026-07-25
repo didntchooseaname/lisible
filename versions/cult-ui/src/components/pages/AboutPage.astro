@@ -7,7 +7,7 @@ import {
   TextureCard,
   TextureCardContent,
 } from "@/components/ui/texture-card";
-import EditOnGithub from "@/components/EditOnGithub.astro";
+import EditOnGitHub from "@/components/EditOnGitHub.astro";
 import { SITE } from "@/site.config";
 import { locales, localeUrl, t, type Locale } from "@/i18n/ui";
 import { getAllTags, getPublishedPosts } from "@/lib/posts";
@@ -99,7 +99,7 @@ const alternates = { fr: localeUrl("fr", "about"), en: localeUrl("en", "about") 
     </section>
 
     <div class="mt-12 max-w-2xl border-t border-border pt-6">
-      <EditOnGithub filePath="src/components/pages/AboutPage.astro" locale={locale} />
+      <EditOnGitHub filePath="src/components/pages/AboutPage.astro" locale={locale} />
     </div>
   </div>
 </BaseLayout>

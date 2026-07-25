@@ -30,6 +30,11 @@ import remarkDrawio from "./src/lib/remark-drawio";
 import rehypeHeadingAnchors from "./src/lib/rehype-heading-anchors";
 import { FEATURES, SITE } from "./src/site.config";
 
+const siteHost = new URL(SITE.url).host;
+const allowedHosts = [
+  siteHost,
+  ...(process.env.LISIBLE_ALLOWED_HOSTS?.split(",").filter(Boolean) ?? []),
+];
 
 const remarkPlugins: RemarkPlugins = [remarkDirective];
 if (FEATURES.callouts) remarkPlugins.push(remarkCallouts);
@@ -172,7 +177,7 @@ export default defineConfig({
       __FEATURE_HEADING_ANCHORS__: JSON.stringify(FEATURES.headingAnchors),
     },
     preview: {
-      allowedHosts: ["3.xsec.fr"],
+      allowedHosts,
     },
     build: {
       chunkSizeWarningLimit: 1000,

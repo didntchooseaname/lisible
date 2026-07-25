@@ -7,7 +7,7 @@ import TagBadge from "@/components/TagBadge.astro";
 import JsonLd from "@/components/JsonLd.astro";
 import Cover from "@/components/Cover.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
-import EditOnGithub from "@/components/EditOnGithub.astro";
+import EditOnGitHub from "@/components/EditOnGitHub.astro";
 import ImageLightbox from "@/components/ImageLightbox.astro";
 import FadeContent from "@/components/ui/FadeContent";
 import GradualBlur from "@/components/ui/GradualBlur";
@@ -187,7 +187,7 @@ const jsonLd = {
       {
         SITE.repo.url && (
           <div class="mt-10 flex justify-end border-t border-border pt-6">
-            <EditOnGithub locale={locale} path={editPath} />
+            <EditOnGitHub locale={locale} path={editPath} />
           </div>
         )
       }

@@ -5,7 +5,7 @@ import DecryptedText from "@/components/ui/DecryptedText";
 import FadeContent from "@/components/ui/FadeContent";
 import CountUp from "@/components/ui/CountUp";
 import TechLogoLoop from "@/components/TechLogoLoop";
-import EditOnGithub from "@/components/EditOnGithub.astro";
+import EditOnGitHub from "@/components/EditOnGitHub.astro";
 import { SITE } from "@/site.config";
 import { localeUrl, t, type Locale } from "@/i18n/ui";
 import { getAllTags, getPublishedPosts } from "@/lib/posts";
@@ -114,7 +114,7 @@ const [intro, ...rest] = dict.about.paragraphs;
     {
       SITE.repo.url && (
         <div class="mt-12 flex justify-end border-t border-border pt-6">
-          <EditOnGithub locale={locale} path="src/components/pages/AboutPage.astro" />
+          <EditOnGitHub locale={locale} path="src/components/pages/AboutPage.astro" />
         </div>
       )
     }

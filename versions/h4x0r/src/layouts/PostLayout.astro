@@ -16,7 +16,7 @@ import AiMenu from "@/components/reading/AiMenu.astro";
 import Webmentions from "@/components/reading/Webmentions.astro";
 import Comments from "@/components/reading/Comments.astro";
 import DiscussionPlaceholders from "@shared/components/DiscussionPlaceholders.astro";
-import EditOnGithub from "@/components/reading/EditOnGithub.astro";
+import EditOnGitHub from "@/components/reading/EditOnGitHub.astro";
 import Lightbox from "@/components/reading/Lightbox.astro";
 import MermaidRuntime from "@/components/reading/MermaidRuntime.astro";
 import DrawioRuntime from "@/components/reading/DrawioRuntime.astro";
@@ -223,7 +223,7 @@ const jsonLd = {
       {
         SITE.repo.url && (
           <p class="mt-10" data-pagefind-ignore>
-            <EditOnGithub locale={locale} filePath={editPath} />
+            <EditOnGitHub locale={locale} filePath={editPath} />
           </p>
         )
       }

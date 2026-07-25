@@ -30,6 +30,10 @@ import { codeUi } from "./src/i18n/code";
 import { FEATURES, SITE } from "./src/site.config";
 
 const siteHost = new URL(SITE.url).host;
+const allowedHosts = [
+  siteHost,
+  ...(process.env.LISIBLE_ALLOWED_HOSTS?.split(",").filter(Boolean) ?? []),
+];
 
 const remarkPlugins: RemarkPlugins = [
   ...(FEATURES.math ? [remarkMath] : []),
@@ -169,7 +173,7 @@ export default defineConfig({
       __F_DRAWIO__: JSON.stringify(FEATURES.drawio),
     },
     preview: {
-      allowedHosts: [siteHost],
+      allowedHosts,
     },
     build: {
       chunkSizeWarningLimit: 1000,

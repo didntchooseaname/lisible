@@ -1,45 +1,52 @@
-import { copyFileSync, lstatSync, mkdirSync, unlinkSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { copyFileSync, existsSync, readdirSync, realpathSync, statSync, unlinkSync } from "node:fs";
+import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+
+// Deployment platforms check out git symlinks as plain text files, so the
+// shared routes and assets linked into each variant must be replaced by real
+// copies before building there. The list is discovered by scanning the variant
+// directory instead of being maintained by hand: any tracked symlink is
+// covered automatically, including routes added later.
 
 const variant = process.argv[2] ?? "organique";
 if (process.env.CI !== "true") {
   throw new Error("Deployment links may only be materialized in CI.");
 }
-if (variant !== "organique") {
-  throw new Error(`Unsupported deployment variant: ${variant}`);
-}
 
 const root = fileURLToPath(new URL("..", import.meta.url));
-const files = [
-  ["shared/public/favicon.svg", "public/favicon.svg"],
-  ["shared/content/public-images/demo-ilots.svg", "public/images/demo-ilots.svg"],
-  ["shared/public/og-default.png", "public/og-default.png"],
-  ["shared/routes/about.astro", "src/pages/about.astro"],
-  ["shared/routes/blog/[...slug].astro", "src/pages/blog/[...slug].astro"],
-  ["shared/routes/blog/index.astro", "src/pages/blog/index.astro"],
-  ["shared/routes/en/about.astro", "src/pages/en/about.astro"],
-  ["shared/routes/en/blog/[...slug].astro", "src/pages/en/blog/[...slug].astro"],
-  ["shared/routes/en/blog/index.astro", "src/pages/en/blog/index.astro"],
-  ["shared/routes/en/index.astro", "src/pages/en/index.astro"],
-  ["shared/routes/en/rss.xml.ts", "src/pages/en/rss.xml.ts"],
-  ["shared/routes/en/tags/index.astro", "src/pages/en/tags/index.astro"],
-  ["shared/routes/index.astro", "src/pages/index.astro"],
-  ["shared/routes/tags/index.astro", "src/pages/tags/index.astro"],
-] as const;
-
-for (const [source, relativeDestination] of files) {
-  const destination = join(root, "versions", variant, relativeDestination);
-  try {
-    lstatSync(destination);
-    unlinkSync(destination);
-  } catch (error) {
-    if (!(error instanceof Error) || !("code" in error) || error.code !== "ENOENT") {
-      throw error;
-    }
-  }
-  mkdirSync(dirname(destination), { recursive: true });
-  copyFileSync(join(root, source), destination);
+const variantRoot = join(root, "versions", variant);
+if (!existsSync(variantRoot)) {
+  const known = readdirSync(join(root, "versions"), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .join(", ");
+  throw new Error(`Unknown variant: ${variant} (expected one of: ${known})`);
 }
 
-console.log(`[lisible] ${variant}: materialized ${files.length} shared deployment files.`);
+const SKIP_DIRS = new Set(["node_modules", "dist", ".astro", ".vscode"]);
+
+function collectSymlinks(dir: string): string[] {
+  const found: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isSymbolicLink()) {
+      found.push(path);
+    } else if (entry.isDirectory() && !SKIP_DIRS.has(entry.name)) {
+      found.push(...collectSymlinks(path));
+    }
+  }
+  return found;
+}
+
+const links = collectSymlinks(variantRoot);
+for (const link of links) {
+  const target = realpathSync(link);
+  if (!statSync(target).isFile()) {
+    throw new Error(`Symlink target is not a regular file: ${link} -> ${target}`);
+  }
+  unlinkSync(link);
+  copyFileSync(target, link);
+  console.log(`[lisible] ${variant}: materialized ${relative(root, link)}`);
+}
+
+console.log(`[lisible] ${variant}: materialized ${links.length} shared deployment files.`);

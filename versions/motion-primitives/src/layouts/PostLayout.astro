@@ -7,7 +7,7 @@ import TagBadge from "@/components/TagBadge.astro";
 import JsonLd from "@/components/JsonLd.astro";
 import Cover from "@/components/Cover.astro";
 import RelatedPosts from "@/components/RelatedPosts.astro";
-import EditOnGithub from "@/components/EditOnGithub.astro";
+import EditOnGitHub from "@/components/EditOnGitHub.astro";
 import SeriesNav from "@/components/SeriesNav.astro";
 import Webmentions from "@/components/Webmentions.astro";
 import Comments from "@/components/Comments.astro";
@@ -240,7 +240,7 @@ const jsonLd = {
             )}
             {editHref && (
               <div class="ms-auto">
-                <EditOnGithub href={editHref} label={dict.post.editOnGithub} />
+                <EditOnGitHub href={editHref} label={dict.post.editOnGithub} />
               </div>
             )}
           </div>
