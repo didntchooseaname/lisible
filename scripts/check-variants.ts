@@ -27,15 +27,19 @@ for (const target of targets) {
   }
 }
 
-function run(command: string[], cwd: string): number {
+function run(command: string[], cwd: string, label?: string): number {
+  // Name each sub-command so a CI log points straight at the one that failed.
+  if (label) console.log(`\n[lisible] > ${label}`);
   const result = Bun.spawnSync(command, { cwd, stdout: "inherit", stderr: "inherit" });
-  return result.exitCode ?? 1;
+  const code = result.exitCode ?? 1;
+  if (code !== 0 && label) console.error(`[lisible] < ${label} failed with exit code ${code}`);
+  return code;
 }
 
 const rootInstall = installRootDependencies(root);
 if (rootInstall !== 0) process.exit(rootInstall);
 
-const ogCheck = run(["bun", "scripts/sync-og-assets.ts", "--check"], root);
+const ogCheck = run(["bun", "scripts/sync-og-assets.ts", "--check"], root, "sync-og-assets --check");
 if (ogCheck !== 0) process.exit(ogCheck);
 
 const failures: string[] = [];
@@ -55,24 +59,24 @@ for (const variant of targets) {
     continue;
   }
 
-  if (!skipTypecheck && run(["bun", "run", "typecheck"], dir) !== 0) {
+  if (!skipTypecheck && run(["bun", "run", "typecheck"], dir, `${variant}: typecheck`) !== 0) {
     failures.push(`${variant}: typecheck`);
   }
   if (onlyTypecheck) continue;
 
-  if (!skipBuild && run(["bun", "run", "build"], dir) !== 0) {
+  if (!skipBuild && run(["bun", "run", "build"], dir, `${variant}: build`) !== 0) {
     failures.push(`${variant}: build`);
     // The link, asset and Open Graph checks all read dist/, so skip them.
     continue;
   }
 
-  if (run(["bun", "scripts/check-links.ts", variant], root) !== 0) {
+  if (run(["bun", "scripts/check-links.ts", variant], root, `${variant}: check-links`) !== 0) {
     failures.push(`${variant}: check-links`);
   }
-  if (run(["bun", "scripts/check-assets.ts", variant], root) !== 0) {
+  if (run(["bun", "scripts/check-assets.ts", variant], root, `${variant}: check-assets`) !== 0) {
     failures.push(`${variant}: check-assets`);
   }
-  if (!skipBuild && run(["bun", "scripts/check-og-output.ts", variant], root) !== 0) {
+  if (!skipBuild && run(["bun", "scripts/check-og-output.ts", variant], root, `${variant}: check-og-output`) !== 0) {
     failures.push(`${variant}: check-og-output`);
   }
 }
