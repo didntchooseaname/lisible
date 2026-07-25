@@ -9,7 +9,7 @@
  */
 
 const CHECKED_EXTENSIONS = /\.(md|mdx|ts|tsx|astro|json|jsonc|yml|yaml|css)$/;
-const LONG_DASH = /[–—]/;
+const LONG_DASH = /[\u2013\u2014]/;
 const EMOJI =
   /[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u;
 
