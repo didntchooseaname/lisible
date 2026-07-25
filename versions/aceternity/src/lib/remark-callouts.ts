@@ -1,18 +1,12 @@
 import { h, s } from "hastscript";
 import type { Root } from "mdast";
 import type { Transformer } from "unified";
-import type { VFile } from "vfile";
 import { visit } from "unist-util-visit";
+import type { VFile } from "vfile";
 
 type Variant = "note" | "tip" | "warning" | "caution" | "important";
 
-const VARIANTS = new Set<Variant>([
-  "note",
-  "tip",
-  "warning",
-  "caution",
-  "important",
-]);
+const VARIANTS = new Set<Variant>(["note", "tip", "warning", "caution", "important"]);
 
 const TITLES: Record<"fr" | "en", Record<Variant, string>> = {
   fr: {
@@ -71,7 +65,10 @@ const ICON_PATHS: Record<Variant, string[]> = {
 function icon(variant: Variant) {
   const children =
     variant === "note"
-      ? [s("circle", { cx: "12", cy: "12", r: "10" }), ...ICON_PATHS.note.map((d) => s("path", { d }))]
+      ? [
+          s("circle", { cx: "12", cy: "12", r: "10" }),
+          ...ICON_PATHS.note.map((d) => s("path", { d })),
+        ]
       : ICON_PATHS[variant].map((d) => s("path", { d }));
   return s("svg", { ...ICON_ATTRS, class: "callout__icon" }, children);
 }
@@ -101,7 +98,7 @@ export function remarkCallouts() {
 
       let title = TITLES[locale][name];
       const first = node.children[0];
-      if (first && first.data && first.data.directiveLabel) {
+      if (first?.data?.directiveLabel) {
         const custom = textOf(first).trim();
         if (custom) title = custom;
         node.children.shift();
@@ -112,10 +109,7 @@ export function remarkCallouts() {
         data: {
           hName: collapse ? "summary" : "div",
           hProperties: { className: ["callout__title"] },
-          hChildren: [
-            icon(name),
-            h("span", { class: "callout__title-text" }, title),
-          ],
+          hChildren: [icon(name), h("span", { class: "callout__title-text" }, title)],
         },
         children: [],
       };
@@ -125,11 +119,7 @@ export function remarkCallouts() {
       node.data = node.data || {};
       node.data.hName = collapse ? "details" : "aside";
       node.data.hProperties = {
-        className: [
-          "callout",
-          `callout-${name}`,
-          ...(collapse ? ["callout-collapsible"] : []),
-        ],
+        className: ["callout", `callout-${name}`, ...(collapse ? ["callout-collapsible"] : [])],
       };
     });
   };

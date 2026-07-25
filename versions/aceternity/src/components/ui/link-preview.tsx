@@ -1,13 +1,7 @@
 "use client";
 import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
-
+import { AnimatePresence, motion, useMotionValue, useSpring } from "motion/react";
 import React from "react";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useSpring,
-} from "motion/react";
 
 import { cn } from "@/lib/utils";
 
@@ -18,10 +12,7 @@ type LinkPreviewProps = {
   width?: number;
   height?: number;
   alt?: string;
-} & (
-  | { isStatic: true; imageSrc: string }
-  | { isStatic?: false; imageSrc?: never }
-);
+} & ({ isStatic: true; imageSrc: string } | { isStatic?: false; imageSrc?: never });
 
 export const LinkPreview = ({
   children,
@@ -33,7 +24,7 @@ export const LinkPreview = ({
   isStatic = false,
   imageSrc = "",
 }: LinkPreviewProps) => {
-  let src;
+  let src: string;
   if (!isStatic) {
     const params = new URLSearchParams({
       url,

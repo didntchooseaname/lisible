@@ -1,7 +1,7 @@
 "use client";
-import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export const HoverEffect = ({
   items,
@@ -49,9 +49,7 @@ export const HoverEffect = ({
           <Card>
             <CardTitle as={headingLevel}>{item.title}</CardTitle>
             <CardDescription>{item.description}</CardDescription>
-            {item.meta && (
-              <p className="mt-4 text-xs text-muted-foreground">{item.meta}</p>
-            )}
+            {item.meta && <p className="mt-4 text-xs text-muted-foreground">{item.meta}</p>}
           </Card>
         </a>
       ))}
@@ -107,12 +105,7 @@ export const CardDescription = ({
   children: React.ReactNode;
 }) => {
   return (
-    <p
-      className={cn(
-        "mt-2 text-sm leading-relaxed text-muted-foreground",
-        className,
-      )}
-    >
+    <p className={cn("mt-2 text-sm leading-relaxed text-muted-foreground", className)}>
       {children}
     </p>
   );

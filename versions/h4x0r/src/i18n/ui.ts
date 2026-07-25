@@ -59,7 +59,8 @@ const fr = {
     title: "Tags",
     description: "Tous les tags du blog, avec le nombre d'articles pour chacun.",
     taggedWith: (tag: string) => `Articles tagués « ${tag} »`,
-    tagDescription: (tag: string) => `Tous les articles tagués « ${tag} », triés du plus récent au plus ancien.`,
+    tagDescription: (tag: string) =>
+      `Tous les articles tagués « ${tag} », triés du plus récent au plus ancien.`,
     postsCount: (n: number) => (n === 1 ? "1 article" : `${n} articles`),
     all: "Tous les tags",
   },
@@ -77,11 +78,13 @@ const fr = {
     placeholder: "Rechercher un article...",
     hint: "Tapez pour rechercher dans les articles.",
     noResults: "Aucun résultat.",
-    devNotice: "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
+    devNotice:
+      "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
   },
   newsletter: {
     title: "Restez au courant",
-    description: "Un email occasionnel quand un nouvel article sort. Pas de spam, désabonnement en un clic.",
+    description:
+      "Un email occasionnel quand un nouvel article sort. Pas de spam, désabonnement en un clic.",
     emailLabel: "Adresse email",
     placeholder: "vous@exemple.fr",
     button: "S'abonner",
@@ -178,7 +181,8 @@ const fr = {
       registry: "Registre :: accréditations",
       description: "Accréditations fictives présentées comme des habilitations d'opérateur.",
       intro: "Chaque badge, organisme et parcours de cette page est entièrement fictif.",
-      count: (n: number) => (n === 1 ? "1 accréditation vérifiée" : `${n} accréditations vérifiées`),
+      count: (n: number) =>
+        n === 1 ? "1 accréditation vérifiée" : `${n} accréditations vérifiées`,
       clearance: "ACCRED",
       issued: "DÉLIVRÉE",
       verified: "INTÉGRITÉ OK",

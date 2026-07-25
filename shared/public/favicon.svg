@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Lisible icon</title>
   <rect width="64" height="64" rx="14" fill="#000000"/>
   <rect x="16" y="20" width="32" height="5" rx="2.5" fill="#FFFFFF"/>
   <rect x="16" y="30" width="24" height="5" rx="2.5" fill="#FFFFFF"/>

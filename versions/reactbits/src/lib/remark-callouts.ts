@@ -2,17 +2,11 @@ import { s } from "hastscript";
 import type { Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { ui, defaultLocale, type Locale } from "../i18n/ui";
+import { defaultLocale, type Locale, ui } from "../i18n/ui";
 
 type CalloutType = "note" | "tip" | "warning" | "caution" | "important";
 
-const TYPES: readonly CalloutType[] = [
-  "note",
-  "tip",
-  "warning",
-  "caution",
-  "important",
-];
+const TYPES: readonly CalloutType[] = ["note", "tip", "warning", "caution", "important"];
 
 const ICON_ATTRS = {
   xmlns: "http://www.w3.org/2000/svg",
@@ -126,13 +120,9 @@ const remarkCallouts: Plugin<[], Root> = () => {
         directive.children.shift();
       }
 
-      const collapsible =
-        directive.attributes != null && "collapse" in directive.attributes;
+      const collapsible = directive.attributes != null && "collapse" in directive.attributes;
 
-      const headerChildren = [
-        icons[type](),
-        s("span", { class: "callout__title" }, [title]),
-      ];
+      const headerChildren = [icons[type](), s("span", { class: "callout__title" }, [title])];
       if (collapsible) headerChildren.push(chevron());
 
       const header = {

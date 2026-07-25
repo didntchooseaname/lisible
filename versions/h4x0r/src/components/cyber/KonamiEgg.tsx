@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { Confetti, type ConfettiRef } from "@/components/ui/confetti";
 import { useAccentRgb } from "@/lib/cyber";
 
-
 const KONAMI = [
   "ArrowUp",
   "ArrowUp",

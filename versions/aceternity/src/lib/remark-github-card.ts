@@ -107,11 +107,7 @@ export function remarkGithubCard() {
       const data = node.data || (node.data = {});
       const repo: string | undefined = node.attributes?.repo;
 
-      if (
-        node.type !== "leafDirective" ||
-        !repo ||
-        !/^[\w.-]+\/[\w.-]+$/.test(repo)
-      ) {
+      if (node.type !== "leafDirective" || !repo || !/^[\w.-]+\/[\w.-]+$/.test(repo)) {
         data.hName = "div";
         data.hProperties = { hidden: true };
         data.hChildren = [];

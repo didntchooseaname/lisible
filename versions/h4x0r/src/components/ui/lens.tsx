@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import React, { useCallback, useMemo, useRef, useState } from "react"
-import { AnimatePresence, motion, useMotionTemplate } from "motion/react"
+import { AnimatePresence, motion, useMotionTemplate } from "motion/react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 
 interface Position {
-  x: number
-  y: number
+  x: number;
+  y: number;
 }
 
 interface LensProps {
-  children: React.ReactNode
-  zoomFactor?: number
-  lensSize?: number
-  position?: Position
-  defaultPosition?: Position
-  isStatic?: boolean
-  duration?: number
-  lensColor?: string
-  ariaLabel?: string
+  children: React.ReactNode;
+  zoomFactor?: number;
+  lensSize?: number;
+  position?: Position;
+  defaultPosition?: Position;
+  isStatic?: boolean;
+  duration?: number;
+  lensColor?: string;
+  ariaLabel?: string;
 }
 
 export function Lens({
@@ -32,42 +32,40 @@ export function Lens({
   ariaLabel = "Zoom Area",
 }: LensProps) {
   if (zoomFactor < 1) {
-    throw new Error("zoomFactor must be greater than 1")
+    throw new Error("zoomFactor must be greater than 1");
   }
   if (lensSize < 0) {
-    throw new Error("lensSize must be greater than 0")
+    throw new Error("lensSize must be greater than 0");
   }
 
-  const [isHovering, setIsHovering] = useState(false)
-  const [mousePosition, setMousePosition] = useState<Position>(position)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [isHovering, setIsHovering] = useState(false);
+  const [mousePosition, setMousePosition] = useState<Position>(position);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const currentPosition = useMemo(() => {
-    if (isStatic) return position
-    if (defaultPosition && !isHovering) return defaultPosition
-    return mousePosition
-  }, [isStatic, position, defaultPosition, isHovering, mousePosition])
+    if (isStatic) return position;
+    if (defaultPosition && !isHovering) return defaultPosition;
+    return mousePosition;
+  }, [isStatic, position, defaultPosition, isHovering, mousePosition]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
+    const rect = e.currentTarget.getBoundingClientRect();
     setMousePosition({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
-    })
-  }, [])
+    });
+  }, []);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Escape") setIsHovering(false)
-  }, [])
+    if (e.key === "Escape") setIsHovering(false);
+  }, []);
 
   const maskImage = useMotionTemplate`radial-gradient(circle ${
     lensSize / 2
-  }px at ${currentPosition.x}px ${
-    currentPosition.y
-  }px, ${lensColor} 100%, transparent 100%)`
+  }px at ${currentPosition.x}px ${currentPosition.y}px, ${lensColor} 100%, transparent 100%)`;
 
   const LensContent = useMemo(() => {
-    const { x, y } = currentPosition
+    const { x, y } = currentPosition;
 
     return (
       <motion.div
@@ -93,10 +91,11 @@ export function Lens({
           {children}
         </div>
       </motion.div>
-    )
-  }, [currentPosition, maskImage, zoomFactor, children, duration])
+    );
+  }, [currentPosition, maskImage, zoomFactor, children, duration]);
 
   return (
+    // biome-ignore lint/a11y/useSemanticElements: keeping the div avoids retagging a kit component, region semantics come from the role
     <div
       ref={containerRef}
       className="relative z-20 overflow-hidden rounded-xl"
@@ -106,16 +105,15 @@ export function Lens({
       onKeyDown={handleKeyDown}
       role="region"
       aria-label={ariaLabel}
+      // biome-ignore lint/a11y/noNoninteractiveTabindex: the lens region is focusable on purpose so the keyboard can toggle the zoom
       tabIndex={0}
     >
       {children}
       {isStatic || defaultPosition ? (
         LensContent
       ) : (
-        <AnimatePresence mode="popLayout">
-          {isHovering && LensContent}
-        </AnimatePresence>
+        <AnimatePresence mode="popLayout">{isHovering && LensContent}</AnimatePresence>
       )}
     </div>
-  )
+  );
 }

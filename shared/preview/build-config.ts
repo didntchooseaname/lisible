@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { AstroIntegration, AstroUserConfig } from "astro";
 
@@ -34,7 +34,10 @@ export function previewBuildIntegration(): AstroIntegration {
         if (!base) return;
         const root = new URL(dir).pathname;
         const patterns = ["images", "katex", "favicon.svg", "og-default.png", "pagefind"];
-        const expression = new RegExp(`([=\\(\\s][\\"']?)/(${patterns.map((entry) => entry.replace(".", "\\.")).join("|")})(?=[/\\"'\\)])`, "g");
+        const expression = new RegExp(
+          `([=\\(\\s][\\"']?)/(${patterns.map((entry) => entry.replace(".", "\\.")).join("|")})(?=[/\\"'\\)])`,
+          "g",
+        );
         for (const file of walk(root).filter((path) => /\.(?:html|css|js)$/.test(path))) {
           const source = readFileSync(file, "utf8");
           const rewritten = source.replace(expression, `$1${base}/$2`);

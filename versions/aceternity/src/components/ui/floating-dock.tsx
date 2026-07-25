@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { ChevronUp } from "lucide-react";
 import {
   AnimatePresence,
@@ -10,8 +9,8 @@ import {
   useSpring,
   useTransform,
 } from "motion/react";
-
 import { useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 
 export type DockItem = {
   title: string;
@@ -33,11 +32,7 @@ export const FloatingDock = ({
   return (
     <>
       <FloatingDockDesktop items={items} className={desktopClassName} />
-      <FloatingDockMobile
-        items={items}
-        className={mobileClassName}
-        toggleLabel={toggleLabel}
-      />
+      <FloatingDockMobile items={items} className={mobileClassName} toggleLabel={toggleLabel} />
     </>
   );
 };
@@ -82,6 +77,7 @@ const FloatingDockMobile = ({
                   aria-label={item.title}
                   className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-secondary text-muted-foreground transition-colors hover:text-foreground"
                 >
+                  <span className="sr-only">{item.title}</span>
                   <div className="h-4 w-4" aria-hidden="true">
                     {item.icon}
                   </div>
@@ -104,13 +100,7 @@ const FloatingDockMobile = ({
   );
 };
 
-const FloatingDockDesktop = ({
-  items,
-  className,
-}: {
-  items: DockItem[];
-  className?: string;
-}) => {
+const FloatingDockDesktop = ({ items, className }: { items: DockItem[]; className?: string }) => {
   const mouseX = useMotionValue(Infinity);
   return (
     <motion.div
@@ -150,16 +140,8 @@ function IconContainer({
   const widthTransform = useTransform(distance, [-150, 0, 150], [44, 76, 44]);
   const heightTransform = useTransform(distance, [-150, 0, 150], [44, 76, 44]);
 
-  const widthTransformIcon = useTransform(
-    distance,
-    [-150, 0, 150],
-    [20, 36, 20],
-  );
-  const heightTransformIcon = useTransform(
-    distance,
-    [-150, 0, 150],
-    [20, 36, 20],
-  );
+  const widthTransformIcon = useTransform(distance, [-150, 0, 150], [20, 36, 20]);
+  const heightTransformIcon = useTransform(distance, [-150, 0, 150], [20, 36, 20]);
 
   const width = useSpring(widthTransform, {
     mass: 0.1,

@@ -1,6 +1,6 @@
+import { Moon, Sun } from "lucide-react";
 import { useCallback, useRef } from "react";
 import { flushSync } from "react-dom";
-import { Moon, Sun } from "lucide-react";
 import { TextureButton } from "@/components/ui/texture-button";
 
 interface ThemeToggleIslandProps {
@@ -18,9 +18,7 @@ export function ThemeToggleIsland({ label }: ThemeToggleIslandProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const applyTheme = useCallback(() => {
-    const next = document.documentElement.classList.contains("dark")
-      ? "light"
-      : "dark";
+    const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
     document.documentElement.classList.toggle("dark", next === "dark");
     localStorage.setItem("theme", next);
     window.__applyAccent?.();
@@ -31,15 +29,9 @@ export function ThemeToggleIsland({ label }: ThemeToggleIslandProps) {
     const startViewTransition = (
       document as Document & { startViewTransition?: StartViewTransition }
     ).startViewTransition;
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (
-      !button ||
-      typeof startViewTransition !== "function" ||
-      prefersReducedMotion
-    ) {
+    if (!button || typeof startViewTransition !== "function" || prefersReducedMotion) {
       applyTheme();
       return;
     }
@@ -49,10 +41,7 @@ export function ThemeToggleIsland({ label }: ThemeToggleIslandProps) {
     const { top, left, width, height } = button.getBoundingClientRect();
     const x = left + width / 2;
     const y = top + height / 2;
-    const maxRadius = Math.hypot(
-      Math.max(x, viewportWidth - x),
-      Math.max(y, viewportHeight - y),
-    );
+    const maxRadius = Math.hypot(Math.max(x, viewportWidth - x), Math.max(y, viewportHeight - y));
     const clipPath: [string, string] = [
       `circle(0px at ${x}px ${y}px)`,
       `circle(${maxRadius}px at ${x}px ${y}px)`,
@@ -92,16 +81,8 @@ export function ThemeToggleIsland({ label }: ThemeToggleIslandProps) {
       onClick={toggle}
       className="h-11 w-11"
     >
-      <Sun
-        size={20}
-        aria-hidden="true"
-        className="hidden text-foreground dark:block"
-      />
-      <Moon
-        size={20}
-        aria-hidden="true"
-        className="block text-foreground dark:hidden"
-      />
+      <Sun size={20} aria-hidden="true" className="hidden text-foreground dark:block" />
+      <Moon size={20} aria-hidden="true" className="block text-foreground dark:hidden" />
     </TextureButton>
   );
 }

@@ -1,5 +1,11 @@
-import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
-import { motion, useMotionValue, useAnimationFrame, useTransform, useReducedMotion } from 'motion/react';
+import {
+  motion,
+  useAnimationFrame,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+} from "motion/react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 interface GradientTextProps {
   children: ReactNode;
@@ -7,20 +13,19 @@ interface GradientTextProps {
   colors?: string[];
   animationSpeed?: number;
   showBorder?: boolean;
-  direction?: 'horizontal' | 'vertical' | 'diagonal';
+  direction?: "horizontal" | "vertical" | "diagonal";
   pauseOnHover?: boolean;
   yoyo?: boolean;
 }
 
 export default function GradientText({
   children,
-  className = '',
-  colors = ['#5227FF', '#FF9FFC', '#B497CF'],
+  className = "",
+  colors = ["#5227FF", "#FF9FFC", "#B497CF"],
   animationSpeed = 8,
-  showBorder = false,
-  direction = 'horizontal',
+  direction = "horizontal",
   pauseOnHover = false,
-  yoyo = true
+  yoyo = true,
 }: GradientTextProps) {
   const [isPaused, setIsPaused] = useState(false);
   const reducedMotion = useReducedMotion();
@@ -30,7 +35,7 @@ export default function GradientText({
 
   const animationDuration = animationSpeed * 1000;
 
-  useAnimationFrame(time => {
+  useAnimationFrame((time) => {
     if (isPaused || reducedMotion) {
       lastTimeRef.current = null;
       return;
@@ -64,10 +69,10 @@ export default function GradientText({
     progress.set(0);
   }, [animationSpeed, yoyo]);
 
-  const backgroundPosition = useTransform(progress, p => {
-    if (direction === 'horizontal') {
+  const backgroundPosition = useTransform(progress, (p) => {
+    if (direction === "horizontal") {
       return `${p}% 50%`;
-    } else if (direction === 'vertical') {
+    } else if (direction === "vertical") {
       return `50% ${p}%`;
     } else {
       return `${p}% 50%`;
@@ -83,13 +88,22 @@ export default function GradientText({
   }, [pauseOnHover]);
 
   const gradientAngle =
-    direction === 'horizontal' ? 'to right' : direction === 'vertical' ? 'to bottom' : 'to bottom right';
-  const gradientColors = [...colors, colors[0]].join(', ');
+    direction === "horizontal"
+      ? "to right"
+      : direction === "vertical"
+        ? "to bottom"
+        : "to bottom right";
+  const gradientColors = [...colors, colors[0]].join(", ");
 
   const gradientStyle = {
     backgroundImage: `linear-gradient(${gradientAngle}, ${gradientColors})`,
-    backgroundSize: direction === 'horizontal' ? '300% 100%' : direction === 'vertical' ? '100% 300%' : '300% 300%',
-    backgroundRepeat: 'repeat'
+    backgroundSize:
+      direction === "horizontal"
+        ? "300% 100%"
+        : direction === "vertical"
+          ? "100% 300%"
+          : "300% 300%",
+    backgroundRepeat: "repeat",
   };
 
   return (
@@ -100,7 +114,7 @@ export default function GradientText({
     >
       <motion.span
         className="inline-block relative z-2 text-transparent bg-clip-text"
-        style={{ ...gradientStyle, backgroundPosition, WebkitBackgroundClip: 'text' }}
+        style={{ ...gradientStyle, backgroundPosition, WebkitBackgroundClip: "text" }}
       >
         {children}
       </motion.span>

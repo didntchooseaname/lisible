@@ -1,9 +1,9 @@
-import type { AstroIntegration } from "astro";
 import { createReadStream, existsSync } from "node:fs";
 import { copyFile, mkdir, readdir } from "node:fs/promises";
 import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import type { AstroIntegration } from "astro";
 
 /**
  * Serves and emits KaTeX from the installed package instead of committed copies,
@@ -38,7 +38,8 @@ export function katexAssets(enabled: boolean): AstroIntegration {
                     }
 
                     if (filePath.endsWith(".css")) response.setHeader("Content-Type", "text/css");
-                    if (filePath.endsWith(".woff2")) response.setHeader("Content-Type", "font/woff2");
+                    if (filePath.endsWith(".woff2"))
+                      response.setHeader("Content-Type", "font/woff2");
                     createReadStream(filePath).pipe(response);
                   });
                 },
@@ -57,9 +58,7 @@ export function katexAssets(enabled: boolean): AstroIntegration {
 
         const fonts = (await readdir(fontsDir)).filter((file) => file.endsWith(".woff2"));
         await Promise.all(
-          fonts.map((file) =>
-            copyFile(path.join(fontsDir, file), path.join(outFonts, file)),
-          ),
+          fonts.map((file) => copyFile(path.join(fontsDir, file), path.join(outFonts, file))),
         );
         logger.info(`Self-hosted KaTeX copied to /katex (CSS and ${fonts.length} woff2 fonts).`);
       },

@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import { type FC, type ReactNode, useState } from "react"
-import { PlusIcon, XIcon } from "lucide-react"
-import { motion } from "motion/react"
+import { PlusIcon, XIcon } from "lucide-react";
+import { motion } from "motion/react";
+import { type FC, type ReactNode, useState } from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-const CONTAINER_SIZE = 200
+const CONTAINER_SIZE = 200;
 
 interface FamilyButtonProps {
-  children: React.ReactNode
-  expandLabel?: string
-  collapseLabel?: string
+  children: React.ReactNode;
+  expandLabel?: string;
+  collapseLabel?: string;
 }
 
 const FamilyButton: React.FC<FamilyButtonProps> = ({
@@ -19,8 +19,8 @@ const FamilyButton: React.FC<FamilyButtonProps> = ({
   expandLabel = "Open actions",
   collapseLabel = "Close actions",
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const toggleExpand = () => setIsExpanded(!isExpanded)
+  const [isExpanded, setIsExpanded] = useState(false);
+  const toggleExpand = () => setIsExpanded(!isExpanded);
 
   return (
     <div
@@ -29,7 +29,7 @@ const FamilyButton: React.FC<FamilyButtonProps> = ({
         "bg-gradient-to-b from-neutral-100 to-white dark:from-neutral-900 dark:to-black",
         isExpanded
           ? "w-[204px] bg-gradient-to-b dark:from-neutral-900 dark:to-neutral-900/80"
-          : "dark:from-neutral-900 dark:to-neutral-950 bg-gradient-to-b"
+          : "dark:from-neutral-900 dark:to-neutral-950 bg-gradient-to-b",
       )}
     >
       <div className="rounded-[23px] border border-black/10 dark:border-neutral-900/80">
@@ -61,15 +61,15 @@ const FamilyButton: React.FC<FamilyButtonProps> = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 interface FamilyButtonContainerProps {
-  isExpanded: boolean
-  toggleExpand: () => void
-  expandLabel: string
-  collapseLabel: string
-  children: ReactNode
+  isExpanded: boolean;
+  toggleExpand: () => void;
+  expandLabel: string;
+  collapseLabel: string;
+  children: ReactNode;
 }
 
 const FamilyButtonContainer: FC<FamilyButtonContainerProps> = ({
@@ -85,7 +85,7 @@ const FamilyButtonContainer: FC<FamilyButtonContainerProps> = ({
         "relative border-black/5 dark:border-white/10 border shadow-lg flex flex-col space-y-1 items-center text-foreground cursor-pointer z-10",
         !isExpanded
           ? "bg-gradient-to-b from-neutral-100 to-white dark:from-neutral-700 dark:to-neutral-800/80"
-          : ""
+          : "",
       )}
       layoutRoot
       layout
@@ -146,7 +146,7 @@ const FamilyButtonContainer: FC<FamilyButtonContainerProps> = ({
           >
             <XIcon
               className={cn(
-                "h-7 w-7 text-muted-foreground group-hover:text-foreground transition-colors duration-200"
+                "h-7 w-7 text-muted-foreground group-hover:text-foreground transition-colors duration-200",
               )}
             />
           </motion.button>
@@ -155,7 +155,7 @@ const FamilyButtonContainer: FC<FamilyButtonContainerProps> = ({
             type="button"
             aria-label={expandLabel}
             className={cn(
-              "p-[10px] group bg-neutral-200 dark:bg-accent text-accent-foreground border border-black/10 shadow-2xl transition-colors duration-200"
+              "p-[10px] group bg-neutral-200 dark:bg-accent text-accent-foreground border border-black/10 shadow-2xl transition-colors duration-200",
             )}
             style={{ borderRadius: 24 }}
             onClick={toggleExpand}
@@ -173,8 +173,8 @@ const FamilyButtonContainer: FC<FamilyButtonContainerProps> = ({
         )}
       </motion.div>
     </motion.div>
-  )
-}
+  );
+};
 
-export { FamilyButton }
-export default FamilyButton
+export { FamilyButton };
+export default FamilyButton;

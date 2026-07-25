@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatedNumber } from "@/components/ui/animated-number";
-import {
-  TextureCard,
-  TextureCardContent,
-} from "@/components/ui/texture-card";
+import { TextureCard, TextureCardContent } from "@/components/ui/texture-card";
 
 interface AboutStat {
   value: number;
@@ -40,9 +37,7 @@ export function AboutStats({ locale, title, stats }: AboutStatsProps) {
                   <AnimatedNumber locale={locale} value={started ? stat.value : 0} />
                 )}
               </span>
-              <span className="text-sm text-muted-foreground">
-                {stat.label}
-              </span>
+              <span className="text-sm text-muted-foreground">{stat.label}</span>
             </TextureCardContent>
           </TextureCard>
         ))}

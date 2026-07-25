@@ -1,8 +1,8 @@
+import type { Element, Root } from "hast";
 import { h, s } from "hastscript";
-import type { Root, Element } from "hast";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
-import { defaultLocale, ui, type Locale } from "../i18n/ui";
+import { defaultLocale, type Locale, ui } from "../i18n/ui";
 
 function localeFromPath(filePath: string | undefined): Locale {
   if (filePath && /[\\/]en[\\/]/.test(filePath)) return "en";

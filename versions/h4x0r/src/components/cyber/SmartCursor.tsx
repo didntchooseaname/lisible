@@ -1,10 +1,10 @@
 import { memo, useEffect, useState } from "react";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 
-
 function CyberReticle() {
   return (
     <svg
+      aria-hidden="true"
       width="34"
       height="34"
       viewBox="0 0 34 34"

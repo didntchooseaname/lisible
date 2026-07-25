@@ -5,11 +5,11 @@ import type { OgObject } from "open-graph-scraper/types";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
 import {
-  loadCache,
   getCachedMetadata,
-  setCachedMetadata,
-  saveCache,
   getInflight,
+  loadCache,
+  saveCache,
+  setCachedMetadata,
   setInflight,
 } from "./link-card-cache";
 
@@ -94,10 +94,7 @@ const isBareLink = (linkNode: Link): boolean => {
   }
 };
 
-const fetchMetadata = async (
-  url: string,
-  options: Options,
-): Promise<OgObject | null> => {
+const fetchMetadata = async (url: string, options: Options): Promise<OgObject | null> => {
   await loadCache();
   const cached = getCachedMetadata(url);
   if (cached !== undefined) return cached;
@@ -141,10 +138,7 @@ const fetchMetadata = async (
   return promise;
 };
 
-const resolveThumbnail = (
-  metadata: OgObject,
-  pageUrl: URL,
-): { url: string; alt: string } => {
+const resolveThumbnail = (metadata: OgObject, pageUrl: URL): { url: string; alt: string } => {
   const tryUrl = (raw: string): string => {
     const trimmed = raw.trim();
     if (!trimmed) return "";

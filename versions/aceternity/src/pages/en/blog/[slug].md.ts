@@ -1,7 +1,7 @@
-import type { APIRoute } from "astro";
 import { postToMarkdown } from "@shared/lib/llms";
+import type { APIRoute } from "astro";
+import { getPublishedPosts, type Post, postSlug, postUrl } from "@/lib/posts";
 import { FEATURES, SITE } from "@/site.config";
-import { getPublishedPosts, postSlug, postUrl, type Post } from "@/lib/posts";
 
 export async function getStaticPaths() {
   if (!FEATURES.llmsTxt) return [];

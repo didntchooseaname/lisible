@@ -48,10 +48,7 @@ export function PostCardMinimal({
           as={headingLevel}
           className="mt-0 px-0 text-lg leading-snug tracking-tight text-card-foreground"
         >
-          <a
-            href={href}
-            className="after:absolute after:inset-0 group-hover:text-accent"
-          >
+          <a href={href} className="after:absolute after:inset-0 group-hover:text-accent">
             {title}
           </a>
           {draftLabel ? (

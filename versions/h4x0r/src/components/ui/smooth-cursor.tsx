@@ -1,32 +1,33 @@
-"use client"
+"use client";
 
-import { type FC, useEffect, useRef, useState } from "react"
-import { motion, useSpring } from "motion/react"
+import { motion, useSpring } from "motion/react";
+import { type FC, useEffect, useRef, useState } from "react";
 
 interface Position {
-  x: number
-  y: number
+  x: number;
+  y: number;
 }
 
 export interface SmoothCursorProps {
-  cursor?: React.ReactNode
+  cursor?: React.ReactNode;
   springConfig?: {
-    damping: number
-    stiffness: number
-    mass: number
-    restDelta: number
-  }
+    damping: number;
+    stiffness: number;
+    mass: number;
+    restDelta: number;
+  };
 }
 
-const DESKTOP_POINTER_QUERY = "(any-hover: hover) and (any-pointer: fine)"
+const DESKTOP_POINTER_QUERY = "(any-hover: hover) and (any-pointer: fine)";
 
 function isTrackablePointer(pointerType: string) {
-  return pointerType !== "touch"
+  return pointerType !== "touch";
 }
 
 const DefaultCursorSVG: FC = () => {
   return (
     <svg
+      aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
       width={50}
       height={54}
@@ -65,15 +66,8 @@ const DefaultCursorSVG: FC = () => {
           <feOffset dy={2.25825} />
           <feGaussianBlur stdDeviation={2.25825} />
           <feComposite in2="hardAlpha" operator="out" />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"
-          />
-          <feBlend
-            mode="normal"
-            in2="BackgroundImageFix"
-            result="effect1_dropShadow_91_7928"
-          />
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0" />
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_91_7928" />
           <feBlend
             mode="normal"
             in="SourceGraphic"
@@ -83,8 +77,8 @@ const DefaultCursorSVG: FC = () => {
         </filter>
       </defs>
     </svg>
-  )
-}
+  );
+};
 
 export function SmoothCursor({
   cursor = <DefaultCursorSVG />,
@@ -95,141 +89,138 @@ export function SmoothCursor({
     restDelta: 0.001,
   },
 }: SmoothCursorProps) {
-  const lastMousePos = useRef<Position>({ x: 0, y: 0 })
-  const velocity = useRef<Position>({ x: 0, y: 0 })
-  const lastUpdateTime = useRef(Date.now())
-  const previousAngle = useRef(0)
-  const accumulatedRotation = useRef(0)
-  const [isEnabled, setIsEnabled] = useState(false)
-  const [isVisible, setIsVisible] = useState(false)
+  const lastMousePos = useRef<Position>({ x: 0, y: 0 });
+  const velocity = useRef<Position>({ x: 0, y: 0 });
+  const lastUpdateTime = useRef(Date.now());
+  const previousAngle = useRef(0);
+  const accumulatedRotation = useRef(0);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
-  const cursorX = useSpring(0, springConfig)
-  const cursorY = useSpring(0, springConfig)
+  const cursorX = useSpring(0, springConfig);
+  const cursorY = useSpring(0, springConfig);
   const rotation = useSpring(0, {
     ...springConfig,
     damping: 60,
     stiffness: 300,
-  })
+  });
   const scale = useSpring(1, {
     ...springConfig,
     stiffness: 500,
     damping: 35,
-  })
+  });
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(DESKTOP_POINTER_QUERY)
+    const mediaQuery = window.matchMedia(DESKTOP_POINTER_QUERY);
 
     const updateEnabled = () => {
-      const nextIsEnabled = mediaQuery.matches
-      setIsEnabled(nextIsEnabled)
+      const nextIsEnabled = mediaQuery.matches;
+      setIsEnabled(nextIsEnabled);
 
       if (!nextIsEnabled) {
-        setIsVisible(false)
+        setIsVisible(false);
       }
-    }
+    };
 
-    updateEnabled()
-    mediaQuery.addEventListener("change", updateEnabled)
+    updateEnabled();
+    mediaQuery.addEventListener("change", updateEnabled);
 
     return () => {
-      mediaQuery.removeEventListener("change", updateEnabled)
-    }
-  }, [])
+      mediaQuery.removeEventListener("change", updateEnabled);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isEnabled) {
-      return
+      return;
     }
 
-    let timeout: ReturnType<typeof setTimeout> | null = null
+    let timeout: ReturnType<typeof setTimeout> | null = null;
 
     const updateVelocity = (currentPos: Position) => {
-      const currentTime = Date.now()
-      const deltaTime = currentTime - lastUpdateTime.current
+      const currentTime = Date.now();
+      const deltaTime = currentTime - lastUpdateTime.current;
 
       if (deltaTime > 0) {
         velocity.current = {
           x: (currentPos.x - lastMousePos.current.x) / deltaTime,
           y: (currentPos.y - lastMousePos.current.y) / deltaTime,
-        }
+        };
       }
 
-      lastUpdateTime.current = currentTime
-      lastMousePos.current = currentPos
-    }
+      lastUpdateTime.current = currentTime;
+      lastMousePos.current = currentPos;
+    };
 
     const smoothPointerMove = (e: PointerEvent) => {
       if (!isTrackablePointer(e.pointerType)) {
-        return
+        return;
       }
 
-      setIsVisible(true)
+      setIsVisible(true);
 
-      const currentPos = { x: e.clientX, y: e.clientY }
-      updateVelocity(currentPos)
+      const currentPos = { x: e.clientX, y: e.clientY };
+      updateVelocity(currentPos);
 
-      const speed = Math.sqrt(
-        Math.pow(velocity.current.x, 2) + Math.pow(velocity.current.y, 2)
-      )
+      const speed = Math.sqrt(velocity.current.x ** 2 + velocity.current.y ** 2);
 
-      cursorX.set(currentPos.x)
-      cursorY.set(currentPos.y)
+      cursorX.set(currentPos.x);
+      cursorY.set(currentPos.y);
 
       if (speed > 0.1) {
         const currentAngle =
-          Math.atan2(velocity.current.y, velocity.current.x) * (180 / Math.PI) +
-          90
+          Math.atan2(velocity.current.y, velocity.current.x) * (180 / Math.PI) + 90;
 
-        let angleDiff = currentAngle - previousAngle.current
-        if (angleDiff > 180) angleDiff -= 360
-        if (angleDiff < -180) angleDiff += 360
-        accumulatedRotation.current += angleDiff
-        rotation.set(accumulatedRotation.current)
-        previousAngle.current = currentAngle
+        let angleDiff = currentAngle - previousAngle.current;
+        if (angleDiff > 180) angleDiff -= 360;
+        if (angleDiff < -180) angleDiff += 360;
+        accumulatedRotation.current += angleDiff;
+        rotation.set(accumulatedRotation.current);
+        previousAngle.current = currentAngle;
 
-        scale.set(0.95)
+        scale.set(0.95);
 
         if (timeout !== null) {
-          clearTimeout(timeout)
+          clearTimeout(timeout);
         }
 
         timeout = setTimeout(() => {
-          scale.set(1)
-        }, 150)
+          scale.set(1);
+        }, 150);
       }
-    }
+    };
 
-    let rafId = 0
+    let rafId = 0;
     const throttledPointerMove = (e: PointerEvent) => {
       if (!isTrackablePointer(e.pointerType)) {
-        return
+        return;
       }
 
-      if (rafId) return
+      if (rafId) return;
 
       rafId = requestAnimationFrame(() => {
-        smoothPointerMove(e)
-        rafId = 0
-      })
-    }
+        smoothPointerMove(e);
+        rafId = 0;
+      });
+    };
 
-    document.body.style.cursor = "none"
+    document.body.style.cursor = "none";
     window.addEventListener("pointermove", throttledPointerMove, {
       passive: true,
-    })
+    });
 
     return () => {
-      window.removeEventListener("pointermove", throttledPointerMove)
-      document.body.style.cursor = "auto"
-      if (rafId) cancelAnimationFrame(rafId)
+      window.removeEventListener("pointermove", throttledPointerMove);
+      document.body.style.cursor = "auto";
+      if (rafId) cancelAnimationFrame(rafId);
       if (timeout !== null) {
-        clearTimeout(timeout)
+        clearTimeout(timeout);
       }
-    }
-  }, [cursorX, cursorY, rotation, scale, isEnabled])
+    };
+  }, [cursorX, cursorY, rotation, scale, isEnabled]);
 
   if (!isEnabled) {
-    return null
+    return null;
   }
 
   return (
@@ -255,5 +246,5 @@ export function SmoothCursor({
     >
       {cursor}
     </motion.div>
-  )
+  );
 }

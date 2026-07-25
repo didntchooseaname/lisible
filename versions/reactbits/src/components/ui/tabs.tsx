@@ -1,13 +1,6 @@
-import {
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { type ReactNode, useId, useLayoutEffect, useRef, useState } from "react";
+import { defaultLocale, type Locale, ui } from "@/i18n/ui";
 import { FEATURES } from "@/site.config";
-import { ui, defaultLocale, type Locale } from "@/i18n/ui";
-
 
 function currentLocale(): Locale {
   if (typeof document !== "undefined" && document.documentElement.lang === "en") {

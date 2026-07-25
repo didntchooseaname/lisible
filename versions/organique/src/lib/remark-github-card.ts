@@ -1,5 +1,5 @@
-import { h } from "hastscript";
 import type { ElementContent } from "hast";
+import { h } from "hastscript";
 import type { Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
@@ -128,7 +128,7 @@ const remarkGithubCard: Plugin<[], Root> = () => {
       const repo = directive.attributes?.repo;
       const data = directive.data ?? (directive.data = {});
 
-      if (!repo || !repo.includes("/")) {
+      if (!repo?.includes("/")) {
         data.hName = "div";
         data.hProperties = { style: "display:none" };
         data.hChildren = [];

@@ -1,7 +1,7 @@
 "use client";
-import { cn } from "@/lib/utils";
+import { motion, useAnimate } from "motion/react";
 import React from "react";
-import { motion, AnimatePresence, useAnimate } from "motion/react";
+import { cn } from "@/lib/utils";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;

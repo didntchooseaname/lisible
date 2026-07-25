@@ -1,7 +1,6 @@
-import { Lens } from "@/components/ui/lens";
 import { GlyphMatrix } from "@/components/ui/glyph-matrix";
+import { Lens } from "@/components/ui/lens";
 import { rgba, useAccentRgb } from "@/lib/cyber";
-
 
 interface Props {
   src: string;

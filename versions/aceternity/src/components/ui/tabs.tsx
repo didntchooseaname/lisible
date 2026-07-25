@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
 import { motion } from "motion/react";
+import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-
 
 export function Tab({ children }: { children?: React.ReactNode }) {
   return (
+    // biome-ignore lint/a11y/noNoninteractiveTabindex: the ARIA APG makes tab panels focusable when they hold no focusable content
     <div data-tab-panel role="tabpanel" tabIndex={0} className="mdx-tabs__panel">
       {children}
     </div>
@@ -47,14 +47,17 @@ export function Tabs({
     const delta = event.key === "ArrowRight" ? 1 : -1;
     const next = (idx + delta + tabs.length) % tabs.length;
     setActive(next);
-    listRef.current
-      ?.querySelectorAll<HTMLButtonElement>("[role='tab']")
-      [next]?.focus();
+    listRef.current?.querySelectorAll<HTMLButtonElement>("[role='tab']")[next]?.focus();
   };
 
   return (
     <div className="mdx-tabs">
-      <div ref={listRef} role="tablist" aria-label={label ?? listLabel} className="mdx-tabs__list not-prose">
+      <div
+        ref={listRef}
+        role="tablist"
+        aria-label={label ?? listLabel}
+        className="mdx-tabs__list not-prose"
+      >
         {tabs.map((title, i) => (
           <button
             key={title}
@@ -86,7 +89,6 @@ export function Tabs({
     </div>
   );
 }
-
 
 export type AnimatedTab = {
   title: string;
@@ -158,10 +160,7 @@ export const AnimatedTabs = ({
               <motion.span
                 layoutId="clickedbutton"
                 transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
-                className={cn(
-                  "absolute inset-0 rounded-full bg-secondary",
-                  activeTabClassName,
-                )}
+                className={cn("absolute inset-0 rounded-full bg-secondary", activeTabClassName)}
               />
             )}
             <span className="relative z-10 block">{tab.title}</span>

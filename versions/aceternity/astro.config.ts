@@ -1,32 +1,32 @@
-import type { RehypePlugins, RemarkPlugins } from "astro";
-import { defineConfig } from "astro/config";
-import react from "@astrojs/react";
-import mdx from "@astrojs/mdx";
-import sitemap from "@astrojs/sitemap";
-import pagefind from "astro-pagefind";
-import pagefindDev from "../../shared/pagefind-dev";
-import { rehypeImageDimensions } from "../../shared/markdown/rehype-image-dimensions";
-import { previewAstroConfig, previewBuildIntegration } from "../../shared/preview/build-config";
-import tailwindcss from "@tailwindcss/vite";
-import remarkDirective from "remark-directive";
 import { unified } from "@astrojs/markdown-remark";
-import expressiveCode, { pluginFramesTexts } from "astro-expressive-code";
+import mdx from "@astrojs/mdx";
+import react from "@astrojs/react";
+import sitemap from "@astrojs/sitemap";
 import {
   pluginCollapsibleSections,
   pluginCollapsibleSectionsTexts,
 } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
-import remarkMath from "remark-math";
+import tailwindcss from "@tailwindcss/vite";
+import type { RehypePlugins, RemarkPlugins } from "astro";
+import { defineConfig } from "astro/config";
+import expressiveCode, { pluginFramesTexts } from "astro-expressive-code";
+import pagefind from "astro-pagefind";
 import rehypeKatex from "rehype-katex";
+import remarkDirective from "remark-directive";
+import remarkMath from "remark-math";
+import { katexAssets } from "../../shared/integrations/katex-assets";
+import { rehypeImageDimensions } from "../../shared/markdown/rehype-image-dimensions";
+import pagefindDev from "../../shared/pagefind-dev";
+import { previewAstroConfig, previewBuildIntegration } from "../../shared/preview/build-config";
+import { codeUi } from "./src/i18n/code";
+import { pluginLanguageBadge } from "./src/lib/expressive-code/language-badge";
 import { rehypeTaskCheckboxes } from "./src/lib/rehype-task-checkboxes";
+import { remarkCallouts } from "./src/lib/remark-callouts";
+import { remarkDrawio } from "./src/lib/remark-drawio";
 import { remarkGithubCard } from "./src/lib/remark-github-card";
 import { remarkLinkCard } from "./src/lib/remark-link-card";
-import { remarkCallouts } from "./src/lib/remark-callouts";
 import { remarkMermaid } from "./src/lib/remark-mermaid";
-import { remarkDrawio } from "./src/lib/remark-drawio";
-import { pluginLanguageBadge } from "./src/lib/expressive-code/language-badge";
-import { katexAssets } from "../../shared/integrations/katex-assets";
-import { codeUi } from "./src/i18n/code";
 import { FEATURES, SITE } from "./src/site.config";
 
 const siteHost = new URL(SITE.url).host;
@@ -86,16 +86,11 @@ export default defineConfig({
       themes: ["github-dark", "github-light"],
       emitExternalStylesheet: false,
       useDarkModeMediaQuery: false,
-      themeCssSelector: (theme) =>
-        theme.type === "dark" ? ".dark" : ":root:not(.dark)",
+      themeCssSelector: (theme) => (theme.type === "dark" ? ".dark" : ":root:not(.dark)"),
       defaultLocale: "fr",
       getBlockLocale: ({ file }) =>
         file.path?.replace(/\\/g, "/").includes("/blog/en/") ? "en" : "fr",
-      plugins: [
-        pluginCollapsibleSections(),
-        pluginLineNumbers(),
-        pluginLanguageBadge(),
-      ],
+      plugins: [pluginCollapsibleSections(), pluginLineNumbers(), pluginLanguageBadge()],
       defaultProps: {
         wrap: true,
         collapseStyle: "collapsible-auto",
@@ -116,8 +111,7 @@ export default defineConfig({
         codeBackground: "var(--color-card)",
         frames: {
           frameBoxShadowCssValue: "none",
-          editorTabBarBackground:
-            "color-mix(in oklab, var(--color-muted) 40%, var(--color-card))",
+          editorTabBarBackground: "color-mix(in oklab, var(--color-muted) 40%, var(--color-card))",
           editorTabBarBorderBottomColor: "var(--color-border)",
           editorActiveTabBackground: "var(--color-card)",
           editorActiveTabForeground: "var(--color-muted-foreground)",
@@ -164,7 +158,14 @@ export default defineConfig({
   vite: {
     plugins: [pagefindDev(), tailwindcss()],
     optimizeDeps: {
-      include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime", "mermaid"],
+      include: [
+        "react",
+        "react-dom",
+        "react-dom/client",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+        "mermaid",
+      ],
     },
     define: {
       __F_IMAGEZOOM__: JSON.stringify(FEATURES.imageZoom),

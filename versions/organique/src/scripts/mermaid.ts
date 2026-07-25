@@ -216,8 +216,7 @@ async function renderDiagram(container: HTMLElement) {
       await navigator.clipboard.writeText(code);
       copyBtn.classList.add("is-copied");
       window.setTimeout(() => copyBtn.classList.remove("is-copied"), 1400);
-    } catch {
-    }
+    } catch {}
   });
 }
 
@@ -228,7 +227,10 @@ function queueRender(container: HTMLElement) {
 }
 
 function renderWhenVisible(container: HTMLElement) {
-  if (container.hasAttribute("data-mermaid-rendered") || container.hasAttribute("data-mermaid-observed"))
+  if (
+    container.hasAttribute("data-mermaid-rendered") ||
+    container.hasAttribute("data-mermaid-observed")
+  )
     return;
   if (!("IntersectionObserver" in window)) {
     queueRender(container);
@@ -252,7 +254,9 @@ function renderAll() {
 }
 
 async function reRenderAll() {
-  const containers = document.querySelectorAll<HTMLElement>("[data-mermaid][data-mermaid-rendered]");
+  const containers = document.querySelectorAll<HTMLElement>(
+    "[data-mermaid][data-mermaid-rendered]",
+  );
   for (const container of containers) {
     const sourceEl = container.querySelector<HTMLElement>("[data-mermaid-source]");
     const target = container.querySelector<HTMLElement>("[data-mermaid-render]");
@@ -267,8 +271,7 @@ async function reRenderAll() {
       target.innerHTML = svg;
       const svgEl = target.querySelector<SVGSVGElement>("svg");
       if (svgEl) prepareSvg(svgEl);
-    } catch {
-    }
+    } catch {}
   }
 }
 

@@ -143,7 +143,8 @@ const fr = {
     title: "Tags",
     description: "Tous les tags du blog, avec le nombre d'articles pour chacun.",
     taggedWith: (tag: string) => `Articles tagués « ${tag} »`,
-    tagDescription: (tag: string) => `Tous les articles tagués « ${tag} », triés du plus récent au plus ancien.`,
+    tagDescription: (tag: string) =>
+      `Tous les articles tagués « ${tag} », triés du plus récent au plus ancien.`,
     postsCount: (n: number) => (n === 1 ? "1 article" : `${n} articles`),
     all: "Tous les tags",
   },
@@ -167,11 +168,13 @@ const fr = {
     placeholder: "Rechercher un article...",
     hint: "Tapez pour rechercher dans les articles.",
     noResults: "Aucun résultat.",
-    devNotice: "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
+    devNotice:
+      "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
   },
   newsletter: {
     title: "Restez au courant",
-    description: "Un email occasionnel quand un nouvel article sort. Pas de spam, désabonnement en un clic.",
+    description:
+      "Un email occasionnel quand un nouvel article sort. Pas de spam, désabonnement en un clic.",
     emailLabel: "Adresse email",
     placeholder: "vous@exemple.fr",
     button: "S'abonner",
@@ -275,16 +278,14 @@ const en: Dict = {
     part: (n: number, total: number) => `Part ${n} of ${total}`,
     inThisSeries: "In this series",
     viewAll: "View the full series",
-    description: (name: string) =>
-      `All the posts in the "${name}" series, in reading order.`,
+    description: (name: string) => `All the posts in the "${name}" series, in reading order.`,
     cumulativeTime: (min: number) => `${min} min read in total`,
     postsCount: (n: number) => (n === 1 ? "1 post" : `${n} posts`),
     current: "You are here",
   },
   archives: {
     title: "Archives",
-    description:
-      "Every post, from newest to oldest, grouped by year then by month.",
+    description: "Every post, from newest to oldest, grouped by year then by month.",
     empty: "No posts yet.",
     postsCount: (n: number) => (n === 1 ? "1 post" : `${n} posts`),
   },

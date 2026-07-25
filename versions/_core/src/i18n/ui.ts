@@ -74,7 +74,8 @@ const fr = {
     title: "Tags",
     description: "Tous les tags du blog, avec le nombre d'articles pour chacun.",
     taggedWith: (tag: string) => `Articles tagués « ${tag} »`,
-    tagDescription: (tag: string) => `Tous les articles tagués « ${tag} », triés du plus récent au plus ancien.`,
+    tagDescription: (tag: string) =>
+      `Tous les articles tagués « ${tag} », triés du plus récent au plus ancien.`,
     postsCount: (n: number) => (n === 1 ? "1 article" : `${n} articles`),
     all: "Tous les tags",
   },
@@ -92,11 +93,13 @@ const fr = {
     placeholder: "Rechercher un article...",
     hint: "Tapez pour rechercher dans les articles.",
     noResults: "Aucun résultat.",
-    devNotice: "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
+    devNotice:
+      "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
   },
   newsletter: {
     title: "Restez au courant",
-    description: "Un email occasionnel quand un nouvel article sort. Pas de spam, désabonnement en un clic.",
+    description:
+      "Un email occasionnel quand un nouvel article sort. Pas de spam, désabonnement en un clic.",
     emailLabel: "Adresse email",
     placeholder: "vous@exemple.fr",
     button: "S'abonner",
@@ -116,7 +119,8 @@ const fr = {
   },
   archives: {
     title: "Archives",
-    description: "Tous les articles du blog, du plus récent au plus ancien, groupés par année et par mois.",
+    description:
+      "Tous les articles du blog, du plus récent au plus ancien, groupés par année et par mois.",
     count: (n: number) => (n === 1 ? "1 article" : `${n} articles`),
   },
   pagination: {
@@ -137,7 +141,8 @@ const fr = {
     viewAll: "Voir la série complète",
     cumulative: (min: number) => `${min} min de lecture au total`,
     current: "Vous lisez cet article",
-    description: (title: string) => `Tous les articles de la série « ${title} », dans l'ordre de lecture.`,
+    description: (title: string) =>
+      `Tous les articles de la série « ${title} », dans l'ordre de lecture.`,
   },
   share: {
     title: "Partager cet article",

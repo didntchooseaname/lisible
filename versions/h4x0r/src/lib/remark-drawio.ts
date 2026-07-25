@@ -1,9 +1,8 @@
-import type { Root, Paragraph } from "mdast";
-import type { RootContent } from "mdast";
 import type { ElementContent } from "hast";
+import type { Root, RootContent } from "mdast";
+import { toHast } from "mdast-util-to-hast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { toHast } from "mdast-util-to-hast";
 import { cardLocaleFromPath } from "../i18n/cards";
 import { contentStrings } from "../i18n/content";
 import { diagramShell } from "./diagram-hast";

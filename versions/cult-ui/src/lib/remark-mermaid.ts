@@ -28,10 +28,7 @@ function escapeAttr(value: string): string {
 }
 
 function escapeText(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 const remarkMermaid: Plugin<[], Root> = () => {

@@ -1,6 +1,6 @@
 "use client";
 import { Rss } from "lucide-react";
-import { FloatingDock, type DockItem } from "@/components/ui/floating-dock";
+import { type DockItem, FloatingDock } from "@/components/ui/floating-dock";
 
 const GithubIcon = () => (
   <svg
@@ -49,11 +49,5 @@ export default function FooterDock({
     },
   ];
 
-  return (
-    <FloatingDock
-      items={items}
-      toggleLabel={toggleLabel}
-      desktopClassName="h-14"
-    />
-  );
+  return <FloatingDock items={items} toggleLabel={toggleLabel} desktopClassName="h-14" />;
 }

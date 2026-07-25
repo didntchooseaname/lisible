@@ -211,8 +211,7 @@ async function renderDiagram(container: HTMLElement) {
       await navigator.clipboard.writeText(code);
       copyBtn.classList.add("is-copied");
       setTimeout(() => copyBtn.classList.remove("is-copied"), 1500);
-    } catch {
-    }
+    } catch {}
   });
 }
 
@@ -246,9 +245,7 @@ function observe(container: HTMLElement) {
 }
 
 function renderAll() {
-  document
-    .querySelectorAll<HTMLElement>("[data-mermaid-container]")
-    .forEach((c) => observe(c));
+  document.querySelectorAll<HTMLElement>("[data-mermaid-container]").forEach((c) => observe(c));
 }
 
 async function reRenderAll() {

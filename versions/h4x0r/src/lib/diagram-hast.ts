@@ -1,5 +1,5 @@
-import { h } from "hastscript";
 import type { ElementContent } from "hast";
+import { h } from "hastscript";
 import type { ContentStrings } from "@/i18n/content";
 
 const toolbarIcon = (paths: string[], size = 15): ElementContent =>
@@ -35,21 +35,12 @@ const zoomOutIcon = (): ElementContent =>
   toolbarIcon(["M21 21l-4.34-4.34", "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z", "M8 11h6"]);
 
 const zoomInIcon = (): ElementContent =>
-  toolbarIcon([
-    "M21 21l-4.34-4.34",
-    "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z",
-    "M8 11h6",
-    "M11 8v6",
-  ]);
+  toolbarIcon(["M21 21l-4.34-4.34", "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z", "M8 11h6", "M11 8v6"]);
 
 const resetIcon = (): ElementContent =>
   toolbarIcon(["M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", "M3 3v5h5"]);
 
-const controlButton = (
-  attr: string,
-  label: string,
-  iconEl: ElementContent,
-): ElementContent =>
+const controlButton = (attr: string, label: string, iconEl: ElementContent): ElementContent =>
   h(
     "button",
     {

@@ -60,7 +60,9 @@ function parseArgs(argv: string[]): Args {
   }
 
   if (positional.length !== 1) {
-    fail('usage: bun run new-post <slug> [--locale fr|en] [--title "Title"] [--translate] [--markdown]');
+    fail(
+      'usage: bun run new-post <slug> [--locale fr|en] [--title "Title"] [--translate] [--markdown]',
+    );
   }
 
   const slug = slugify(positional[0]);
@@ -85,12 +87,11 @@ function today(): string {
 
 function template(locale: Locale, title: string): string {
   const safeTitle = title.replaceAll('"', '\\"');
-  const description = locale === "fr"
-    ? "Description courte de l’article, en 160 caractères maximum."
-    : "Short description of the post, up to 160 characters.";
-  const body = locale === "fr"
-    ? "Écrivez votre article ici."
-    : "Write your post here.";
+  const description =
+    locale === "fr"
+      ? "Description courte de l’article, en 160 caractères maximum."
+      : "Short description of the post, up to 160 characters.";
+  const body = locale === "fr" ? "Écrivez votre article ici." : "Write your post here.";
   return `---
 title: "${safeTitle}"
 description: "${description}"
@@ -112,7 +113,12 @@ async function exists(path: string): Promise<boolean> {
   }
 }
 
-async function createPost(slug: string, locale: Locale, title: string, extension: string): Promise<void> {
+async function createPost(
+  slug: string,
+  locale: Locale,
+  title: string,
+  extension: string,
+): Promise<void> {
   const path = join(CONTENT_DIR, locale, `${slug}.${extension}`);
   if (await exists(path)) fail(`file already exists: ${path}.`);
   await mkdir(dirname(path), { recursive: true });

@@ -158,9 +158,7 @@ function readUserConfig(): Record<string, unknown> {
   try {
     parsed = JSON.parse(raw);
   } catch (error) {
-    throw new Error(
-      `[Lisible] lisible.config.json is not valid JSON: ${(error as Error).message}`,
-    );
+    throw new Error(`[Lisible] lisible.config.json is not valid JSON: ${(error as Error).message}`);
   }
   const errors: string[] = [];
   validate(parsed, SPEC, "", errors);
@@ -233,13 +231,13 @@ export const PROFILE = {
   },
   intro: {
     fr:
-      "Je conçois des interfaces de lecture et j'écris sur ce qui les rend rapides: "
-      + "architecture en îlots, budget de performance, typographie et accessibilité. "
-      + "Ce profil est un gabarit: remplacez-le via lisible.config.json (site.author).",
+      "Je conçois des interfaces de lecture et j'écris sur ce qui les rend rapides: " +
+      "architecture en îlots, budget de performance, typographie et accessibilité. " +
+      "Ce profil est un gabarit: remplacez-le via lisible.config.json (site.author).",
     en:
-      "I design reading interfaces and write about what makes them fast: islands "
-      + "architecture, performance budgets, typography and accessibility. "
-      + "This profile is a template: replace it through lisible.config.json (site.author).",
+      "I design reading interfaces and write about what makes them fast: islands " +
+      "architecture, performance budgets, typography and accessibility. " +
+      "This profile is a template: replace it through lisible.config.json (site.author).",
   },
 } as const;
 

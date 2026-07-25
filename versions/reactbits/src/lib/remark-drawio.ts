@@ -1,14 +1,11 @@
-import { h, s } from "hastscript";
 import type { Properties } from "hast";
+import { h, s } from "hastscript";
 import type { Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { ui, defaultLocale, type Locale } from "../i18n/ui";
+import { defaultLocale, type Locale, ui } from "../i18n/ui";
 
-const iconBtn = (
-  paths: Array<[string, Record<string, unknown>]>,
-  extra: Record<string, unknown>,
-) =>
+const iconBtn = (paths: Array<[string, Record<string, unknown>]>, extra: Record<string, unknown>) =>
   h("button", { type: "button", class: "drawio-btn", ...extra }, [
     s(
       "svg",
@@ -89,11 +86,7 @@ const remarkDrawio: Plugin<[], Root> = () => {
                 ],
                 { "data-drawio-zoom-out": "", "aria-label": dict.zoomOut },
               ),
-              h(
-                "span",
-                { class: "drawio-zoom-level", "data-drawio-zoom-level": "" },
-                ["100%"],
-              ),
+              h("span", { class: "drawio-zoom-level", "data-drawio-zoom-level": "" }, ["100%"]),
               iconBtn(
                 [
                   ["circle", { cx: 11, cy: 11, r: 8 }],
@@ -105,10 +98,7 @@ const remarkDrawio: Plugin<[], Root> = () => {
               ),
               iconBtn(
                 [
-                  [
-                    "path",
-                    { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" },
-                  ],
+                  ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" }],
                   ["path", { d: "M3 3v5h5" }],
                 ],
                 { "data-drawio-zoom-reset": "", "aria-label": dict.reset },

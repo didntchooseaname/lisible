@@ -20,9 +20,7 @@ type DevResponse = {
 };
 type DevServer = {
   middlewares: {
-    use(
-      handler: (request: DevRequest, response: DevResponse, next: () => void) => void,
-    ): void;
+    use(handler: (request: DevRequest, response: DevResponse, next: () => void) => void): void;
   };
 };
 

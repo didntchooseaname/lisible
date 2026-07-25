@@ -1,7 +1,8 @@
-import { localeUrl, type Locale } from "@/i18n/ui";
-import { postLocale, postSlug, type Post } from "@shared/lib/posts";
+import { type Post, postLocale, postSlug } from "@shared/lib/posts";
+import { type Locale, localeUrl } from "@/i18n/ui";
 
 export {
+  type AdjacentPosts,
   getAdjacentPosts,
   getAllSeries,
   getAllTags,
@@ -13,13 +14,12 @@ export {
   getTranslation,
   groupByYear,
   otherLocale,
+  type Post,
   postLocale,
   postSlug,
-  slugifyTag,
-  type AdjacentPosts,
-  type Post,
   type SeriesContext,
   type SeriesInfo,
+  slugifyTag,
   type TagInfo,
 } from "@shared/lib/posts";
 

@@ -93,7 +93,8 @@ const fr = {
     title: "Tags",
     description: "Tous les tags du blog, avec le nombre d'articles pour chacun.",
     taggedWith: (tag: string) => `Articles tagués « ${tag} »`,
-    tagDescription: (tag: string) => `Tous les articles tagués « ${tag} », triés du plus récent au plus ancien.`,
+    tagDescription: (tag: string) =>
+      `Tous les articles tagués « ${tag} », triés du plus récent au plus ancien.`,
     postsCount: (n: number) => (n === 1 ? "1 article" : `${n} articles`),
     all: "Tous les tags",
   },
@@ -118,11 +119,13 @@ const fr = {
     placeholder: "Rechercher un article...",
     hint: "Tapez pour rechercher dans les articles.",
     noResults: "Aucun résultat.",
-    devNotice: "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
+    devNotice:
+      "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
   },
   newsletter: {
     title: "Restez au courant",
-    description: "Un email occasionnel quand un nouvel article sort. Pas de spam, désabonnement en un clic.",
+    description:
+      "Un email occasionnel quand un nouvel article sort. Pas de spam, désabonnement en un clic.",
     emailLabel: "Adresse email",
     placeholder: "vous@exemple.fr",
     button: "S'abonner",
@@ -178,8 +181,7 @@ const fr = {
     mastodon: "Partager sur Mastodon",
     copyLink: "Copier le lien",
     copied: "Lien copié",
-    mastodonPrompt:
-      "Entrez le domaine de votre instance Mastodon (ex. mastodon.social) :",
+    mastodonPrompt: "Entrez le domaine de votre instance Mastodon (ex. mastodon.social) :",
   },
   comments: {
     title: "Commentaires",
@@ -401,8 +403,7 @@ const en: Dict = {
     copied: "Markdown copied",
     openClaude: "Open in Claude",
     openChatgpt: "Open in ChatGPT",
-    prompt: (title: string) =>
-      `Read this article and help me understand it in depth: "${title}".`,
+    prompt: (title: string) => `Read this article and help me understand it in depth: "${title}".`,
   },
   share: {
     label: "Share this post",
@@ -412,8 +413,7 @@ const en: Dict = {
     mastodon: "Share on Mastodon",
     copyLink: "Copy link",
     copied: "Link copied",
-    mastodonPrompt:
-      "Enter your Mastodon instance domain (e.g. mastodon.social):",
+    mastodonPrompt: "Enter your Mastodon instance domain (e.g. mastodon.social):",
   },
   comments: {
     title: "Comments",

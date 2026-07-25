@@ -1,9 +1,9 @@
-import { h } from "hastscript";
 import type { ElementContent } from "hast";
-import type { Root, Code } from "mdast";
+import { h } from "hastscript";
+import type { Code, Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { cardLocaleFromPath, cardStrings, type CardLocale } from "../i18n/cards";
+import { type CardLocale, cardLocaleFromPath, cardStrings } from "../i18n/cards";
 
 const controlIcon = (children: ElementContent[]): ElementContent =>
   h(
@@ -39,7 +39,13 @@ function buildViewer(code: string, locale: CardLocale): ElementContent {
       "aria-label": labels.zoomOut,
       title: labels.zoomOut,
     },
-    [controlIcon([h("circle", { cx: "11", cy: "11", r: "8" }), h("path", { d: "m21 21-4.3-4.3" }), h("path", { d: "M8 11h6" })])],
+    [
+      controlIcon([
+        h("circle", { cx: "11", cy: "11", r: "8" }),
+        h("path", { d: "m21 21-4.3-4.3" }),
+        h("path", { d: "M8 11h6" }),
+      ]),
+    ],
   );
   const zoomIn = h(
     "button",
@@ -50,7 +56,14 @@ function buildViewer(code: string, locale: CardLocale): ElementContent {
       "aria-label": labels.zoomIn,
       title: labels.zoomIn,
     },
-    [controlIcon([h("circle", { cx: "11", cy: "11", r: "8" }), h("path", { d: "m21 21-4.3-4.3" }), h("path", { d: "M11 8v6" }), h("path", { d: "M8 11h6" })])],
+    [
+      controlIcon([
+        h("circle", { cx: "11", cy: "11", r: "8" }),
+        h("path", { d: "m21 21-4.3-4.3" }),
+        h("path", { d: "M11 8v6" }),
+        h("path", { d: "M8 11h6" }),
+      ]),
+    ],
   );
   const reset = h(
     "button",
@@ -61,7 +74,12 @@ function buildViewer(code: string, locale: CardLocale): ElementContent {
       "aria-label": labels.reset,
       title: labels.reset,
     },
-    [controlIcon([h("path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" }), h("path", { d: "M3 3v5h5" })])],
+    [
+      controlIcon([
+        h("path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" }),
+        h("path", { d: "M3 3v5h5" }),
+      ]),
+    ],
   );
   const copy = h(
     "button",
@@ -72,13 +90,23 @@ function buildViewer(code: string, locale: CardLocale): ElementContent {
       "aria-label": labels.copy,
       title: labels.copy,
     },
-    [controlIcon([h("rect", { x: "9", y: "9", width: "13", height: "13", rx: "2", ry: "2" }), h("path", { d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" })])],
+    [
+      controlIcon([
+        h("rect", { x: "9", y: "9", width: "13", height: "13", rx: "2", ry: "2" }),
+        h("path", { d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" }),
+      ]),
+    ],
   );
 
   return h("div", { class: "diagram-wrap", "data-mermaid": "", id }, [
     h("div", { class: "diagram-toolbar" }, [
       h("span", { class: "diagram-label" }, [
-        controlIcon([h("rect", { x: "3", y: "3", width: "7", height: "7" }), h("rect", { x: "14", y: "3", width: "7", height: "7" }), h("rect", { x: "3", y: "14", width: "7", height: "7" }), h("rect", { x: "14", y: "14", width: "7", height: "7" })]),
+        controlIcon([
+          h("rect", { x: "3", y: "3", width: "7", height: "7" }),
+          h("rect", { x: "14", y: "3", width: "7", height: "7" }),
+          h("rect", { x: "3", y: "14", width: "7", height: "7" }),
+          h("rect", { x: "14", y: "14", width: "7", height: "7" }),
+        ]),
         h("span", {}, labels.label),
       ]),
       h("div", { class: "diagram-controls" }, [

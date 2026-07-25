@@ -19,9 +19,7 @@ function isDark(): boolean {
 }
 
 function accentColor(): string | undefined {
-  const raw = getComputedStyle(document.documentElement)
-    .getPropertyValue("--accent")
-    .trim();
+  const raw = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
   return /^(rgb|hsl|#)/.test(raw) ? raw : undefined;
 }
 
@@ -33,9 +31,7 @@ async function initMermaid(): Promise<MermaidApi> {
     theme: isDark() ? "dark" : "default",
     fontFamily: "var(--font-sans)",
     securityLevel: "strict",
-    themeVariables: accent
-      ? { lineColor: accent, primaryBorderColor: accent }
-      : {},
+    themeVariables: accent ? { lineColor: accent, primaryBorderColor: accent } : {},
   });
   return mermaid;
 }
@@ -88,10 +84,7 @@ function setupPanZoom(
       return;
     }
     const padding = 32;
-    scale = Math.min(
-      (rect.width - padding) / vb.width,
-      (rect.height - padding) / vb.height,
-    );
+    scale = Math.min((rect.width - padding) / vb.width, (rect.height - padding) / vb.height);
     scale = Math.min(Math.max(scale, 0.2), 20);
     tx = 0;
     ty = 0;
@@ -132,8 +125,7 @@ function setupPanZoom(
     zoomIn: () => zoom(1.25),
     zoomOut: () => zoom(1 / 1.25),
   };
-  (viewport as HTMLElement & { __mzControls?: typeof controls }).__mzControls =
-    controls;
+  (viewport as HTMLElement & { __mzControls?: typeof controls }).__mzControls = controls;
   return controls;
 }
 
@@ -218,9 +210,7 @@ async function renderEmbed(embed: HTMLElement) {
     if (fallback) fallback.hidden = true;
     const chrome = buildChrome(embed, render);
     requestAnimationFrame(() => {
-      (
-        chrome.viewport as HTMLElement & { __mzControls?: Controls }
-      ).__mzControls?.fit();
+      (chrome.viewport as HTMLElement & { __mzControls?: Controls }).__mzControls?.fit();
     });
   } catch (err) {
     console.error("Mermaid render error:", err);
@@ -260,10 +250,7 @@ function queue(embed: HTMLElement) {
 }
 
 function observe(embed: HTMLElement) {
-  if (
-    embed.hasAttribute("data-mermaid-done") ||
-    embed.hasAttribute("data-mermaid-observed")
-  )
+  if (embed.hasAttribute("data-mermaid-done") || embed.hasAttribute("data-mermaid-observed"))
     return;
   if (!("IntersectionObserver" in window)) {
     queue(embed);
@@ -283,17 +270,13 @@ function observe(embed: HTMLElement) {
 }
 
 function renderAll() {
-  document
-    .querySelectorAll<HTMLElement>("[data-mermaid]")
-    .forEach((embed) => {
-      if (!embed.hasAttribute("data-mermaid-done")) {
-        const fallback = embed.querySelector<HTMLElement>(
-          "[data-mermaid-fallback]",
-        );
-        if (fallback) fallback.hidden = true;
-      }
-      observe(embed);
-    });
+  document.querySelectorAll<HTMLElement>("[data-mermaid]").forEach((embed) => {
+    if (!embed.hasAttribute("data-mermaid-done")) {
+      const fallback = embed.querySelector<HTMLElement>("[data-mermaid-fallback]");
+      if (fallback) fallback.hidden = true;
+    }
+    observe(embed);
+  });
 }
 
 let themeTimer: number | null = null;

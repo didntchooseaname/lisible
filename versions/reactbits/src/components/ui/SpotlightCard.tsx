@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from "react";
 
 interface Position {
   x: number;
@@ -12,15 +12,15 @@ interface SpotlightCardProps extends React.PropsWithChildren {
 
 const SpotlightCard: React.FC<SpotlightCardProps> = ({
   children,
-  className = '',
-  spotlightColor = 'rgba(34, 197, 94, 0.10)'
+  className = "",
+  spotlightColor = "rgba(34, 197, 94, 0.10)",
 }) => {
   const divRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [opacity, setOpacity] = useState<number>(0);
 
-  const handleMouseMove: React.MouseEventHandler<HTMLDivElement> = e => {
+  const handleMouseMove: React.MouseEventHandler<HTMLDivElement> = (e) => {
     if (!divRef.current || isFocused) return;
 
     const rect = divRef.current.getBoundingClientRect();
@@ -46,6 +46,7 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
   };
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: hover and focus handlers only drive the visual spotlight
     <div
       ref={divRef}
       onMouseMove={handleMouseMove}
@@ -59,7 +60,7 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 ease-in-out"
         style={{
           opacity,
-          background: `radial-gradient(circle at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 80%)`
+          background: `radial-gradient(circle at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 80%)`,
         }}
       />
       {children}

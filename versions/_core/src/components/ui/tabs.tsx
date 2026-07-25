@@ -80,4 +80,4 @@ function Tab({ className, children }: TabProps) {
   );
 }
 
-export { Tabs, Tab };
+export { Tab, Tabs };

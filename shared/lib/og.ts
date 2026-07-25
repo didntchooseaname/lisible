@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
+import satori from "satori";
 
 /**
  * Open Graph rendering, shared by every variant.

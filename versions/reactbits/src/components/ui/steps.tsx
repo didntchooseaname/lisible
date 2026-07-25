@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { FEATURES } from "@/site.config";
 
-
 interface StepProps {
   title?: string;
   children?: ReactNode;

@@ -1,15 +1,16 @@
-import { localeUrl, otherLocale, type Locale } from "@/i18n/ui";
 import {
   getPublishedPosts,
   getSeriesPosts,
+  type Post,
   postLocale,
   postSlug,
-  seriesSlug,
-  type Post,
   type SeriesInfo,
+  seriesSlug,
 } from "@shared/lib/posts";
+import { type Locale, localeUrl } from "@/i18n/ui";
 
 export {
+  type AdjacentPosts,
   getAdjacentPosts,
   getAllSeries,
   getAllTags,
@@ -21,13 +22,12 @@ export {
   getTranslation,
   groupByYear,
   otherLocale,
+  type Post,
   postLocale,
   postSlug,
-  slugifyTag,
-  type AdjacentPosts,
-  type Post,
   type SeriesContext,
   type SeriesInfo,
+  slugifyTag,
   type TagInfo,
 } from "@shared/lib/posts";
 
@@ -36,7 +36,6 @@ export {
 export function postUrl(post: Post): string {
   return localeUrl(postLocale(post), `blog/${postSlug(post)}`);
 }
-
 
 export function postMarkdownPath(post: Post): string {
   const prefix = postLocale(post) === "en" ? "/en" : "";
@@ -98,17 +97,11 @@ export interface Page<T> {
   nextUrl: string | undefined;
 }
 
-export function paginate<T>(
-  all: T[],
-  page: number,
-  size: number,
-  baseUrl: string,
-): Page<T> {
+export function paginate<T>(all: T[], page: number, size: number, baseUrl: string): Page<T> {
   const total = Math.max(1, Math.ceil(all.length / size));
   const current = Math.min(Math.max(1, page), total);
   const start = (current - 1) * size;
-  const pageUrl = (n: number) =>
-    n <= 1 ? baseUrl : `${baseUrl}${n}/`;
+  const pageUrl = (n: number) => (n <= 1 ? baseUrl : `${baseUrl}${n}/`);
   return {
     items: all.slice(start, start + size),
     current,

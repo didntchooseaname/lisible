@@ -1,5 +1,5 @@
 "use client";
-import { useScroll, useTransform, motion } from "motion/react";
+import { motion, useScroll, useTransform } from "motion/react";
 import React, { useEffect, useRef, useState } from "react";
 
 export interface TimelineEntry {
@@ -60,7 +60,7 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
           </section>
         ))}
         <div
-          style={{ height: height + "px" }}
+          style={{ height: `${height}px` }}
           aria-hidden="true"
           className="absolute top-0 left-8 w-[2px] overflow-hidden bg-[linear-gradient(to_bottom,var(--tw-gradient-stops))] from-transparent from-[0%] via-border to-transparent to-[99%] [mask-image:linear-gradient(to_bottom,transparent_0%,black_10%,black_90%,transparent_100%)]"
         >

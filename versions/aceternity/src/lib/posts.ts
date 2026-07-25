@@ -1,12 +1,8 @@
-import { localeUrl, otherLocale, type Locale } from "@/i18n/ui";
-import {
-  getPublishedPosts,
-  postLocale,
-  postSlug,
-  type Post,
-} from "@shared/lib/posts";
+import { getPublishedPosts, type Post, postLocale, postSlug } from "@shared/lib/posts";
+import { type Locale, localeUrl } from "@/i18n/ui";
 
 export {
+  type AdjacentPosts,
   getAdjacentPosts,
   getAllSeries,
   getAllTags,
@@ -18,13 +14,12 @@ export {
   getTranslation,
   groupByYear,
   otherLocale,
+  type Post,
   postLocale,
   postSlug,
-  slugifyTag,
-  type AdjacentPosts,
-  type Post,
   type SeriesContext,
   type SeriesInfo,
+  slugifyTag,
   type TagInfo,
 } from "@shared/lib/posts";
 
@@ -40,16 +35,10 @@ export function postMarkdownUrl(post: Post): string {
 }
 
 export function blogPageUrl(locale: Locale, page: number): string {
-  return page <= 1
-    ? localeUrl(locale, "blog")
-    : localeUrl(locale, `blog/${page}`);
+  return page <= 1 ? localeUrl(locale, "blog") : localeUrl(locale, `blog/${page}`);
 }
 
-export function tagPageUrl(
-  locale: Locale,
-  tagSlug: string,
-  page: number,
-): string {
+export function tagPageUrl(locale: Locale, tagSlug: string, page: number): string {
   return page <= 1
     ? localeUrl(locale, `tags/${tagSlug}`)
     : localeUrl(locale, `tags/${tagSlug}/${page}`);
@@ -59,10 +48,7 @@ export function seriesUrl(locale: Locale, slug: string): string {
   return localeUrl(locale, `series/${slug}`);
 }
 
-export async function blogPageCount(
-  locale: Locale,
-  pageSize: number,
-): Promise<number> {
+export async function blogPageCount(locale: Locale, pageSize: number): Promise<number> {
   const posts = await getPublishedPosts(locale);
   return Math.max(1, Math.ceil(posts.length / Math.max(1, pageSize)));
 }

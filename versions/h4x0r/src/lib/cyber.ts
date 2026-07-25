@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-
 export type Rgb = { r: number; g: number; b: number };
 
 const FALLBACK: Rgb = { r: 34, g: 197, b: 94 };
@@ -25,9 +24,7 @@ export function resolveCssColor(color: string, fallback: Rgb = FALLBACK): Rgb {
 }
 
 export function currentAccentRgb(): Rgb {
-  const raw = getComputedStyle(document.documentElement)
-    .getPropertyValue("--accent")
-    .trim();
+  const raw = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
   return raw ? resolveCssColor(raw) : FALLBACK;
 }
 

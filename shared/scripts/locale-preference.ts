@@ -81,24 +81,35 @@ function syncLocale(): void {
   void goTo(homeFor(preferred), "replace");
 }
 
-document.addEventListener("click", (event) => {
-  if (
-    event instanceof MouseEvent
-    && (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
-  ) return;
+document.addEventListener(
+  "click",
+  (event) => {
+    if (
+      event instanceof MouseEvent &&
+      (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+    )
+      return;
 
-  const target = event.target instanceof Element ? event.target : null;
-  const languageLink = target?.closest<HTMLAnchorElement>('a[hreflang="fr"], a[hreflang="en"]');
-  if (languageLink?.hreflang !== "fr" && languageLink?.hreflang !== "en") return;
-  if (languageLink.hasAttribute("download") || (languageLink.target && languageLink.target !== "_self")) return;
+    const target = event.target instanceof Element ? event.target : null;
+    const languageLink = target?.closest<HTMLAnchorElement>('a[hreflang="fr"], a[hreflang="en"]');
+    if (languageLink?.hreflang !== "fr" && languageLink?.hreflang !== "en") return;
+    if (
+      languageLink.hasAttribute("download") ||
+      (languageLink.target && languageLink.target !== "_self")
+    )
+      return;
 
-  event.preventDefault();
-  document.querySelectorAll<HTMLDialogElement>("dialog[open]").forEach((dialog) => dialog.close());
+    event.preventDefault();
+    document
+      .querySelectorAll<HTMLDialogElement>("dialog[open]")
+      .forEach((dialog) => dialog.close());
 
-  persistLocale(languageLink.hreflang);
-  const url = new URL(languageLink.href, location.href);
-  void goTo(`${url.pathname}${url.search}${url.hash}`, "push");
-}, { capture: true });
+    persistLocale(languageLink.hreflang);
+    const url = new URL(languageLink.href, location.href);
+    void goTo(`${url.pathname}${url.search}${url.hash}`, "push");
+  },
+  { capture: true },
+);
 
 syncLocale();
 document.addEventListener("astro:page-load", syncLocale);

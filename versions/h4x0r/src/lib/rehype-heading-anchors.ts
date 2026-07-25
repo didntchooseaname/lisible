@@ -1,5 +1,5 @@
-import { h } from "hastscript";
 import type { Element, Root } from "hast";
+import { h } from "hastscript";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
 import { cardLocaleFromPath } from "../i18n/cards";

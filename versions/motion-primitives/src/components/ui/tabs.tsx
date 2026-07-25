@@ -1,15 +1,9 @@
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type ReactNode,
-} from "react";
+import { type KeyboardEvent, type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export function Tab({ children }: { children?: ReactNode }) {
   return (
+    // biome-ignore lint/a11y/noNoninteractiveTabindex: the ARIA APG makes tab panels focusable when they hold no focusable content
     <div className="mdx-tab-panel" data-tab-panel role="tabpanel" tabIndex={0}>
       {children}
     </div>

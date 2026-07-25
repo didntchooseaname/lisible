@@ -64,7 +64,9 @@
   border: 1px solid color-mix(in oklab, #ffffff 18%, transparent);
   background-color: color-mix(in oklab, #000000 45%, transparent);
   color: #f5f5f5;
-  transition: background-color 150ms ease-out, opacity 150ms ease-out;
+  transition:
+    background-color 150ms ease-out,
+    opacity 150ms ease-out;
 }
 .lightbox__btn:hover,
 .lightbox__nav:hover {

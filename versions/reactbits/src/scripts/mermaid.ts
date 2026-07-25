@@ -107,10 +107,7 @@ function setupPanZoom(
     const rect = viewport.getBoundingClientRect();
     if (!vb?.width || !vb?.height || !rect.width || !rect.height) return;
     const pad = 40;
-    scale = Math.min(
-      (rect.width - pad) / vb.width,
-      (rect.height - pad) / vb.height,
-    );
+    scale = Math.min((rect.width - pad) / vb.width, (rect.height - pad) / vb.height);
     scale = Math.min(Math.max(scale, 0.2), 8);
     tx = 0;
     ty = 0;
@@ -121,10 +118,7 @@ function setupPanZoom(
     "wheel",
     (e) => {
       e.preventDefault();
-      scale =
-        e.deltaY < 0
-          ? Math.min(scale * 1.1, 8)
-          : Math.max(scale / 1.1, 0.2);
+      scale = e.deltaY < 0 ? Math.min(scale * 1.1, 8) : Math.max(scale / 1.1, 0.2);
       apply();
       hideHint();
     },
@@ -169,16 +163,10 @@ function setupPanZoom(
 
 async function renderDiagram(container: HTMLElement) {
   const sourceEl = container.querySelector<HTMLElement>("[data-mermaid-source]");
-  const renderTarget = container.querySelector<HTMLElement>(
-    "[data-mermaid-render]",
-  );
+  const renderTarget = container.querySelector<HTMLElement>("[data-mermaid-render]");
   const loading = container.querySelector<HTMLElement>("[data-mermaid-loading]");
-  const fallback = container.querySelector<HTMLElement>(
-    "[data-mermaid-fallback]",
-  );
-  const viewport = container.querySelector<HTMLElement>(
-    "[data-mermaid-viewport]",
-  );
+  const fallback = container.querySelector<HTMLElement>("[data-mermaid-fallback]");
+  const viewport = container.querySelector<HTMLElement>("[data-mermaid-viewport]");
   const panLayer = container.querySelector<HTMLElement>("[data-mermaid-pan]");
   const hint = container.querySelector("[data-mermaid-hint]");
   const zoomLevel = container.querySelector("[data-mermaid-zoom-level]");
@@ -206,15 +194,9 @@ async function renderDiagram(container: HTMLElement) {
   const controls = setupPanZoom(viewport, panLayer, zoomLevel, hint);
   requestAnimationFrame(() => controls.fit());
 
-  container
-    .querySelector("[data-mermaid-zoom-in]")
-    ?.addEventListener("click", controls.zoomIn);
-  container
-    .querySelector("[data-mermaid-zoom-out]")
-    ?.addEventListener("click", controls.zoomOut);
-  container
-    .querySelector("[data-mermaid-zoom-reset]")
-    ?.addEventListener("click", controls.fit);
+  container.querySelector("[data-mermaid-zoom-in]")?.addEventListener("click", controls.zoomIn);
+  container.querySelector("[data-mermaid-zoom-out]")?.addEventListener("click", controls.zoomOut);
+  container.querySelector("[data-mermaid-zoom-reset]")?.addEventListener("click", controls.fit);
 
   const copyBtn = container.querySelector("[data-mermaid-copy]");
   copyBtn?.addEventListener("click", async () => {
@@ -222,8 +204,7 @@ async function renderDiagram(container: HTMLElement) {
       await navigator.clipboard.writeText(code);
       copyBtn.classList.add("is-copied");
       setTimeout(() => copyBtn.classList.remove("is-copied"), 1500);
-    } catch {
-    }
+    } catch {}
   });
 }
 
@@ -267,12 +248,8 @@ async function reRenderAll() {
     "[data-mermaid-container][data-mermaid-rendered]",
   );
   for (const container of containers) {
-    const renderTarget = container.querySelector<HTMLElement>(
-      "[data-mermaid-render]",
-    );
-    const sourceEl = container.querySelector<HTMLElement>(
-      "[data-mermaid-source]",
-    );
+    const renderTarget = container.querySelector<HTMLElement>("[data-mermaid-render]");
+    const sourceEl = container.querySelector<HTMLElement>("[data-mermaid-source]");
     if (!renderTarget || !sourceEl) continue;
     const code = decode(sourceEl.getAttribute("data-mermaid-source") || "");
     if (!code) continue;

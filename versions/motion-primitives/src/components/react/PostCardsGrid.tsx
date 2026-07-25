@@ -21,10 +21,7 @@ type PostCardsGridProps = {
 export function PostCardsGrid({ posts }: PostCardsGridProps) {
   return (
     <MotionConfig reducedMotion="user">
-      <AnimatedGroup
-        preset="blur-slide"
-        className="mt-5 grid gap-4 sm:grid-cols-2"
-      >
+      <AnimatedGroup preset="blur-slide" className="mt-5 grid gap-4 sm:grid-cols-2">
         {posts.map((post) => (
           <article
             key={post.url}
@@ -46,10 +43,7 @@ export function PostCardsGrid({ posts }: PostCardsGridProps) {
               </div>
             )}
             <h3 className="text-lg font-semibold leading-snug tracking-tight">
-              <a
-                href={post.url}
-                className="after:absolute after:inset-0 group-hover:text-accent"
-              >
+              <a href={post.url} className="after:absolute after:inset-0 group-hover:text-accent">
                 {post.title}
               </a>
               {post.draftLabel && (
@@ -58,9 +52,7 @@ export function PostCardsGrid({ posts }: PostCardsGridProps) {
                 </span>
               )}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              {post.description}
-            </p>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{post.description}</p>
             <p className="mt-4 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
               <time dateTime={post.dateISO}>{post.dateLabel}</time>
               <span aria-hidden="true">&middot;</span>

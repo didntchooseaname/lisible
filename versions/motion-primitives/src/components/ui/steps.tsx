@@ -4,13 +4,7 @@ export function Steps({ children }: { children?: ReactNode }) {
   return <div className="mdx-steps">{children}</div>;
 }
 
-export function Step({
-  title,
-  children,
-}: {
-  title?: string;
-  children?: ReactNode;
-}) {
+export function Step({ title, children }: { title?: string; children?: ReactNode }) {
   return (
     <div className="mdx-step">
       <div className="mdx-step-marker" aria-hidden="true" />

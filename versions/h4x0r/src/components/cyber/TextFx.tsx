@@ -1,9 +1,8 @@
 import { HyperText } from "@/components/ui/hyper-text";
-import { TypingAnimation } from "@/components/ui/typing-animation";
-import { TextReveal } from "@/components/ui/text-reveal";
 import { LineShadowText } from "@/components/ui/line-shadow-text";
+import { TextReveal } from "@/components/ui/text-reveal";
+import { TypingAnimation } from "@/components/ui/typing-animation";
 import { cn } from "@/lib/utils";
-
 
 export function HyperTitle({
   text,

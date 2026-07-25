@@ -1,5 +1,5 @@
-import type { PublicVariant } from "./variants";
 import { CONFIG, PROFILE } from "./config";
+import type { PublicVariant } from "./variants";
 
 export type Variant = "_core" | PublicVariant;
 
@@ -44,9 +44,7 @@ export function siteForVariant(variant: Variant) {
   } as const;
 }
 
-export function blueskyActor(
-  postUri = INTEGRATIONS.comments.bluesky.postUri,
-): string {
+export function blueskyActor(postUri = INTEGRATIONS.comments.bluesky.postUri): string {
   return postUri.replace(/^at:\/\//, "").split("/")[0] ?? "";
 }
 

@@ -1,7 +1,7 @@
-import React, { useRef, useEffect } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { prefersReducedMotion } from '@/lib/kit';
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React, { useEffect, useRef } from "react";
+import { prefersReducedMotion } from "@/lib/kit";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -9,7 +9,7 @@ interface AnimatedContentProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   container?: Element | string | null;
   distance?: number;
-  direction?: 'vertical' | 'horizontal';
+  direction?: "vertical" | "horizontal";
   reverse?: boolean;
   duration?: number;
   ease?: string;
@@ -29,10 +29,10 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
   children,
   container,
   distance = 100,
-  direction = 'vertical',
+  direction = "vertical",
   reverse = false,
   duration = 0.8,
-  ease = 'power3.out',
+  ease = "power3.out",
   initialOpacity = 0,
   animateOpacity = true,
   scale = 1,
@@ -40,10 +40,10 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
   delay = 0,
   disappearAfter = 0,
   disappearDuration = 0.5,
-  disappearEase = 'power3.in',
+  disappearEase = "power3.in",
   onComplete,
   onDisappearanceComplete,
-  className = '',
+  className = "",
   ...props
 }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -53,17 +53,18 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
     if (!el) return;
 
     if (prefersReducedMotion()) {
-      gsap.set(el, { visibility: 'visible', opacity: 1, x: 0, y: 0, scale: 1 });
+      gsap.set(el, { visibility: "visible", opacity: 1, x: 0, y: 0, scale: 1 });
       return;
     }
 
-    let scrollerTarget: Element | string | null = container || document.getElementById('snap-main-container') || null;
+    let scrollerTarget: Element | string | null =
+      container || document.getElementById("snap-main-container") || null;
 
-    if (typeof scrollerTarget === 'string') {
+    if (typeof scrollerTarget === "string") {
       scrollerTarget = document.querySelector(scrollerTarget);
     }
 
-    const axis = direction === 'horizontal' ? 'x' : 'y';
+    const axis = direction === "horizontal" ? "x" : "y";
     const offset = reverse ? -distance : distance;
     const startPct = (1 - threshold) * 100;
 
@@ -71,7 +72,7 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
       [axis]: offset,
       scale,
       opacity: animateOpacity ? initialOpacity : 1,
-      visibility: 'visible'
+      visibility: "visible",
     });
 
     const tl = gsap.timeline({
@@ -87,10 +88,10 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
             delay: disappearAfter,
             duration: disappearDuration,
             ease: disappearEase,
-            onComplete: () => onDisappearanceComplete?.()
+            onComplete: () => onDisappearanceComplete?.(),
           });
         }
-      }
+      },
     });
 
     tl.to(el, {
@@ -98,7 +99,7 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
       scale: 1,
       opacity: 1,
       duration,
-      ease
+      ease,
     });
 
     const st = ScrollTrigger.create({
@@ -106,7 +107,7 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
       scroller: scrollerTarget || window,
       start: `top ${startPct}%`,
       once: true,
-      onEnter: () => tl.play()
+      onEnter: () => tl.play(),
     });
 
     return () => {
@@ -129,7 +130,7 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
     disappearDuration,
     disappearEase,
     onComplete,
-    onDisappearanceComplete
+    onDisappearanceComplete,
   ]);
 
   return (

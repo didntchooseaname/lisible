@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { ChevronDown, List } from "lucide-react";
+import { useState } from "react";
 import { SidePanel } from "@/components/ui/side-panel";
 import { cn } from "@/lib/utils";
 
@@ -16,12 +16,7 @@ interface MobileTocProps {
   closeLabel: string;
 }
 
-export function MobileToc({
-  items,
-  title,
-  openLabel,
-  closeLabel,
-}: MobileTocProps) {
+export function MobileToc({ items, title, openLabel, closeLabel }: MobileTocProps) {
   const [panelOpen, setPanelOpen] = useState(false);
 
   if (items.length === 0) return null;
@@ -44,10 +39,7 @@ export function MobileToc({
           <ChevronDown
             size={16}
             aria-hidden="true"
-            className={cn(
-              "ml-auto transition-transform duration-200",
-              panelOpen && "rotate-180",
-            )}
+            className={cn("ml-auto transition-transform duration-200", panelOpen && "rotate-180")}
           />
         </button>
       )}

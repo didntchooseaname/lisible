@@ -1,4 +1,4 @@
-import { access, readFile, readdir } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
 import { extname, join, relative } from "node:path";
 import { SHARED_FEATURES } from "../shared/features";
 import type { Variant } from "../shared/site.config";
@@ -80,7 +80,8 @@ async function main(): Promise<void> {
   if (!SHARED_FEATURES.linkCheck) return;
   const variant = await activeVariant();
   const dist = join(ROOT, "versions", variant, "dist");
-  if (!(await exists(dist))) throw new Error(`versions/${variant}/dist is missing. Run the build first.`);
+  if (!(await exists(dist)))
+    throw new Error(`versions/${variant}/dist is missing. Run the build first.`);
 
   const internal = new Map<string, Set<string>>();
   const external = new Map<string, Set<string>>();
@@ -103,7 +104,8 @@ async function main(): Promise<void> {
 
   const failures: string[] = [];
   for (const [target, sources] of internal) {
-    if (!(await internalExists(dist, target))) failures.push(`404 ${target} (${[...sources].join(", ")})`);
+    if (!(await internalExists(dist, target)))
+      failures.push(`404 ${target} (${[...sources].join(", ")})`);
   }
 
   const urls = [...external.keys()];
@@ -122,7 +124,9 @@ async function main(): Promise<void> {
     failures.forEach((failure) => console.error(failure));
     process.exit(1);
   }
-  console.log(`${files.length} articles, ${internal.size} internal links, and ${external.size} external links validated for ${variant}.`);
+  console.log(
+    `${files.length} articles, ${internal.size} internal links, and ${external.size} external links validated for ${variant}.`,
+  );
 }
 
 main().catch((error) => {

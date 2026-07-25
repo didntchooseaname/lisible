@@ -1,5 +1,5 @@
-import { h } from "hastscript";
 import type { Element, ElementContent } from "hast";
+import { h } from "hastscript";
 import type { Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
@@ -109,7 +109,10 @@ const remarkDrawio: Plugin<[], Root> = () => {
 
       const viewport: DirectiveNode = {
         type: "drawioViewport",
-        data: { hName: "div", hProperties: { class: "drawio-viewport", "data-drawio-viewport": "" } },
+        data: {
+          hName: "div",
+          hProperties: { class: "drawio-viewport", "data-drawio-viewport": "" },
+        },
         children: [pan],
       };
 

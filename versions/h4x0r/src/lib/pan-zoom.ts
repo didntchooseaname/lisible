@@ -1,4 +1,3 @@
-
 export interface PanZoomControls {
   zoomIn: () => void;
   zoomOut: () => void;
@@ -128,9 +127,7 @@ export function setupPanZoom(
 }
 
 export function bindDiagramControls(block: HTMLElement, controls: PanZoomControls): void {
-  block
-    .querySelector("[data-diagram-zoom-in]")
-    ?.addEventListener("click", () => controls.zoomIn());
+  block.querySelector("[data-diagram-zoom-in]")?.addEventListener("click", () => controls.zoomIn());
   block
     .querySelector("[data-diagram-zoom-out]")
     ?.addEventListener("click", () => controls.zoomOut());

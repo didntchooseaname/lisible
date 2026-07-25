@@ -20,11 +20,7 @@ interface TagsExplorerProps {
   topTags: TagsExplorerTopTag[];
 }
 
-export function TagsExplorer({
-  allLabel,
-  allTags,
-  topTags,
-}: TagsExplorerProps) {
+export function TagsExplorer({ allLabel, allTags, topTags }: TagsExplorerProps) {
   const tabs = [
     {
       id: 0,
@@ -62,10 +58,7 @@ export function TagsExplorer({
                 <span className="font-medium text-foreground transition-colors group-hover:text-accent">
                   {post.title}
                 </span>
-                <time
-                  dateTime={post.dateISO}
-                  className="shrink-0 text-sm text-muted-foreground"
-                >
+                <time dateTime={post.dateISO} className="shrink-0 text-sm text-muted-foreground">
                   {post.dateLabel}
                 </time>
               </a>

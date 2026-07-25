@@ -1,5 +1,5 @@
-import { h } from "hastscript";
 import type { ElementContent } from "hast";
+import { h } from "hastscript";
 import type { Link, Paragraph, Root, Text } from "mdast";
 import ogs from "open-graph-scraper";
 import type { OgObject } from "open-graph-scraper/types";
@@ -32,8 +32,7 @@ interface CardData {
   thumbnailAlt: string;
 }
 
-const isValidUrl = (url: string): boolean =>
-  /^https?:\/\/(?:[-.\w]+)(?:\/[^\s]*)?$/.test(url);
+const isValidUrl = (url: string): boolean => /^https?:\/\/(?:[-.\w]+)(?:\/[^\s]*)?$/.test(url);
 
 const getBareLinkUrl = (linkNode: Link): URL | null => {
   if (
@@ -99,10 +98,7 @@ const fetchMetadata = async (url: string): Promise<OgObject | null> => {
   return promise;
 };
 
-const resolveThumbnail = (
-  metadata: OgObject,
-  pageUrl: URL,
-): { url: string; alt: string } => {
+const resolveThumbnail = (metadata: OgObject, pageUrl: URL): { url: string; alt: string } => {
   const tryUrl = (raw: string | undefined): string => {
     const trimmed = raw?.trim() ?? "";
     if (!trimmed) return "";
@@ -146,9 +142,7 @@ const getData = async (pageUrl: URL): Promise<CardData | null> => {
 const generateNode = (data: CardData): Text => {
   const info: ElementContent[] = [
     h("span", { class: "link-card-title" }, data.title),
-    ...(data.description
-      ? [h("span", { class: "link-card-description" }, data.description)]
-      : []),
+    ...(data.description ? [h("span", { class: "link-card-description" }, data.description)] : []),
     h("span", { class: "link-card-meta" }, [
       h("img", {
         class: "link-card-favicon",

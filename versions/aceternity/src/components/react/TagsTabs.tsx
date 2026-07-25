@@ -1,5 +1,5 @@
 "use client";
-import { AnimatedTabs, type AnimatedTab } from "@/components/ui/tabs";
+import { type AnimatedTab, AnimatedTabs } from "@/components/ui/tabs";
 
 export interface TagTabPost {
   title: string;
@@ -17,13 +17,7 @@ export interface TagTabData {
   posts: TagTabPost[];
 }
 
-export default function TagsTabs({
-  tags,
-  listLabel,
-}: {
-  tags: TagTabData[];
-  listLabel: string;
-}) {
+export default function TagsTabs({ tags, listLabel }: { tags: TagTabData[]; listLabel: string }) {
   const tabs: AnimatedTab[] = tags.map((tag) => ({
     title: tag.name,
     value: tag.slug,
@@ -40,10 +34,7 @@ export default function TagsTabs({
                 <span className="font-medium transition-colors group-hover:text-accent">
                   {post.title}
                 </span>
-                <time
-                  dateTime={post.dateIso}
-                  className="shrink-0 text-sm text-muted-foreground"
-                >
+                <time dateTime={post.dateIso} className="shrink-0 text-sm text-muted-foreground">
                   {post.dateLabel}
                 </time>
               </a>

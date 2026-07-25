@@ -33,4 +33,4 @@ function Step({ title, className, children, ...props }: StepProps) {
   );
 }
 
-export { Steps, Step };
+export { Step, Steps };

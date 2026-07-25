@@ -1,23 +1,25 @@
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type ReactNode,
-} from "react";
+import { type KeyboardEvent, type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { FEATURES } from "@/site.config";
 
 export function Tab({ children }: { children?: ReactNode }) {
   if (!FEATURES.mdxComponents) return <div>{children}</div>;
   return (
+    // biome-ignore lint/a11y/noNoninteractiveTabindex: the parent Tabs effect assigns role tabpanel, focus follows the ARIA APG
     <div data-tab-panel className="tab-panel" tabIndex={0}>
       {children}
     </div>
   );
 }
 
-export function Tabs({ tabs, label, children }: { tabs: string[]; label?: string; children?: ReactNode }) {
+export function Tabs({
+  tabs,
+  label,
+  children,
+}: {
+  tabs: string[];
+  label?: string;
+  children?: ReactNode;
+}) {
   const [active, setActive] = useState(0);
   const [ready, setReady] = useState(false);
   const panelsRef = useRef<HTMLDivElement>(null);

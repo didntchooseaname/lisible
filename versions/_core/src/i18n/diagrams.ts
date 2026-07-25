@@ -1,4 +1,4 @@
-import { cardLocaleFromPath, type CardLocale } from "./cards";
+import { type CardLocale, cardLocaleFromPath } from "./cards";
 
 export interface DiagramStrings {
   diagram: string;

@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import type { CSSProperties, HTMLAttributes } from "react"
+import type { CSSProperties, HTMLAttributes } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-const ANIMATION_DURATION_SECONDS = 15
-const GRID_HEIGHT_RATIO = 3
-const GRID_LINE_ALIGNMENT_OFFSET_PX = 0.5
-const GRID_LINE_ANTIALIAS_MULTIPLIER = 0.9
-const GRID_LINE_WIDTH_PX = 0.92
-const GRID_START_OFFSET_RATIO = -0.5
-const GRID_WIDTH_RATIO = 6
-const GRID_X_OFFSET_RATIO = -2
-const MAX_ANGLE = 89
-const MAX_DEVICE_PIXEL_RATIO = 2
-const MIN_ANGLE = 1
-const PERSPECTIVE_PX = 200
-const FALLBACK_ANIMATION_NAME = "retro-grid-fallback-scroll"
+const ANIMATION_DURATION_SECONDS = 15;
+const GRID_HEIGHT_RATIO = 3;
+const GRID_LINE_ALIGNMENT_OFFSET_PX = 0.5;
+const GRID_LINE_ANTIALIAS_MULTIPLIER = 0.9;
+const GRID_LINE_WIDTH_PX = 0.92;
+const GRID_START_OFFSET_RATIO = -0.5;
+const GRID_WIDTH_RATIO = 6;
+const GRID_X_OFFSET_RATIO = -2;
+const MAX_ANGLE = 89;
+const MAX_DEVICE_PIXEL_RATIO = 2;
+const MIN_ANGLE = 1;
+const PERSPECTIVE_PX = 200;
+const FALLBACK_ANIMATION_NAME = "retro-grid-fallback-scroll";
 const FALLBACK_STYLES = `
 @keyframes ${FALLBACK_ANIMATION_NAME} {
   from {
@@ -35,7 +35,7 @@ const FALLBACK_STYLES = `
     transform: translateY(-50%) !important;
   }
 }
-`
+`;
 
 const VERTEX_SHADER_SOURCE = `
 attribute vec2 a_position;
@@ -43,7 +43,7 @@ attribute vec2 a_position;
 void main() {
   gl_Position = vec4(a_position, 0.0, 1.0);
 }
-`
+`;
 
 const FRAGMENT_SHADER_SOURCE = `
 #extension GL_OES_standard_derivatives : enable
@@ -246,104 +246,94 @@ void main() {
   float alpha = u_line_color.a * line;
   gl_FragColor = vec4(u_line_color.rgb * alpha, alpha);
 }
-`
+`;
 
 interface RetroGridProps extends HTMLAttributes<HTMLDivElement> {
-  className?: string
-  angle?: number
-  cellSize?: number
-  opacity?: number
-  lightLineColor?: string
-  darkLineColor?: string
+  className?: string;
+  angle?: number;
+  cellSize?: number;
+  opacity?: number;
+  lightLineColor?: string;
+  darkLineColor?: string;
 }
 
 interface ProgramInfo {
-  attributeLocation: number
-  program: WebGLProgram
+  attributeLocation: number;
+  program: WebGLProgram;
   uniforms: {
-    angle: WebGLUniformLocation
-    cellSize: WebGLUniformLocation
-    containerSize: WebGLUniformLocation
-    devicePixelRatio: WebGLUniformLocation
-    lineColor: WebGLUniformLocation
-    time: WebGLUniformLocation
-    viewportSize: WebGLUniformLocation
-  }
+    angle: WebGLUniformLocation;
+    cellSize: WebGLUniformLocation;
+    containerSize: WebGLUniformLocation;
+    devicePixelRatio: WebGLUniformLocation;
+    lineColor: WebGLUniformLocation;
+    time: WebGLUniformLocation;
+    viewportSize: WebGLUniformLocation;
+  };
 }
 
-let colorResolveContext: CanvasRenderingContext2D | null | undefined
+let colorResolveContext: CanvasRenderingContext2D | null | undefined;
 
 function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max)
+  return Math.min(Math.max(value, min), max);
 }
 
 function createShader(gl: WebGLRenderingContext, type: number, source: string) {
-  const shader = gl.createShader(type)
+  const shader = gl.createShader(type);
 
   if (!shader) {
-    return null
+    return null;
   }
 
-  gl.shaderSource(shader, source)
-  gl.compileShader(shader)
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
 
   if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    return shader
+    return shader;
   }
 
-  gl.deleteShader(shader)
-  return null
+  gl.deleteShader(shader);
+  return null;
 }
 
 function createProgram(gl: WebGLRenderingContext) {
-  const vertexShader = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER_SOURCE)
-  const fragmentShader = createShader(
-    gl,
-    gl.FRAGMENT_SHADER,
-    FRAGMENT_SHADER_SOURCE
-  )
+  const vertexShader = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER_SOURCE);
+  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER_SOURCE);
 
   if (!vertexShader || !fragmentShader) {
-    return null
+    return null;
   }
 
-  const program = gl.createProgram()
+  const program = gl.createProgram();
 
   if (!program) {
-    gl.deleteShader(vertexShader)
-    gl.deleteShader(fragmentShader)
-    return null
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+    return null;
   }
 
-  gl.attachShader(program, vertexShader)
-  gl.attachShader(program, fragmentShader)
-  gl.linkProgram(program)
-  gl.deleteShader(vertexShader)
-  gl.deleteShader(fragmentShader)
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+  gl.deleteShader(vertexShader);
+  gl.deleteShader(fragmentShader);
 
   if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    return program
+    return program;
   }
 
-  gl.deleteProgram(program)
-  return null
+  gl.deleteProgram(program);
+  return null;
 }
 
-function getProgramInfo(
-  gl: WebGLRenderingContext,
-  program: WebGLProgram
-): ProgramInfo | null {
-  const attributeLocation = gl.getAttribLocation(program, "a_position")
-  const angle = gl.getUniformLocation(program, "u_angle")
-  const cellSize = gl.getUniformLocation(program, "u_cell_size")
-  const containerSize = gl.getUniformLocation(program, "u_container_size")
-  const devicePixelRatio = gl.getUniformLocation(
-    program,
-    "u_device_pixel_ratio"
-  )
-  const lineColor = gl.getUniformLocation(program, "u_line_color")
-  const time = gl.getUniformLocation(program, "u_time")
-  const viewportSize = gl.getUniformLocation(program, "u_viewport_size")
+function getProgramInfo(gl: WebGLRenderingContext, program: WebGLProgram): ProgramInfo | null {
+  const attributeLocation = gl.getAttribLocation(program, "a_position");
+  const angle = gl.getUniformLocation(program, "u_angle");
+  const cellSize = gl.getUniformLocation(program, "u_cell_size");
+  const containerSize = gl.getUniformLocation(program, "u_container_size");
+  const devicePixelRatio = gl.getUniformLocation(program, "u_device_pixel_ratio");
+  const lineColor = gl.getUniformLocation(program, "u_line_color");
+  const time = gl.getUniformLocation(program, "u_time");
+  const viewportSize = gl.getUniformLocation(program, "u_viewport_size");
 
   if (
     attributeLocation < 0 ||
@@ -355,7 +345,7 @@ function getProgramInfo(
     !time ||
     !viewportSize
   ) {
-    return null
+    return null;
   }
 
   return {
@@ -370,78 +360,70 @@ function getProgramInfo(
       time,
       viewportSize,
     },
-  }
+  };
 }
 
 function isDarkMode(colorScheme: MediaQueryList) {
-  const root = document.documentElement
+  const root = document.documentElement;
 
   if (root.classList.contains("dark")) {
-    return true
+    return true;
   }
 
   if (root.classList.contains("light")) {
-    return false
+    return false;
   }
 
-  return colorScheme.matches
+  return colorScheme.matches;
 }
 
 function getColorResolveContext() {
   if (colorResolveContext !== undefined) {
-    return colorResolveContext
+    return colorResolveContext;
   }
 
-  const canvas = document.createElement("canvas")
-  canvas.width = 1
-  canvas.height = 1
+  const canvas = document.createElement("canvas");
+  canvas.width = 1;
+  canvas.height = 1;
   colorResolveContext = canvas.getContext("2d", {
     willReadFrequently: true,
-  })
+  });
 
-  return colorResolveContext
+  return colorResolveContext;
 }
 
 function resolveLineColor(color: string, element: HTMLElement) {
-  const resolver = document.createElement("span")
-  resolver.style.color = color
-  resolver.style.opacity = "0"
-  resolver.style.pointerEvents = "none"
-  resolver.style.position = "absolute"
-  element.appendChild(resolver)
+  const resolver = document.createElement("span");
+  resolver.style.color = color;
+  resolver.style.opacity = "0";
+  resolver.style.pointerEvents = "none";
+  resolver.style.position = "absolute";
+  element.appendChild(resolver);
 
-  const resolvedColor = getComputedStyle(resolver).color
-  resolver.remove()
-  const context = getColorResolveContext()
+  const resolvedColor = getComputedStyle(resolver).color;
+  resolver.remove();
+  const context = getColorResolveContext();
 
   if (!context) {
-    return new Float32Array([0.5, 0.5, 0.5, 1])
+    return new Float32Array([0.5, 0.5, 0.5, 1]);
   }
 
-  context.clearRect(0, 0, 1, 1)
-  context.fillStyle = resolvedColor
-  context.fillRect(0, 0, 1, 1)
-  const pixel = context.getImageData(0, 0, 1, 1).data
+  context.clearRect(0, 0, 1, 1);
+  context.fillStyle = resolvedColor;
+  context.fillRect(0, 0, 1, 1);
+  const pixel = context.getImageData(0, 0, 1, 1).data;
 
-  return new Float32Array([
-    pixel[0] / 255,
-    pixel[1] / 255,
-    pixel[2] / 255,
-    pixel[3] / 255,
-  ])
+  return new Float32Array([pixel[0] / 255, pixel[1] / 255, pixel[2] / 255, pixel[3] / 255]);
 }
 
-function createFallbackGridStyle(
-  cellSize: number,
-  lineColor: string
-): CSSProperties {
+function createFallbackGridStyle(cellSize: number, lineColor: string): CSSProperties {
   return {
     animation: `${FALLBACK_ANIMATION_NAME} ${ANIMATION_DURATION_SECONDS}s linear infinite`,
     backgroundImage: `linear-gradient(to right, ${lineColor} 1px, transparent 0), linear-gradient(to bottom, ${lineColor} 1px, transparent 0)`,
     backgroundRepeat: "repeat",
     backgroundSize: `${cellSize}px ${cellSize}px`,
     transform: "translateY(-50%)",
-  }
+  };
 }
 
 export function RetroGrid({
@@ -454,149 +436,146 @@ export function RetroGrid({
   style,
   ...props
 }: RetroGridProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [isWebGlReady, setIsWebGlReady] = useState(false)
-  const angleRef = useRef(angle)
-  const cellSizeRef = useRef(cellSize)
-  const darkLineColorRef = useRef(darkLineColor)
-  const lightLineColorRef = useRef(lightLineColor)
-  const syncSceneRef = useRef<(() => void) | null>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isWebGlReady, setIsWebGlReady] = useState(false);
+  const angleRef = useRef(angle);
+  const cellSizeRef = useRef(cellSize);
+  const darkLineColorRef = useRef(darkLineColor);
+  const lightLineColorRef = useRef(lightLineColor);
+  const syncSceneRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    angleRef.current = angle
-    cellSizeRef.current = cellSize
-    darkLineColorRef.current = darkLineColor
-    lightLineColorRef.current = lightLineColor
-    syncSceneRef.current?.()
-  }, [angle, cellSize, darkLineColor, lightLineColor])
+    angleRef.current = angle;
+    cellSizeRef.current = cellSize;
+    darkLineColorRef.current = darkLineColor;
+    lightLineColorRef.current = lightLineColor;
+    syncSceneRef.current?.();
+  }, [angle, cellSize, darkLineColor, lightLineColor]);
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    const container = containerRef.current
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
 
     if (!canvas || !container) {
-      return
+      return;
     }
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const colorScheme = window.matchMedia("(prefers-color-scheme: dark)")
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const colorScheme = window.matchMedia("(prefers-color-scheme: dark)");
 
-    let animationFrameId: number | null = null
-    let currentWidth = 0
-    let currentHeight = 0
-    let currentDevicePixelRatio = 1
-    let gl: WebGLRenderingContext | null = null
-    let isVisible = true
-    let isContextLost = false
-    let lineColor = resolveLineColor(lightLineColorRef.current, container)
-    let positionBuffer: WebGLBuffer | null = null
-    let programInfo: ProgramInfo | null = null
+    let animationFrameId: number | null = null;
+    let currentWidth = 0;
+    let currentHeight = 0;
+    let currentDevicePixelRatio = 1;
+    let gl: WebGLRenderingContext | null = null;
+    let isVisible = true;
+    let isContextLost = false;
+    let lineColor = resolveLineColor(lightLineColorRef.current, container);
+    let positionBuffer: WebGLBuffer | null = null;
+    let programInfo: ProgramInfo | null = null;
 
     const getContext = () => {
       const nextGl = canvas.getContext("webgl", {
         alpha: true,
         antialias: true,
         premultipliedAlpha: true,
-      })
+      });
 
-      if (!nextGl || !nextGl.getExtension("OES_standard_derivatives")) {
-        return null
+      if (!nextGl?.getExtension("OES_standard_derivatives")) {
+        return null;
       }
 
-      return nextGl
-    }
+      return nextGl;
+    };
 
     const releasePipeline = (shouldDeleteResources: boolean) => {
       if (shouldDeleteResources && gl) {
         if (positionBuffer) {
-          gl.deleteBuffer(positionBuffer)
+          gl.deleteBuffer(positionBuffer);
         }
 
         if (programInfo) {
-          gl.deleteProgram(programInfo.program)
+          gl.deleteProgram(programInfo.program);
         }
       }
 
-      positionBuffer = null
-      programInfo = null
+      positionBuffer = null;
+      programInfo = null;
 
       if (shouldDeleteResources) {
-        gl = null
+        gl = null;
       }
-    }
+    };
 
     const initializePipeline = () => {
-      const nextGl = getContext()
+      const nextGl = getContext();
 
       if (!nextGl) {
-        releasePipeline(false)
-        return false
+        releasePipeline(false);
+        return false;
       }
 
-      gl = nextGl
-      releasePipeline(true)
-      gl = nextGl
+      gl = nextGl;
+      releasePipeline(true);
+      gl = nextGl;
 
-      const program = createProgram(nextGl)
+      const program = createProgram(nextGl);
 
       if (!program) {
-        return false
+        return false;
       }
 
-      const nextProgramInfo = getProgramInfo(nextGl, program)
+      const nextProgramInfo = getProgramInfo(nextGl, program);
 
       if (!nextProgramInfo) {
-        nextGl.deleteProgram(program)
-        return false
+        nextGl.deleteProgram(program);
+        return false;
       }
 
-      const nextPositionBuffer = nextGl.createBuffer()
+      const nextPositionBuffer = nextGl.createBuffer();
 
       if (!nextPositionBuffer) {
-        nextGl.deleteProgram(program)
-        return false
+        nextGl.deleteProgram(program);
+        return false;
       }
 
-      nextGl.bindBuffer(nextGl.ARRAY_BUFFER, nextPositionBuffer)
+      nextGl.bindBuffer(nextGl.ARRAY_BUFFER, nextPositionBuffer);
       nextGl.bufferData(
         nextGl.ARRAY_BUFFER,
         new Float32Array([-1, -1, 3, -1, -1, 3]),
-        nextGl.STATIC_DRAW
-      )
+        nextGl.STATIC_DRAW,
+      );
 
-      positionBuffer = nextPositionBuffer
-      programInfo = nextProgramInfo
+      positionBuffer = nextPositionBuffer;
+      programInfo = nextProgramInfo;
 
-      return true
-    }
+      return true;
+    };
 
     const updateLineColor = () => {
       const activeColor = isDarkMode(colorScheme)
         ? darkLineColorRef.current
-        : lightLineColorRef.current
-      lineColor = resolveLineColor(activeColor, container)
-    }
+        : lightLineColorRef.current;
+      lineColor = resolveLineColor(activeColor, container);
+    };
 
     const resizeCanvas = () => {
-      currentWidth = Math.floor(container.clientWidth)
-      currentHeight = Math.floor(container.clientHeight)
+      currentWidth = Math.floor(container.clientWidth);
+      currentHeight = Math.floor(container.clientHeight);
 
       if (currentWidth === 0 || currentHeight === 0 || !gl) {
-        return
+        return;
       }
 
-      currentDevicePixelRatio = Math.min(
-        window.devicePixelRatio || 1,
-        MAX_DEVICE_PIXEL_RATIO
-      )
+      currentDevicePixelRatio = Math.min(window.devicePixelRatio || 1, MAX_DEVICE_PIXEL_RATIO);
 
-      canvas.width = Math.floor(currentWidth * currentDevicePixelRatio)
-      canvas.height = Math.floor(currentHeight * currentDevicePixelRatio)
-      canvas.style.width = `${currentWidth}px`
-      canvas.style.height = `${currentHeight}px`
-      gl.viewport(0, 0, canvas.width, canvas.height)
-    }
+      canvas.width = Math.floor(currentWidth * currentDevicePixelRatio);
+      canvas.height = Math.floor(currentHeight * currentDevicePixelRatio);
+      canvas.style.width = `${currentWidth}px`;
+      canvas.style.height = `${currentHeight}px`;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    };
 
     const draw = (timestamp: number) => {
       if (
@@ -607,209 +586,174 @@ export function RetroGrid({
         !programInfo ||
         isContextLost
       ) {
-        return
+        return;
       }
 
-      gl.useProgram(programInfo.program)
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
-      gl.enableVertexAttribArray(programInfo.attributeLocation)
-      gl.vertexAttribPointer(
-        programInfo.attributeLocation,
-        2,
-        gl.FLOAT,
-        false,
-        0,
-        0
-      )
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT)
-      gl.uniform1f(
-        programInfo.uniforms.angle,
-        clamp(angleRef.current, MIN_ANGLE, MAX_ANGLE)
-      )
-      gl.uniform1f(
-        programInfo.uniforms.cellSize,
-        Math.max(cellSizeRef.current, 1)
-      )
-      gl.uniform2f(
-        programInfo.uniforms.containerSize,
-        currentWidth,
-        currentHeight
-      )
-      gl.uniform1f(
-        programInfo.uniforms.devicePixelRatio,
-        currentDevicePixelRatio
-      )
-      gl.uniform4fv(programInfo.uniforms.lineColor, lineColor)
-      gl.uniform1f(
-        programInfo.uniforms.time,
-        reducedMotion.matches ? 0 : timestamp / 1000
-      )
-      gl.uniform2f(
-        programInfo.uniforms.viewportSize,
-        window.innerWidth,
-        window.innerHeight
-      )
-      gl.drawArrays(gl.TRIANGLES, 0, 3)
-    }
+      // biome-ignore lint/correctness/useHookAtTopLevel: WebGL useProgram is not a React hook
+      gl.useProgram(programInfo.program);
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.enableVertexAttribArray(programInfo.attributeLocation);
+      gl.vertexAttribPointer(programInfo.attributeLocation, 2, gl.FLOAT, false, 0, 0);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniform1f(programInfo.uniforms.angle, clamp(angleRef.current, MIN_ANGLE, MAX_ANGLE));
+      gl.uniform1f(programInfo.uniforms.cellSize, Math.max(cellSizeRef.current, 1));
+      gl.uniform2f(programInfo.uniforms.containerSize, currentWidth, currentHeight);
+      gl.uniform1f(programInfo.uniforms.devicePixelRatio, currentDevicePixelRatio);
+      gl.uniform4fv(programInfo.uniforms.lineColor, lineColor);
+      gl.uniform1f(programInfo.uniforms.time, reducedMotion.matches ? 0 : timestamp / 1000);
+      gl.uniform2f(programInfo.uniforms.viewportSize, window.innerWidth, window.innerHeight);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    };
 
     const stopAnimation = () => {
       if (animationFrameId !== null) {
-        cancelAnimationFrame(animationFrameId)
-        animationFrameId = null
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
       }
-    }
+    };
 
     const frame = (timestamp: number) => {
-      draw(timestamp)
+      draw(timestamp);
 
       if (!reducedMotion.matches && isVisible) {
-        animationFrameId = requestAnimationFrame(frame)
-        return
+        animationFrameId = requestAnimationFrame(frame);
+        return;
       }
 
-      animationFrameId = null
-    }
+      animationFrameId = null;
+    };
 
     const syncScene = () => {
       if (isContextLost) {
-        stopAnimation()
-        setIsWebGlReady(false)
-        return
+        stopAnimation();
+        setIsWebGlReady(false);
+        return;
       }
 
       if (!gl || !positionBuffer || !programInfo) {
         if (!initializePipeline()) {
-          stopAnimation()
-          setIsWebGlReady(false)
-          return
+          stopAnimation();
+          setIsWebGlReady(false);
+          return;
         }
       }
 
-      resizeCanvas()
+      resizeCanvas();
 
       if (currentWidth === 0 || currentHeight === 0) {
-        stopAnimation()
-        return
+        stopAnimation();
+        return;
       }
 
-      updateLineColor()
-      draw(performance.now())
-      setIsWebGlReady(true)
+      updateLineColor();
+      draw(performance.now());
+      setIsWebGlReady(true);
 
       if (reducedMotion.matches || !isVisible) {
-        stopAnimation()
-        return
+        stopAnimation();
+        return;
       }
 
       if (animationFrameId === null) {
-        animationFrameId = requestAnimationFrame(frame)
+        animationFrameId = requestAnimationFrame(frame);
       }
-    }
+    };
 
-    syncSceneRef.current = syncScene
+    syncSceneRef.current = syncScene;
 
     const resizeObserver = new ResizeObserver(() => {
-      syncScene()
-    })
-    resizeObserver.observe(container)
+      syncScene();
+    });
+    resizeObserver.observe(container);
 
     const handleWindowResize = () => {
-      syncScene()
-    }
+      syncScene();
+    };
 
     const intersectionObserver = new IntersectionObserver(([entry]) => {
-      isVisible = entry?.isIntersecting ?? false
+      isVisible = entry?.isIntersecting ?? false;
 
       if (isVisible) {
-        syncScene()
-        return
+        syncScene();
+        return;
       }
 
-      stopAnimation()
-    })
-    intersectionObserver.observe(container)
+      stopAnimation();
+    });
+    intersectionObserver.observe(container);
 
     const themeObserver = new MutationObserver(() => {
-      syncScene()
-    })
+      syncScene();
+    });
     themeObserver.observe(document.documentElement, {
       attributeFilter: ["class"],
       attributes: true,
-    })
+    });
 
     const handleMotionChange = () => {
-      syncScene()
-    }
+      syncScene();
+    };
 
     const handleColorSchemeChange = () => {
-      syncScene()
-    }
+      syncScene();
+    };
 
     const handleContextLost = (event: Event) => {
-      event.preventDefault()
-      isContextLost = true
-      stopAnimation()
-      releasePipeline(false)
-      setIsWebGlReady(false)
-    }
+      event.preventDefault();
+      isContextLost = true;
+      stopAnimation();
+      releasePipeline(false);
+      setIsWebGlReady(false);
+    };
 
     const handleContextRestored = () => {
-      isContextLost = false
-      syncScene()
-    }
+      isContextLost = false;
+      syncScene();
+    };
 
-    reducedMotion.addEventListener("change", handleMotionChange)
-    colorScheme.addEventListener("change", handleColorSchemeChange)
-    window.addEventListener("resize", handleWindowResize)
-    canvas.addEventListener("webglcontextlost", handleContextLost)
-    canvas.addEventListener("webglcontextrestored", handleContextRestored)
+    reducedMotion.addEventListener("change", handleMotionChange);
+    colorScheme.addEventListener("change", handleColorSchemeChange);
+    window.addEventListener("resize", handleWindowResize);
+    canvas.addEventListener("webglcontextlost", handleContextLost);
+    canvas.addEventListener("webglcontextrestored", handleContextRestored);
 
-    syncScene()
+    syncScene();
 
     return () => {
-      stopAnimation()
-      resizeObserver.disconnect()
-      intersectionObserver.disconnect()
-      themeObserver.disconnect()
-      reducedMotion.removeEventListener("change", handleMotionChange)
-      colorScheme.removeEventListener("change", handleColorSchemeChange)
-      window.removeEventListener("resize", handleWindowResize)
-      canvas.removeEventListener("webglcontextlost", handleContextLost)
-      canvas.removeEventListener("webglcontextrestored", handleContextRestored)
-      syncSceneRef.current = null
-      releasePipeline(!isContextLost)
-    }
-  }, [])
+      stopAnimation();
+      resizeObserver.disconnect();
+      intersectionObserver.disconnect();
+      themeObserver.disconnect();
+      reducedMotion.removeEventListener("change", handleMotionChange);
+      colorScheme.removeEventListener("change", handleColorSchemeChange);
+      window.removeEventListener("resize", handleWindowResize);
+      canvas.removeEventListener("webglcontextlost", handleContextLost);
+      canvas.removeEventListener("webglcontextrestored", handleContextRestored);
+      syncSceneRef.current = null;
+      releasePipeline(!isContextLost);
+    };
+  }, []);
 
   const gridStyles = {
     ...style,
     opacity,
-  } as CSSProperties
-  const normalizedAngle = clamp(angle, MIN_ANGLE, MAX_ANGLE)
-  const normalizedCellSize = Math.max(cellSize, 1)
+  } as CSSProperties;
+  const normalizedAngle = clamp(angle, MIN_ANGLE, MAX_ANGLE);
+  const normalizedCellSize = Math.max(cellSize, 1);
   const fallbackProjectionStyles = {
     perspective: `${PERSPECTIVE_PX}px`,
-  } as CSSProperties
+  } as CSSProperties;
   const fallbackRotationStyles = {
     transform: `rotateX(${normalizedAngle}deg)`,
-  } as CSSProperties
-  const lightFallbackGridStyles = createFallbackGridStyle(
-    normalizedCellSize,
-    lightLineColor
-  )
-  const darkFallbackGridStyles = createFallbackGridStyle(
-    normalizedCellSize,
-    darkLineColor
-  )
+  } as CSSProperties;
+  const lightFallbackGridStyles = createFallbackGridStyle(normalizedCellSize, lightLineColor);
+  const darkFallbackGridStyles = createFallbackGridStyle(normalizedCellSize, darkLineColor);
 
   return (
     <div
       ref={containerRef}
-      className={cn(
-        "pointer-events-none absolute size-full overflow-hidden",
-        className
-      )}
+      className={cn("pointer-events-none absolute size-full overflow-hidden", className)}
       style={gridStyles}
       {...props}
     >
@@ -832,12 +776,9 @@ export function RetroGrid({
       ) : null}
       <canvas
         ref={canvasRef}
-        className={cn(
-          "absolute inset-0 size-full",
-          isWebGlReady ? "opacity-100" : "opacity-0"
-        )}
+        className={cn("absolute inset-0 size-full", isWebGlReady ? "opacity-100" : "opacity-0")}
       />
       <div className="absolute inset-0 bg-linear-to-t from-white to-transparent to-90% dark:from-black" />
     </div>
-  )
+  );
 }

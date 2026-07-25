@@ -25,8 +25,7 @@ function token(name: string, fallback: string): string {
   probe.fillStyle = fallback;
   try {
     probe.fillStyle = raw;
-  } catch {
-  }
+  } catch {}
   probe.fillRect(0, 0, 1, 1);
   const [r, g, b] = probe.getImageData(0, 0, 1, 1).data;
   return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
@@ -83,11 +82,7 @@ function prepareSvg(svgEl: SVGSVGElement) {
   svgEl.style.maxHeight = "none";
 }
 
-function setupPanZoom(
-  viewport: HTMLElement,
-  panLayer: HTMLElement,
-  zoomLevelEl?: Element | null,
-) {
+function setupPanZoom(viewport: HTMLElement, panLayer: HTMLElement, zoomLevelEl?: Element | null) {
   let scale = 1;
   let tx = 0;
   let ty = 0;
@@ -198,8 +193,7 @@ async function renderDiagram(container: HTMLElement) {
   copyBtn?.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(code);
-    } catch {
-    }
+    } catch {}
   });
 }
 
@@ -239,7 +233,9 @@ function renderAll() {
 }
 
 async function reRenderAll() {
-  const containers = document.querySelectorAll<HTMLElement>("[data-mermaid][data-mermaid-rendered]");
+  const containers = document.querySelectorAll<HTMLElement>(
+    "[data-mermaid][data-mermaid-rendered]",
+  );
   for (const container of containers) {
     const renderTarget = container.querySelector<HTMLElement>("[data-mermaid-render]");
     const sourceEl = container.querySelector<HTMLElement>("[data-mermaid-source]");

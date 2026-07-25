@@ -12,9 +12,7 @@ export default function AboutAuthor({
 }) {
   return (
     <div className="flex items-center">
-      <AnimatedTooltip
-        items={[{ id: 1, name, designation: role, image }]}
-      />
+      <AnimatedTooltip items={[{ id: 1, name, designation: role, image }]} />
     </div>
   );
 }

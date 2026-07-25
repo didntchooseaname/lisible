@@ -11,10 +11,6 @@ type TabsProps = {
 };
 
 function Tabs({ tabs, label, defaultTab, className, children }: TabsProps) {
-  if (!FEATURES.mdxComponents) {
-    return <div className={cn("my-6", className)}>{children}</div>;
-  }
-
   const [active, setActive] = React.useState(
     defaultTab ? Math.max(tabs.indexOf(defaultTab), 0) : 0,
   );
@@ -29,6 +25,10 @@ function Tabs({ tabs, label, defaultTab, className, children }: TabsProps) {
       panel.toggleAttribute("hidden", i !== active);
     });
   }, [active]);
+
+  if (!FEATURES.mdxComponents) {
+    return <div className={cn("my-6", className)}>{children}</div>;
+  }
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     let next = active;
@@ -82,4 +82,4 @@ function Tab({ className, children }: TabProps) {
   );
 }
 
-export { Tabs, Tab };
+export { Tab, Tabs };

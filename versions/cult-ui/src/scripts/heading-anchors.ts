@@ -22,9 +22,7 @@ function showBubble(anchor: HTMLElement) {
 }
 
 async function onClick(event: MouseEvent) {
-  const anchor = (event.target as HTMLElement)?.closest<HTMLElement>(
-    "[data-heading-anchor]",
-  );
+  const anchor = (event.target as HTMLElement)?.closest<HTMLElement>("[data-heading-anchor]");
   if (!anchor) return;
   event.preventDefault();
 
@@ -33,8 +31,7 @@ async function onClick(event: MouseEvent) {
 
   try {
     await navigator.clipboard.writeText(url);
-  } catch {
-  }
+  } catch {}
   history.replaceState(null, "", href);
 
   const original = anchor.innerHTML;

@@ -1,13 +1,13 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface SquigglyArrowProps {
-  width?: number
-  height?: number
-  strokeWidth?: number
-  className?: string
-  direction?: "right" | "left" | "up" | "down"
-  variant?: "wavy" | "bouncy" | "smooth"
-  title?: string
+  width?: number;
+  height?: number;
+  strokeWidth?: number;
+  className?: string;
+  direction?: "right" | "left" | "up" | "down";
+  variant?: "wavy" | "bouncy" | "smooth";
+  title?: string;
 }
 
 export default function SquigglyArrow({
@@ -32,19 +32,20 @@ export default function SquigglyArrow({
       body: "M 15 50 Q 60 38, 100 48 Q 135 56, 158 50",
       head: "M 158 50 Q 149 45, 145 43 M 158 50 Q 150 56, 146 59",
     },
-  }
+  };
 
   const rotations = {
     right: "rotate(0)",
     left: "rotate(180 100 50)",
     down: "rotate(90 100 50)",
     up: "rotate(-90 100 50)",
-  }
+  };
 
-  const selectedPath = paths[variant]
-  const rotation = rotations[direction]
+  const selectedPath = paths[variant];
+  const rotation = rotations[direction];
 
   return (
+    // biome-ignore lint/a11y/noSvgWithoutTitle: a title is rendered when provided, otherwise the svg is aria-hidden
     <svg
       width={width}
       height={height}
@@ -56,7 +57,7 @@ export default function SquigglyArrow({
     >
       {title ? <title>{title}</title> : null}
       <g transform={rotation}>
-        { }
+        {}
         <path
           d={selectedPath.body}
           stroke="currentColor"
@@ -65,7 +66,7 @@ export default function SquigglyArrow({
           fill="none"
         />
 
-        { }
+        {}
         <path
           d={selectedPath.head}
           stroke="currentColor"
@@ -74,6 +75,5 @@ export default function SquigglyArrow({
         />
       </g>
     </svg>
-  )
+  );
 }
-

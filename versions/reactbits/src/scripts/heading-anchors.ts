@@ -9,8 +9,7 @@ document.addEventListener("click", async (event) => {
 
   try {
     await navigator.clipboard.writeText(url);
-  } catch {
-  }
+  } catch {}
 
   if (hash) history.replaceState(null, "", hash);
 

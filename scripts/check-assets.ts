@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { readFile, readdir, stat } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import { extname, join, relative } from "node:path";
 import type { Variant } from "../shared/site.config";
 
@@ -65,7 +65,8 @@ async function walk(directory: string): Promise<string[]> {
 async function main(): Promise<void> {
   const variant = await activeVariant();
   const dist = join(ROOT, "versions", variant, "dist");
-  if (!existsSync(dist)) throw new Error(`versions/${variant}/dist is missing. Run the build first.`);
+  if (!existsSync(dist))
+    throw new Error(`versions/${variant}/dist is missing. Run the build first.`);
 
   const files = await walk(dist);
   const violations: Violation[] = [];
@@ -92,17 +93,22 @@ async function main(): Promise<void> {
           stylesheetErrors.push(`${relative(dist, file)}: image lightbox must start aria-hidden.`);
         }
       }
-      const stylesheets = [...html.matchAll(/<link\b[^>]*\brel=["']stylesheet["'][^>]*\bhref=["']([^"']+)["'][^>]*>/g)]
-        .map((match) => match[1]!);
+      const stylesheets = [
+        ...html.matchAll(/<link\b[^>]*\brel=["']stylesheet["'][^>]*\bhref=["']([^"']+)["'][^>]*>/g),
+      ].map((match) => match[1]!);
       const page = relative(dist, file);
       const isRedirect = /<meta\b[^>]*\bhttp-equiv=["']refresh["']/i.test(html);
-      if (!isRedirect && !stylesheets.some((href) => /\/_astro\/app\.[^/]+\.css(?:\?|$)/.test(href))) {
+      if (
+        !isRedirect &&
+        !stylesheets.some((href) => /\/_astro\/app\.[^/]+\.css(?:\?|$)/.test(href))
+      ) {
         stylesheetErrors.push(`${page}: missing the global app stylesheet.`);
       }
       for (const href of stylesheets) {
         if (/^(?:https?:)?\/\//.test(href)) continue;
         const target = join(dist, href.split(/[?#]/, 1)[0]!.replace(/^\//, ""));
-        if (!existsSync(target)) stylesheetErrors.push(`${page}: missing stylesheet asset ${href}.`);
+        if (!existsSync(target))
+          stylesheetErrors.push(`${page}: missing stylesheet asset ${href}.`);
       }
     } else if (extname(file) === ".css") {
       const css = await readFile(file, "utf8");
@@ -123,7 +129,9 @@ async function main(): Promise<void> {
   }
 
   for (const violation of violations.sort((a, b) => b.size - a.size)) {
-    console.error(`${formatBytes(violation.size)} > ${formatBytes(violation.limit)}  ${violation.path}`);
+    console.error(
+      `${formatBytes(violation.size)} > ${formatBytes(violation.limit)}  ${violation.path}`,
+    );
   }
   for (const error of stylesheetErrors) console.error(error);
   process.exit(1);

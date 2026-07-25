@@ -10,7 +10,9 @@
   opacity: 0;
   background-color: color-mix(in oklab, var(--color-background) 90%, transparent);
   backdrop-filter: blur(8px);
-  transition: opacity 200ms ease-out, visibility 0s linear 200ms;
+  transition:
+    opacity 200ms ease-out,
+    visibility 0s linear 200ms;
 }
 
 .image-lightbox.active {
@@ -56,7 +58,9 @@
   background-color: color-mix(in oklab, var(--color-card) 85%, transparent);
   color: var(--color-muted-foreground);
   cursor: pointer;
-  transition: color 150ms ease-out, border-color 150ms ease-out;
+  transition:
+    color 150ms ease-out,
+    border-color 150ms ease-out;
 }
 
 .lightbox-btn:hover,

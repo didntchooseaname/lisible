@@ -47,10 +47,7 @@ export default function BlogTimeline({ years }: { years: TimelineYear[] }) {
               {post.tags.length > 0 && (
                 <span className="mt-1 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
                   {post.tags.map((tag) => (
-                    <span
-                      key={tag.url}
-                      className="rounded-md border border-border px-1.5 py-0.5"
-                    >
+                    <span key={tag.url} className="rounded-md border border-border px-1.5 py-0.5">
                       {tag.label}
                     </span>
                   ))}

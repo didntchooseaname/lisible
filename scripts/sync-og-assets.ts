@@ -103,7 +103,9 @@ async function render(source: string, svg: string): Promise<Buffer> {
  */
 async function verifyRaster(target: string, png: Buffer | undefined): Promise<string | null> {
   if (!png) return `${target}: missing, run \`bun run sync-og-assets\``;
-  const meta = await sharp(png).metadata().catch(() => undefined);
+  const meta = await sharp(png)
+    .metadata()
+    .catch(() => undefined);
   if (meta?.width !== 1200 || meta?.height !== 630) {
     return `${target}: expected 1200x630, found ${meta?.width ?? "?"}x${meta?.height ?? "?"}`;
   }

@@ -1,15 +1,16 @@
-import { localeUrl, otherLocale, type Locale } from "@/i18n/ui";
-import { FEATURES } from "@/site.config";
 import {
   getAllSeries,
   getPublishedPosts,
+  type Post,
   postLocale,
   postSlug,
-  type Post,
   type SeriesInfo,
 } from "@shared/lib/posts";
+import { type Locale, localeUrl } from "@/i18n/ui";
+import { FEATURES } from "@/site.config";
 
 export {
+  type AdjacentPosts,
   getAdjacentPosts,
   getAllSeries,
   getAllTags,
@@ -21,13 +22,12 @@ export {
   getTranslation,
   groupByYear,
   otherLocale,
+  type Post,
   postLocale,
   postSlug,
-  slugifyTag,
-  type AdjacentPosts,
-  type Post,
   type SeriesContext,
   type SeriesInfo,
+  slugifyTag,
   type TagInfo,
 } from "@shared/lib/posts";
 
@@ -37,10 +37,7 @@ export function postUrl(post: Post): string {
   return localeUrl(postLocale(post), `blog/${postSlug(post)}`);
 }
 
-export async function getFeaturedPosts(
-  locale: Locale,
-  count: number,
-): Promise<Post[]> {
+export async function getFeaturedPosts(locale: Locale, count: number): Promise<Post[]> {
   const posts = await getPublishedPosts(locale);
   if (!FEATURES.pinned) return posts.slice(0, count);
   const pinned = posts.filter((post) => post.data.featured);

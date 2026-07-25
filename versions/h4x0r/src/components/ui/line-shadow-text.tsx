@@ -1,13 +1,9 @@
-"use client"
+"use client";
 
-import { type CSSProperties, type HTMLAttributes } from "react"
-import {
-  motion,
-  type DOMMotionComponents,
-  type MotionProps,
-} from "motion/react"
+import { type DOMMotionComponents, type MotionProps, motion } from "motion/react";
+import { type CSSProperties, type HTMLAttributes } from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const motionElements = {
   article: motion.article,
@@ -22,18 +18,16 @@ const motionElements = {
   p: motion.p,
   section: motion.section,
   span: motion.span,
-} as const
+} as const;
 
-type MotionElementType = Extract<
-  keyof DOMMotionComponents,
-  keyof typeof motionElements
->
+type MotionElementType = Extract<keyof DOMMotionComponents, keyof typeof motionElements>;
 
 interface LineShadowTextProps
-  extends Omit<HTMLAttributes<HTMLElement>, keyof MotionProps>, MotionProps {
-  children: string
-  shadowColor?: string
-  as?: MotionElementType
+  extends Omit<HTMLAttributes<HTMLElement>, keyof MotionProps>,
+    MotionProps {
+  children: string;
+  shadowColor?: string;
+  as?: MotionElementType;
 }
 
 export function LineShadowText({
@@ -43,7 +37,7 @@ export function LineShadowText({
   as: Component = "span",
   ...props
 }: LineShadowTextProps) {
-  const MotionComponent = motionElements[Component]
+  const MotionComponent = motionElements[Component];
 
   return (
     <MotionComponent
@@ -54,12 +48,12 @@ export function LineShadowText({
         "after:bg-[linear-gradient(45deg,transparent_45%,var(--shadow-color)_45%,var(--shadow-color)_55%,transparent_0)]",
         "after:-z-10 after:bg-size-[0.06em_0.06em] after:bg-clip-text after:text-transparent",
         "after:animate-line-shadow",
-        className
+        className,
       )}
       data-text={children}
       {...props}
     >
       {children}
     </MotionComponent>
-  )
+  );
 }

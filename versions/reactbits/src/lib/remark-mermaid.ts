@@ -1,14 +1,11 @@
-import { h, s } from "hastscript";
 import type { Properties } from "hast";
+import { h, s } from "hastscript";
 import type { Code, Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { ui, defaultLocale, type Locale } from "../i18n/ui";
+import { defaultLocale, type Locale, ui } from "../i18n/ui";
 
-const iconBtn = (
-  paths: Array<[string, Record<string, unknown>]>,
-  extra: Record<string, unknown>,
-) =>
+const iconBtn = (paths: Array<[string, Record<string, unknown>]>, extra: Record<string, unknown>) =>
   h("button", { type: "button", class: "mermaid-btn", ...extra }, [
     s(
       "svg",
@@ -74,11 +71,7 @@ const remarkMermaid: Plugin<[], Root> = () => {
             ],
             { "data-mermaid-zoom-out": "", "aria-label": dict.zoomOut },
           ),
-          h(
-            "span",
-            { class: "mermaid-zoom-level", "data-mermaid-zoom-level": "" },
-            ["100%"],
-          ),
+          h("span", { class: "mermaid-zoom-level", "data-mermaid-zoom-level": "" }, ["100%"]),
           iconBtn(
             [
               ["circle", { cx: 11, cy: 11, r: 8 }],
@@ -105,23 +98,13 @@ const remarkMermaid: Plugin<[], Root> = () => {
         ]),
       ]);
 
-      const viewport = h(
-        "div",
-        { class: "mermaid-viewport", "data-mermaid-viewport": "" },
-        [
-          h("div", { class: "mermaid-pan", "data-mermaid-pan": "" }, [
-            h("div", { class: "mermaid-render", "data-mermaid-render": "" }),
-          ]),
-          h(
-            "div",
-            { class: "mermaid-loading", "data-mermaid-loading": "" },
-            [dict.loading],
-          ),
-          h("div", { class: "mermaid-hint", "data-mermaid-hint": "" }, [
-            dict.hint,
-          ]),
-        ],
-      );
+      const viewport = h("div", { class: "mermaid-viewport", "data-mermaid-viewport": "" }, [
+        h("div", { class: "mermaid-pan", "data-mermaid-pan": "" }, [
+          h("div", { class: "mermaid-render", "data-mermaid-render": "" }),
+        ]),
+        h("div", { class: "mermaid-loading", "data-mermaid-loading": "" }, [dict.loading]),
+        h("div", { class: "mermaid-hint", "data-mermaid-hint": "" }, [dict.hint]),
+      ]);
 
       const fallback = h(
         "pre",

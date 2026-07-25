@@ -1,6 +1,4 @@
-
-const IMAGE_SELECTOR =
-  ".prose img:not(.link-card-favicon):not(.link-card-image)";
+const IMAGE_SELECTOR = ".prose img:not(.link-card-favicon):not(.link-card-image)";
 
 function isEligible(img: HTMLImageElement): boolean {
   return !img.closest(".drawio-embed, .mermaid-embed, .link-card");
@@ -25,7 +23,6 @@ class ImageLightbox {
   private currentIndex = 0;
   private isZoomed = false;
   private isPanning = false;
-  private hasPanned = false;
   private activePointerId: number | null = null;
   private panStartX = 0;
   private panStartY = 0;
@@ -63,9 +60,9 @@ class ImageLightbox {
   }
 
   private findImages() {
-    const nodes = Array.from(
-      document.querySelectorAll<HTMLImageElement>(IMAGE_SELECTOR),
-    ).filter(isEligible);
+    const nodes = Array.from(document.querySelectorAll<HTMLImageElement>(IMAGE_SELECTOR)).filter(
+      isEligible,
+    );
     this.images = nodes;
     this.trackedImages = nodes;
     nodes.forEach((img, index) => {
@@ -184,10 +181,7 @@ class ImageLightbox {
       this.currentIndexEl.textContent = String(this.currentIndex + 1);
     }
     this.prevBtn?.toggleAttribute("disabled", this.currentIndex === 0);
-    this.nextBtn?.toggleAttribute(
-      "disabled",
-      this.currentIndex === this.images.length - 1,
-    );
+    this.nextBtn?.toggleAttribute("disabled", this.currentIndex === this.images.length - 1);
     this.resetZoom();
   }
 
@@ -216,7 +210,6 @@ class ImageLightbox {
     if (!e.isPrimary || e.button !== 0) return;
     e.preventDefault();
     this.isPanning = true;
-    this.hasPanned = false;
     this.activePointerId = e.pointerId;
     this.panStartX = e.clientX;
     this.panStartY = e.clientY;
@@ -231,7 +224,6 @@ class ImageLightbox {
     e.preventDefault();
     const dx = e.clientX - this.panStartX;
     const dy = e.clientY - this.panStartY;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) this.hasPanned = true;
     this.translateX = this.panOriginX + dx / this.scale;
     this.translateY = this.panOriginY + dy / this.scale;
     this.clamp();
@@ -275,7 +267,6 @@ class ImageLightbox {
     if (!this.image) return;
     this.isZoomed = false;
     this.isPanning = false;
-    this.hasPanned = false;
     this.activePointerId = null;
     this.scale = 1;
     this.translateX = 0;

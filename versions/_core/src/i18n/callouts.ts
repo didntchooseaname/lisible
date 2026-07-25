@@ -1,12 +1,6 @@
-import { cardLocaleFromPath, type CardLocale } from "./cards";
+import { type CardLocale, cardLocaleFromPath } from "./cards";
 
-export const calloutVariants = [
-  "note",
-  "tip",
-  "warning",
-  "caution",
-  "important",
-] as const;
+export const calloutVariants = ["note", "tip", "warning", "caution", "important"] as const;
 
 export type CalloutVariant = (typeof calloutVariants)[number];
 

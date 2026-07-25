@@ -61,10 +61,7 @@ export function NewsletterIsland({
   return (
     <TextureCard className="w-full max-w-xl">
       <TextureCardHeader className="px-6 pt-6">
-        <TextureCardTitle
-          as="h2"
-          className="pl-0 text-xl font-bold tracking-tight text-foreground"
-        >
+        <TextureCardTitle as="h2" className="pl-0 text-xl font-bold tracking-tight text-foreground">
           {title}
         </TextureCardTitle>
         <TextureCardDescription className="mt-2 max-w-prose pl-0 text-sm leading-relaxed text-muted-foreground">
@@ -83,10 +80,7 @@ export function NewsletterIsland({
           closeAriaLabel={closeLabel}
           wrapperClassName="min-h-[56px] justify-start"
           openChild={
-            <form
-              onSubmit={handleSubmit}
-              className="flex h-full flex-col px-4 pb-3 pt-10"
-            >
+            <form onSubmit={handleSubmit} className="flex h-full flex-col px-4 pb-3 pt-10">
               <label htmlFor={inputId} className="sr-only">
                 {emailLabel}
               </label>
@@ -95,25 +89,18 @@ export function NewsletterIsland({
                 type="email"
                 inputMode="email"
                 required
+                // biome-ignore lint/a11y/noAutofocus: the field only mounts when the popover opens, focus must follow
                 autoFocus
                 placeholder={placeholder}
                 className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
               />
               <div className="relative mt-auto flex justify-end pt-3">
                 <PopoverFormSeparator />
-                <PopoverFormButton
-                  loading={formState === "loading"}
-                  text={buttonLabel}
-                />
+                <PopoverFormButton loading={formState === "loading"} text={buttonLabel} />
               </div>
             </form>
           }
-          successChild={
-            <PopoverFormSuccess
-              title={successTitle}
-              description={successMessage}
-            />
-          }
+          successChild={<PopoverFormSuccess title={successTitle} description={successMessage} />}
         />
       </TextureCardContent>
       <TextureSeparator />

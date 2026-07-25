@@ -1,8 +1,8 @@
 import { h, s } from "hastscript";
 import type { Root } from "mdast";
 import type { Transformer } from "unified";
-import type { VFile } from "vfile";
 import { visit } from "unist-util-visit";
+import type { VFile } from "vfile";
 
 const LABELS = {
   fr: {
@@ -94,34 +94,74 @@ export function remarkMermaid() {
       const encoded = Buffer.from(code, "utf-8").toString("base64");
       const id = `mermaid-${(counter++).toString(36)}`;
 
-      const container = h(
-        "figure",
-        { class: "mermaid-block not-prose", "data-mermaid": "", id },
-        [
-          h("div", { class: "mermaid-toolbar" }, [
-            h("span", { class: "mermaid-toolbar__label" }, [iconLabel(), h("span", {}, t.label)]),
-            h("div", { class: "mermaid-toolbar__actions" }, [
-              h("button", { type: "button", class: "mermaid-btn", "data-mermaid-zoom-out": "", "aria-label": t.zoomOut }, [iconZoomOut()]),
-              h("span", { class: "mermaid-zoom-level tabular-nums", "data-mermaid-zoom-level": "" }, "100%"),
-              h("button", { type: "button", class: "mermaid-btn", "data-mermaid-zoom-in": "", "aria-label": t.zoomIn }, [iconZoomIn()]),
-              h("button", { type: "button", class: "mermaid-btn", "data-mermaid-reset": "", "aria-label": t.reset }, [iconReset()]),
-              h("button", { type: "button", class: "mermaid-btn", "data-mermaid-copy": "", "aria-label": t.copy }, [iconCopy()]),
-            ]),
+      const container = h("figure", { class: "mermaid-block not-prose", "data-mermaid": "", id }, [
+        h("div", { class: "mermaid-toolbar" }, [
+          h("span", { class: "mermaid-toolbar__label" }, [iconLabel(), h("span", {}, t.label)]),
+          h("div", { class: "mermaid-toolbar__actions" }, [
+            h(
+              "button",
+              {
+                type: "button",
+                class: "mermaid-btn",
+                "data-mermaid-zoom-out": "",
+                "aria-label": t.zoomOut,
+              },
+              [iconZoomOut()],
+            ),
+            h(
+              "span",
+              { class: "mermaid-zoom-level tabular-nums", "data-mermaid-zoom-level": "" },
+              "100%",
+            ),
+            h(
+              "button",
+              {
+                type: "button",
+                class: "mermaid-btn",
+                "data-mermaid-zoom-in": "",
+                "aria-label": t.zoomIn,
+              },
+              [iconZoomIn()],
+            ),
+            h(
+              "button",
+              {
+                type: "button",
+                class: "mermaid-btn",
+                "data-mermaid-reset": "",
+                "aria-label": t.reset,
+              },
+              [iconReset()],
+            ),
+            h(
+              "button",
+              {
+                type: "button",
+                class: "mermaid-btn",
+                "data-mermaid-copy": "",
+                "aria-label": t.copy,
+              },
+              [iconCopy()],
+            ),
           ]),
-          h("div", { class: "mermaid-viewport", "data-mermaid-viewport": "" }, [
-            h("div", { class: "mermaid-pan", "data-mermaid-pan": "" }, [
-              h("div", { class: "mermaid-render", "data-mermaid-render": "" }),
-            ]),
-            h("div", { class: "mermaid-loading", "data-mermaid-loading": "" }, [iconSpinner()]),
+        ]),
+        h("div", { class: "mermaid-viewport", "data-mermaid-viewport": "" }, [
+          h("div", { class: "mermaid-pan", "data-mermaid-pan": "" }, [
+            h("div", { class: "mermaid-render", "data-mermaid-render": "" }),
           ]),
-          h("div", { "data-mermaid-source": encoded, hidden: true }),
-          h("pre", { class: "mermaid-fallback", hidden: true }, code),
-        ],
-      );
+          h("div", { class: "mermaid-loading", "data-mermaid-loading": "" }, [iconSpinner()]),
+        ]),
+        h("div", { "data-mermaid-source": encoded, hidden: true }),
+        h("pre", { class: "mermaid-fallback", hidden: true }, code),
+      ]);
 
       const replacement = {
         type: "mermaid",
-        data: { hName: container.tagName, hProperties: container.properties, hChildren: container.children },
+        data: {
+          hName: container.tagName,
+          hProperties: container.properties,
+          hChildren: container.children,
+        },
         children: [],
       };
 

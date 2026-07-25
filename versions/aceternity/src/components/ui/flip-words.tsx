@@ -1,6 +1,6 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export const FlipWords = ({
@@ -34,9 +34,7 @@ export const FlipWords = ({
 
   if (reduceMotion) {
     return (
-      <span className={cn("relative z-10 inline-block px-1 text-left", className)}>
-        {words[0]}
-      </span>
+      <span className={cn("relative z-10 inline-block px-1 text-left", className)}>{words[0]}</span>
     );
   }
 

@@ -1,5 +1,5 @@
-import { h } from "hastscript";
 import type { Element, ElementContent } from "hast";
+import { h } from "hastscript";
 import type { Code, Parent, Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";

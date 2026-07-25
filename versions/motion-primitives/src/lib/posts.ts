@@ -1,15 +1,15 @@
-import { localeUrl, otherLocale, defaultLocale, type Locale } from "@/i18n/ui";
 import {
   getPublishedPosts,
   getSeriesPosts,
+  type Post,
   postLocale,
   postSlug,
   seriesSlug,
-  type Post,
-  type SeriesInfo,
 } from "@shared/lib/posts";
+import { defaultLocale, type Locale, localeUrl } from "@/i18n/ui";
 
 export {
+  type AdjacentPosts,
   getAdjacentPosts,
   getAllSeries,
   getAllTags,
@@ -21,13 +21,12 @@ export {
   getTranslation,
   groupByYear,
   otherLocale,
+  type Post,
   postLocale,
   postSlug,
-  slugifyTag,
-  type AdjacentPosts,
-  type Post,
   type SeriesContext,
   type SeriesInfo,
+  slugifyTag,
   type TagInfo,
 } from "@shared/lib/posts";
 
@@ -49,8 +48,6 @@ export async function getFeaturedPosts(
   const rest = posts.filter((p) => !featuredIds.has(p.id));
   return { featured, rest };
 }
-
-
 
 export function postMdPath(post: Post): string {
   const prefix = postLocale(post) === defaultLocale ? "" : `/${postLocale(post)}`;

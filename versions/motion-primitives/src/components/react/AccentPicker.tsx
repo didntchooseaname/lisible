@@ -1,15 +1,15 @@
+import { PaletteIcon } from "lucide-react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import {
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+  type RefObject,
   useCallback,
   useEffect,
   useId,
   useRef,
   useState,
-  type KeyboardEvent as ReactKeyboardEvent,
-  type PointerEvent as ReactPointerEvent,
-  type RefObject,
 } from "react";
-import { AnimatePresence, MotionConfig, motion } from "motion/react";
-import { PaletteIcon } from "lucide-react";
 import useClickOutside from "@/hooks/useClickOutside";
 
 declare global {
@@ -38,7 +38,6 @@ function fill(template: string, values: Record<string, number>): string {
 const HEX_RE = /^#[0-9a-f]{6}$/i;
 
 type Hsv = { h: number; s: number; v: number };
-
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -131,7 +130,6 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
     window.__applyAccent?.();
   }
 
-
   function readArea(event: ReactPointerEvent<HTMLDivElement>): Hsv {
     const rect = areaRef.current!.getBoundingClientRect();
     return {
@@ -145,8 +143,7 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
     event.preventDefault();
     try {
       event.currentTarget.setPointerCapture(event.pointerId);
-    } catch {
-    }
+    } catch {}
     event.currentTarget.focus();
     dragRef.current = "area";
     commit(readArea(event));
@@ -180,7 +177,6 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
     commit({ h: hsv.h, s, v });
   }
 
-
   function readHue(event: ReactPointerEvent<HTMLDivElement>): Hsv {
     const rect = hueRef.current!.getBoundingClientRect();
     const h = clamp((event.clientX - rect.left) / rect.width, 0, 1) * 360;
@@ -191,8 +187,7 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
     event.preventDefault();
     try {
       event.currentTarget.setPointerCapture(event.pointerId);
-    } catch {
-    }
+    } catch {}
     event.currentTarget.focus();
     dragRef.current = "hue";
     commit(readHue(event));
@@ -258,7 +253,7 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
               transition={{ duration: 0.15, ease: "easeOut" }}
               className="absolute right-0 top-full z-50 mt-2 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-lg"
             >
-              { }
+              {}
               <div
                 ref={areaRef}
                 role="slider"
@@ -290,7 +285,7 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
                 />
               </div>
 
-              { }
+              {}
               <div
                 ref={hueRef}
                 role="slider"
@@ -320,7 +315,7 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
                 />
               </div>
 
-              { }
+              {}
               <div className="mt-3 flex items-center justify-between gap-2">
                 <span className="font-mono text-xs text-muted-foreground" aria-live="polite">
                   {hex}

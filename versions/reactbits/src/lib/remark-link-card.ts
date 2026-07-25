@@ -5,11 +5,11 @@ import type { OgObject } from "open-graph-scraper/types";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
 import {
-  loadCache,
   getCachedMetadata,
-  setCachedMetadata,
-  saveCache,
   getInflight,
+  loadCache,
+  saveCache,
+  setCachedMetadata,
   setInflight,
 } from "./link-card-cache";
 
@@ -30,8 +30,7 @@ interface CardData {
   thumbnailAlt: string;
 }
 
-const isValidUrl = (url: string): boolean =>
-  /^https?:\/\/(?:[-.\w]+)(?:\/[^\s]*)?$/.test(url);
+const isValidUrl = (url: string): boolean => /^https?:\/\/(?:[-.\w]+)(?:\/[^\s]*)?$/.test(url);
 
 const getBareLinkUrl = (linkNode: Link): URL | null => {
   if (
@@ -97,10 +96,7 @@ const fetchMetadata = async (url: string): Promise<OgObject | null> => {
   return promise;
 };
 
-const resolveThumbnail = (
-  metadata: OgObject,
-  pageUrl: URL,
-): { url: string; alt: string } => {
+const resolveThumbnail = (metadata: OgObject, pageUrl: URL): { url: string; alt: string } => {
   const tryUrl = (raw: string): string => {
     const trimmed = raw.trim();
     if (!trimmed) return "";

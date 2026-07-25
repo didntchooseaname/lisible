@@ -1,4 +1,3 @@
-
 function toggle(spoiler: HTMLElement) {
   const revealed = spoiler.classList.toggle("revealed");
   spoiler.setAttribute("aria-expanded", String(revealed));

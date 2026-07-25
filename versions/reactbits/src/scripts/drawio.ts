@@ -43,8 +43,7 @@ function setupViewer(figure: HTMLElement) {
     "wheel",
     (e) => {
       e.preventDefault();
-      scale =
-        e.deltaY < 0 ? Math.min(scale * 1.1, 8) : Math.max(scale / 1.1, 0.4);
+      scale = e.deltaY < 0 ? Math.min(scale * 1.1, 8) : Math.max(scale / 1.1, 0.4);
       apply();
     },
     { passive: false },
@@ -70,21 +69,15 @@ function setupViewer(figure: HTMLElement) {
   viewport.addEventListener("pointerup", stop);
   viewport.addEventListener("pointercancel", stop);
 
-  figure
-    .querySelector("[data-drawio-zoom-in]")
-    ?.addEventListener("click", () => {
-      scale = Math.min(scale * 1.25, 8);
-      apply();
-    });
-  figure
-    .querySelector("[data-drawio-zoom-out]")
-    ?.addEventListener("click", () => {
-      scale = Math.max(scale / 1.25, 0.4);
-      apply();
-    });
-  figure
-    .querySelector("[data-drawio-zoom-reset]")
-    ?.addEventListener("click", reset);
+  figure.querySelector("[data-drawio-zoom-in]")?.addEventListener("click", () => {
+    scale = Math.min(scale * 1.25, 8);
+    apply();
+  });
+  figure.querySelector("[data-drawio-zoom-out]")?.addEventListener("click", () => {
+    scale = Math.max(scale / 1.25, 0.4);
+    apply();
+  });
+  figure.querySelector("[data-drawio-zoom-reset]")?.addEventListener("click", reset);
 
   apply();
 }

@@ -6,7 +6,11 @@ interface DrawioControls {
 
 const controlsByContainer = new WeakMap<HTMLElement, DrawioControls>();
 
-function setupPanZoom(viewport: HTMLElement, panLayer: HTMLElement, levelEl: Element | null): DrawioControls {
+function setupPanZoom(
+  viewport: HTMLElement,
+  panLayer: HTMLElement,
+  levelEl: Element | null,
+): DrawioControls {
   let scale = 1;
   let tx = 0;
   let ty = 0;
@@ -113,7 +117,8 @@ function enhance(container: HTMLElement) {
 }
 
 function observe(container: HTMLElement) {
-  if (container.hasAttribute("data-drawio-ready") || container.hasAttribute("data-drawio-observed")) return;
+  if (container.hasAttribute("data-drawio-ready") || container.hasAttribute("data-drawio-observed"))
+    return;
   if (!("IntersectionObserver" in window)) {
     enhance(container);
     return;

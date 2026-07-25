@@ -36,8 +36,7 @@ async function handleCopyMarkdown(button: HTMLElement) {
     const markdown = await response.text();
     const ok = await copyText(markdown);
     if (ok) flashLabel(button, labelEl, done, idle);
-  } catch {
-  }
+  } catch {}
 }
 
 async function handleCopyLink(button: HTMLElement) {
@@ -57,7 +56,10 @@ async function handleCopyLink(button: HTMLElement) {
 }
 
 function normalizeInstance(raw: string): string {
-  let value = raw.trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+  const value = raw
+    .trim()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/+$/, "");
   return value;
 }
 
@@ -65,15 +67,13 @@ function handleMastodon(button: HTMLElement) {
   const title = button.getAttribute("data-title") ?? document.title;
   const url = button.getAttribute("data-url") ?? window.location.href;
   const promptText =
-    button
-      .closest<HTMLElement>("[data-article-actions]")
-      ?.getAttribute("data-mastodon-prompt") ?? "mastodon.social";
+    button.closest<HTMLElement>("[data-article-actions]")?.getAttribute("data-mastodon-prompt") ??
+    "mastodon.social";
 
   let instance = "";
   try {
     instance = localStorage.getItem(MASTODON_KEY) ?? "";
-  } catch {
-  }
+  } catch {}
   if (!instance) {
     const entered = window.prompt(promptText, "mastodon.social");
     if (!entered) return;
@@ -81,8 +81,7 @@ function handleMastodon(button: HTMLElement) {
     if (!instance) return;
     try {
       localStorage.setItem(MASTODON_KEY, instance);
-    } catch {
-    }
+    } catch {}
   }
   const shareUrl = `https://${instance}/share?text=${encodeURIComponent(`${title} ${url}`)}`;
   window.open(shareUrl, "_blank", "noopener,noreferrer");

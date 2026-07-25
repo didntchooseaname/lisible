@@ -1,8 +1,8 @@
 import { h, s } from "hastscript";
 import type { Root } from "mdast";
 import type { Transformer } from "unified";
-import type { VFile } from "vfile";
 import { visit } from "unist-util-visit";
+import type { VFile } from "vfile";
 
 const LABELS = {
   fr: { label: "Diagramme", zoomIn: "Zoomer", zoomOut: "Dézoomer", reset: "Réinitialiser la vue" },
@@ -81,10 +81,41 @@ export function remarkDrawio() {
           hChildren: [
             h("span", { class: "drawio-toolbar__label" }, [iconLabel(), h("span", {}, title)]),
             h("div", { class: "drawio-toolbar__actions" }, [
-              h("button", { type: "button", class: "drawio-btn", "data-drawio-zoom-out": "", "aria-label": t.zoomOut }, [iconZoomOut()]),
-              h("span", { class: "drawio-zoom-level tabular-nums", "data-drawio-zoom-level": "" }, "100%"),
-              h("button", { type: "button", class: "drawio-btn", "data-drawio-zoom-in": "", "aria-label": t.zoomIn }, [iconZoomIn()]),
-              h("button", { type: "button", class: "drawio-btn", "data-drawio-reset": "", "aria-label": t.reset }, [iconReset()]),
+              h(
+                "button",
+                {
+                  type: "button",
+                  class: "drawio-btn",
+                  "data-drawio-zoom-out": "",
+                  "aria-label": t.zoomOut,
+                },
+                [iconZoomOut()],
+              ),
+              h(
+                "span",
+                { class: "drawio-zoom-level tabular-nums", "data-drawio-zoom-level": "" },
+                "100%",
+              ),
+              h(
+                "button",
+                {
+                  type: "button",
+                  class: "drawio-btn",
+                  "data-drawio-zoom-in": "",
+                  "aria-label": t.zoomIn,
+                },
+                [iconZoomIn()],
+              ),
+              h(
+                "button",
+                {
+                  type: "button",
+                  class: "drawio-btn",
+                  "data-drawio-reset": "",
+                  "aria-label": t.reset,
+                },
+                [iconReset()],
+              ),
             ]),
           ],
         },
@@ -99,7 +130,10 @@ export function remarkDrawio() {
 
       const viewport = {
         type: "paragraph",
-        data: { hName: "div", hProperties: { className: ["drawio-viewport"], "data-drawio-viewport": "" } },
+        data: {
+          hName: "div",
+          hProperties: { className: ["drawio-viewport"], "data-drawio-viewport": "" },
+        },
         children: [pan],
       };
 

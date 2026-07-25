@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useId, useRef, useState, type RefObject } from "react";
-import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { SparklesIcon } from "lucide-react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
+import { type RefObject, useCallback, useEffect, useId, useRef, useState } from "react";
 import useClickOutside from "@/hooks/useClickOutside";
 
 type AiLabels = {
@@ -21,7 +21,7 @@ type AiActionsProps = {
 const itemClass =
   "flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-secondary focus-visible:bg-secondary";
 
-export function AiActions({ url, markdown, prompt, labels }: AiActionsProps) {
+export function AiActions({ markdown, prompt, labels }: AiActionsProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -92,29 +92,88 @@ export function AiActions({ url, markdown, prompt, labels }: AiActionsProps) {
               transition={{ duration: 0.15, ease: "easeOut" }}
               className="absolute left-0 top-full z-50 mt-2 w-60 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-lg"
             >
-              <button type="button" role="menuitem" onClick={copyMarkdown} aria-live="polite" className={itemClass}>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={copyMarkdown}
+                aria-live="polite"
+                className={itemClass}
+              >
                 {copied ? (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="text-accent">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                    className="text-accent"
+                  >
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
                 ) : (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
                     <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
                     <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
                   </svg>
                 )}
                 <span>{copied ? labels.copied : labels.copyMarkdown}</span>
               </button>
-              <a href={claudeHref} target="_blank" rel="noopener noreferrer" role="menuitem" className={itemClass} >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <a
+                href={claudeHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                role="menuitem"
+                className={itemClass}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
                   <path d="M7 8h10" />
                   <path d="M7 12h6" />
                   <path d="M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H8l-4 4Z" />
                 </svg>
                 <span>{labels.openClaude}</span>
               </a>
-              <a href={chatgptHref} target="_blank" rel="noopener noreferrer" role="menuitem" className={itemClass} >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <a
+                href={chatgptHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                role="menuitem"
+                className={itemClass}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
                   <path d="M12 3a4 4 0 0 1 3.4 6.1" />
                   <path d="M12 21a4 4 0 0 1-3.4-6.1" />
                   <circle cx="12" cy="12" r="3" />

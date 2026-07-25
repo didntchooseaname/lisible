@@ -1,4 +1,3 @@
-
 export interface PlatformStrings {
   share: {
     title: string;
@@ -116,8 +115,7 @@ const fr: PlatformStrings = {
   },
   archives: {
     title: "Archives",
-    description:
-      "Toutes les transmissions consignées, année par année, mois par mois.",
+    description: "Toutes les transmissions consignées, année par année, mois par mois.",
     postsCount: (n) => (n === 1 ? "1 article" : `${n} articles`),
   },
   series: {
@@ -206,8 +204,7 @@ const en: PlatformStrings = {
     label: "Series",
     part: (current, total) => `Part ${current} of ${total}`,
     pageTitle: (name) => `Series: ${name}`,
-    pageDescription: (name) =>
-      `All episodes of the "${name}" series, in reading order.`,
+    pageDescription: (name) => `All episodes of the "${name}" series, in reading order.`,
     totalReadingTime: (min) => `${min} min total reading time`,
     episodes: "Episodes in this series",
     prev: "Previous episode",

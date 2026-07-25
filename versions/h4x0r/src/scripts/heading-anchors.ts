@@ -1,4 +1,3 @@
-
 let feedbackTimer: number | undefined;
 
 document.addEventListener("click", (event) => {

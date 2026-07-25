@@ -1,13 +1,13 @@
-import { h } from "hastscript";
 import type { ElementContent } from "hast";
+import { h } from "hastscript";
 import type { Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
 import {
+  type CalloutVariant,
   calloutTitles,
   cardLocaleFromPath,
   isCalloutVariant,
-  type CalloutVariant,
 } from "../i18n/callouts";
 
 const icon = (paths: ElementContent[]): ElementContent =>
@@ -118,14 +118,26 @@ const remarkCallouts: Plugin<[], Root> = () => {
       }
 
       const headerChildren: DirectiveNode[] = [
-        { type: "calloutIcon", data: { hName: "span", hProperties: { class: "callout-icon" } }, children: [] } as unknown as DirectiveNode,
-        { type: "calloutTitle", data: { hName: "span", hProperties: { class: "callout-title" } }, children: titleChildren } as unknown as DirectiveNode,
+        {
+          type: "calloutIcon",
+          data: { hName: "span", hProperties: { class: "callout-icon" } },
+          children: [],
+        } as unknown as DirectiveNode,
+        {
+          type: "calloutTitle",
+          data: { hName: "span", hProperties: { class: "callout-title" } },
+          children: titleChildren,
+        } as unknown as DirectiveNode,
       ];
       (headerChildren[0].data as { hChildren?: ElementContent[] }).hChildren = [icons[variant]];
       if (collapsible) {
         headerChildren.push({
           type: "calloutChevron",
-          data: { hName: "span", hProperties: { class: "callout-chevron-wrap" }, hChildren: [chevron()] },
+          data: {
+            hName: "span",
+            hProperties: { class: "callout-chevron-wrap" },
+            hChildren: [chevron()],
+          },
           children: [],
         } as unknown as DirectiveNode);
       }

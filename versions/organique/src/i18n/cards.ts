@@ -1,4 +1,3 @@
-
 export interface CardStrings {
   github: {
     stars: string;

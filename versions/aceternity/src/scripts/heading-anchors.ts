@@ -27,8 +27,7 @@ function initHeadingAnchors() {
       const url = `${location.origin}${location.pathname}#${heading.id}`;
       try {
         await navigator.clipboard.writeText(url);
-      } catch {
-      }
+      } catch {}
       history.replaceState(null, "", `#${heading.id}`);
       anchor.classList.add("is-copied");
       anchor.setAttribute("data-feedback", copiedLabel);

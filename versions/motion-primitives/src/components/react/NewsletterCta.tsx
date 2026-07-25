@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
 import { MotionConfig, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { BorderTrail } from "@/components/ui/border-trail";
 import { GlowEffect } from "@/components/ui/glow-effect";
 import { InView } from "@/components/ui/in-view";

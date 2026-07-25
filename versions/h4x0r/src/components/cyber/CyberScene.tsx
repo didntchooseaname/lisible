@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { currentAccentRgb, isDarkTheme, type Rgb } from "@/lib/cyber";
 
-
 type Wave = { x: number; y: number; born: number };
 
 type Column = {
@@ -10,8 +9,7 @@ type Column = {
   len: number;
 };
 
-const GLYPHS =
-  "アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF<>/*+=#$%&@";
+const GLYPHS = "アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF<>/*+=#$%&@";
 
 function readMode(): number {
   return document.body?.dataset.cyberScene === "calm" ? 0 : 1;
@@ -78,8 +76,7 @@ export default function CyberScene() {
       if (reduced) drawStatic();
     };
 
-    const glyphAt = (c: number, r: number) =>
-      chars[((r % rows) + rows) % rows * cols + c] ?? "0";
+    const glyphAt = (c: number, r: number) => chars[(((r % rows) + rows) % rows) * cols + c] ?? "0";
 
     const drawGrid = (t: number) => {
       const step = cell * 4;
@@ -159,7 +156,7 @@ export default function CyberScene() {
           const y = r * cell + cell / 2 + parallax;
           if (y < -cell || y > h + cell) continue;
 
-          const falloff = Math.pow(1 - i / col.len, 1.7);
+          const falloff = (1 - i / col.len) ** 1.7;
           let alpha = falloff * 0.6 * globalDim * columnDim;
           let ox = 0;
           let oy = 0;
@@ -169,7 +166,7 @@ export default function CyberScene() {
           const distSq = dxm * dxm + dym * dym;
           if (distSq < 180 * 180) {
             const dist = Math.sqrt(distSq) || 1;
-            const force = Math.pow(1 - dist / 180, 2);
+            const force = (1 - dist / 180) ** 2;
             const push = force * 26 * (0.4 + 0.6 * intensity);
             ox += (dxm / dist) * push;
             oy += (dym / dist) * push;
@@ -337,6 +334,7 @@ export default function CyberScene() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
+      tabIndex={-1}
       data-cyber-canvas
       className="pointer-events-none fixed inset-0 -z-10 h-full w-full"
     />

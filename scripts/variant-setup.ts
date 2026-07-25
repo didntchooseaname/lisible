@@ -13,10 +13,7 @@ export function hasRootDependencies(root: string) {
   return existsSync(join(root, "node_modules", "sharp", "package.json"));
 }
 
-export function installRootDependencies(
-  root: string,
-  { force = false }: InstallOptions = {},
-) {
+export function installRootDependencies(root: string, { force = false }: InstallOptions = {}) {
   if (!force && hasRootDependencies(root)) return 0;
 
   console.log("[lisible] root: installing tooling dependencies...");
@@ -65,9 +62,7 @@ export function buildVariant(name: string, dir: string) {
   });
 
   if (build.exitCode !== 0) {
-    console.error(
-      `[lisible] ${name}: build failed (exit code ${build.exitCode}).`,
-    );
+    console.error(`[lisible] ${name}: build failed (exit code ${build.exitCode}).`);
   }
   return build.exitCode;
 }

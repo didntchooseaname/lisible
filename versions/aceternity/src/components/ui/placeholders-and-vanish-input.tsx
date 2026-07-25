@@ -49,9 +49,7 @@ export function PlaceholdersAndVanishInput({
   }, [placeholders]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const newDataRef = useRef<
-    { x: number; y: number; r: number; color: string }[]
-  >([]);
+  const newDataRef = useRef<{ x: number; y: number; r: number; color: string }[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
   const [animating, setAnimating] = useState(false);
@@ -81,20 +79,11 @@ export function PlaceholdersAndVanishInput({
       const i = 4 * t * 800;
       for (let n = 0; n < 800; n++) {
         const e = i + 4 * n;
-        if (
-          pixelData[e] !== 0 &&
-          pixelData[e + 1] !== 0 &&
-          pixelData[e + 2] !== 0
-        ) {
+        if (pixelData[e] !== 0 && pixelData[e + 1] !== 0 && pixelData[e + 2] !== 0) {
           newData.push({
             x: n,
             y: t,
-            color: [
-              pixelData[e],
-              pixelData[e + 1],
-              pixelData[e + 2],
-              pixelData[e + 3],
-            ],
+            color: [pixelData[e], pixelData[e + 1], pixelData[e + 2], pixelData[e + 3]],
           });
         }
       }
@@ -136,7 +125,7 @@ export function PlaceholdersAndVanishInput({
         if (ctx) {
           ctx.clearRect(pos, 0, 800, 800);
           newDataRef.current.forEach((t) => {
-            const { x: n, y: i, r: s, color: color } = t;
+            const { x: n, y: i, r: s, color } = t;
             if (n > pos) {
               ctx.beginPath();
               ctx.rect(n, i, s, s);
@@ -165,9 +154,7 @@ export function PlaceholdersAndVanishInput({
   };
 
   const vanishAndSubmit = () => {
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduceMotion) {
       setValue("");
       return;
@@ -199,6 +186,7 @@ export function PlaceholdersAndVanishInput({
     >
       <canvas
         aria-hidden="true"
+        tabIndex={-1}
         className={cn(
           "pointer-events-none absolute top-[20%] left-2 origin-top-left scale-50 transform pr-20 text-base invert filter sm:left-8 dark:invert-0",
           !animating ? "opacity-0" : "opacity-100",

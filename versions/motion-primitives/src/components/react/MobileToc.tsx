@@ -1,9 +1,5 @@
 import { MotionConfig } from "motion/react";
-import {
-  Disclosure,
-  DisclosureContent,
-  DisclosureTrigger,
-} from "@/components/ui/disclosure";
+import { Disclosure, DisclosureContent, DisclosureTrigger } from "@/components/ui/disclosure";
 import { cn } from "@/lib/utils";
 
 export type TocItem = {

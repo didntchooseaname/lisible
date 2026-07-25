@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { prefersReducedMotion } from '@/lib/kit';
+import React, { useEffect, useRef } from "react";
+import { prefersReducedMotion } from "@/lib/kit";
 
 interface NoiseProps {
   patternRefreshInterval?: number;
@@ -13,7 +13,7 @@ const Noise: React.FC<NoiseProps> = ({ patternRefreshInterval = 0, patternAlpha 
     const canvas = grainRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d', { alpha: true });
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     let frame = 0;
@@ -59,8 +59,9 @@ const Noise: React.FC<NoiseProps> = ({ patternRefreshInterval = 0, patternAlpha 
     <canvas
       className="pointer-events-none fixed inset-0 h-full w-full"
       aria-hidden="true"
+      tabIndex={-1}
       ref={grainRef}
-      style={{ imageRendering: 'pixelated' }}
+      style={{ imageRendering: "pixelated" }}
     />
   );
 };

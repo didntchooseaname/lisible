@@ -19,12 +19,7 @@ function MaybeMagnetic({ children }: { children: ReactNode }) {
   );
 }
 
-export function FooterSocial({
-  githubHref,
-  githubLabel,
-  rssHref,
-  rssLabel,
-}: FooterSocialProps) {
+export function FooterSocial({ githubHref, githubLabel, rssHref, rssLabel }: FooterSocialProps) {
   return (
     <div className="flex items-center gap-1">
       {githubHref ? (
@@ -34,6 +29,7 @@ export function FooterSocial({
             aria-label={githubLabel}
             className="inline-flex h-11 w-11 items-center justify-center rounded-md transition-colors hover:bg-secondary hover:text-foreground"
           >
+            <span className="sr-only">{githubLabel}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -58,6 +54,7 @@ export function FooterSocial({
           aria-label={rssLabel}
           className="inline-flex h-11 w-11 items-center justify-center rounded-md transition-colors hover:bg-secondary hover:text-foreground"
         >
+          <span className="sr-only">{rssLabel}</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"

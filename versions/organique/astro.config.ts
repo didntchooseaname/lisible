@@ -1,34 +1,34 @@
-import type { RehypePlugins, RemarkPlugins } from "astro";
-import { defineConfig } from "astro/config";
-import react from "@astrojs/react";
+import { rehypeHeadingIds, unified } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
+import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
-import pagefind from "astro-pagefind";
-import pagefindDev from "../../shared/pagefind-dev";
-import { rehypeImageDimensions } from "../../shared/markdown/rehype-image-dimensions";
-import { katexAssets } from "../../shared/integrations/katex-assets";
-import { previewAstroConfig, previewBuildIntegration } from "../../shared/preview/build-config";
-import tailwindcss from "@tailwindcss/vite";
-import remarkDirective from "remark-directive";
-import expressiveCode from "astro-expressive-code";
 import {
   pluginCollapsibleSections,
   pluginCollapsibleSectionsTexts,
 } from "@expressive-code/plugin-collapsible-sections";
-import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import { pluginFramesTexts } from "@expressive-code/plugin-frames";
-import { rehypeHeadingIds, unified } from "@astrojs/markdown-remark";
-import remarkMath from "remark-math";
+import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
+import tailwindcss from "@tailwindcss/vite";
+import type { RehypePlugins, RemarkPlugins } from "astro";
+import { defineConfig } from "astro/config";
+import expressiveCode from "astro-expressive-code";
+import pagefind from "astro-pagefind";
 import rehypeKatex from "rehype-katex";
+import remarkDirective from "remark-directive";
+import remarkMath from "remark-math";
+import { katexAssets } from "../../shared/integrations/katex-assets";
+import { rehypeImageDimensions } from "../../shared/markdown/rehype-image-dimensions";
+import pagefindDev from "../../shared/pagefind-dev";
+import { previewAstroConfig, previewBuildIntegration } from "../../shared/preview/build-config";
+import { expressiveCodeTexts } from "./src/i18n/expressive-code";
+import rehypeHeadingAnchors from "./src/lib/rehype-heading-anchors";
 import { rehypeTaskCheckboxes } from "./src/lib/rehype-task-checkboxes";
+import remarkCallouts from "./src/lib/remark-callouts";
+import remarkDrawio from "./src/lib/remark-drawio";
 import remarkGithubCard from "./src/lib/remark-github-card";
 import remarkLinkCard from "./src/lib/remark-link-card";
-import remarkCallouts from "./src/lib/remark-callouts";
 import remarkMermaid from "./src/lib/remark-mermaid";
-import remarkDrawio from "./src/lib/remark-drawio";
-import rehypeHeadingAnchors from "./src/lib/rehype-heading-anchors";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge";
-import { expressiveCodeTexts } from "./src/i18n/expressive-code";
 import { FEATURES, SITE } from "./src/site.config";
 
 const siteUrl = SITE.url;
@@ -154,7 +154,14 @@ export default defineConfig({
   vite: {
     plugins: [pagefindDev(), tailwindcss()],
     optimizeDeps: {
-      include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime", "mermaid"],
+      include: [
+        "react",
+        "react-dom",
+        "react-dom/client",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+        "mermaid",
+      ],
     },
     define: {
       __FEATURE_IMAGE_ZOOM__: JSON.stringify(FEATURES.imageZoom),

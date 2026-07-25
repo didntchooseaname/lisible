@@ -1,6 +1,6 @@
-import { h } from "hastscript";
 import type { ElementContent } from "hast";
-import type { Root, Paragraph } from "mdast";
+import { h } from "hastscript";
+import type { Paragraph, Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
 import { cardLocaleFromPath } from "../i18n/cards";

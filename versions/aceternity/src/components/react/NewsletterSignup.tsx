@@ -32,10 +32,7 @@ export default function NewsletterSignup({
         inputLabel={emailLabel}
         submitLabel={submitLabel}
       />
-      <StatefulButton
-        onClick={fakeSubscribe}
-        className="shrink-0 self-start sm:self-auto"
-      >
+      <StatefulButton onClick={fakeSubscribe} className="shrink-0 self-start sm:self-auto">
         {buttonLabel}
       </StatefulButton>
     </div>

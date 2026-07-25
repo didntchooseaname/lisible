@@ -14,17 +14,31 @@ permissions:
   contents: read
 
 jobs:
-  style:
-    name: editorial style
+  quality:
+    name: lint, tests and style
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: latest
+          bun-version-file: .bun-version
 
-      - name: Check editorial style rules
+      - name: Install root tooling
+        run: bun install --frozen-lockfile
+
+      - name: Install _core dependencies
+        # The Open Graph tests render through the fonts installed by _core.
+        working-directory: versions/_core
+        run: bun install --frozen-lockfile
+
+      - name: Lint and format check
+        run: bun x biome ci .
+
+      - name: Unit tests
+        run: bun test
+
+      - name: Editorial style rules
         run: bun scripts/check-style.ts
 
   variant:
@@ -43,11 +57,11 @@ jobs:
           - organique
           - h4x0r
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: latest
+          bun-version-file: .bun-version
 
       - name: Install root tooling
         run: bun install --frozen-lockfile
@@ -63,11 +77,11 @@ jobs:
     name: dependencies up to date
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: latest
+          bun-version-file: .bun-version
 
       - name: Report outdated dependencies
         # Informational: the project targets the latest of everything, but a

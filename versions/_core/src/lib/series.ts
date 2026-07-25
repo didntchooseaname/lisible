@@ -1,12 +1,10 @@
 import { seriesSlug } from "@shared/lib/posts";
-import { getPublishedPosts, postLocale, type Post } from "@/lib/posts";
-import { readingTime } from "@/lib/utils";
 import type { Locale } from "@/i18n/ui";
+import { getPublishedPosts, type Post, postLocale } from "@/lib/posts";
+import { readingTime } from "@/lib/utils";
 
 export function seriesTitle(slug: string): string {
-  return slug
-    .replace(/[-_]+/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return slug.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function sortSeries(posts: Post[]): Post[] {
@@ -18,10 +16,7 @@ function sortSeries(posts: Post[]): Post[] {
   });
 }
 
-export async function getSeriesPosts(
-  locale: Locale,
-  slug: string,
-): Promise<Post[]> {
+export async function getSeriesPosts(locale: Locale, slug: string): Promise<Post[]> {
   const posts = await getPublishedPosts(locale);
   return sortSeries(posts.filter((p) => p.data.series && seriesSlug(p.data.series) === slug));
 }
@@ -65,9 +60,7 @@ export interface SeriesContext {
   totalMinutes: number;
 }
 
-export async function getSeriesContext(
-  post: Post,
-): Promise<SeriesContext | null> {
+export async function getSeriesContext(post: Post): Promise<SeriesContext | null> {
   const slug = post.data.series ? seriesSlug(post.data.series) : undefined;
   if (!slug) return null;
   const locale = postLocale(post);

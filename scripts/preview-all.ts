@@ -1,10 +1,6 @@
 import { join } from "node:path";
 import { VARIANTS } from "../shared/variants";
-import {
-  buildVariant,
-  installRootDependencies,
-  installVariantDependencies,
-} from "./variant-setup";
+import { buildVariant, installRootDependencies, installVariantDependencies } from "./variant-setup";
 
 const root = new URL("..", import.meta.url).pathname;
 

@@ -1,19 +1,17 @@
 "use client";
+import { Moon, Search, Sun } from "lucide-react";
 import { useRef, useState } from "react";
-import { Search, Sun, Moon } from "lucide-react";
+import AccentPicker, { type AccentPickerLabels } from "@/components/react/AccentPicker";
 import {
-  Navbar,
-  NavBody,
-  NavItems,
-  NavbarLogo,
   MobileNav,
   MobileNavHeader,
   MobileNavMenu,
   MobileNavToggle,
+  NavBody,
+  Navbar,
+  NavbarLogo,
+  NavItems,
 } from "@/components/ui/resizable-navbar";
-import AccentPicker, {
-  type AccentPickerLabels,
-} from "@/components/react/AccentPicker";
 import { cn } from "@/lib/utils";
 
 export interface HeaderNavProps {
@@ -38,14 +36,11 @@ export interface HeaderNavProps {
 }
 
 function applyThemeToggle() {
-  const next = document.documentElement.classList.contains("dark")
-    ? "light"
-    : "dark";
+  const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
   document.documentElement.classList.toggle("dark", next === "dark");
   try {
     localStorage.setItem("theme", next);
-  } catch {
-  }
+  } catch {}
   window.applyAccent?.();
 }
 
@@ -54,11 +49,7 @@ function toggleThemeAnimated(button: HTMLButtonElement | null) {
     typeof window.matchMedia === "function" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  if (
-    !button ||
-    typeof document.startViewTransition !== "function" ||
-    prefersReducedMotion
-  ) {
+  if (!button || typeof document.startViewTransition !== "function" || prefersReducedMotion) {
     applyThemeToggle();
     return;
   }
@@ -68,10 +59,7 @@ function toggleThemeAnimated(button: HTMLButtonElement | null) {
   const { top, left, width, height } = button.getBoundingClientRect();
   const cx = left + width / 2;
   const cy = top + height / 2;
-  const maxRadius = Math.hypot(
-    Math.max(cx, viewportWidth - cx),
-    Math.max(cy, viewportHeight - cy),
-  );
+  const maxRadius = Math.hypot(Math.max(cx, viewportWidth - cx), Math.max(cy, viewportHeight - cy));
   const clipPath: [string, string] = [
     `circle(0px at ${cx}px ${cy}px)`,
     `circle(${maxRadius}px at ${cx}px ${cy}px)`,
@@ -110,8 +98,7 @@ function toggleThemeAnimated(button: HTMLButtonElement | null) {
         },
       );
     })
-    .catch(() => {
-    });
+    .catch(() => {});
 }
 
 const ThemeToggleButton = ({ label }: { label: string }) => {
@@ -198,7 +185,7 @@ export default function HeaderNav({
 
   return (
     <Navbar>
-      { }
+      {}
       <NavBody>
         <NavbarLogo href={homeUrl} title={siteTitle} />
         <NavItems items={items} ariaLabel={navLabel} />
@@ -210,7 +197,7 @@ export default function HeaderNav({
         </div>
       </NavBody>
 
-      { }
+      {}
       <MobileNav>
         <MobileNavHeader>
           <NavbarLogo href={homeUrl} title={siteTitle} />
@@ -248,11 +235,7 @@ export default function HeaderNav({
             </ul>
           </nav>
           <div className="mt-2 px-3">
-            <LanguageSwitcher
-              label={langLabel}
-              items={langItems}
-              onNavigate={closeMenu}
-            />
+            <LanguageSwitcher label={langLabel} items={langItems} onNavigate={closeMenu} />
           </div>
         </MobileNavMenu>
       </MobileNav>

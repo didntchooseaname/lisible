@@ -18,9 +18,7 @@ let convertCtx: CanvasRenderingContext2D | null = null;
 
 function toRgb(color: string): string {
   if (!color || color.startsWith("rgb")) return color;
-  convertCtx ??= document
-    .createElement("canvas")
-    .getContext("2d", { willReadFrequently: true });
+  convertCtx ??= document.createElement("canvas").getContext("2d", { willReadFrequently: true });
   const ctx = convertCtx;
   if (!ctx) return color;
   ctx.clearRect(0, 0, 1, 1);
@@ -28,9 +26,7 @@ function toRgb(color: string): string {
   ctx.fillStyle = color;
   ctx.fillRect(0, 0, 1, 1);
   const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
-  return a === 255
-    ? `rgb(${r}, ${g}, ${b})`
-    : `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(3)})`;
+  return a === 255 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(3)})`;
 }
 
 function tokenColor(probe: HTMLElement, token: string): string {
@@ -64,7 +60,9 @@ function readThemeVariables() {
     titleColor: c("--color-foreground"),
     edgeLabelBackground: c("--color-card"),
   };
-  const fontFamily = getComputedStyle(document.documentElement).getPropertyValue("--font-sans").trim();
+  const fontFamily = getComputedStyle(document.documentElement)
+    .getPropertyValue("--font-sans")
+    .trim();
   probe.remove();
   return { vars, fontFamily };
 }
@@ -222,8 +220,7 @@ async function renderContainer(container: HTMLElement) {
       await navigator.clipboard.writeText(code);
       copyBtn.classList.add("is-copied");
       setTimeout(() => copyBtn.classList.remove("is-copied"), 1500);
-    } catch {
-    }
+    } catch {}
   });
 }
 
@@ -234,7 +231,11 @@ function queueRender(container: HTMLElement) {
 }
 
 function observe(container: HTMLElement) {
-  if (container.hasAttribute("data-mermaid-rendered") || container.hasAttribute("data-mermaid-observed")) return;
+  if (
+    container.hasAttribute("data-mermaid-rendered") ||
+    container.hasAttribute("data-mermaid-observed")
+  )
+    return;
   if (!("IntersectionObserver" in window)) {
     queueRender(container);
     return;
@@ -257,7 +258,9 @@ function renderAll() {
 }
 
 async function reRenderForTheme() {
-  const containers = document.querySelectorAll<HTMLElement>("[data-mermaid][data-mermaid-rendered]");
+  const containers = document.querySelectorAll<HTMLElement>(
+    "[data-mermaid][data-mermaid-rendered]",
+  );
   for (const container of containers) {
     const renderTarget = container.querySelector<HTMLElement>("[data-mermaid-render]");
     const sourceEl = container.querySelector<HTMLElement>("[data-mermaid-source]");

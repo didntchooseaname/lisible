@@ -1,7 +1,6 @@
-import { OrbitingCircles } from "@/components/ui/orbiting-circles";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
+import { OrbitingCircles } from "@/components/ui/orbiting-circles";
 import { useAccentRgb } from "@/lib/cyber";
-
 
 export type OrbitTag = {
   name: string;

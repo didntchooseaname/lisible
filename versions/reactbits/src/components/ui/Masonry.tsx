@@ -1,19 +1,19 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { gsap } from 'gsap';
-import { prefersReducedMotion } from '@/lib/kit';
+import { gsap } from "gsap";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { prefersReducedMotion } from "@/lib/kit";
 
 const useMedia = (queries: string[], values: number[], defaultValue: number): number => {
   const get = () =>
-    typeof window === 'undefined'
+    typeof window === "undefined"
       ? defaultValue
-      : (values[queries.findIndex(q => matchMedia(q).matches)] ?? defaultValue);
+      : (values[queries.findIndex((q) => matchMedia(q).matches)] ?? defaultValue);
 
   const [value, setValue] = useState<number>(get);
 
   useEffect(() => {
     const handler = () => setValue(get);
-    queries.forEach(q => matchMedia(q).addEventListener('change', handler));
-    return () => queries.forEach(q => matchMedia(q).removeEventListener('change', handler));
+    queries.forEach((q) => matchMedia(q).addEventListener("change", handler));
+    return () => queries.forEach((q) => matchMedia(q).removeEventListener("change", handler));
   }, [queries]);
 
   return value;
@@ -57,7 +57,7 @@ interface MasonryProps {
   ease?: string;
   duration?: number;
   stagger?: number;
-  animateFrom?: 'bottom' | 'top' | 'left' | 'right' | 'center' | 'random';
+  animateFrom?: "bottom" | "top" | "left" | "right" | "center" | "random";
   scaleOnHover?: boolean;
   hoverScale?: number;
   blurToFocus?: boolean;
@@ -71,22 +71,24 @@ const CardInner: React.FC<{ item: MasonryItem }> = ({ item }) => (
     <h2 className="text-base font-semibold leading-snug tracking-tight text-foreground group-hover:text-accent">
       {item.title}
     </h2>
-    <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+    <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-muted-foreground">
+      {item.description}
+    </p>
     <p className="mt-auto pt-3 text-xs text-muted-foreground">{item.meta}</p>
   </a>
 );
 
 const Masonry: React.FC<MasonryProps> = ({
   items,
-  ease = 'power3.out',
+  ease = "power3.out",
   duration = 0.6,
   stagger = 0.05,
-  animateFrom = 'bottom',
+  animateFrom = "bottom",
   scaleOnHover = true,
   hoverScale = 0.97,
-  blurToFocus = true
+  blurToFocus = true,
 }) => {
-  const columns = useMedia(['(min-width:1000px)', '(min-width:640px)'], [3, 2], 1);
+  const columns = useMedia(["(min-width:1000px)", "(min-width:640px)"], [3, 2], 1);
 
   const [containerRef, { width }] = useMeasure<HTMLDivElement>();
 
@@ -95,24 +97,24 @@ const Masonry: React.FC<MasonryProps> = ({
     if (!containerRect) return { x: item.x, y: item.y };
 
     let direction = animateFrom;
-    if (animateFrom === 'random') {
-      const dirs = ['top', 'bottom', 'left', 'right'];
+    if (animateFrom === "random") {
+      const dirs = ["top", "bottom", "left", "right"];
       direction = dirs[Math.floor(Math.random() * dirs.length)] as typeof animateFrom;
     }
 
     switch (direction) {
-      case 'top':
+      case "top":
         return { x: item.x, y: -200 };
-      case 'bottom':
+      case "bottom":
         return { x: item.x, y: window.innerHeight + 200 };
-      case 'left':
+      case "left":
         return { x: -200, y: item.y };
-      case 'right':
+      case "right":
         return { x: window.innerWidth + 200, y: item.y };
-      case 'center':
+      case "center":
         return {
           x: containerRect.width / 2 - item.w / 2,
-          y: containerRect.height / 2 - item.h / 2
+          y: containerRect.height / 2 - item.h / 2,
         };
       default:
         return { x: item.x, y: item.y + 100 };
@@ -126,7 +128,7 @@ const Masonry: React.FC<MasonryProps> = ({
     const totalGaps = (columns - 1) * gap;
     const columnWidth = (width - totalGaps) / columns;
 
-    const computed = items.map(child => {
+    const computed = items.map((child) => {
       const col = colHeights.indexOf(Math.min(...colHeights));
       const x = col * (columnWidth + gap);
       const height = child.height;
@@ -162,23 +164,23 @@ const Masonry: React.FC<MasonryProps> = ({
             y: start.y,
             width: item.w,
             height: item.h,
-            ...(blurToFocus && { filter: 'blur(10px)' })
+            ...(blurToFocus && { filter: "blur(10px)" }),
           },
           {
             opacity: 1,
             ...animProps,
-            ...(blurToFocus && { filter: 'blur(0px)' }),
+            ...(blurToFocus && { filter: "blur(0px)" }),
             duration: 0.8,
-            ease: 'power3.out',
-            delay: index * stagger
-          }
+            ease: "power3.out",
+            delay: index * stagger,
+          },
         );
       } else {
         gsap.to(selector, {
           ...animProps,
           duration: reduce ? 0 : duration,
           ease,
-          overwrite: 'auto'
+          overwrite: "auto",
         });
       }
     });
@@ -188,20 +190,20 @@ const Masonry: React.FC<MasonryProps> = ({
 
   const handleMouseEnter = (id: string) => {
     if (scaleOnHover && !prefersReducedMotion()) {
-      gsap.to(`[data-key="${id}"]`, { scale: hoverScale, duration: 0.3, ease: 'power2.out' });
+      gsap.to(`[data-key="${id}"]`, { scale: hoverScale, duration: 0.3, ease: "power2.out" });
     }
   };
 
   const handleMouseLeave = (id: string) => {
     if (scaleOnHover && !prefersReducedMotion()) {
-      gsap.to(`[data-key="${id}"]`, { scale: 1, duration: 0.3, ease: 'power2.out' });
+      gsap.to(`[data-key="${id}"]`, { scale: 1, duration: 0.3, ease: "power2.out" });
     }
   };
 
-  if (typeof window === 'undefined' || !width) {
+  if (typeof window === "undefined" || !width) {
     return (
       <div ref={containerRef} className="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map(item => (
+        {items.map((item) => (
           <div key={item.id} style={{ minHeight: item.height }}>
             <CardInner item={item} />
           </div>
@@ -212,12 +214,13 @@ const Masonry: React.FC<MasonryProps> = ({
 
   return (
     <div ref={containerRef} className="relative w-full" style={{ height: containerHeight }}>
-      {grid.map(item => (
+      {grid.map((item) => (
+        // biome-ignore lint/a11y/noStaticElementInteractions: hover handlers only drive the card scale animation
         <div
           key={item.id}
           data-key={item.id}
           className="absolute top-0 left-0 opacity-0"
-          style={{ willChange: 'transform, width, height, opacity' }}
+          style={{ willChange: "transform, width, height, opacity" }}
           onMouseEnter={() => handleMouseEnter(item.id)}
           onMouseLeave={() => handleMouseLeave(item.id)}
         >

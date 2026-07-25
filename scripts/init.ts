@@ -1,10 +1,10 @@
-import { createInterface } from "node:readline/promises";
-import { stdin, stdout, exit } from "node:process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { exit, stdin, stdout } from "node:process";
+import { createInterface } from "node:readline/promises";
 import { parseArgs } from "node:util";
-import { VARIANTS } from "../shared/variants";
 import { DEMO_PROFILE, SITE_DEFAULTS } from "../shared/site.config";
+import { VARIANTS } from "../shared/variants";
 import { installRootDependencies, installVariantDependencies } from "./variant-setup";
 
 const root = new URL("..", import.meta.url).pathname;
@@ -39,12 +39,12 @@ async function checkUpstreamOrigin(ask?: (q: string, def?: string) => Promise<st
   const url = remote.stdout.toString().trim();
   if (!UPSTREAM.test(url)) return;
   if (!ask) {
-    info("\nNote: your git remote \"origin\" points at the upstream Lisible repository.");
+    info('\nNote: your git remote "origin" points at the upstream Lisible repository.');
     info("Consider: git remote rename origin upstream");
     return;
   }
-  info("\nYour git remote \"origin\" points at the upstream Lisible repository.");
-  const rename = (await ask("Rename it to \"upstream\" so your own repo can be origin? (y/n)", "y"))
+  info('\nYour git remote "origin" points at the upstream Lisible repository.');
+  const rename = (await ask('Rename it to "upstream" so your own repo can be origin? (y/n)', "y"))
     .toLowerCase()
     .startsWith("y");
   if (!rename) return;
@@ -62,15 +62,15 @@ function banner() {
 }
 
 function info(msg: string) {
-  stdout.write(msg + "\n");
+  stdout.write(`${msg}\n`);
 }
 
 async function main() {
   const assumeYes = flags.yes === true;
   if (!assumeYes && !stdin.isTTY) {
     info("Run this in an interactive terminal: bun run init");
-    info("Or run non-interactively: bun run init --yes --variant organique --title \"My blog\"");
-    info("Or edit lisible.config.json directly (field \"variant\").");
+    info('Or run non-interactively: bun run init --yes --variant organique --title "My blog"');
+    info('Or edit lisible.config.json directly (field "variant").');
     exit(1);
   }
 
@@ -129,7 +129,8 @@ async function main() {
   }
 
   // Flags imply detailed mode for the values they carry, in both modes.
-  const flagged = flags.author !== undefined || flags.accent !== undefined || flags.repo !== undefined;
+  const flagged =
+    flags.author !== undefined || flags.accent !== undefined || flags.repo !== undefined;
   let detailed = flagged;
   if (!assumeYes && !flagged) {
     const mode = (await ask("\nSetup mode: (q)uick or (d)etailed", "q")).toLowerCase();
@@ -151,7 +152,7 @@ async function main() {
       }
       info("  Expected a hex color like #22C55E.");
     }
-    repoUrl = await ask("Blog repository URL for \"Edit on GitHub\" (optional)", repoUrl);
+    repoUrl = await ask('Blog repository URL for "Edit on GitHub" (optional)', repoUrl);
   }
 
   info("\nSummary");
@@ -164,9 +165,7 @@ async function main() {
     info(`  repo    : ${repoUrl || "(none)"}`);
   }
   if (!assumeYes) {
-    const ok = (await ask("\nApply this configuration? (y/n)", "y"))
-      .toLowerCase()
-      .startsWith("y");
+    const ok = (await ask("\nApply this configuration? (y/n)", "y")).toLowerCase().startsWith("y");
     if (!ok) {
       info("Cancelled, nothing was written.");
       closePrompt();
@@ -251,7 +250,7 @@ function writeConfig(vals: {
   if (vals.author !== undefined) json.site.author = vals.author;
   if (vals.accent !== undefined) json.site.accent = vals.accent;
   if (vals.repoUrl) json.repo = { ...json.repo, url: vals.repoUrl };
-  writeFileSync(configPath, JSON.stringify(json, null, 2) + "\n");
+  writeFileSync(configPath, `${JSON.stringify(json, null, 2)}\n`);
 }
 
 main();

@@ -1,7 +1,7 @@
 import type { Root } from "mdast";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
-import { defaultLocale, ui, type Locale } from "../i18n/ui";
+import { defaultLocale, type Locale, ui } from "../i18n/ui";
 
 function localeFromPath(filePath: string | undefined): Locale {
   if (filePath && /[\\/]en[\\/]/.test(filePath)) return "en";
@@ -13,8 +13,10 @@ const svg = (inner: string, size = 18) =>
 
 const ICONS = {
   grid: '<path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M3 14h7v7H3z"/><path d="M14 14h7v7h-7z"/>',
-  zoomOut: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>',
-  zoomIn: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>',
+  zoomOut:
+    '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>',
+  zoomIn:
+    '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>',
   reset: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
 };
 
@@ -37,7 +39,7 @@ const remarkDrawio: Plugin<[], Root> = () => {
       if (directive.type !== "containerDirective") return;
       if (directive.name !== "drawio") return;
 
-      const id = `drawio-${(counter += 1).toString(36)}`;
+      const id = `drawio-${((counter += 1)).toString(36)}`;
       const src = directive.attributes?.src ?? "";
       const label = directive.attributes?.title || dict.label;
 

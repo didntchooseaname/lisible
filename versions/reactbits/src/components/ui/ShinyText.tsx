@@ -1,5 +1,11 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { motion, useMotionValue, useAnimationFrame, useTransform, useReducedMotion } from 'motion/react';
+import {
+  motion,
+  useAnimationFrame,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+} from "motion/react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 interface ShinyTextProps {
   text: string;
@@ -11,7 +17,7 @@ interface ShinyTextProps {
   spread?: number;
   yoyo?: boolean;
   pauseOnHover?: boolean;
-  direction?: 'left' | 'right';
+  direction?: "left" | "right";
   delay?: number;
 }
 
@@ -19,26 +25,26 @@ const ShinyText: React.FC<ShinyTextProps> = ({
   text,
   disabled = false,
   speed = 2,
-  className = '',
-  color = '#b5b5b5',
-  shineColor = '#ffffff',
+  className = "",
+  color = "#b5b5b5",
+  shineColor = "#ffffff",
   spread = 120,
   yoyo = false,
   pauseOnHover = false,
-  direction = 'left',
-  delay = 0
+  direction = "left",
+  delay = 0,
 }) => {
   const [isPaused, setIsPaused] = useState(false);
   const reducedMotion = useReducedMotion();
   const progress = useMotionValue(0);
   const elapsedRef = useRef(0);
   const lastTimeRef = useRef<number | null>(null);
-  const directionRef = useRef(direction === 'left' ? 1 : -1);
+  const directionRef = useRef(direction === "left" ? 1 : -1);
 
   const animationDuration = speed * 1000;
   const delayDuration = delay * 1000;
 
-  useAnimationFrame(time => {
+  useAnimationFrame((time) => {
     if (disabled || isPaused || reducedMotion) {
       lastTimeRef.current = null;
       return;
@@ -85,13 +91,13 @@ const ShinyText: React.FC<ShinyTextProps> = ({
   });
 
   useEffect(() => {
-    directionRef.current = direction === 'left' ? 1 : -1;
+    directionRef.current = direction === "left" ? 1 : -1;
     elapsedRef.current = 0;
     progress.set(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [direction]);
 
-  const backgroundPosition = useTransform(progress, p => `${150 - p * 2}% center`);
+  const backgroundPosition = useTransform(progress, (p) => `${150 - p * 2}% center`);
 
   const handleMouseEnter = useCallback(() => {
     if (pauseOnHover) setIsPaused(true);
@@ -103,10 +109,10 @@ const ShinyText: React.FC<ShinyTextProps> = ({
 
   const gradientStyle: React.CSSProperties = {
     backgroundImage: `linear-gradient(${spread}deg, ${color} 0%, ${color} 35%, ${shineColor} 50%, ${color} 65%, ${color} 100%)`,
-    backgroundSize: '200% auto',
-    WebkitBackgroundClip: 'text',
-    backgroundClip: 'text',
-    WebkitTextFillColor: 'transparent'
+    backgroundSize: "200% auto",
+    WebkitBackgroundClip: "text",
+    backgroundClip: "text",
+    WebkitTextFillColor: "transparent",
   };
 
   return (

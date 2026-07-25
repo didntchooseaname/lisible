@@ -1,5 +1,5 @@
-import { useRef } from "react";
 import { MotionConfig, useInView } from "motion/react";
+import { useRef } from "react";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 
 export type StatItem = {
@@ -33,9 +33,7 @@ export function AboutStats({ locale, title, stats }: AboutStatsProps) {
                   springOptions={{ stiffness: 80, damping: 22 }}
                 />
               </dd>
-              <dt className="mt-1 text-xs text-muted-foreground md:text-sm">
-                {stat.label}
-              </dt>
+              <dt className="mt-1 text-xs text-muted-foreground md:text-sm">{stat.label}</dt>
             </div>
           ))}
         </dl>

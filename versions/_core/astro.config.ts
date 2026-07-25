@@ -1,32 +1,32 @@
-import type { RehypePlugins, RemarkPlugins } from "astro";
-import { defineConfig } from "astro/config";
-import react from "@astrojs/react";
+import { unified } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
+import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
-import pagefind from "astro-pagefind";
-import pagefindDev from "../../shared/pagefind-dev";
-import { rehypeImageDimensions } from "../../shared/markdown/rehype-image-dimensions";
-import { katexAssets } from "../../shared/integrations/katex-assets";
-import tailwindcss from "@tailwindcss/vite";
-import remarkDirective from "remark-directive";
-import expressiveCode, { pluginFramesTexts } from "astro-expressive-code";
 import {
   pluginCollapsibleSections,
   pluginCollapsibleSectionsTexts,
 } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
-import remarkMath from "remark-math";
+import tailwindcss from "@tailwindcss/vite";
+import type { RehypePlugins, RemarkPlugins } from "astro";
+import { defineConfig } from "astro/config";
+import expressiveCode, { pluginFramesTexts } from "astro-expressive-code";
+import pagefind from "astro-pagefind";
 import rehypeKatex from "rehype-katex";
-import { unified } from "@astrojs/markdown-remark";
+import remarkDirective from "remark-directive";
+import remarkMath from "remark-math";
+import { katexAssets } from "../../shared/integrations/katex-assets";
+import { rehypeImageDimensions } from "../../shared/markdown/rehype-image-dimensions";
+import pagefindDev from "../../shared/pagefind-dev";
+import { codeStrings } from "./src/i18n/code";
+import { pluginLanguageBadge } from "./src/lib/expressive-code/language-badge";
+import rehypeHeadingAnchors from "./src/lib/rehype-heading-anchors";
 import { rehypeTaskCheckboxes } from "./src/lib/rehype-task-checkboxes";
+import remarkCallouts from "./src/lib/remark-callouts";
+import remarkDrawio from "./src/lib/remark-drawio";
 import remarkGithubCard from "./src/lib/remark-github-card";
 import remarkLinkCard from "./src/lib/remark-link-card";
-import remarkCallouts from "./src/lib/remark-callouts";
 import remarkMermaid from "./src/lib/remark-mermaid";
-import remarkDrawio from "./src/lib/remark-drawio";
-import rehypeHeadingAnchors from "./src/lib/rehype-heading-anchors";
-import { pluginLanguageBadge } from "./src/lib/expressive-code/language-badge";
-import { codeStrings } from "./src/i18n/code";
 import { FEATURES, SITE } from "./src/site.config";
 
 const siteHost = new URL(SITE.url).host;
@@ -81,18 +81,11 @@ export default defineConfig({
       themes: ["github-dark", "github-light"],
       emitExternalStylesheet: false,
       useDarkModeMediaQuery: false,
-      themeCssSelector: (theme) =>
-        theme.name === "github-dark" ? ".dark" : ":root:not(.dark)",
+      themeCssSelector: (theme) => (theme.name === "github-dark" ? ".dark" : ":root:not(.dark)"),
       defaultLocale: "fr",
       getBlockLocale: ({ file }) =>
-        file.path?.includes("/content/blog/en/") || file.path?.includes("/pages/en/")
-          ? "en"
-          : "fr",
-      plugins: [
-        pluginCollapsibleSections(),
-        pluginLineNumbers(),
-        pluginLanguageBadge(),
-      ],
+        file.path?.includes("/content/blog/en/") || file.path?.includes("/pages/en/") ? "en" : "fr",
+      plugins: [pluginCollapsibleSections(), pluginLineNumbers(), pluginLanguageBadge()],
       defaultProps: {
         wrap: true,
         collapseStyle: "collapsible-auto",
@@ -115,7 +108,8 @@ export default defineConfig({
         uiFontFamily: "var(--font-sans)",
         focusBorder: "var(--color-ring)",
         scrollbarThumbColor: "color-mix(in oklab, var(--color-muted-foreground) 40%, transparent)",
-        scrollbarThumbHoverColor: "color-mix(in oklab, var(--color-muted-foreground) 65%, transparent)",
+        scrollbarThumbHoverColor:
+          "color-mix(in oklab, var(--color-muted-foreground) 65%, transparent)",
         frames: {
           frameBoxShadowCssValue: "none",
           editorBackground: "var(--color-card)",
@@ -171,7 +165,14 @@ export default defineConfig({
   vite: {
     plugins: [pagefindDev(), tailwindcss()],
     optimizeDeps: {
-      include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime", "mermaid"],
+      include: [
+        "react",
+        "react-dom",
+        "react-dom/client",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+        "mermaid",
+      ],
     },
     define: {
       __MDX_COMPONENTS_ENABLED__: JSON.stringify(FEATURES.mdxComponents),

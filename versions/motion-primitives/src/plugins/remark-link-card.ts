@@ -16,7 +16,6 @@ const THUMB_HEIGHT = 150;
 
 const isDev = process.env.NODE_ENV === "development";
 
-
 let cache: Record<string, OgObject | null> | null = null;
 let dirty = false;
 const inflight = new Map<string, Promise<OgObject | null>>();
@@ -76,7 +75,6 @@ async function fetchMetadata(url: string): Promise<OgObject | null> {
   return promise;
 }
 
-
 function getBareLinkUrl(linkNode: Link): URL | null {
   if (
     linkNode.children.length !== 1 ||
@@ -97,10 +95,8 @@ function getBareLinkUrl(linkNode: Link): URL | null {
   return parsed;
 }
 
-
 function resolveThumbnail(metadata: OgObject, pageUrl: URL): string {
-  const raw =
-    metadata.ogImage?.[0]?.url ?? metadata.twitterImage?.[0]?.url ?? "";
+  const raw = metadata.ogImage?.[0]?.url ?? metadata.twitterImage?.[0]?.url ?? "";
   const trimmed = raw.trim();
   if (!trimmed) return "";
   try {
@@ -136,9 +132,7 @@ function buildCardNode(metadata: OgObject, pageUrl: URL): Text {
           [
             h("span", { class: "link-card-info" }, [
               h("span", { class: "link-card-title" }, title),
-              ...(description
-                ? [h("span", { class: "link-card-description" }, description)]
-                : []),
+              ...(description ? [h("span", { class: "link-card-description" }, description)] : []),
               h("span", { class: "link-card-meta" }, [
                 h("img", {
                   class: "link-card-favicon",
@@ -174,7 +168,6 @@ function buildCardNode(metadata: OgObject, pageUrl: URL): Text {
   } as Text;
 }
 
-
 const remarkLinkCard: Plugin<[], Root> = () => {
   const transformer: Transformer<Root> = async (tree) => {
     const tasks: Array<() => Promise<void>> = [];
@@ -200,8 +193,7 @@ const remarkLinkCard: Plugin<[], Root> = () => {
           const metadata = await fetchMetadata(pageUrl.href);
           if (!metadata) return;
           parent.children.splice(index, 1, buildCardNode(metadata, pageUrl));
-        } catch {
-        }
+        } catch {}
       });
     });
 

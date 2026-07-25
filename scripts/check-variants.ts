@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { VARIANTS, isPublicVariant } from "../shared/variants";
+import { isPublicVariant, VARIANTS } from "../shared/variants";
 import { installRootDependencies, installVariantDependencies } from "./variant-setup";
 
 /**
@@ -39,7 +39,11 @@ function run(command: string[], cwd: string, label?: string): number {
 const rootInstall = installRootDependencies(root);
 if (rootInstall !== 0) process.exit(rootInstall);
 
-const ogCheck = run(["bun", "scripts/sync-og-assets.ts", "--check"], root, "sync-og-assets --check");
+const ogCheck = run(
+  ["bun", "scripts/sync-og-assets.ts", "--check"],
+  root,
+  "sync-og-assets --check",
+);
 if (ogCheck !== 0) process.exit(ogCheck);
 
 const styleCheck = run(["bun", "scripts/check-style.ts"], root, "check-style");
@@ -79,7 +83,10 @@ for (const variant of targets) {
   if (run(["bun", "scripts/check-assets.ts", variant], root, `${variant}: check-assets`) !== 0) {
     failures.push(`${variant}: check-assets`);
   }
-  if (!skipBuild && run(["bun", "scripts/check-og-output.ts", variant], root, `${variant}: check-og-output`) !== 0) {
+  if (
+    !skipBuild &&
+    run(["bun", "scripts/check-og-output.ts", variant], root, `${variant}: check-og-output`) !== 0
+  ) {
     failures.push(`${variant}: check-og-output`);
   }
 }

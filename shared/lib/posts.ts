@@ -1,4 +1,4 @@
-import { getCollection, type CollectionEntry } from "astro:content";
+import { type CollectionEntry, getCollection } from "astro:content";
 import { canonicalTagSlug } from "../content/taxonomy";
 import type { Locale } from "./format";
 
@@ -72,9 +72,7 @@ export async function getAllTags(locale: Locale): Promise<TagInfo[]> {
       tags.set(slug, info);
     }
   }
-  return [...tags.values()].sort(
-    (a, b) => b.count - a.count || a.name.localeCompare(b.name),
-  );
+  return [...tags.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
 
 export async function getPostsByTag(locale: Locale, tagSlug: string): Promise<Post[]> {
@@ -111,8 +109,7 @@ export async function getRelatedPosts(post: Post, limit = 3): Promise<Post[]> {
     })
     .filter((entry) => entry.score > 0)
     .sort(
-      (a, b) =>
-        b.score - a.score || b.post.data.pubDate.valueOf() - a.post.data.pubDate.valueOf(),
+      (a, b) => b.score - a.score || b.post.data.pubDate.valueOf() - a.post.data.pubDate.valueOf(),
     )
     .slice(0, limit)
     .map((entry) => entry.post);

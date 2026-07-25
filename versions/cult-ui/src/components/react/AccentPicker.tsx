@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import { Palette } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { TextureButton } from "@/components/ui/texture-button";
 
 declare global {
@@ -7,7 +7,6 @@ declare global {
     __applyAccent?: () => void;
   }
 }
-
 
 interface AccentPickerProps {
   defaultAccent: string;
@@ -27,7 +26,6 @@ interface Hsv {
   s: number;
   v: number;
 }
-
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -91,8 +89,7 @@ function storedAccent(fallback: string): string {
   try {
     const raw = localStorage.getItem("accent");
     if (raw && /^#[0-9a-fA-F]{6}$/.test(raw)) return raw;
-  } catch {
-  }
+  } catch {}
   return fallback;
 }
 
@@ -140,8 +137,7 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
     setHsv(next);
     try {
       localStorage.setItem("accent", hsvToHex(next));
-    } catch {
-    }
+    } catch {}
     window.__applyAccent?.();
   }, []);
 
@@ -149,11 +145,9 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
     setHsv(hexToHsv(defaultAccent));
     try {
       localStorage.removeItem("accent");
-    } catch {
-    }
+    } catch {}
     window.__applyAccent?.();
   }
-
 
   const pickFromSquare = useCallback(
     (clientX: number, clientY: number) => {
@@ -190,7 +184,6 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
     event.preventDefault();
     commit({ h: hsv.h, s: clamp(s, 0, 100), v: clamp(v, 0, 100) });
   }
-
 
   const pickFromHueBar = useCallback(
     (clientX: number) => {
@@ -255,7 +248,7 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
           aria-label={labels.title}
           className="absolute right-0 top-full z-50 mt-2 rounded-xl border border-border bg-popover p-3 text-popover-foreground shadow-[0_16px_40px_-12px_rgb(0_0_0/0.4)]"
         >
-          { }
+          {}
           <div
             ref={squareRef}
             role="slider"
@@ -264,7 +257,9 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={sat}
-            aria-valuetext={labels.saturationValue.replace("{s}", String(sat)).replace("{v}", String(val))}
+            aria-valuetext={labels.saturationValue
+              .replace("{s}", String(sat))
+              .replace("{v}", String(val))}
             onPointerDown={onSquarePointerDown}
             onPointerMove={onSquarePointerMove}
             onKeyDown={onSquareKeyDown}
@@ -283,7 +278,7 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
             />
           </div>
 
-          { }
+          {}
           <div
             ref={hueRef}
             role="slider"
@@ -311,7 +306,7 @@ export function AccentPicker({ defaultAccent, labels }: AccentPickerProps) {
             />
           </div>
 
-          { }
+          {}
           <div className="mt-2 flex items-center justify-between gap-2">
             <span className="font-mono text-xs text-muted-foreground">{hex}</span>
             <button

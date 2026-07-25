@@ -1,13 +1,14 @@
-import { localeUrl, otherLocale, type Locale } from "@/i18n/ui";
 import {
   getSeriesPosts,
+  type Post,
   postLocale,
   postSlug,
-  type Post,
   type SeriesInfo,
 } from "@shared/lib/posts";
+import { localeUrl } from "@/i18n/ui";
 
 export {
+  type AdjacentPosts,
   getAdjacentPosts,
   getAllSeries,
   getAllTags,
@@ -19,13 +20,12 @@ export {
   getTranslation,
   groupByYear,
   otherLocale,
+  type Post,
   postLocale,
   postSlug,
-  slugifyTag,
-  type AdjacentPosts,
-  type Post,
   type SeriesContext,
   type SeriesInfo,
+  slugifyTag,
   type TagInfo,
 } from "@shared/lib/posts";
 
@@ -64,9 +64,7 @@ export interface PostSeriesContext {
   next: Post | undefined;
 }
 
-export async function getPostSeries(
-  post: Post,
-): Promise<PostSeriesContext | null> {
+export async function getPostSeries(post: Post): Promise<PostSeriesContext | null> {
   const slug = post.data.series;
   if (!slug) return null;
   const posts = await getSeriesPosts(postLocale(post), slug);
@@ -112,11 +110,7 @@ export function groupByYearMonth(posts: Post[]): YearGroup[] {
     }));
 }
 
-export function paginate<T>(
-  items: T[],
-  pageSize: number,
-  page: number,
-): PageData<T> {
+export function paginate<T>(items: T[], pageSize: number, page: number): PageData<T> {
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
   const currentPage = Math.min(Math.max(1, page), totalPages);
   const start = (currentPage - 1) * pageSize;

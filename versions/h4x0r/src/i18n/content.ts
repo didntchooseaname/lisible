@@ -1,4 +1,3 @@
-
 export interface ContentStrings {
   callouts: {
     note: string;

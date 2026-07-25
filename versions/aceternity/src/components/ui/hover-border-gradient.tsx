@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
 
 import { motion } from "motion/react";
+import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type Direction = "TOP" | "LEFT" | "BOTTOM" | "RIGHT";
@@ -21,9 +21,9 @@ export function HoverBorderGradient({
     className?: string;
     duration?: number;
     clockwise?: boolean;
-  } & React.HTMLAttributes<HTMLElement>
+  } & React.HTMLAttributes<HTMLElement> &
     // `as` can render an anchor, so anchor attributes must be accepted too.
-    & Pick<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "target" | "rel">
+    Pick<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "target" | "rel">
 >) {
   const [hovered, setHovered] = useState<boolean>(false);
   const [direction, setDirection] = useState<Direction>("TOP");
@@ -40,10 +40,8 @@ export function HoverBorderGradient({
   const movingMap: Record<Direction, string> = {
     TOP: "radial-gradient(20.7% 50% at 50% 0%, var(--color-accent) 0%, transparent 100%)",
     LEFT: "radial-gradient(16.6% 43.1% at 0% 50%, var(--color-accent) 0%, transparent 100%)",
-    BOTTOM:
-      "radial-gradient(20.7% 50% at 50% 100%, var(--color-accent) 0%, transparent 100%)",
-    RIGHT:
-      "radial-gradient(16.2% 41.2% at 100% 50%, var(--color-accent) 0%, transparent 100%)",
+    BOTTOM: "radial-gradient(20.7% 50% at 50% 100%, var(--color-accent) 0%, transparent 100%)",
+    RIGHT: "radial-gradient(16.2% 41.2% at 100% 50%, var(--color-accent) 0%, transparent 100%)",
   };
 
   const highlight =
@@ -79,9 +77,7 @@ export function HoverBorderGradient({
         {children}
       </div>
       <motion.div
-        className={cn(
-          "absolute inset-0 z-0 flex-none overflow-hidden rounded-[inherit]",
-        )}
+        className={cn("absolute inset-0 z-0 flex-none overflow-hidden rounded-[inherit]")}
         style={{
           filter: "blur(2px)",
           position: "absolute",
@@ -90,9 +86,7 @@ export function HoverBorderGradient({
         }}
         initial={{ background: movingMap[direction] }}
         animate={{
-          background: hovered
-            ? [movingMap[direction], highlight]
-            : movingMap[direction],
+          background: hovered ? [movingMap[direction], highlight] : movingMap[direction],
         }}
         transition={{ ease: "linear", duration: duration ?? 1 }}
       />

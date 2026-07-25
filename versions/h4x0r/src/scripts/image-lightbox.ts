@@ -16,7 +16,6 @@ class ImageLightbox {
   private scale = 1;
   private translateX = 0;
   private translateY = 0;
-  private hasPanned = false;
   private focusTrap: FocusTrap | null = null;
   private globalListenersSetup = false;
   private clickHandlers = new WeakMap<HTMLImageElement, (event: Event) => void>();
@@ -53,7 +52,9 @@ class ImageLightbox {
     const article = document.querySelector("article");
     if (!article) return;
 
-    const candidates = article.querySelectorAll<HTMLImageElement>(".prose img, [data-post-cover] img");
+    const candidates = article.querySelectorAll<HTMLImageElement>(
+      ".prose img, [data-post-cover] img",
+    );
     this.images = Array.from(candidates).filter((img) => {
       if (img.closest(".link-card")) return false;
       if (img.closest(".github-card")) return false;
@@ -217,7 +218,6 @@ class ImageLightbox {
       this.pinchStartDistance = Math.hypot(a.x - b.x, a.y - b.y);
       this.pinchStartScale = this.scale;
     } else if (this.pointers.size === 1 && this.scale > 1) {
-      this.hasPanned = false;
       this.panStart = {
         x: event.clientX,
         y: event.clientY,
@@ -244,7 +244,6 @@ class ImageLightbox {
     if (this.scale <= 1 || !this.image.classList.contains("panning")) return;
     const deltaX = event.clientX - this.panStart.x;
     const deltaY = event.clientY - this.panStart.y;
-    if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) this.hasPanned = true;
     this.translateX = this.panStart.originX + deltaX / this.scale;
     this.translateY = this.panStart.originY + deltaY / this.scale;
     this.clampTranslation();
@@ -290,7 +289,6 @@ class ImageLightbox {
     this.scale = 1;
     this.translateX = 0;
     this.translateY = 0;
-    this.hasPanned = false;
     this.pointers.clear();
     this.pinchStartDistance = 0;
     if (this.image) {

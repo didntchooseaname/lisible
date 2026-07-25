@@ -1,4 +1,3 @@
-
 const MASTODON_KEY = "mastodon-instance";
 
 async function copyText(text: string): Promise<boolean> {
@@ -24,7 +23,10 @@ function flash(button: HTMLElement, label: string): void {
 }
 
 function normalizeInstance(raw: string): string | null {
-  const value = raw.trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+  const value = raw
+    .trim()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/+$/, "");
   if (!value || !/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(value)) return null;
   return value;
 }
@@ -43,9 +45,7 @@ function init(): void {
 
     const mdButton = target.closest<HTMLElement>("[data-copy-markdown]");
     if (mdButton && container) {
-      const source = container.querySelector<HTMLTextAreaElement>(
-        "[data-markdown-source]",
-      );
+      const source = container.querySelector<HTMLTextAreaElement>("[data-markdown-source]");
       if (source) {
         void copyText(source.value).then((ok) => {
           if (ok) flash(mdButton, container.dataset.mdCopied ?? "");
@@ -76,10 +76,10 @@ function init(): void {
         localStorage.setItem(MASTODON_KEY, instance);
       }
       const md = container.querySelector<HTMLTextAreaElement>("[data-markdown-source]");
-      const title = md ? md.value.split("\n")[0]?.replace(/^#\s*/, "") ?? "" : document.title;
-      const url = container
-        .querySelector<HTMLElement>("[data-share-copy]")
-        ?.dataset.url ?? window.location.href;
+      const title = md ? (md.value.split("\n")[0]?.replace(/^#\s*/, "") ?? "") : document.title;
+      const url =
+        container.querySelector<HTMLElement>("[data-share-copy]")?.dataset.url ??
+        window.location.href;
       const shareUrl = `https://${instance}/share?text=${encodeURIComponent(`${title} ${url}`)}`;
       window.open(shareUrl, "_blank", "noopener,noreferrer");
       return;

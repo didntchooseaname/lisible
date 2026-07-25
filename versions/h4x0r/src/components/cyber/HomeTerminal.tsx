@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
+import { AnimatedList } from "@/components/ui/animated-list";
 import { Terminal } from "@/components/ui/terminal";
 import { TypingAnimation } from "@/components/ui/typing-animation";
-import { AnimatedList } from "@/components/ui/animated-list";
 import { cn } from "@/lib/utils";
-
 
 export type TerminalPost = {
   title: string;
@@ -46,17 +45,14 @@ export default function HomeTerminal({ cmd, okLine, posts }: Props) {
         </p>
 
         <p
-          className={cn(
-            "text-accent transition-opacity duration-300",
-            phase === 0 && "opacity-0",
-          )}
+          className={cn("text-accent transition-opacity duration-300", phase === 0 && "opacity-0")}
         >
           {okLine}
         </p>
 
         {phase > 0 && (
           <AnimatedList delay={650} className="items-stretch gap-2">
-            { }
+            {}
             {[...posts].reverse().map((post) => (
               <a
                 key={post.url}

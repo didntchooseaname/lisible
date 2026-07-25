@@ -1,7 +1,7 @@
 import rss from "@astrojs/rss";
 import type { APIContext } from "astro";
-import { getPublishedPosts, type Post } from "./posts";
 import type { Locale } from "./format";
+import { getPublishedPosts, type Post } from "./posts";
 
 /** Path the feeds point at; the stylesheet route emits it for every variant. */
 export const RSS_STYLESHEET_PATH = "/rss/feed.xsl";

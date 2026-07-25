@@ -15,6 +15,7 @@ type TagPillsProps = {
 export function TagPills({ tags, ariaLabel }: TagPillsProps) {
   return (
     <MotionConfig reducedMotion="user">
+      {/* biome-ignore lint/a11y/useSemanticElements: AnimatedBackground needs the anchors as direct children, list semantics come from roles */}
       <div aria-label={ariaLabel} role="list" className="flex flex-wrap gap-3">
         <AnimatedBackground
           enableHover
@@ -22,6 +23,8 @@ export function TagPills({ tags, ariaLabel }: TagPillsProps) {
           transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
         >
           {tags.map((tag) => (
+            // biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: pills read as list items, the href keeps them usable as links
+            // biome-ignore lint/a11y/useSemanticElements: AnimatedBackground needs the anchors as direct children, list semantics come from roles
             <a
               key={tag.href}
               data-id={tag.href}

@@ -1,9 +1,9 @@
-import { h } from "hastscript";
 import type { ElementContent } from "hast";
+import { h } from "hastscript";
 import type { Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { cardLocaleFromPath, cardStrings, type CardLocale } from "../i18n/cards";
+import { type CardLocale, cardLocaleFromPath, cardStrings } from "../i18n/cards";
 
 const VARIANTS = ["note", "tip", "warning", "caution", "important"] as const;
 type Variant = (typeof VARIANTS)[number];
@@ -103,12 +103,11 @@ function textOf(node: MdNode): string {
 
 function makeCallout(node: MdNode, variant: Variant, locale: CardLocale): void {
   const children = node.children ?? [];
-  const collapse =
-    node.attributes && Object.prototype.hasOwnProperty.call(node.attributes, "collapse");
+  const collapse = node.attributes && Object.hasOwn(node.attributes, "collapse");
 
   let title = cardStrings[locale].callout[variant];
   const first = children[0];
-  if (first && first.data?.directiveLabel) {
+  if (first?.data?.directiveLabel) {
     const label = textOf(first).trim();
     if (label) title = label;
     children.shift();

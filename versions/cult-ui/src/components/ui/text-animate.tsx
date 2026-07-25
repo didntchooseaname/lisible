@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { type FC, useEffect, useRef } from "react"
-import { motion, useAnimation, useInView } from "motion/react"
-import type { HTMLMotionProps } from "motion/react"
+import type { HTMLMotionProps } from "motion/react";
+import { motion, useAnimation, useInView } from "motion/react";
+import { type FC, useRef } from "react";
 
 type AnimationType =
   | "fadeIn"
@@ -12,15 +12,15 @@ type AnimationType =
   | "rollIn"
   | "whipIn"
   | "whipInUp"
-  | "calmInUp"
+  | "calmInUp";
 
 interface Props extends HTMLMotionProps<"div"> {
-  text: string
-  type?: AnimationType
-  delay?: number
-  duration?: number
-  as?: "h1" | "h2" | "h3" | "p" | "div" | "span"
-  className?: string
+  text: string;
+  type?: AnimationType;
+  delay?: number;
+  duration?: number;
+  as?: "h1" | "h2" | "h3" | "p" | "div" | "span";
+  className?: string;
 }
 
 const animationVariants = {
@@ -188,7 +188,7 @@ const animationVariants = {
       },
     },
   },
-}
+};
 
 const TextAnimate: FC<Props> = ({
   text,
@@ -197,17 +197,15 @@ const TextAnimate: FC<Props> = ({
   className,
   ...props
 }: Props) => {
+  const ref = useRef(null);
+  const _isInView = useInView(ref, { once: true });
 
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
+  const letters = Array.from(text);
+  const { container, child } = animationVariants[type];
 
-  const letters = Array.from(text)
-  const { container, child } = animationVariants[type]
+  const _ctrls = useAnimation();
 
-  const ctrls = useAnimation()
-
-
-  const Tag = as
+  const Tag = as;
 
   if (type === "rollIn" || type === "whipIn") {
     return (
@@ -244,16 +242,16 @@ const TextAnimate: FC<Props> = ({
                   >
                     {character}
                   </motion.span>
-                )
+                );
               })}
             </motion.span>
-          )
+          );
         })}
       </Tag>
-    )
+    );
   }
 
-  const MotionTag = motion[as]
+  const MotionTag = motion[as];
 
   return (
     <MotionTag
@@ -274,8 +272,8 @@ const TextAnimate: FC<Props> = ({
         </motion.span>
       ))}
     </MotionTag>
-  )
-}
+  );
+};
 
-export { TextAnimate }
-export default TextAnimate
+export { TextAnimate };
+export default TextAnimate;

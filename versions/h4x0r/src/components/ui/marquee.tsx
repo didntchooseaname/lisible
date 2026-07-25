@@ -1,14 +1,14 @@
-import { type ComponentPropsWithoutRef } from "react"
+import { type ComponentPropsWithoutRef } from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface MarqueeProps extends ComponentPropsWithoutRef<"div"> {
-  className?: string
-  reverse?: boolean
-  pauseOnHover?: boolean
-  children: React.ReactNode
-  vertical?: boolean
-  repeat?: number
+  className?: string;
+  reverse?: boolean;
+  pauseOnHover?: boolean;
+  children: React.ReactNode;
+  vertical?: boolean;
+  repeat?: number;
 }
 
 export function Marquee({
@@ -29,7 +29,7 @@ export function Marquee({
           "flex-row": !vertical,
           "flex-col": vertical,
         },
-        className
+        className,
       )}
     >
       {Array(repeat)
@@ -48,5 +48,5 @@ export function Marquee({
           </div>
         ))}
     </div>
-  )
+  );
 }

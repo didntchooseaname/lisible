@@ -1,5 +1,4 @@
-import { useId, useRef, useState, type ReactNode } from "react";
-import { Children, isValidElement } from "react";
+import { Children, isValidElement, type ReactNode, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface TabsProps {
@@ -13,9 +12,7 @@ export function Tabs({ tabs, label, children }: TabsProps) {
   const baseId = useId();
   const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const panels = Children.toArray(children).filter((child) =>
-    isValidElement(child),
-  );
+  const panels = Children.toArray(children).filter((child) => isValidElement(child));
 
   function focusTab(index: number) {
     const next = (index + tabs.length) % tabs.length;

@@ -36,10 +36,7 @@
       "caches": ["bun"],
       "deployOutputs": [
         {
-          "include": [
-            "Caddyfile",
-            "versions/organique/dist"
-          ]
+          "include": ["Caddyfile", "versions/organique/dist"]
         }
       ]
     }
@@ -52,10 +49,7 @@
       },
       {
         "step": "build",
-        "include": [
-          "Caddyfile",
-          "versions/organique/dist"
-        ]
+        "include": ["Caddyfile", "versions/organique/dist"]
       }
     ],
     "variables": {

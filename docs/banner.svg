@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320">
+  <title>Lisible banner</title>
   <rect width="1280" height="320" fill="#000000"/>
   <g fill="#ffffff" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" text-anchor="middle">
     <text x="640" y="170" font-size="132" font-weight="700" letter-spacing="-2">Lisible</text>

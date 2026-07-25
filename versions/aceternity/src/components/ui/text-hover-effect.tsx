@@ -1,6 +1,6 @@
 "use client";
-import React, { useRef, useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 
 export const TextHoverEffect = ({
   text,
@@ -76,13 +76,7 @@ export const TextHoverEffect = ({
           <stop offset="100%" stopColor="black" />
         </motion.radialGradient>
         <mask id="textMask">
-          <rect
-            x="0"
-            y="0"
-            width="100%"
-            height="100%"
-            fill="url(#revealMask)"
-          />
+          <rect x="0" y="0" width="100%" height="100%" fill="url(#revealMask)" />
         </mask>
       </defs>
       <text

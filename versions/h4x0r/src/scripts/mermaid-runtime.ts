@@ -1,4 +1,9 @@
-import { bindDiagramControls, prepareSvg, setupPanZoom, type PanZoomControls } from "@/lib/pan-zoom";
+import {
+  bindDiagramControls,
+  type PanZoomControls,
+  prepareSvg,
+  setupPanZoom,
+} from "@/lib/pan-zoom";
 
 type MermaidApi = typeof import("mermaid").default;
 

@@ -5,11 +5,11 @@ import type { OgObject } from "open-graph-scraper/types";
 import type { Transformer } from "unified";
 import { visit } from "unist-util-visit";
 import {
-  loadCache,
   getCachedMetadata,
-  setCachedMetadata,
-  saveCache,
   getInflight,
+  loadCache,
+  saveCache,
+  setCachedMetadata,
   setInflight,
 } from "./link-card-cache";
 
@@ -209,8 +209,7 @@ export function remarkLinkCard() {
           const data = await getData(pageUrl);
           if (!data) return;
           parent.children.splice(index, 1, generateNode(data));
-        } catch {
-        }
+        } catch {}
       });
     });
 

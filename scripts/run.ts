@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { VARIANTS, isPublicVariant } from "../shared/variants";
+import { isPublicVariant, VARIANTS } from "../shared/variants";
 import { installRootDependencies, installVariantDependencies } from "./variant-setup";
 
 const root = new URL("..", import.meta.url).pathname;

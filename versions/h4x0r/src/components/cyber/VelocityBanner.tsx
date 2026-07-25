@@ -1,7 +1,4 @@
-import {
-  ScrollVelocityContainer,
-  ScrollVelocityRow,
-} from "@/components/ui/scroll-based-velocity";
+import { ScrollVelocityContainer, ScrollVelocityRow } from "@/components/ui/scroll-based-velocity";
 
 export default function VelocityBanner({ text }: { text: string }) {
   return (

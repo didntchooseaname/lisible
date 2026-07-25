@@ -72,7 +72,9 @@ class ImageLightbox {
     this.nextBtn?.addEventListener("click", () => this.show(this.currentIndex + 1));
     document.getElementById("lightbox-zoom-in")?.addEventListener("click", () => this.zoom(0.5));
     document.getElementById("lightbox-zoom-out")?.addEventListener("click", () => this.zoom(-0.5));
-    document.getElementById("lightbox-zoom-reset")?.addEventListener("click", () => this.resetZoom());
+    document
+      .getElementById("lightbox-zoom-reset")
+      ?.addEventListener("click", () => this.resetZoom());
 
     this.overlay?.addEventListener("click", (event) => {
       if (event.target === this.overlay) this.close();
@@ -83,10 +85,14 @@ class ImageLightbox {
       if (this.scale > 1) this.resetZoom();
       else this.zoom(1);
     });
-    this.image?.addEventListener("wheel", (event) => {
-      event.preventDefault();
-      this.zoom(event.deltaY < 0 ? 0.3 : -0.3);
-    }, { passive: false });
+    this.image?.addEventListener(
+      "wheel",
+      (event) => {
+        event.preventDefault();
+        this.zoom(event.deltaY < 0 ? 0.3 : -0.3);
+      },
+      { passive: false },
+    );
     this.image?.addEventListener("pointerdown", (event) => this.startPan(event));
     this.image?.addEventListener("pointermove", (event) => this.movePan(event));
     this.image?.addEventListener("pointerup", (event) => this.endPan(event));
@@ -182,7 +188,8 @@ class ImageLightbox {
 
   private endPan(event: PointerEvent) {
     if (!this.image || this.activePointerId !== event.pointerId) return;
-    if (this.image.hasPointerCapture(event.pointerId)) this.image.releasePointerCapture(event.pointerId);
+    if (this.image.hasPointerCapture(event.pointerId))
+      this.image.releasePointerCapture(event.pointerId);
     this.isPanning = false;
     this.activePointerId = null;
     this.image.classList.remove("is-panning");

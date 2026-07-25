@@ -1,4 +1,3 @@
-
 function setupViewer(container: HTMLElement) {
   const viewport = container.querySelector<HTMLElement>("[data-drawio-viewport]");
   const pan = container.querySelector<HTMLElement>("[data-drawio-pan]");
@@ -108,9 +107,7 @@ function observe(container: HTMLElement) {
 }
 
 function init() {
-  document
-    .querySelectorAll<HTMLElement>("[data-drawio-container]")
-    .forEach((c) => observe(c));
+  document.querySelectorAll<HTMLElement>("[data-drawio-container]").forEach((c) => observe(c));
 }
 
 document.addEventListener("astro:page-load", init);

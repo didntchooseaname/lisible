@@ -28,8 +28,7 @@ class ImageLightbox {
   private translateY = 0;
   private focusTrap: ReturnType<typeof createFocusTrap> | null = null;
   private eventListenersSetup = false;
-  private clickHandlers: WeakMap<HTMLImageElement, (e: Event) => void> =
-    new WeakMap();
+  private clickHandlers: WeakMap<HTMLImageElement, (e: Event) => void> = new WeakMap();
   private mutationObserver: MutationObserver | null = null;
   private mutationRefreshId: number | null = null;
 
@@ -38,9 +37,7 @@ class ImageLightbox {
     this.cleanupMutationObserver();
 
     this.lightbox = document.getElementById("image-lightbox");
-    this.lightboxImage = document.getElementById(
-      "lightbox-image",
-    ) as HTMLImageElement | null;
+    this.lightboxImage = document.getElementById("lightbox-image") as HTMLImageElement | null;
     this.closeBtn = document.getElementById("lightbox-close");
     this.prevBtn = document.getElementById("lightbox-prev");
     this.nextBtn = document.getElementById("lightbox-next");
@@ -72,8 +69,7 @@ class ImageLightbox {
     const articleContent = document.querySelector("article, [role='article']");
     if (!articleContent) return;
 
-    const contentImages =
-      articleContent.querySelectorAll<HTMLImageElement>(".prose img");
+    const contentImages = articleContent.querySelectorAll<HTMLImageElement>(".prose img");
     const imagesToUse =
       contentImages.length > 0
         ? contentImages
@@ -250,10 +246,7 @@ class ImageLightbox {
       this.prevBtn.toggleAttribute("disabled", this.currentIndex === 0);
     }
     if (this.nextBtn) {
-      this.nextBtn.toggleAttribute(
-        "disabled",
-        this.currentIndex === this.images.length - 1,
-      );
+      this.nextBtn.toggleAttribute("disabled", this.currentIndex === this.images.length - 1);
     }
     this.resetZoom();
   }
@@ -298,11 +291,7 @@ class ImageLightbox {
   }
 
   movePan(e: PointerEvent) {
-    if (
-      !this.lightboxImage ||
-      !this.isPanning ||
-      this.activePointerId !== e.pointerId
-    ) {
+    if (!this.lightboxImage || !this.isPanning || this.activePointerId !== e.pointerId) {
       return;
     }
     e.preventDefault();

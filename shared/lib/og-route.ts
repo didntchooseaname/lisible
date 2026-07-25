@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
-import { getPublishedPosts, postSlug, type Post } from "./posts";
-import { renderOgImage, type OgTheme } from "./og";
 import type { Locale } from "./format";
+import { type OgTheme, renderOgImage } from "./og";
+import { getPublishedPosts, type Post, postSlug } from "./posts";
 
 /**
  * Builds the per-post Open Graph route every variant exposes at

@@ -1,4 +1,3 @@
-
 export interface CodeUiStrings {
   copy: string;
   copied: string;

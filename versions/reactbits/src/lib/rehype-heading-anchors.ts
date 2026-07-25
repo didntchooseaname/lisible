@@ -1,5 +1,5 @@
 import { h, s } from "hastscript";
-import { ui, defaultLocale, type Locale } from "../i18n/ui";
+import { defaultLocale, type Locale, ui } from "../i18n/ui";
 
 interface HastNode {
   type?: string;
@@ -37,9 +37,7 @@ const anchorIcon = () =>
 
 export function rehypeHeadingAnchors() {
   return (tree: HastNode, file: { path?: string }) => {
-    const locale: Locale = /[\\/]en[\\/]/.test(file?.path ?? "")
-      ? "en"
-      : defaultLocale;
+    const locale: Locale = /[\\/]en[\\/]/.test(file?.path ?? "") ? "en" : defaultLocale;
     const dict = ui[locale].a11y;
 
     const walk = (node: HastNode) => {

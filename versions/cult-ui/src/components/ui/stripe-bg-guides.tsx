@@ -1,30 +1,30 @@
-"use client"
+"use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react"
-import { AnimatePresence, motion } from "motion/react"
+import { AnimatePresence, motion } from "motion/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-type AnimationDirection = "top-to-bottom" | "bottom-to-top" | "both" | "random"
-type AnimationEasing = "linear" | "easeIn" | "easeOut" | "easeInOut" | "spring"
+type AnimationDirection = "top-to-bottom" | "bottom-to-top" | "both" | "random";
+type AnimationEasing = "linear" | "easeIn" | "easeOut" | "easeInOut" | "spring";
 
 interface AnimatedBackgroundGuidesProps {
-  columnCount?: number
-  className?: string
-  solidLines?: number[]
-  animated?: boolean
-  animationDuration?: number
-  animationDelay?: number
-  glowColor?: string
-  glowSize?: string
-  glowOpacity?: number
-  randomize?: boolean
-  randomInterval?: number
-  direction?: AnimationDirection
-  easing?: AnimationEasing
-  responsive?: boolean
-  minColumnWidth?: string
-  maxActiveColumns?: number
-  darkMode?: boolean
-  contained?: boolean
+  columnCount?: number;
+  className?: string;
+  solidLines?: number[];
+  animated?: boolean;
+  animationDuration?: number;
+  animationDelay?: number;
+  glowColor?: string;
+  glowSize?: string;
+  glowOpacity?: number;
+  randomize?: boolean;
+  randomInterval?: number;
+  direction?: AnimationDirection;
+  easing?: AnimationEasing;
+  responsive?: boolean;
+  minColumnWidth?: string;
+  maxActiveColumns?: number;
+  darkMode?: boolean;
+  contained?: boolean;
 }
 
 const easingFunctions = {
@@ -33,7 +33,7 @@ const easingFunctions = {
   easeOut: [0, 0, 0.58, 1] as const,
   easeInOut: [0.42, 0, 0.58, 1] as const,
   spring: [0.175, 0.885, 0.32, 1.275] as const,
-}
+};
 
 export function StripeBgGuides({
   columnCount = 4,
@@ -56,58 +56,56 @@ export function StripeBgGuides({
   contained = false,
 }: AnimatedBackgroundGuidesProps) {
   const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 0
-  )
+    typeof window !== "undefined" ? window.innerWidth : 0,
+  );
 
   const columns = useMemo(() => {
     const count = responsive
-      ? Math.max(Math.floor(windowWidth / parseInt(minColumnWidth)), 1)
-      : columnCount
-    return [...Array(count)]
-  }, [columnCount, responsive, windowWidth, minColumnWidth])
+      ? Math.max(Math.floor(windowWidth / parseInt(minColumnWidth, 10)), 1)
+      : columnCount;
+    return [...Array(count)];
+  }, [columnCount, responsive, windowWidth, minColumnWidth]);
 
-  const [activeColumns, setActiveColumns] = useState<boolean[]>(
-    columns.map(() => true)
-  )
+  const [activeColumns, setActiveColumns] = useState<boolean[]>(columns.map(() => true));
 
   const getRandomColumns = useCallback(() => {
-    const newActiveColumns = columns.map(() => Math.random() < 0.5)
-    const activeCount = newActiveColumns.filter(Boolean).length
+    const newActiveColumns = columns.map(() => Math.random() < 0.5);
+    const activeCount = newActiveColumns.filter(Boolean).length;
     if (activeCount > maxActiveColumns) {
       const indicesToDeactivate = newActiveColumns
         .map((isActive, index) => (isActive ? index : -1))
         .filter((index) => index !== -1)
         .sort(() => Math.random() - 0.5)
-        .slice(0, activeCount - maxActiveColumns)
+        .slice(0, activeCount - maxActiveColumns);
       indicesToDeactivate.forEach((index) => {
-        newActiveColumns[index] = false
-      })
+        newActiveColumns[index] = false;
+      });
     }
-    return newActiveColumns
-  }, [columns, maxActiveColumns])
+    return newActiveColumns;
+  }, [columns, maxActiveColumns]);
 
   useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth)
+    const handleResize = () => setWindowWidth(window.innerWidth);
     if (typeof window !== "undefined") {
-      window.addEventListener("resize", handleResize)
-      return () => window.removeEventListener("resize", handleResize)
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    setActiveColumns(columns.map(() => true))
-  }, [columns])
+    setActiveColumns(columns.map(() => true));
+  }, [columns]);
 
   useEffect(() => {
     if (randomize && animated) {
       const intervalId = setInterval(() => {
-        setActiveColumns(getRandomColumns())
-      }, randomInterval)
-      return () => clearInterval(intervalId)
+        setActiveColumns(getRandomColumns());
+      }, randomInterval);
+      return () => clearInterval(intervalId);
     } else {
-      setActiveColumns(columns.map(() => true))
+      setActiveColumns(columns.map(() => true));
     }
-  }, [randomize, animated, randomInterval, getRandomColumns, columns])
+  }, [randomize, animated, randomInterval, getRandomColumns, columns]);
 
   const getAnimationVariants = useCallback(() => {
     const variants = {
@@ -127,21 +125,18 @@ export function StripeBgGuides({
         initial: () => ({ top: Math.random() < 0.5 ? "-100%" : "100%" }),
         animate: () => ({ top: Math.random() < 0.5 ? "-100%" : "100%" }),
       },
-    }
-    return variants[direction] || variants["top-to-bottom"]
-  }, [direction])
+    };
+    return variants[direction] || variants["top-to-bottom"];
+  }, [direction]);
 
-  const animationVariants = useMemo(
-    () => getAnimationVariants(),
-    [getAnimationVariants]
-  )
+  const animationVariants = useMemo(() => getAnimationVariants(), [getAnimationVariants]);
 
   const lineColors = useMemo(() => {
     return {
       solid: "var(--color-border)",
       dashed: "var(--color-border)",
-    }
-  }, [darkMode])
+    };
+  }, [darkMode]);
 
   return (
     <div
@@ -166,15 +161,9 @@ export function StripeBgGuides({
             <div key={index} className="relative h-full">
               <div
                 className={`absolute inset-y-0 ${
-                  index === 0
-                    ? "left-0"
-                    : index === columns.length - 1
-                      ? "right-0"
-                      : "left-1/2"
+                  index === 0 ? "left-0" : index === columns.length - 1 ? "right-0" : "left-1/2"
                 } w-px ${
-                  solidLines.includes(index + 1)
-                    ? "bg-border"
-                    : "bg-gradient-to-b"
+                  solidLines.includes(index + 1) ? "bg-border" : "bg-gradient-to-b"
                 } overflow-hidden`}
                 style={
                   solidLines.includes(index + 1)
@@ -225,6 +214,5 @@ export function StripeBgGuides({
         </div>
       </div>
     </div>
-  )
+  );
 }
-

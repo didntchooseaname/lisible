@@ -1,8 +1,7 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { Palette } from "lucide-react";
-
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 
 export interface AccentPickerLabels {
   open: string;
@@ -36,15 +35,11 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function fill(template: string, values: Record<string, number>): string {
-  return template.replace(/\{(\w+)\}/g, (_, key: string) =>
-    String(values[key] ?? ""),
-  );
+  return template.replace(/\{(\w+)\}/g, (_, key: string) => String(values[key] ?? ""));
 }
 
 function hexToHsv(hex: string): Hsv {
-  const [r, g, b] = [1, 3, 5].map(
-    (i) => parseInt(hex.slice(i, i + 2), 16) / 255,
-  );
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const d = max - min;
@@ -97,10 +92,7 @@ function readStoredAccent(fallback: string): string {
   }
 }
 
-export default function AccentPicker({
-  labels,
-  defaultAccent,
-}: AccentPickerProps) {
+export default function AccentPicker({ labels, defaultAccent }: AccentPickerProps) {
   const [open, setOpen] = useState(false);
   const [hsv, setHsv] = useState<Hsv>(() => hexToHsv(defaultAccent));
   const rootRef = useRef<HTMLDivElement>(null);
@@ -132,8 +124,7 @@ export default function AccentPicker({
     setHsv(next);
     try {
       localStorage.setItem("accent", hex);
-    } catch {
-    }
+    } catch {}
     window.applyAccent?.();
   };
 
@@ -141,8 +132,7 @@ export default function AccentPicker({
     setHsv(hexToHsv(defaultAccent));
     try {
       localStorage.removeItem("accent");
-    } catch {
-    }
+    } catch {}
     window.applyAccent?.();
   };
 
@@ -173,8 +163,7 @@ export default function AccentPicker({
   const capturePointer = (target: Element, pointerId: number) => {
     try {
       target.setPointerCapture(pointerId);
-    } catch {
-    }
+    } catch {}
   };
 
   const sRound = Math.round(hsv.s);
@@ -182,6 +171,7 @@ export default function AccentPicker({
   const hRound = Math.round(hsv.h);
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: the wrapper only relays Escape to close the popover
     <div
       ref={rootRef}
       className="relative"
@@ -216,7 +206,7 @@ export default function AccentPicker({
               transition={{ duration: 0.15, ease: "easeOut" }}
               className="absolute right-0 top-full z-50 mt-3 rounded-lg border border-border bg-card p-3 text-card-foreground shadow-lg"
             >
-              { }
+              {}
               <div
                 ref={svRef}
                 role="slider"
@@ -270,7 +260,7 @@ export default function AccentPicker({
                 />
               </div>
 
-              { }
+              {}
               <div
                 ref={hueRef}
                 role="slider"
@@ -294,13 +284,8 @@ export default function AccentPicker({
                 onKeyDown={(event) => {
                   const step = event.shiftKey ? 10 : 2;
                   let { h } = hsvRef.current;
-                  if (event.key === "ArrowLeft" || event.key === "ArrowDown")
-                    h -= step;
-                  else if (
-                    event.key === "ArrowRight" ||
-                    event.key === "ArrowUp"
-                  )
-                    h += step;
+                  if (event.key === "ArrowLeft" || event.key === "ArrowDown") h -= step;
+                  else if (event.key === "ArrowRight" || event.key === "ArrowUp") h += step;
                   else return;
                   event.preventDefault();
                   commit({ ...hsvRef.current, h: clamp(h, 0, 360) });
@@ -322,11 +307,9 @@ export default function AccentPicker({
                 />
               </div>
 
-              { }
+              {}
               <div className="mt-3 flex items-center justify-between gap-3">
-                <code className="font-mono text-xs text-muted-foreground">
-                  {hex}
-                </code>
+                <code className="font-mono text-xs text-muted-foreground">{hex}</code>
                 <button
                   type="button"
                   onClick={reset}

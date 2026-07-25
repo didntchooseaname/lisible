@@ -29,9 +29,7 @@ class ImageLightbox {
     this.cleanupImageHandlers();
 
     this.lightbox = document.getElementById("image-lightbox");
-    this.lightboxImage = document.getElementById(
-      "lightbox-image",
-    ) as HTMLImageElement | null;
+    this.lightboxImage = document.getElementById("lightbox-image") as HTMLImageElement | null;
     this.closeBtn = document.getElementById("lightbox-close");
     this.prevBtn = document.getElementById("lightbox-prev");
     this.nextBtn = document.getElementById("lightbox-next");
@@ -57,15 +55,15 @@ class ImageLightbox {
     const article = document.querySelector('article, [role="article"]');
     if (!article) return;
 
-    const candidates = Array.from(
-      article.querySelectorAll<HTMLImageElement>(".prose img"),
-    ).filter((img) => {
-      if (img.closest(".link-card") || img.closest(".card-github")) return false;
-      if (img.closest(".drawio") || img.closest(".mermaid-block")) return false;
-      if (img.classList.contains("link-card__image")) return false;
-      if (img.classList.contains("link-card__favicon")) return false;
-      return true;
-    });
+    const candidates = Array.from(article.querySelectorAll<HTMLImageElement>(".prose img")).filter(
+      (img) => {
+        if (img.closest(".link-card") || img.closest(".card-github")) return false;
+        if (img.closest(".drawio") || img.closest(".mermaid-block")) return false;
+        if (img.classList.contains("link-card__image")) return false;
+        if (img.classList.contains("link-card__favicon")) return false;
+        return true;
+      },
+    );
 
     this.images = candidates;
 
@@ -90,12 +88,8 @@ class ImageLightbox {
     this.prevBtn?.addEventListener("click", () => this.showPrevious());
     this.nextBtn?.addEventListener("click", () => this.showNext());
 
-    document
-      .getElementById("lightbox-zoom-in")
-      ?.addEventListener("click", () => this.zoomIn());
-    document
-      .getElementById("lightbox-zoom-out")
-      ?.addEventListener("click", () => this.zoomOut());
+    document.getElementById("lightbox-zoom-in")?.addEventListener("click", () => this.zoomIn());
+    document.getElementById("lightbox-zoom-out")?.addEventListener("click", () => this.zoomOut());
     document
       .getElementById("lightbox-zoom-reset")
       ?.addEventListener("click", () => this.resetZoom());
@@ -212,10 +206,7 @@ class ImageLightbox {
       this.prevBtn.toggleAttribute("disabled", this.currentIndex === 0);
     }
     if (this.nextBtn) {
-      this.nextBtn.toggleAttribute(
-        "disabled",
-        this.currentIndex === this.images.length - 1,
-      );
+      this.nextBtn.toggleAttribute("disabled", this.currentIndex === this.images.length - 1);
     }
     this.resetZoom();
   }
@@ -257,12 +248,7 @@ class ImageLightbox {
   }
 
   movePan(e: PointerEvent) {
-    if (
-      !this.lightboxImage ||
-      !this.isPanning ||
-      this.activePointerId !== e.pointerId
-    )
-      return;
+    if (!this.lightboxImage || !this.isPanning || this.activePointerId !== e.pointerId) return;
     e.preventDefault();
     e.stopPropagation();
     const dx = e.clientX - this.panStartX;
@@ -336,7 +322,5 @@ class ImageLightbox {
 const lightbox = new ImageLightbox();
 
 document.addEventListener("astro:page-load", () => lightbox.init());
-document.addEventListener("astro:before-swap", () =>
-  lightbox.cleanupImageHandlers(),
-);
+document.addEventListener("astro:before-swap", () => lightbox.cleanupImageHandlers());
 if (document.readyState !== "loading") lightbox.init();

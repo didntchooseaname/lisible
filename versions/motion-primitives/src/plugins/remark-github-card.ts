@@ -1,9 +1,9 @@
-import { h, s } from "hastscript";
 import type { ElementContent } from "hast";
+import { h, s } from "hastscript";
 import type { Root } from "mdast";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
-import { defaultLocale, ui, type Locale } from "../i18n/ui";
+import { defaultLocale, type Locale, ui } from "../i18n/ui";
 
 type DirectiveNode = {
   type: string;

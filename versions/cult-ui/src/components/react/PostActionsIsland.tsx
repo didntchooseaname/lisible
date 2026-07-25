@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Check, Link as LinkIcon, Share2 } from "lucide-react";
+import { useState } from "react";
 import { FamilyButton } from "@/components/ui/family-button";
 import { TextureButton } from "@/components/ui/texture-button";
 
@@ -49,11 +49,7 @@ export function PostActionsIsland({
           {copied ? (
             <Check size={20} aria-hidden="true" className="text-accent" />
           ) : (
-            <LinkIcon
-              size={20}
-              aria-hidden="true"
-              className="text-foreground"
-            />
+            <LinkIcon size={20} aria-hidden="true" className="text-foreground" />
           )}
         </TextureButton>
         <a

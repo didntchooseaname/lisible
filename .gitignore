@@ -31,3 +31,4 @@ Thumbs.db
 .netlify
 coverage/
 tmp/
+.drift-baseline.json

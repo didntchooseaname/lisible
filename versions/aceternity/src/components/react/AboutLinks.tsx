@@ -18,7 +18,7 @@ export default function AboutLinks({
 }) {
   return (
     <p className="flex flex-wrap items-center gap-x-2">
-      { }
+      {}
       {githubHref && (
         <>
           <LinkPreview

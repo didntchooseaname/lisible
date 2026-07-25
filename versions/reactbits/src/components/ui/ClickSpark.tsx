@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useCallback } from 'react';
-import { prefersReducedMotion, resolveColor } from '@/lib/kit';
+import React, { useCallback, useEffect, useRef } from "react";
+import { prefersReducedMotion, resolveColor } from "@/lib/kit";
 
 interface ClickSparkProps {
   sparkColor?: string;
@@ -7,7 +7,7 @@ interface ClickSparkProps {
   sparkRadius?: number;
   sparkCount?: number;
   duration?: number;
-  easing?: 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out';
+  easing?: "linear" | "ease-in" | "ease-out" | "ease-in-out";
   extraScale?: number;
 }
 
@@ -19,33 +19,33 @@ interface Spark {
 }
 
 const ClickSpark: React.FC<ClickSparkProps> = ({
-  sparkColor = 'var(--color-accent)',
+  sparkColor = "var(--color-accent)",
   sparkSize = 8,
   sparkRadius = 14,
   sparkCount = 8,
   duration = 400,
-  easing = 'ease-out',
-  extraScale = 1.0
+  easing = "ease-out",
+  extraScale = 1.0,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sparksRef = useRef<Spark[]>([]);
   const rafRef = useRef<number | null>(null);
-  const colorRef = useRef<string>('#737373');
+  const colorRef = useRef<string>("#737373");
 
   const easeFunc = useCallback(
     (t: number) => {
       switch (easing) {
-        case 'linear':
+        case "linear":
           return t;
-        case 'ease-in':
+        case "ease-in":
           return t * t;
-        case 'ease-in-out':
+        case "ease-in-out":
           return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
         default:
           return t * (2 - t);
       }
     },
-    [easing]
+    [easing],
   );
 
   useEffect(() => {
@@ -53,7 +53,7 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
 
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     colorRef.current = resolveColor(sparkColor);
@@ -63,7 +63,7 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
       canvas.height = window.innerHeight;
     };
     resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener("resize", resizeCanvas);
 
     const draw = (timestamp: number) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -107,7 +107,7 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
         x: e.clientX,
         y: e.clientY,
         angle: (2 * Math.PI * i) / sparkCount,
-        startTime: now
+        startTime: now,
       }));
       sparksRef.current.push(...newSparks);
       if (rafRef.current === null) {
@@ -115,11 +115,11 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
       }
     };
 
-    document.addEventListener('click', handleClick);
+    document.addEventListener("click", handleClick);
 
     return () => {
-      document.removeEventListener('click', handleClick);
-      window.removeEventListener('resize', resizeCanvas);
+      document.removeEventListener("click", handleClick);
+      window.removeEventListener("resize", resizeCanvas);
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
   }, [sparkColor, sparkSize, sparkRadius, sparkCount, duration, easeFunc, extraScale]);
@@ -128,6 +128,7 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
     <canvas
       ref={canvasRef}
       aria-hidden="true"
+      tabIndex={-1}
       className="pointer-events-none fixed inset-0 z-[70]"
     />
   );

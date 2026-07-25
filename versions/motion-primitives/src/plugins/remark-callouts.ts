@@ -1,7 +1,7 @@
 import type { Root } from "mdast";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
-import { defaultLocale, ui, type Locale } from "../i18n/ui";
+import { defaultLocale, type Locale, ui } from "../i18n/ui";
 
 type CalloutKind = "note" | "tip" | "warning" | "caution" | "important";
 
@@ -58,8 +58,7 @@ const remarkCallouts: Plugin<[], Root> = () => {
 
       const label = extractLabel(directive);
       const title = label ?? dict[kind];
-      const collapse =
-        directive.attributes && "collapse" in directive.attributes;
+      const collapse = directive.attributes && "collapse" in directive.attributes;
 
       const titleChildren = [
         { type: "html", value: iconSvg(kind) },

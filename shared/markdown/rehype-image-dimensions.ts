@@ -28,7 +28,7 @@ function svgSize(source: string): [number, number] | null {
   const height = source.match(/\bheight="([\d.]+)(?:px)?"/);
   if (width && height) return [Number(width[1]), Number(height[1])];
 
-  const viewBox = source.match(/\bviewBox="[\d.\-]+\s+[\d.\-]+\s+([\d.]+)\s+([\d.]+)"/);
+  const viewBox = source.match(/\bviewBox="[\d.-]+\s+[\d.-]+\s+([\d.]+)\s+([\d.]+)"/);
   if (viewBox) return [Number(viewBox[1]), Number(viewBox[2])];
   return null;
 }

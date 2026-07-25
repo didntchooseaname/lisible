@@ -1,5 +1,5 @@
-import { getPublishedPosts, postLocale, postSlug, type Post } from "./posts";
 import { isoDate, type Locale } from "./format";
+import { getPublishedPosts, type Post, postLocale, postSlug } from "./posts";
 
 /**
  * Builds `/llms.txt` and `/llms-full.txt`, the plain-text index and full corpus

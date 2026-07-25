@@ -13,11 +13,7 @@ export function readingTime(text: string): number {
   return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
 }
 
-export function formatDate(
-  date: Date,
-  locale: Locale,
-  style: "long" | "short" = "long",
-): string {
+export function formatDate(date: Date, locale: Locale, style: "long" | "short" = "long"): string {
   const options: Intl.DateTimeFormatOptions =
     style === "long"
       ? { year: "numeric", month: "long", day: "numeric" }

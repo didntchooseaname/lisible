@@ -10,10 +10,7 @@ export const GridDotBackground = ({
   withFade?: boolean;
 }) => {
   return (
-    <div
-      aria-hidden="true"
-      className={cn("pointer-events-none absolute inset-0", className)}
-    >
+    <div aria-hidden="true" className={cn("pointer-events-none absolute inset-0", className)}>
       <div
         className={cn(
           "absolute inset-0",

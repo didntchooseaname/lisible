@@ -13,9 +13,7 @@ type PagefindResult = {
 type PagefindModule = {
   options: (options: Record<string, unknown>) => Promise<void>;
   init: () => void;
-  debouncedSearch: (
-    query: string,
-  ) => Promise<{ results: PagefindResult[] } | null>;
+  debouncedSearch: (query: string) => Promise<{ results: PagefindResult[] } | null>;
 };
 
 let pagefind: PagefindModule | null = null;
@@ -75,9 +73,7 @@ async function runSearch(input: HTMLInputElement): Promise<void> {
   const search = await pagefind.debouncedSearch(query);
   if (!search) return;
 
-  const results = await Promise.all(
-    search.results.slice(0, 8).map((result) => result.data()),
-  );
+  const results = await Promise.all(search.results.slice(0, 8).map((result) => result.data()));
   const container = modal.querySelector("[data-search-results]");
   if (!container) return;
 

@@ -58,7 +58,8 @@ const fr = {
     title: "Tags",
     description: "Tous les tags du blog, avec le nombre d'articles pour chacun.",
     taggedWith: (tag: string) => `Articles tagués « ${tag} »`,
-    tagDescription: (tag: string) => `Tous les articles tagués « ${tag} », triés du plus récent au plus ancien.`,
+    tagDescription: (tag: string) =>
+      `Tous les articles tagués « ${tag} », triés du plus récent au plus ancien.`,
     postsCount: (n: number) => (n === 1 ? "1 article" : `${n} articles`),
     all: "Tous les tags",
     explore: "Explorer par tag",
@@ -80,18 +81,16 @@ const fr = {
     placeholder: "Rechercher un article...",
     hint: "Tapez pour rechercher dans les articles.",
     noResults: "Aucun résultat.",
-    devNotice: "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
+    devNotice:
+      "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
   },
   newsletter: {
     title: "Restez au courant",
-    description: "Un email occasionnel quand un nouvel article sort. Pas de spam, désabonnement en un clic.",
+    description:
+      "Un email occasionnel quand un nouvel article sort. Pas de spam, désabonnement en un clic.",
     emailLabel: "Adresse email",
     placeholder: "vous@exemple.fr",
-    placeholders: [
-      "vous@exemple.fr",
-      "prenom.nom@exemple.fr",
-      "Recevoir les nouveaux articles",
-    ],
+    placeholders: ["vous@exemple.fr", "prenom.nom@exemple.fr", "Recevoir les nouveaux articles"],
     button: "S'abonner",
     submit: "Envoyer l'adresse email",
     note: "Composant de démonstration: aucune inscription n'est réellement envoyée.",
@@ -326,11 +325,7 @@ const en: Dict = {
     description: "An occasional email when a new post is out. No spam, unsubscribe in one click.",
     emailLabel: "Email address",
     placeholder: "you@example.com",
-    placeholders: [
-      "you@example.com",
-      "first.last@example.com",
-      "Get new posts by email",
-    ],
+    placeholders: ["you@example.com", "first.last@example.com", "Get new posts by email"],
     button: "Subscribe",
     submit: "Submit email address",
     note: "Demo component: no signup is actually sent.",

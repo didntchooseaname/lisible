@@ -17,9 +17,7 @@ type PagefindResult = {
 type PagefindModule = {
   options: (options: Record<string, unknown>) => Promise<void>;
   init: () => void;
-  debouncedSearch: (
-    query: string,
-  ) => Promise<{ results: PagefindResult[] } | null>;
+  debouncedSearch: (query: string) => Promise<{ results: PagefindResult[] } | null>;
 };
 
 let pagefind: PagefindModule | null = null;
@@ -37,13 +35,11 @@ function input(): HTMLInputElement | null {
 function visibleItems(): HTMLElement[] {
   const root = palette();
   if (!root) return [];
-  return [...root.querySelectorAll<HTMLElement>("[data-cp-item]")].filter(
-    (el) => {
-      if (el.hidden) return false;
-      const section = el.closest<HTMLElement>("[data-cp-section]");
-      return !section || !section.hidden;
-    },
-  );
+  return [...root.querySelectorAll<HTMLElement>("[data-cp-item]")].filter((el) => {
+    if (el.hidden) return false;
+    const section = el.closest<HTMLElement>("[data-cp-section]");
+    return !section?.hidden;
+  });
 }
 
 function setActive(index: number) {
@@ -124,9 +120,7 @@ async function runSearch(query: string) {
   const token = ++searchToken;
   const search = await pagefind.debouncedSearch(query);
   if (!search || token !== searchToken) return;
-  const results = await Promise.all(
-    search.results.slice(0, 6).map((r) => r.data()),
-  );
+  const results = await Promise.all(search.results.slice(0, 6).map((r) => r.data()));
   if (token !== searchToken) return;
 
   container.innerHTML = "";
@@ -169,22 +163,18 @@ function onInput() {
 }
 
 function applyThemeToggle() {
-  const next = document.documentElement.classList.contains("dark")
-    ? "light"
-    : "dark";
+  const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
   document.documentElement.classList.toggle("dark", next === "dark");
   try {
     localStorage.setItem("theme", next);
-  } catch {
-  }
+  } catch {}
   window.__applyAccent?.();
 }
 
 function resetAccent() {
   try {
     localStorage.removeItem("accent");
-  } catch {
-  }
+  } catch {}
   window.__applyAccent?.();
 }
 
@@ -200,8 +190,7 @@ async function copyUrl() {
         label.textContent = original;
       }, 1500);
     }
-  } catch {
-  }
+  } catch {}
 }
 
 function activate(item: HTMLElement) {
@@ -272,9 +261,7 @@ function bind() {
   });
 
   root.querySelector("[data-cp-list]")?.addEventListener("click", (event) => {
-    const item = (event.target as HTMLElement | null)?.closest<HTMLElement>(
-      "[data-cp-item]",
-    );
+    const item = (event.target as HTMLElement | null)?.closest<HTMLElement>("[data-cp-item]");
     if (!item) return;
     if (item.dataset.cpNav !== undefined && item.tagName === "A") return;
     event.preventDefault();

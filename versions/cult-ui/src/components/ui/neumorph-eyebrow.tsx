@@ -1,7 +1,7 @@
-import type React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
+import { cva, type VariantProps } from "class-variance-authority";
+import type React from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const neumorphEyebrowVariants = cva(
   "rounded-full border-[.75px] px-2.5 w-fit h-6 flex items-center text-xs font-medium mb-2 shadow-[inset_0px_-2px_0px_0px_var(--color-secondary),_0px_1px_6px_0px_var(--color-secondary)]",
@@ -16,13 +16,12 @@ const neumorphEyebrowVariants = cva(
     defaultVariants: {
       intent: "default",
     },
-  }
-)
+  },
+);
 
-interface NeumorphEyebrowProps
-  extends VariantProps<typeof neumorphEyebrowVariants> {
-  children: React.ReactNode
-  className?: string
+interface NeumorphEyebrowProps extends VariantProps<typeof neumorphEyebrowVariants> {
+  children: React.ReactNode;
+  className?: string;
 }
 
 export const NeumorphEyebrow: React.FC<NeumorphEyebrowProps> = ({
@@ -35,8 +34,7 @@ export const NeumorphEyebrow: React.FC<NeumorphEyebrowProps> = ({
     <div className={cn(neumorphEyebrowVariants({ intent }), className)} {...props}>
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default NeumorphEyebrow
-
+export default NeumorphEyebrow;

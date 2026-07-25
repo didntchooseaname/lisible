@@ -21,7 +21,7 @@ export function HeroIntro({ title, loopPrefix, loopWords }: HeroIntroProps) {
       >
         {title}
       </TextEffect>
-      { }
+      {}
       <div className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
         {loopPrefix}{" "}
         <TextLoop

@@ -1,6 +1,5 @@
-import { NumberTicker } from "@/components/ui/number-ticker";
 import { AnimatedCircularProgressBar } from "@/components/ui/animated-circular-progress-bar";
-
+import { NumberTicker } from "@/components/ui/number-ticker";
 
 interface Stat {
   value: number;

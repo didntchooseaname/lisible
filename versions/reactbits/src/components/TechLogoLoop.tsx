@@ -1,4 +1,3 @@
-import React from "react";
 import LogoLoop, { type LogoItem } from "@/components/ui/LogoLoop";
 
 const STACK = [

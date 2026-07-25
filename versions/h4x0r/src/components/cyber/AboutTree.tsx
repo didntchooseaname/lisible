@@ -1,6 +1,5 @@
 import { File, Folder, Tree } from "@/components/ui/file-tree";
 
-
 export type TreeLeaf = {
   id: string;
   name: string;
@@ -39,10 +38,14 @@ export default function AboutTree({ frFiles, enFiles }: Props) {
       </Folder>
       <Folder element="versions/h4x0r" value="h4x0r">
         <Folder element="i18n" value="i18n">
-          <File value="ui-ts"><span>ui.ts</span></File>
+          <File value="ui-ts">
+            <span>ui.ts</span>
+          </File>
         </Folder>
         <Folder element="styles" value="styles">
-          <File value="global-css"><span>global.css</span></File>
+          <File value="global-css">
+            <span>global.css</span>
+          </File>
         </Folder>
       </Folder>
     </Tree>

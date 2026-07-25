@@ -237,7 +237,8 @@ function setupInfographicZoom(frame: HTMLElement, target: HTMLElement) {
     level.textContent = `${Math.round(zoom * 100)}%`;
     viewport.toggleAttribute(
       "data-diagram-pannable",
-      viewport.scrollWidth > viewport.clientWidth + 1 || viewport.scrollHeight > viewport.clientHeight + 1,
+      viewport.scrollWidth > viewport.clientWidth + 1 ||
+        viewport.scrollHeight > viewport.clientHeight + 1,
     );
   };
 
@@ -253,18 +254,23 @@ function setupInfographicZoom(frame: HTMLElement, target: HTMLElement) {
   zoomOut.addEventListener("click", () => setZoom(zoom / 1.2));
   zoomIn.addEventListener("click", () => setZoom(zoom * 1.2));
   fit.addEventListener("click", () => setZoom(1));
-  viewport.addEventListener("wheel", (event) => {
-    if (!isExpanded(frame) || !(event.ctrlKey || event.metaKey)) return;
-    event.preventDefault();
-    setZoom(event.deltaY < 0 ? zoom * 1.1 : zoom / 1.1);
-  }, { passive: false });
+  viewport.addEventListener(
+    "wheel",
+    (event) => {
+      if (!isExpanded(frame) || !(event.ctrlKey || event.metaKey)) return;
+      event.preventDefault();
+      setZoom(event.deltaY < 0 ? zoom * 1.1 : zoom / 1.1);
+    },
+    { passive: false },
+  );
   viewport.addEventListener("pointerdown", (event) => {
     if (
-      !isExpanded(frame)
-      || event.button !== 0
-      || !viewport.hasAttribute("data-diagram-pannable")
-      || (event.target as Element | null)?.closest("button, a, input, select, textarea")
-    ) return;
+      !isExpanded(frame) ||
+      event.button !== 0 ||
+      !viewport.hasAttribute("data-diagram-pannable") ||
+      (event.target as Element | null)?.closest("button, a, input, select, textarea")
+    )
+      return;
     panning = true;
     panPointer = event.pointerId;
     panStartX = event.clientX;
@@ -285,7 +291,8 @@ function setupInfographicZoom(frame: HTMLElement, target: HTMLElement) {
     panning = false;
     panPointer = -1;
     viewport.removeAttribute("data-diagram-panning");
-    if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
+    if (viewport.hasPointerCapture(event.pointerId))
+      viewport.releasePointerCapture(event.pointerId);
   };
   viewport.addEventListener("pointerup", stopPanning);
   viewport.addEventListener("pointercancel", stopPanning);
@@ -320,8 +327,11 @@ function enhance(frame: HTMLElement) {
   const reference = target?.querySelector<HTMLButtonElement>("button");
   button.type = "button";
   button.dataset.diagramFullscreen = "";
-  button.className = reference?.className.replace(/\s*diagram-zoom-control\b/, "")
-    || (target?.matches(".edr-infographic__actions") ? "edr-infographic__button" : "diagram-fullscreen-floating");
+  button.className =
+    reference?.className.replace(/\s*diagram-zoom-control\b/, "") ||
+    (target?.matches(".edr-infographic__actions")
+      ? "edr-infographic__button"
+      : "diagram-fullscreen-floating");
   button.addEventListener("click", () => void toggleFullscreen(frame));
   (target ?? frame).append(button);
 }
@@ -335,7 +345,8 @@ function init() {
 document.addEventListener("fullscreenchange", update);
 document.addEventListener("webkitfullscreenchange", update);
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && document.querySelector("[data-diagram-fullscreen-fallback]")) closeFallback();
+  if (event.key === "Escape" && document.querySelector("[data-diagram-fullscreen-fallback]"))
+    closeFallback();
 });
 document.addEventListener("astro:page-load", init);
 init();

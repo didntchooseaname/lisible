@@ -8,11 +8,7 @@ function iconButton(label: string, path: string): HTMLButtonElement {
   return btn;
 }
 
-function setupPanZoom(
-  viewport: HTMLElement,
-  pan: HTMLElement,
-  zoomLevelEl: HTMLElement,
-) {
+function setupPanZoom(viewport: HTMLElement, pan: HTMLElement, zoomLevelEl: HTMLElement) {
   let scale = 1;
   let tx = 0;
   let ty = 0;
@@ -126,11 +122,7 @@ function mount(embed: HTMLElement) {
 }
 
 function observe(embed: HTMLElement) {
-  if (
-    embed.hasAttribute("data-drawio-done") ||
-    embed.hasAttribute("data-drawio-observed")
-  )
-    return;
+  if (embed.hasAttribute("data-drawio-done") || embed.hasAttribute("data-drawio-observed")) return;
   if (!("IntersectionObserver" in window)) {
     mount(embed);
     return;
@@ -149,9 +141,7 @@ function observe(embed: HTMLElement) {
 }
 
 function mountAll() {
-  document
-    .querySelectorAll<HTMLElement>("[data-drawio]")
-    .forEach((embed) => observe(embed));
+  document.querySelectorAll<HTMLElement>("[data-drawio]").forEach((embed) => observe(embed));
 }
 
 mountAll();

@@ -2,7 +2,7 @@ import { h, s } from "hastscript";
 import type { Root } from "mdast";
 import type { Plugin, Transformer } from "unified";
 import { visit } from "unist-util-visit";
-import { ui, defaultLocale, type Locale } from "../i18n/ui";
+import { defaultLocale, type Locale, ui } from "../i18n/ui";
 
 interface DirectiveNode {
   type: "containerDirective" | "leafDirective" | "textDirective";
@@ -121,7 +121,7 @@ const remarkGithubCard: Plugin<[], Root> = () => {
       const repo = directive.attributes?.repo;
       const data = directive.data ?? (directive.data = {});
 
-      if (!repo || !repo.includes("/")) {
+      if (!repo?.includes("/")) {
         data.hName = "div";
         data.hProperties = { style: "display:none" };
         data.hChildren = [];

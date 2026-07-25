@@ -1,11 +1,11 @@
 import {
   Children,
+  type CSSProperties,
   isValidElement,
+  type ReactNode,
   useEffect,
   useMemo,
   useState,
-  type CSSProperties,
-  type ReactNode,
 } from "react";
 
 export interface TreeViewElement {
@@ -35,7 +35,13 @@ const iconStyle: CSSProperties = {
   flex: "0 0 auto",
 };
 
-function TreeIcon({ type, open = false }: { type: "chevron" | "folder" | "file" | "expand"; open?: boolean }) {
+function TreeIcon({
+  type,
+  open = false,
+}: {
+  type: "chevron" | "folder" | "file" | "expand";
+  open?: boolean;
+}) {
   if (type === "chevron") {
     return (
       <svg
@@ -46,7 +52,11 @@ function TreeIcon({ type, open = false }: { type: "chevron" | "folder" | "file" 
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        style={{ ...iconStyle, transform: open ? "rotate(90deg)" : "none", transition: "transform 200ms ease" }}
+        style={{
+          ...iconStyle,
+          transform: open ? "rotate(90deg)" : "none",
+          transition: "transform 200ms ease",
+        }}
       >
         <path d="m9 18 6-6-6-6" />
       </svg>
@@ -65,9 +75,11 @@ function TreeIcon({ type, open = false }: { type: "chevron" | "folder" | "file" 
         style={iconStyle}
       >
         <path d="M3 7.5V5.8A1.8 1.8 0 0 1 4.8 4h4l2 2h8.4A1.8 1.8 0 0 1 21 7.8v1.1" />
-        {open
-          ? <path d="M3.4 9h17.2l-2.2 9.2A2.3 2.3 0 0 1 16.2 20H5.8a2.3 2.3 0 0 1-2.2-1.8L2 11.3A1.9 1.9 0 0 1 3.4 9Z" />
-          : <path d="M3 8h18v9.8a2.2 2.2 0 0 1-2.2 2.2H5.2A2.2 2.2 0 0 1 3 17.8Z" />}
+        {open ? (
+          <path d="M3.4 9h17.2l-2.2 9.2A2.3 2.3 0 0 1 16.2 20H5.8a2.3 2.3 0 0 1-2.2-1.8L2 11.3A1.9 1.9 0 0 1 3.4 9Z" />
+        ) : (
+          <path d="M3 8h18v9.8a2.2 2.2 0 0 1-2.2 2.2H5.2A2.2 2.2 0 0 1 3 17.8Z" />
+        )}
       </svg>
     );
   }
@@ -126,12 +138,13 @@ function sortElements(elements: TreeViewElement[], sort: TreeSortMode): TreeView
     children: item.children ? sortElements(item.children, sort) : undefined,
   }));
   if (sort === "none") return nested;
-  const comparator = typeof sort === "function"
-    ? sort
-    : (a: TreeViewElement, b: TreeViewElement) => {
-        if (isFolder(a) !== isFolder(b)) return isFolder(a) ? -1 : 1;
-        return collator.compare(a.name, b.name);
-      };
+  const comparator =
+    typeof sort === "function"
+      ? sort
+      : (a: TreeViewElement, b: TreeViewElement) => {
+          if (isFolder(a) !== isFolder(b)) return isFolder(a) ? -1 : 1;
+          return collator.compare(a.name, b.name);
+        };
   return nested.sort(comparator);
 }
 
@@ -168,6 +181,7 @@ function Branch({
   return (
     <li
       role="treeitem"
+      tabIndex={-1}
       aria-expanded={folder ? open : undefined}
       aria-selected={selectable ? selected : undefined}
       className="m-0 list-none p-0"
@@ -192,11 +206,15 @@ function Branch({
           style={{
             paddingInlineStart: indent,
             color: selected ? "var(--accent)" : "inherit",
-            background: selected ? "color-mix(in oklab, var(--accent) 12%, transparent)" : undefined,
+            background: selected
+              ? "color-mix(in oklab, var(--accent) 12%, transparent)"
+              : undefined,
           }}
         >
           {folder ? (
-            <span className="text-muted-foreground"><TreeIcon type="chevron" open={open} /></span>
+            <span className="text-muted-foreground">
+              <TreeIcon type="chevron" open={open} />
+            </span>
           ) : (
             <span aria-hidden="true" style={{ width: "1rem", flex: "0 0 auto" }} />
           )}
@@ -207,7 +225,12 @@ function Branch({
         </button>
       </div>
       {folder && open && item.children && (
-        <ul role="group" className="m-0 list-none p-0" style={{ listStyle: "none", margin: 0, padding: 0 }}>
+        // biome-ignore lint/a11y/useSemanticElements: the ARIA tree pattern requires role group on nested item lists
+        <ul
+          role="group"
+          className="m-0 list-none p-0"
+          style={{ listStyle: "none", margin: 0, padding: 0 }}
+        >
           {item.children.map((child) => (
             <Branch
               key={child.id}
@@ -243,18 +266,29 @@ function Tree({
   const [language, setLanguage] = useState<"fr" | "en">("en");
   const expanded = useMemo(() => new Set(expandedItems), [expandedItems]);
   const allOpen = allFolders.length > 0 && allFolders.every((id) => expanded.has(id));
-  const labels = language === "fr"
-    ? { title: "Arborescence", tree: "Structure de fichiers", expand: "Tout ouvrir", collapse: "Tout fermer" }
-    : { title: "File tree", tree: "File structure", expand: "Expand all", collapse: "Collapse all" };
+  const labels =
+    language === "fr"
+      ? {
+          title: "Arborescence",
+          tree: "Structure de fichiers",
+          expand: "Tout ouvrir",
+          collapse: "Tout fermer",
+        }
+      : {
+          title: "File tree",
+          tree: "File structure",
+          expand: "Expand all",
+          collapse: "Collapse all",
+        };
 
   useEffect(() => {
     setLanguage(document.documentElement.lang === "fr" ? "fr" : "en");
   }, []);
 
   const onExpand = (id: string) => {
-    setExpandedItems((current) => current.includes(id)
-      ? current.filter((item) => item !== id)
-      : [...current, id]);
+    setExpandedItems((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
+    );
   };
 
   return (
@@ -263,7 +297,8 @@ function Tree({
       className={`not-prose my-6 overflow-hidden border border-border bg-card/80 shadow-sm ${className}`}
       style={{
         borderRadius: "1.7rem 1.1rem 1.6rem 1.2rem / 1.15rem 1.7rem 1.1rem 1.6rem",
-        backgroundImage: "radial-gradient(circle at 12% 0%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 38%)",
+        backgroundImage:
+          "radial-gradient(circle at 12% 0%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 38%)",
       }}
       data-file-tree
     >
@@ -286,6 +321,7 @@ function Tree({
       <div className="overflow-x-auto p-3 sm:p-4">
         {elements.length > 0 ? (
           <ul
+            // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: ARIA tree widget built on a list per the WAI-ARIA authoring practices
             role="tree"
             aria-label={labels.tree}
             className="m-0 min-w-max list-none p-0"
@@ -304,7 +340,9 @@ function Tree({
               />
             ))}
           </ul>
-        ) : children}
+        ) : (
+          children
+        )}
       </div>
     </div>
   );
@@ -334,11 +372,13 @@ function Folder({
 function File({ name, children }: { name?: string; children?: ReactNode }) {
   return (
     <div className="my-1 inline-flex items-center gap-2 font-mono text-sm">
-      <span className="text-accent"><TreeIcon type="file" /></span>
+      <span className="text-accent">
+        <TreeIcon type="file" />
+      </span>
       {name ?? (isValidElement(children) ? children : <span>{children}</span>)}
     </div>
   );
 }
 
-export { File, Folder, Tree };
 export type { TreeProps, TreeSortMode };
+export { File, Folder, Tree };

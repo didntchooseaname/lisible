@@ -1,15 +1,8 @@
 "use client";
-import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
-import {
-  motion,
-  AnimatePresence,
-  useScroll,
-  useMotionValueEvent,
-} from "motion/react";
-
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import React, { useState } from "react";
-
+import { cn } from "@/lib/utils";
 
 interface NavbarProps {
   children: React.ReactNode;
@@ -66,10 +59,7 @@ export const Navbar = ({ children, className }: NavbarProps) => {
     <motion.div className={cn("sticky inset-x-0 top-0 z-40 w-full", className)}>
       {React.Children.map(children, (child) =>
         React.isValidElement(child)
-          ? React.cloneElement(
-              child as React.ReactElement<{ visible?: boolean }>,
-              { visible },
-            )
+          ? React.cloneElement(child as React.ReactElement<{ visible?: boolean }>, { visible })
           : child,
       )}
     </motion.div>
@@ -106,12 +96,7 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
   );
 };
 
-export const NavItems = ({
-  items,
-  className,
-  ariaLabel,
-  onItemClick,
-}: NavItemsProps) => {
+export const NavItems = ({ items, className, ariaLabel, onItemClick }: NavItemsProps) => {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
@@ -179,27 +164,15 @@ export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
   );
 };
 
-export const MobileNavHeader = ({
-  children,
-  className,
-}: MobileNavHeaderProps) => {
+export const MobileNavHeader = ({ children, className }: MobileNavHeaderProps) => {
   return (
-    <div
-      className={cn(
-        "flex w-full flex-row items-center justify-between",
-        className,
-      )}
-    >
+    <div className={cn("flex w-full flex-row items-center justify-between", className)}>
       {children}
     </div>
   );
 };
 
-export const MobileNavMenu = ({
-  children,
-  className,
-  isOpen,
-}: MobileNavMenuProps) => {
+export const MobileNavMenu = ({ children, className, isOpen }: MobileNavMenuProps) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -247,13 +220,7 @@ export const MobileNavToggle = ({
   );
 };
 
-export const NavbarLogo = ({
-  href,
-  title,
-}: {
-  href: string;
-  title: string;
-}) => {
+export const NavbarLogo = ({ href, title }: { href: string; title: string }) => {
   return (
     <a
       href={href}

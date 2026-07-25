@@ -2,7 +2,6 @@ import { createRef, useRef } from "react";
 import { AnimatedBeam } from "@/components/ui/animated-beam";
 import { cn } from "@/lib/utils";
 
-
 interface Props {
   core: string;
   modules: string[];

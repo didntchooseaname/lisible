@@ -60,7 +60,8 @@ const fr = {
     title: "Tags",
     description: "Tous les tags du blog, avec le nombre d'articles pour chacun.",
     taggedWith: (tag: string) => `Articles tagués « ${tag} »`,
-    tagDescription: (tag: string) => `Tous les articles tagués « ${tag} », triés du plus récent au plus ancien.`,
+    tagDescription: (tag: string) =>
+      `Tous les articles tagués « ${tag} », triés du plus récent au plus ancien.`,
     postsCount: (n: number) => (n === 1 ? "1 article" : `${n} articles`),
     all: "Tous les tags",
   },
@@ -84,11 +85,13 @@ const fr = {
     placeholder: "Rechercher un article...",
     hint: "Tapez pour rechercher dans les articles.",
     noResults: "Aucun résultat.",
-    devNotice: "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
+    devNotice:
+      "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
   },
   newsletter: {
     title: "Restez au courant",
-    description: "Un email occasionnel quand un nouvel article sort. Pas de spam, désabonnement en un clic.",
+    description:
+      "Un email occasionnel quand un nouvel article sort. Pas de spam, désabonnement en un clic.",
     emailLabel: "Adresse email",
     placeholder: "vous@exemple.fr",
     button: "S'abonner",
@@ -215,7 +218,8 @@ const fr = {
     viewAll: "Voir toute la série",
     toggleList: "Afficher les épisodes de la série",
     cumulativeTime: (min: number) => `${min} min de lecture au total`,
-    description: (name: string) => `Tous les articles de la série « ${name} », dans l'ordre de lecture.`,
+    description: (name: string) =>
+      `Tous les articles de la série « ${name} », dans l'ordre de lecture.`,
   },
   palette: {
     placeholder: "Rechercher ou exécuter une commande...",

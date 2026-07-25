@@ -1,8 +1,8 @@
-import type { APIContext } from "astro";
 import { localeRss as sharedLocaleRss } from "@shared/lib/rss";
-import { FEATURES, SITE } from "@/site.config";
-import { t, type Locale } from "@/i18n/ui";
+import type { APIContext } from "astro";
+import { type Locale, t } from "@/i18n/ui";
 import { postUrl } from "@/lib/posts";
+import { FEATURES, SITE } from "@/site.config";
 
 export function localeRss(context: APIContext, locale: Locale) {
   return sharedLocaleRss(context, locale, {

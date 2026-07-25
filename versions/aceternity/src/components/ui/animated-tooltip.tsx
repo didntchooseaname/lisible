@@ -1,13 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import {
-  motion,
-  useTransform,
-  AnimatePresence,
-  useMotionValue,
-  useSpring,
-} from "motion/react";
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import { useRef, useState } from "react";
 
 export const AnimatedTooltip = ({
   items,
@@ -24,14 +18,8 @@ export const AnimatedTooltip = ({
   const x = useMotionValue(0);
   const animationFrameRef = useRef<number | null>(null);
 
-  const rotate = useSpring(
-    useTransform(x, [-100, 100], [-45, 45]),
-    springConfig,
-  );
-  const translateX = useSpring(
-    useTransform(x, [-100, 100], [-50, 50]),
-    springConfig,
-  );
+  const rotate = useSpring(useTransform(x, [-100, 100], [-45, 45]), springConfig);
+  const translateX = useSpring(useTransform(x, [-100, 100], [-50, 50]), springConfig);
 
   const handleMouseMove = (event: any) => {
     if (animationFrameRef.current) {
@@ -46,7 +34,8 @@ export const AnimatedTooltip = ({
 
   return (
     <>
-      {items.map((item, idx) => (
+      {items.map((item) => (
+        // biome-ignore lint/a11y/noStaticElementInteractions: hover handlers only drive a visual tooltip
         <div
           className="group relative -mr-4"
           key={item.name}

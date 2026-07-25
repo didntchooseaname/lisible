@@ -1,5 +1,5 @@
-import type { APIRoute } from "astro";
 import { rssStylesheet } from "@shared/lib/rss-stylesheet";
+import type { APIRoute } from "astro";
 import { FEATURES, SITE } from "@/site.config";
 
 export function getStaticPaths() {

@@ -1,8 +1,4 @@
-function setupPanZoom(
-  viewport: HTMLElement,
-  panLayer: HTMLElement,
-  zoomLevelEl?: Element | null,
-) {
+function setupPanZoom(viewport: HTMLElement, panLayer: HTMLElement, zoomLevelEl?: Element | null) {
   let scale = 1;
   let tx = 0;
   let ty = 0;
@@ -77,8 +73,7 @@ async function inlineSvg(panLayer: HTMLElement, src: string) {
     svg.style.maxWidth = "100%";
     svg.style.height = "auto";
     panLayer.replaceChildren(wrapper);
-  } catch {
-  }
+  } catch {}
 }
 
 function initDrawio(container: HTMLElement) {

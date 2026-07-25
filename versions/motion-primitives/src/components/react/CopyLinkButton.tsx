@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
 import { MotionConfig } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { TextMorph } from "@/components/ui/text-morph";
 
 type CopyLinkButtonProps = {
@@ -19,7 +19,9 @@ export function CopyLinkButton({ copyLabel, copiedLabel }: CopyLinkButtonProps) 
 
   async function handleClick() {
     try {
-      await navigator.clipboard.writeText(window.location.href.split("#")[0] ?? window.location.href);
+      await navigator.clipboard.writeText(
+        window.location.href.split("#")[0] ?? window.location.href,
+      );
     } catch {
       return;
     }

@@ -6,8 +6,7 @@ import {
 } from "@/components/ui/texture-button";
 import { cn } from "@/lib/utils";
 
-interface TextureLinkProps
-  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+interface TextureLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   variant?: UnifiedButtonProps["variant"];
   size?: UnifiedButtonProps["size"];
   innerClassName?: string;

@@ -1,18 +1,12 @@
-import { h } from "hastscript";
 import type { ElementContent } from "hast";
+import { h } from "hastscript";
 import type { Paragraph, Root } from "mdast";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 
 type Variant = "note" | "tip" | "warning" | "caution" | "important";
 
-const VARIANTS = new Set<Variant>([
-  "note",
-  "tip",
-  "warning",
-  "caution",
-  "important",
-]);
+const VARIANTS = new Set<Variant>(["note", "tip", "warning", "caution", "important"]);
 
 const ICON_PATHS: Record<Variant, string[]> = {
   note: ["M12 16v-4", "M12 8h.01", "M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0"],
@@ -114,8 +108,7 @@ const remarkCallouts: Plugin<[], Root> = () => {
       const labelIndex = bodyChildren.findIndex(
         (child) =>
           child.type === "paragraph" &&
-          (child.data as { directiveLabel?: boolean } | undefined)
-            ?.directiveLabel,
+          (child.data as { directiveLabel?: boolean } | undefined)?.directiveLabel,
       );
       if (labelIndex !== -1) {
         title = paragraphText(bodyChildren[labelIndex] as Paragraph) || title;
