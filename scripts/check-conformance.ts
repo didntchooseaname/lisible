@@ -32,6 +32,7 @@ interface Exceptions {
   scriptLevelFlags?: Record<string, string>;
   extraRoutes?: Record<string, string[]>;
   sharedShims?: string[];
+  identicalAcrossVariants?: string[];
 }
 
 const exceptions: Exceptions = JSON.parse(
@@ -152,10 +153,27 @@ for (const shim of exceptions.sharedShims ?? []) {
     const meaningful = readFileSync(path, "utf8")
       .split("\n")
       .filter((line) => line.trim() && !line.trim().startsWith("//") && !line.trim().startsWith("*") && !line.trim().startsWith("/*"));
-    const isReExport = meaningful.length <= 2 && meaningful.every((line) => /^(export|import)\b.*@shared/.test(line.trim()));
+    const isReExport =
+      meaningful.length <= 2 &&
+      meaningful.every((line) => /^(export|import)\b.*["'](@shared|(\.\.\/)+shared)\//.test(line.trim()));
     if (!isReExport) {
       failures.push(`${target}: ${shim} is declared as a shared shim but is not a one line re-export`);
     }
+  }
+}
+
+// 6. Adapter files that must stay byte identical in every variant that has them.
+for (const file of exceptions.identicalAcrossVariants ?? []) {
+  const contents = new Map<string, string[]>();
+  for (const target of TARGETS) {
+    const path = join(root, "versions", target, file);
+    if (!existsSync(path)) continue;
+    const content = readFileSync(path, "utf8");
+    contents.set(content, [...(contents.get(content) ?? []), target]);
+  }
+  if (contents.size > 1) {
+    const groups = [...contents.values()].map((targets) => targets.join(", ")).join(" | ");
+    failures.push(`${file}: diverged between variants (${groups})`);
   }
 }
 

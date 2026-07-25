@@ -11,5 +11,18 @@
     "linkCheck": "Read by scripts/check-links.ts, not by variants."
   },
   "extraRoutes": {},
-  "sharedShims": []
+  "sharedShims": [
+    "src/content.config.ts",
+    "src/lib/focus-trap.ts",
+    "src/lib/rehype-task-checkboxes.ts",
+    "src/scripts/github-card.ts"
+  ],
+  "identicalAcrossVariants": [
+    "src/lib/rss.ts",
+    "src/pages/robots.txt.ts",
+    "src/pages/rss.xml.ts",
+    "src/pages/rss/[style].xsl.ts",
+    "src/pages/blog/[slug].md.ts",
+    "tsconfig.json"
+  ]
 }

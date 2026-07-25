@@ -48,8 +48,10 @@
     "@biomejs/biome": "^2.5.5",
     "@happy-dom/global-registrator": "^20.11.1",
     "@resvg/resvg-js": "^2.6.2",
+    "clsx": "^2.1.1",
     "happy-dom": "^20.11.1",
     "satori": "^0.29.0",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "tailwind-merge": "^3.6.0"
   }
 }
