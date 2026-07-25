@@ -13,7 +13,7 @@ const { locale, alternates } = Astro.props;
 const dict = t(locale);
 const palette = FEATURES.commandPalette;
 
-const PaletteStyles = __F_COMMAND_PALETTE__
+const PaletteStyles = __FEATURE_COMMAND_PALETTE__
   ? (await import("@/components/runtime/PaletteStyles.astro")).default
   : null;
 const other = otherLocale(locale);

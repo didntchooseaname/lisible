@@ -16,9 +16,7 @@ const dir = join(root, "versions", selected);
 if (!isPublicVariant(variant) || !existsSync(dir)) {
   console.error(`Unknown or missing variant: "${selected}".`);
   console.error(`Available variants: ${known.join(", ")}`);
-  console.error(
-    `Select one in lisible.config.json (the "variant" field) or set LISIBLE_VARIANT.`,
-  );
+  console.error(`Select one in lisible.config.json (the "variant" field) or set LISIBLE_VARIANT.`);
   process.exit(1);
 }
 

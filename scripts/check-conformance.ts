@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { SHARED_FEATURES } from "../shared/features";
 
@@ -51,7 +51,10 @@ function walk(dir: string, base: string): string[] {
 }
 
 // 1. Route parity against _core.
-const referencePages = walk(join(root, "versions/_core/src/pages"), join(root, "versions/_core/src/pages"));
+const referencePages = walk(
+  join(root, "versions/_core/src/pages"),
+  join(root, "versions/_core/src/pages"),
+);
 for (const target of TARGETS.slice(1)) {
   const pagesDir = join(root, "versions", target, "src/pages");
   const pages = walk(pagesDir, pagesDir);
@@ -61,7 +64,9 @@ for (const target of TARGETS.slice(1)) {
   }
   for (const page of pages) {
     if (!referencePages.includes(page) && !allowed.has(page)) {
-      failures.push(`${target}: extra route src/pages/${page} (declare it in conformance-exceptions.json)`);
+      failures.push(
+        `${target}: extra route src/pages/${page} (declare it in conformance-exceptions.json)`,
+      );
     }
   }
 }
@@ -83,7 +88,9 @@ for (const target of TARGETS) {
       existsSync(join(root, "versions", target, "src", `${specifier}${suffix}`)),
     );
     if (!found) {
-      failures.push(`${target}: shared content imports "@/${specifier}" but src/${specifier} does not resolve`);
+      failures.push(
+        `${target}: shared content imports "@/${specifier}" but src/${specifier} does not resolve`,
+      );
     }
   }
 }
@@ -94,7 +101,8 @@ function grepDir(dir: string, needle: string): boolean {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name === "node_modules" || entry.name === "dist" || entry.name === ".astro") continue;
+      if (entry.name === "node_modules" || entry.name === "dist" || entry.name === ".astro")
+        continue;
       if (grepDir(path, needle)) return true;
     } else if (/\.(ts|tsx|astro|mjs|js)$/.test(entry.name)) {
       if (readFileSync(path, "utf8").includes(needle)) return true;
@@ -105,7 +113,9 @@ function grepDir(dir: string, needle: string): boolean {
 for (const flag of Object.keys(SHARED_FEATURES)) {
   if (exceptions.scriptLevelFlags?.[flag]) {
     if (!grepDir(join(root, "scripts"), `SHARED_FEATURES.${flag}`)) {
-      failures.push(`flag ${flag}: declared script level but no script reads SHARED_FEATURES.${flag}`);
+      failures.push(
+        `flag ${flag}: declared script level but no script reads SHARED_FEATURES.${flag}`,
+      );
     }
     continue;
   }
@@ -138,7 +148,8 @@ if (allBuilt) {
       if (!pages.has(page)) failures.push(`${target}: dist misses ${page} that _core emits`);
     }
     for (const page of pages) {
-      if (!reference.includes(page)) failures.push(`${target}: dist emits ${page} that _core does not`);
+      if (!reference.includes(page))
+        failures.push(`${target}: dist emits ${page} that _core does not`);
     }
   }
 } else {
@@ -152,12 +163,22 @@ for (const shim of exceptions.sharedShims ?? []) {
     if (!existsSync(path)) continue;
     const meaningful = readFileSync(path, "utf8")
       .split("\n")
-      .filter((line) => line.trim() && !line.trim().startsWith("//") && !line.trim().startsWith("*") && !line.trim().startsWith("/*"));
+      .filter(
+        (line) =>
+          line.trim() &&
+          !line.trim().startsWith("//") &&
+          !line.trim().startsWith("*") &&
+          !line.trim().startsWith("/*"),
+      );
     const isReExport =
       meaningful.length <= 2 &&
-      meaningful.every((line) => /^(export|import)\b.*["'](@shared|(\.\.\/)+shared)\//.test(line.trim()));
+      meaningful.every((line) =>
+        /^(export|import)\b.*["'](@shared|(\.\.\/)+shared)\//.test(line.trim()),
+      );
     if (!isReExport) {
-      failures.push(`${target}: ${shim} is declared as a shared shim but is not a one line re-export`);
+      failures.push(
+        `${target}: ${shim} is declared as a shared shim but is not a one line re-export`,
+      );
     }
   }
 }

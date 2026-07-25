@@ -176,11 +176,11 @@ export default defineConfig({
     },
     define: {
       __MDX_COMPONENTS_ENABLED__: JSON.stringify(FEATURES.mdxComponents),
-      __F_IMAGE_ZOOM__: JSON.stringify(FEATURES.imageZoom),
-      __F_MERMAID__: JSON.stringify(FEATURES.mermaid),
-      __F_DRAWIO__: JSON.stringify(FEATURES.drawio),
-      __F_HEADING_ANCHORS__: JSON.stringify(FEATURES.headingAnchors),
-      __F_COMMAND_PALETTE__: JSON.stringify(FEATURES.commandPalette),
+      __FEATURE_IMAGE_ZOOM__: JSON.stringify(FEATURES.imageZoom),
+      __FEATURE_MERMAID__: JSON.stringify(FEATURES.mermaid),
+      __FEATURE_DRAWIO__: JSON.stringify(FEATURES.drawio),
+      __FEATURE_HEADING_ANCHORS__: JSON.stringify(FEATURES.headingAnchors),
+      __FEATURE_COMMAND_PALETTE__: JSON.stringify(FEATURES.commandPalette),
     },
     preview: {
       allowedHosts,

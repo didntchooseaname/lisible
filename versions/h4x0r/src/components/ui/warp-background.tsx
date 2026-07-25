@@ -16,19 +16,31 @@ interface WarpBackgroundProps extends HTMLAttributes<HTMLDivElement> {
   gridColor?: string;
 }
 
+/**
+ * Deterministic pseudo-random in [0, 1). Math.random() here would make every
+ * build differ and the client hydration disagree with the server render; a
+ * seed per beam keeps the visual variety while staying reproducible.
+ */
+const seeded = (seed: number) => {
+  const x = Math.sin(seed * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+};
+
 const Beam = ({
   width,
   x,
   delay,
   duration,
+  seed,
 }: {
   width: string | number;
   x: string | number;
   delay: number;
   duration: number;
+  seed: number;
 }) => {
-  const strength = 45 + Math.floor(Math.random() * 55);
-  const ar = Math.floor(Math.random() * 10) + 1;
+  const strength = 45 + Math.floor(seeded(seed) * 55);
+  const ar = Math.floor(seeded(seed + 1) * 10) + 1;
 
   return (
     <motion.div
@@ -65,23 +77,26 @@ export const WarpBackground: React.FC<WarpBackgroundProps> = ({
   gridColor = "var(--border)",
   ...props
 }) => {
-  const generateBeams = useCallback(() => {
-    const beams = [];
-    const cellsPerSide = Math.floor(100 / beamSize);
-    const step = cellsPerSide / beamsPerSide;
+  const generateBeams = useCallback(
+    (sideSeed: number) => {
+      const beams = [];
+      const cellsPerSide = Math.floor(100 / beamSize);
+      const step = cellsPerSide / beamsPerSide;
 
-    for (let i = 0; i < beamsPerSide; i++) {
-      const x = Math.floor(i * step);
-      const delay = Math.random() * (beamDelayMax - beamDelayMin) + beamDelayMin;
-      beams.push({ x, delay });
-    }
-    return beams;
-  }, [beamsPerSide, beamSize, beamDelayMax, beamDelayMin]);
+      for (let i = 0; i < beamsPerSide; i++) {
+        const x = Math.floor(i * step);
+        const delay = seeded(sideSeed + i * 7) * (beamDelayMax - beamDelayMin) + beamDelayMin;
+        beams.push({ x, delay, seed: sideSeed * 100 + i * 2 });
+      }
+      return beams;
+    },
+    [beamsPerSide, beamSize, beamDelayMax, beamDelayMin],
+  );
 
-  const topBeams = useMemo(() => generateBeams(), [generateBeams]);
-  const rightBeams = useMemo(() => generateBeams(), [generateBeams]);
-  const bottomBeams = useMemo(() => generateBeams(), [generateBeams]);
-  const leftBeams = useMemo(() => generateBeams(), [generateBeams]);
+  const topBeams = useMemo(() => generateBeams(1), [generateBeams]);
+  const rightBeams = useMemo(() => generateBeams(2), [generateBeams]);
+  const bottomBeams = useMemo(() => generateBeams(3), [generateBeams]);
+  const leftBeams = useMemo(() => generateBeams(4), [generateBeams]);
 
   return (
     <div className={cn("relative rounded border p-20", className)} {...props}>
@@ -106,6 +121,7 @@ export const WarpBackground: React.FC<WarpBackgroundProps> = ({
               x={`${beam.x * beamSize}%`}
               delay={beam.delay}
               duration={beamDuration}
+              seed={beam.seed}
             />
           ))}
         </div>
@@ -118,6 +134,7 @@ export const WarpBackground: React.FC<WarpBackgroundProps> = ({
               x={`${beam.x * beamSize}%`}
               delay={beam.delay}
               duration={beamDuration}
+              seed={beam.seed}
             />
           ))}
         </div>
@@ -130,6 +147,7 @@ export const WarpBackground: React.FC<WarpBackgroundProps> = ({
               x={`${beam.x * beamSize}%`}
               delay={beam.delay}
               duration={beamDuration}
+              seed={beam.seed}
             />
           ))}
         </div>
@@ -142,6 +160,7 @@ export const WarpBackground: React.FC<WarpBackgroundProps> = ({
               x={`${beam.x * beamSize}%`}
               delay={beam.delay}
               duration={beamDuration}
+              seed={beam.seed}
             />
           ))}
         </div>

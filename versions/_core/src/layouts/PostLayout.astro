@@ -70,16 +70,16 @@ const articleMd = FEATURES.aiButtons ? postToMarkdown(post, SITE.url, postUrl(po
 const seriesContext =
   FEATURES.series && post.data.series ? await getSeriesContext(post) : null;
 
-const ImageLightbox = __F_IMAGE_ZOOM__
+const ImageLightbox = __FEATURE_IMAGE_ZOOM__
   ? (await import("@/components/ImageLightbox.astro")).default
   : null;
-const MermaidRuntime = __F_MERMAID__
+const MermaidRuntime = __FEATURE_MERMAID__
   ? (await import("@/components/runtime/MermaidRuntime.astro")).default
   : null;
-const DrawioRuntime = __F_DRAWIO__
+const DrawioRuntime = __FEATURE_DRAWIO__
   ? (await import("@/components/runtime/DrawioRuntime.astro")).default
   : null;
-const HeadingAnchorsRuntime = __F_HEADING_ANCHORS__
+const HeadingAnchorsRuntime = __FEATURE_HEADING_ANCHORS__
   ? (await import("@/components/runtime/HeadingAnchorsRuntime.astro")).default
   : null;
 

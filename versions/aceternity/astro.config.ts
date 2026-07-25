@@ -168,10 +168,10 @@ export default defineConfig({
       ],
     },
     define: {
-      __F_IMAGEZOOM__: JSON.stringify(FEATURES.imageZoom),
-      __F_HEADINGANCHORS__: JSON.stringify(FEATURES.headingAnchors),
-      __F_MERMAID__: JSON.stringify(FEATURES.mermaid),
-      __F_DRAWIO__: JSON.stringify(FEATURES.drawio),
+      __FEATURE_IMAGE_ZOOM__: JSON.stringify(FEATURES.imageZoom),
+      __FEATURE_HEADING_ANCHORS__: JSON.stringify(FEATURES.headingAnchors),
+      __FEATURE_MERMAID__: JSON.stringify(FEATURES.mermaid),
+      __FEATURE_DRAWIO__: JSON.stringify(FEATURES.drawio),
     },
     preview: {
       allowedHosts,
