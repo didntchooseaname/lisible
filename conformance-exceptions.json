@@ -15,6 +15,7 @@
     "src/content.config.ts",
     "src/lib/focus-trap.ts",
     "src/lib/link-card-cache.ts",
+    "src/lib/pan-zoom.ts",
     "src/lib/rehype-task-checkboxes.ts",
     "src/plugins/remark-math-flag.ts",
     "src/scripts/github-card.ts",

@@ -36,7 +36,7 @@ async function loadBlock(block: HTMLElement): Promise<void> {
 
     const zoomLevel = block.querySelector("[data-diagram-zoom-level]");
     const hint = block.querySelector<HTMLElement>(".diagram-hint");
-    const controls = setupPanZoom(viewport, panLayer, zoomLevel, hint);
+    const controls = setupPanZoom(viewport, panLayer, { zoomLevelEl: zoomLevel, hintEl: hint });
     bindDiagramControls(block, controls);
     requestAnimationFrame(() => controls.fitToViewport());
   } catch (error) {

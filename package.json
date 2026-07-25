@@ -51,10 +51,16 @@
     "@happy-dom/global-registrator": "^20.11.1",
     "@playwright/test": "^1.62.0",
     "@resvg/resvg-js": "^2.6.2",
+    "@types/hast": "^3.0.5",
+    "@types/mdast": "^4.0.4",
     "clsx": "^2.1.1",
     "happy-dom": "^20.11.1",
+    "hastscript": "^9.0.1",
+    "open-graph-scraper": "^6.12.0",
     "satori": "^0.29.0",
     "sharp": "^0.35.3",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0"
   }
 }

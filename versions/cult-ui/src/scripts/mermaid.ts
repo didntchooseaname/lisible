@@ -1,3 +1,5 @@
+import { setupPanZoom } from "../../../../shared/scripts/pan-zoom";
+
 type MermaidApi = typeof import("mermaid").default;
 
 let mermaidPromise: Promise<MermaidApi> | null = null;
@@ -49,84 +51,6 @@ function prepareSvg(svg: SVGSVGElement) {
 
 interface Controls {
   fit: () => void;
-}
-
-function setupPanZoom(
-  viewport: HTMLElement,
-  pan: HTMLElement,
-  zoomLevelEl: HTMLElement | null,
-): Controls {
-  let scale = 1;
-  let tx = 0;
-  let ty = 0;
-  let panning = false;
-  let startX = 0;
-  let startY = 0;
-
-  function apply() {
-    pan.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-    pan.style.transformOrigin = "center center";
-    if (zoomLevelEl) zoomLevelEl.textContent = `${Math.round(scale * 100)}%`;
-  }
-  function zoom(factor: number) {
-    scale = Math.min(Math.max(scale * factor, 0.2), 20);
-    apply();
-  }
-  function fit() {
-    const svg = pan.querySelector<SVGSVGElement>("svg");
-    const vb = svg?.viewBox.baseVal;
-    const rect = viewport.getBoundingClientRect();
-    if (!vb?.width || !vb?.height || !rect.width || !rect.height) {
-      scale = 1;
-      tx = 0;
-      ty = 0;
-      apply();
-      return;
-    }
-    const padding = 32;
-    scale = Math.min((rect.width - padding) / vb.width, (rect.height - padding) / vb.height);
-    scale = Math.min(Math.max(scale, 0.2), 20);
-    tx = 0;
-    ty = 0;
-    apply();
-  }
-
-  viewport.addEventListener(
-    "wheel",
-    (e) => {
-      e.preventDefault();
-      zoom(e.deltaY < 0 ? 1.1 : 1 / 1.1);
-    },
-    { passive: false },
-  );
-  viewport.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0) return;
-    panning = true;
-    startX = e.clientX - tx;
-    startY = e.clientY - ty;
-    viewport.style.cursor = "grabbing";
-    viewport.setPointerCapture(e.pointerId);
-  });
-  viewport.addEventListener("pointermove", (e) => {
-    if (!panning) return;
-    tx = e.clientX - startX;
-    ty = e.clientY - startY;
-    apply();
-  });
-  const stop = () => {
-    panning = false;
-    viewport.style.cursor = "grab";
-  };
-  viewport.addEventListener("pointerup", stop);
-  viewport.addEventListener("pointercancel", stop);
-
-  const controls: Controls & { zoomIn: () => void; zoomOut: () => void } = {
-    fit,
-    zoomIn: () => zoom(1.25),
-    zoomOut: () => zoom(1 / 1.25),
-  };
-  (viewport as HTMLElement & { __mzControls?: typeof controls }).__mzControls = controls;
-  return controls;
 }
 
 function iconButton(label: string, path: string): HTMLButtonElement {
@@ -182,10 +106,22 @@ function buildChrome(embed: HTMLElement, render: HTMLElement) {
 
   embed.insertBefore(toolbar, embed.firstChild);
 
-  const pz = setupPanZoom(viewport, render, zoomLevel) as Controls & {
-    zoomIn: () => void;
-    zoomOut: () => void;
+  const engine = setupPanZoom(viewport, render, {
+    zoomLevelEl: zoomLevel,
+    grabCursor: false,
+    fit: {
+      padding: 32,
+      cap: Number.POSITIVE_INFINITY,
+      fallback: "reset",
+      content: "svg-viewbox",
+    },
+  });
+  const pz: Controls & { zoomIn: () => void; zoomOut: () => void } = {
+    fit: engine.fitToViewport,
+    zoomIn: engine.zoomIn,
+    zoomOut: engine.zoomOut,
   };
+  (viewport as HTMLElement & { __mzControls?: typeof pz }).__mzControls = pz;
   inBtn.addEventListener("click", () => pz.zoomIn());
   outBtn.addEventListener("click", () => pz.zoomOut());
   resetBtn.addEventListener("click", () => pz.fit());
@@ -298,5 +234,3 @@ themeObserver.observe(document.documentElement, {
   attributes: true,
   attributeFilter: ["class", "style"],
 });
-
-export {};

@@ -1,3 +1,5 @@
+import { setupPanZoom as setupSharedPanZoom } from "../../../../shared/scripts/pan-zoom";
+
 type MermaidApi = typeof import("mermaid").default;
 
 let mermaidPromise: Promise<MermaidApi> | null = null;
@@ -103,85 +105,27 @@ function setupPanZoom(container: HTMLElement) {
   const hint = container.querySelector<HTMLElement>("[data-mermaid-hint]");
   if (!viewport || !pan) return;
 
-  let scale = 1;
-  let tx = 0;
-  let ty = 0;
-  let panning = false;
-  let sx = 0;
-  let sy = 0;
-
-  const apply = () => {
-    pan.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-    pan.style.transformOrigin = "center center";
-    if (level) level.textContent = `${Math.round(scale * 100)}%`;
-  };
-  const hideHint = () => {
-    if (hint) hint.style.opacity = "0";
-  };
-  const fit = () => {
-    const svg = pan.querySelector<SVGSVGElement>("svg");
-    const vb = svg?.viewBox.baseVal;
-    const rect = viewport.getBoundingClientRect();
-    if (!vb?.width || !vb?.height || !rect.width || !rect.height) {
-      scale = 1;
-      tx = 0;
-      ty = 0;
-      apply();
-      return;
-    }
-    const pad = 40;
-    scale = Math.min((rect.width - pad) / vb.width, (rect.height - pad) / vb.height);
-    scale = Math.min(Math.max(scale, 0.2), 8);
-    tx = 0;
-    ty = 0;
-    apply();
-  };
-
-  viewport.addEventListener(
-    "wheel",
-    (e) => {
-      e.preventDefault();
-      scale = e.deltaY < 0 ? Math.min(scale * 1.1, 8) : Math.max(scale / 1.1, 0.2);
-      apply();
-      hideHint();
+  const controls = setupSharedPanZoom(viewport, pan, {
+    maxScale: 8,
+    zoomLevelEl: level,
+    hintEl: hint,
+    hintMode: "fade",
+    grabCursor: false,
+    fit: {
+      padding: 40,
+      cap: Number.POSITIVE_INFINITY,
+      fallback: "reset",
+      content: "svg-viewbox",
     },
-    { passive: false },
-  );
-  viewport.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0) return;
-    panning = true;
-    sx = e.clientX - tx;
-    sy = e.clientY - ty;
-    viewport.style.cursor = "grabbing";
-    viewport.setPointerCapture(e.pointerId);
-    hideHint();
   });
-  viewport.addEventListener("pointermove", (e) => {
-    if (!panning) return;
-    tx = e.clientX - sx;
-    ty = e.clientY - sy;
-    apply();
-  });
-  const stop = () => {
-    panning = false;
-    viewport.style.cursor = "grab";
-  };
-  viewport.addEventListener("pointerup", stop);
-  viewport.addEventListener("pointercancel", stop);
 
-  container.querySelector("[data-mermaid-zoom-in]")?.addEventListener("click", () => {
-    scale = Math.min(scale * 1.25, 8);
-    apply();
-    hideHint();
-  });
-  container.querySelector("[data-mermaid-zoom-out]")?.addEventListener("click", () => {
-    scale = Math.max(scale / 1.25, 0.2);
-    apply();
-    hideHint();
-  });
-  container.querySelector("[data-mermaid-reset]")?.addEventListener("click", fit);
+  container.querySelector("[data-mermaid-zoom-in]")?.addEventListener("click", controls.zoomIn);
+  container.querySelector("[data-mermaid-zoom-out]")?.addEventListener("click", controls.zoomOut);
+  container
+    .querySelector("[data-mermaid-reset]")
+    ?.addEventListener("click", controls.fitToViewport);
 
-  requestAnimationFrame(fit);
+  requestAnimationFrame(controls.fitToViewport);
 }
 
 async function renderDiagram(container: HTMLElement) {
@@ -288,5 +232,3 @@ themeObserver.observe(document.documentElement, {
   attributes: true,
   attributeFilter: ["class", "style"],
 });
-
-export {};

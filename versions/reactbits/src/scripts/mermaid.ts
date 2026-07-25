@@ -1,5 +1,7 @@
 import { resolveRgb } from "@/lib/kit";
 
+import { setupPanZoom } from "../../../../shared/scripts/pan-zoom";
+
 type MermaidApi = typeof import("mermaid").default;
 
 let mermaidPromise: Promise<MermaidApi> | null = null;
@@ -74,93 +76,6 @@ function prepareSvg(svg: SVGSVGElement) {
   svg.style.maxHeight = "none";
 }
 
-function setupPanZoom(
-  viewport: HTMLElement,
-  panLayer: HTMLElement,
-  zoomLevelEl: Element | null,
-  hintEl: Element | null,
-) {
-  let scale = 1;
-  let tx = 0;
-  let ty = 0;
-  let panning = false;
-  let startX = 0;
-  let startY = 0;
-  let hintHidden = false;
-
-  function hideHint() {
-    if (!hintHidden && hintEl) {
-      (hintEl as HTMLElement).style.opacity = "0";
-      hintHidden = true;
-    }
-  }
-  function display() {
-    if (zoomLevelEl) zoomLevelEl.textContent = `${Math.round(scale * 100)}%`;
-  }
-  function apply() {
-    panLayer.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-    display();
-  }
-  function fit() {
-    const svg = panLayer.querySelector<SVGSVGElement>("svg");
-    const vb = svg?.viewBox.baseVal;
-    const rect = viewport.getBoundingClientRect();
-    if (!vb?.width || !vb?.height || !rect.width || !rect.height) return;
-    const pad = 40;
-    scale = Math.min((rect.width - pad) / vb.width, (rect.height - pad) / vb.height);
-    scale = Math.min(Math.max(scale, 0.2), 8);
-    tx = 0;
-    ty = 0;
-    apply();
-  }
-
-  viewport.addEventListener(
-    "wheel",
-    (e) => {
-      e.preventDefault();
-      scale = e.deltaY < 0 ? Math.min(scale * 1.1, 8) : Math.max(scale / 1.1, 0.2);
-      apply();
-      hideHint();
-    },
-    { passive: false },
-  );
-  viewport.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0) return;
-    panning = true;
-    startX = e.clientX - tx;
-    startY = e.clientY - ty;
-    viewport.style.cursor = "grabbing";
-    viewport.setPointerCapture(e.pointerId);
-    hideHint();
-  });
-  viewport.addEventListener("pointermove", (e) => {
-    if (!panning) return;
-    tx = e.clientX - startX;
-    ty = e.clientY - startY;
-    apply();
-  });
-  const stop = () => {
-    panning = false;
-    viewport.style.cursor = "grab";
-  };
-  viewport.addEventListener("pointerup", stop);
-  viewport.addEventListener("pointercancel", stop);
-
-  return {
-    zoomIn: () => {
-      scale = Math.min(scale * 1.25, 8);
-      apply();
-      hideHint();
-    },
-    zoomOut: () => {
-      scale = Math.max(scale / 1.25, 0.2);
-      apply();
-      hideHint();
-    },
-    fit,
-  };
-}
-
 async function renderDiagram(container: HTMLElement) {
   const sourceEl = container.querySelector<HTMLElement>("[data-mermaid-source]");
   const renderTarget = container.querySelector<HTMLElement>("[data-mermaid-render]");
@@ -191,12 +106,27 @@ async function renderDiagram(container: HTMLElement) {
     return;
   }
 
-  const controls = setupPanZoom(viewport, panLayer, zoomLevel, hint);
-  requestAnimationFrame(() => controls.fit());
+  const controls = setupPanZoom(viewport, panLayer, {
+    maxScale: 8,
+    zoomLevelEl: zoomLevel,
+    hintEl: hint as HTMLElement | null,
+    hintMode: "fade",
+    setTransformOrigin: false,
+    grabCursor: false,
+    fit: {
+      padding: 40,
+      cap: Number.POSITIVE_INFINITY,
+      fallback: "none",
+      content: "svg-viewbox",
+    },
+  });
+  requestAnimationFrame(() => controls.fitToViewport());
 
   container.querySelector("[data-mermaid-zoom-in]")?.addEventListener("click", controls.zoomIn);
   container.querySelector("[data-mermaid-zoom-out]")?.addEventListener("click", controls.zoomOut);
-  container.querySelector("[data-mermaid-zoom-reset]")?.addEventListener("click", controls.fit);
+  container
+    .querySelector("[data-mermaid-zoom-reset]")
+    ?.addEventListener("click", controls.fitToViewport);
 
   const copyBtn = container.querySelector("[data-mermaid-copy]");
   copyBtn?.addEventListener("click", async () => {

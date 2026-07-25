@@ -1,3 +1,5 @@
+import { setupPanZoom } from "../../../../shared/scripts/pan-zoom";
+
 type MermaidApi = typeof import("mermaid").default;
 
 let mermaidPromise: Promise<MermaidApi> | null = null;
@@ -72,102 +74,6 @@ function prepareSvg(svg: SVGSVGElement) {
   svg.style.maxHeight = "none";
 }
 
-function setupPanZoom(
-  viewport: HTMLElement,
-  pan: HTMLElement,
-  levelEl: Element | null,
-  hintEl: Element | null,
-) {
-  let scale = 1;
-  let x = 0;
-  let y = 0;
-  let panning = false;
-  let startX = 0;
-  let startY = 0;
-  let hintHidden = false;
-
-  const hideHint = () => {
-    if (!hintHidden && hintEl) {
-      (hintEl as HTMLElement).style.opacity = "0";
-      hintHidden = true;
-    }
-  };
-  const level = () => {
-    if (levelEl) levelEl.textContent = `${Math.round(scale * 100)}%`;
-  };
-  const applyTransform = () => {
-    pan.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
-    pan.style.transformOrigin = "center center";
-    level();
-  };
-  const zoomIn = () => {
-    scale = Math.min(scale * 1.25, 20);
-    applyTransform();
-    hideHint();
-  };
-  const zoomOut = () => {
-    scale = Math.max(scale / 1.25, 0.2);
-    applyTransform();
-    hideHint();
-  };
-  const fit = () => {
-    const svg = pan.querySelector<SVGSVGElement>("svg");
-    const box = svg?.viewBox.baseVal;
-    const rect = viewport.getBoundingClientRect();
-    if (!box?.width || !box?.height || !rect.width || !rect.height) {
-      scale = 1;
-      x = 0;
-      y = 0;
-      applyTransform();
-      return;
-    }
-    const pad = 40;
-    scale = Math.min(
-      Math.max((rect.width - pad) / box.width, 0.2),
-      Math.max((rect.height - pad) / box.height, 0.2),
-      20,
-    );
-    x = 0;
-    y = 0;
-    applyTransform();
-  };
-
-  viewport.addEventListener(
-    "wheel",
-    (e) => {
-      e.preventDefault();
-      if (e.deltaY < 0) scale = Math.min(scale * 1.1, 20);
-      else scale = Math.max(scale / 1.1, 0.2);
-      applyTransform();
-      hideHint();
-    },
-    { passive: false },
-  );
-  viewport.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0) return;
-    panning = true;
-    startX = e.clientX - x;
-    startY = e.clientY - y;
-    viewport.style.cursor = "grabbing";
-    viewport.setPointerCapture(e.pointerId);
-    hideHint();
-  });
-  viewport.addEventListener("pointermove", (e) => {
-    if (!panning) return;
-    x = e.clientX - startX;
-    y = e.clientY - startY;
-    applyTransform();
-  });
-  const stop = () => {
-    panning = false;
-    viewport.style.cursor = "grab";
-  };
-  viewport.addEventListener("pointerup", stop);
-  viewport.addEventListener("pointercancel", stop);
-
-  return { zoomIn, zoomOut, fit };
-}
-
 async function renderDiagram(container: HTMLElement) {
   const sourceEl = container.querySelector<HTMLElement>("[data-mermaid-source]");
   const renderTarget = container.querySelector<HTMLElement>("[data-mermaid-render]");
@@ -199,11 +105,24 @@ async function renderDiagram(container: HTMLElement) {
     return;
   }
 
-  const controls = setupPanZoom(viewport, pan, levelEl, hint);
-  requestAnimationFrame(() => controls.fit());
+  const controls = setupPanZoom(viewport, pan, {
+    zoomLevelEl: levelEl,
+    hintEl: hint,
+    hintMode: "fade",
+    grabCursor: false,
+    fit: {
+      padding: 40,
+      cap: Number.POSITIVE_INFINITY,
+      fallback: "reset",
+      content: "svg-viewbox",
+    },
+  });
+  requestAnimationFrame(() => controls.fitToViewport());
   container.querySelector("[data-mermaid-zoom-in]")?.addEventListener("click", controls.zoomIn);
   container.querySelector("[data-mermaid-zoom-out]")?.addEventListener("click", controls.zoomOut);
-  container.querySelector("[data-mermaid-zoom-reset]")?.addEventListener("click", controls.fit);
+  container
+    .querySelector("[data-mermaid-zoom-reset]")
+    ?.addEventListener("click", controls.fitToViewport);
 
   const copyBtn = container.querySelector("[data-mermaid-copy]");
   copyBtn?.addEventListener("click", async () => {
@@ -283,5 +202,3 @@ function start() {
 }
 
 document.addEventListener("astro:page-load", start);
-
-export {};

@@ -69,7 +69,7 @@ async function renderBlock(block: HTMLElement): Promise<void> {
     if (!controls) {
       const zoomLevel = block.querySelector("[data-diagram-zoom-level]");
       const hint = block.querySelector<HTMLElement>(".diagram-hint");
-      controls = setupPanZoom(viewport, panLayer, zoomLevel, hint);
+      controls = setupPanZoom(viewport, panLayer, { zoomLevelEl: zoomLevel, hintEl: hint });
       controlsByBlock.set(block, controls);
       bindDiagramControls(block, controls);
     }
