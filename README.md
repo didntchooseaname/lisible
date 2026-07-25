@@ -121,12 +121,32 @@ powershell -c "irm bun.sh/bun/install.ps1 | iex"
 npm install -g bun
 ```
 
-**Set up the project**
+**Get the code**
 
-```bash
-git clone https://github.com/didntchooseaname/lisible
-cd lisible
-```
+Pick the path that matches what you are doing:
+
+1. **Starting your own blog (recommended): use the template.** Click ["Use this template"](https://github.com/didntchooseaname/lisible/generate) on GitHub. You get your own repository, with a clean history and no ties to this one, then:
+
+   ```bash
+   git clone <your-repository-url> my-blog
+   cd my-blog
+   ```
+
+2. **Starting without a GitHub repository: degit.** Copies the files without any git history:
+
+   ```bash
+   bunx degit didntchooseaname/lisible my-blog
+   cd my-blog
+   git init
+   ```
+
+3. **Contributing to Lisible itself: clone.** Keep the full history and rename the remote so your own repository can become `origin` later:
+
+   ```bash
+   git clone https://github.com/didntchooseaname/lisible
+   cd lisible
+   git remote rename origin upstream
+   ```
 
 Then run the guided setup. It walks you through the variant, site title and URL, then either stops there (quick mode) or lets you fine-tune author, accent color and repository (detailed mode). It writes the active variant to `lisible.config.json` and the global identity to `shared/site.config.ts`.
 
