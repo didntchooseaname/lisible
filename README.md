@@ -148,7 +148,7 @@ Pick the path that matches what you are doing:
    git remote rename origin upstream
    ```
 
-Then run the guided setup. It walks you through the variant, site title and URL, then either stops there (quick mode) or lets you fine-tune author, accent color and repository (detailed mode). It writes the active variant to `lisible.config.json` and the global identity to `shared/site.config.ts`.
+Then run the guided setup. It walks you through the variant, site title and URL, then either stops there (quick mode) or lets you fine-tune author, accent color and repository (detailed mode). Everything is written to `lisible.config.json`; non-interactive setups can pass flags instead: `bun run init --yes --variant organique --title "My blog"`.
 
 No manual install step is required. `init` installs the selected variant automatically. You can also run `preview:all` immediately on a fresh clone, before or after `init`; it installs and rebuilds all six variants before starting their preview servers.
 
@@ -250,30 +250,29 @@ The active variant is the single choice you make, in `lisible.config.json`:
 
 Valid values: `motion-primitives`, `cult-ui`, `aceternity`, `reactbits`, `organique`, `h4x0r`. Not sure which one? Run `bun run preview:all` and compare them in the browser.
 
-### Site identity
+### Everything else
 
-`shared/site.config.ts` holds the site identity and integrations for every version. `shared/features.ts` holds the feature flags:
+`lisible.config.json` is the whole user configuration: identity, social links, feature flags and integrations, all optional with sensible defaults. The JSON schema referenced by `$schema` documents every field and powers editor autocompletion:
 
-```ts
-export const SITE = {
-  title: "Lisible",
-  author: "Lisible",
-  url: "https://example.com",
-  accent: "#22C55E",
-  social: {
-    github: "https://github.com/didntchooseaname/lisible",
-    bluesky: "https://bsky.app/profile/alice.example.com",
-    mastodon: "https://mastodon.social/@alice",
-    linkedin: "https://www.linkedin.com/in/alice-example/",
-    email: "mailto:hello@example.com",
+```json
+{
+  "$schema": "./docs/lisible.config.schema.json",
+  "variant": "organique",
+  "site": {
+    "title": "My blog",
+    "url": "https://blog.example.com",
+    "author": "Ada Lovelace",
+    "accent": "#22C55E"
   },
-  repo: { url: "", branch: "main" },
-};
+  "social": { "github": "https://github.com/you" },
+  "features": { "comments": false, "portfolio": { "friends": false } },
+  "repo": { "url": "https://github.com/you/your-blog" }
+}
 ```
 
-The small `versions/<variant>/src/site.config.ts` file is only an adapter for the local component API. Interface strings and taglines stay beside each theme in `src/i18n/`, with French and English side by side.
+Interface strings and taglines stay beside each theme in `src/i18n/`, with French and English side by side.
 
-Fresh clones render local discussion placeholders on every article. Replace the example profiles, configure `INTEGRATIONS`, enable `comments` and/or `webmentions`, then disable `demoPlaceholders` when connecting real providers.
+Fresh clones render local discussion placeholders on every article. Configure `integrations`, enable the `comments` and/or `webmentions` flags, then disable `demoPlaceholders` when connecting real providers.
 
 ## Features
 
@@ -338,18 +337,20 @@ A file with the same name in `fr/` and `en/` links the two translations. Drafts 
 
 ```text
 lisible/
-├─ lisible.config.json     # active variant
+├─ lisible.config.json     # the whole user configuration (variant, identity, flags)
 ├─ package.json            # global commands
 ├─ scripts/                # runner, scaffolder, previews and checks
 ├─ shared/
-│  ├─ site.config.ts       # identity and integrations for every version
-│  ├─ features.ts          # global feature flags
+│  ├─ config.ts            # reads and validates lisible.config.json
+│  ├─ site.config.ts       # identity derived from the configuration
+│  ├─ features.ts          # feature flags derived from the configuration
 │  ├─ variants.ts          # variant catalog and preview ports
 │  ├─ content/
-│  │  ├─ collection.ts     # single frontmatter schema
+│  │  ├─ collection.ts     # frontmatter and portfolio data schemas
 │  │  ├─ taxonomy.ts       # bilingual tag aliases
 │  │  ├─ blog/fr/          # only source for French articles
 │  │  ├─ blog/en/          # only source for English articles
+│  │  ├─ portfolio/        # certifications and friends data
 │  │  └─ public-images/    # shared article assets
 │  ├─ routes/              # identical locale, blog, tag, RSS and robots routes
 │  ├─ markdown/            # shared Markdown pipeline helpers

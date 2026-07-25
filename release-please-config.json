@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "include-component-in-tag": false,
+  "changelog-sections": [
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug fixes" },
+    { "type": "perf", "section": "Performance" },
+    { "type": "refactor", "section": "Refactoring" },
+    { "type": "docs", "section": "Documentation" },
+    { "type": "chore", "section": "Maintenance" }
+  ],
+  "packages": {
+    ".": {
+      "extra-files": [
+        "versions/_core/package.json",
+        "versions/aceternity/package.json",
+        "versions/cult-ui/package.json",
+        "versions/h4x0r/package.json",
+        "versions/motion-primitives/package.json",
+        "versions/organique/package.json",
+        "versions/reactbits/package.json"
+      ]
+    }
+  }
+}
