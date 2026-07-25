@@ -14,6 +14,43 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: detect changed areas
+    runs-on: ubuntu-latest
+    outputs:
+      shared: ${{ steps.filter.outputs.shared }}
+      _core: ${{ steps.filter.outputs._core }}
+      motion-primitives: ${{ steps.filter.outputs.motion-primitives }}
+      cult-ui: ${{ steps.filter.outputs.cult-ui }}
+      aceternity: ${{ steps.filter.outputs.aceternity }}
+      reactbits: ${{ steps.filter.outputs.reactbits }}
+      organique: ${{ steps.filter.outputs.organique }}
+      h4x0r: ${{ steps.filter.outputs.h4x0r }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3
+        id: filter
+        with:
+          filters: |
+            shared:
+              - '**'
+              - '!versions/**'
+            _core:
+              - 'versions/_core/**'
+            motion-primitives:
+              - 'versions/motion-primitives/**'
+            cult-ui:
+              - 'versions/cult-ui/**'
+            aceternity:
+              - 'versions/aceternity/**'
+            reactbits:
+              - 'versions/reactbits/**'
+            organique:
+              - 'versions/organique/**'
+            h4x0r:
+              - 'versions/h4x0r/**'
+
   quality:
     name: lint, tests and style
     runs-on: ubuntu-latest
@@ -43,6 +80,8 @@ jobs:
 
   variant:
     name: ${{ matrix.variant }}
+    needs: changes
+    if: ${{ needs.changes.outputs.shared == 'true' || needs.changes.outputs[matrix.variant] == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       # One failing variant must not hide the state of the others.
@@ -72,6 +111,55 @@ jobs:
 
       - name: Typecheck, build, links, assets and Open Graph
         run: bun scripts/check-variants.ts ${{ matrix.variant }}
+
+  e2e:
+    name: end to end (organique and h4x0r)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Install root tooling
+        run: bun install --frozen-lockfile
+
+      - name: Build the tested variants
+        run: |
+          for variant in organique h4x0r; do
+            (cd "versions/${variant}" && bun install --frozen-lockfile && bun run build)
+          done
+
+      - name: Install chromium
+        run: bun x playwright install --with-deps chromium
+
+      - name: Playwright
+        run: bun run test:e2e
+
+  lighthouse:
+    name: lighthouse budgets (organique)
+    runs-on: ubuntu-latest
+    # Probation period: informational until the budgets have proven stable in CI.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Install root tooling
+        run: bun install --frozen-lockfile
+
+      - name: Build organique
+        working-directory: versions/organique
+        run: |
+          bun install --frozen-lockfile
+          bun run build
+
+      - name: Lighthouse
+        run: bun x @lhci/cli autorun --collect.staticDistDir=versions/organique/dist
 
   dependencies:
     name: dependencies up to date

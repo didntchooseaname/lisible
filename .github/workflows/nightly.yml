@@ -1,0 +1,86 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: "42 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-matrix:
+    name: full checks ${{ matrix.variant }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        variant:
+          - _core
+          - motion-primitives
+          - cult-ui
+          - aceternity
+          - reactbits
+          - organique
+          - h4x0r
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Install root tooling
+        run: bun install --frozen-lockfile
+
+      - name: Install variant dependencies
+        working-directory: versions/${{ matrix.variant }}
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck, build, links, assets and Open Graph
+        run: bun scripts/check-variants.ts ${{ matrix.variant }}
+
+      - name: Lighthouse budgets
+        run: |
+          bun x @lhci/cli autorun --collect.staticDistDir=versions/${{ matrix.variant }}/dist
+
+  e2e-all:
+    name: end to end, six variants
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Install root tooling
+        run: bun install --frozen-lockfile
+
+      - name: Build every public variant
+        run: |
+          for variant in motion-primitives cult-ui aceternity reactbits organique h4x0r; do
+            (cd "versions/${variant}" && bun install --frozen-lockfile && bun run build)
+          done
+
+      - name: Install chromium
+        run: bun x playwright install --with-deps chromium
+
+      - name: Playwright across the six variants
+        run: E2E_VARIANTS=all bun run test:e2e
+
+  external-links:
+    name: external links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Install root tooling
+        run: bun install --frozen-lockfile
+
+      - name: Check the external links of the content
+        run: bun scripts/check-links.ts --external
