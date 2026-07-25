@@ -1,0 +1,44 @@
+[
+  {
+    "id": "maya-chen",
+    "name": "Maya Chen",
+    "avatar": "a",
+    "bio": { "fr": "Recherche et design de systèmes.", "en": "Systems research and design." },
+    "url": "https://example.com"
+  },
+  {
+    "id": "noah-rivera",
+    "name": "Noah Rivera",
+    "avatar": "b",
+    "bio": { "fr": "Interfaces inclusives et narration.", "en": "Inclusive interfaces and storytelling." },
+    "url": "https://example.com"
+  },
+  {
+    "id": "sam-okafor",
+    "name": "Sam Okafor",
+    "avatar": "c",
+    "bio": { "fr": "Architecture web et outils ouverts.", "en": "Web architecture and open tools." },
+    "url": "https://example.com"
+  },
+  {
+    "id": "lina-park",
+    "name": "Lina Park",
+    "avatar": "b",
+    "bio": { "fr": "Typographie et systèmes éditoriaux.", "en": "Typography and editorial systems." },
+    "url": "https://example.com"
+  },
+  {
+    "id": "eli-martin",
+    "name": "Eli Martin",
+    "avatar": "c",
+    "bio": { "fr": "Performance et qualité logicielle.", "en": "Performance and software quality." },
+    "url": "https://example.com"
+  },
+  {
+    "id": "ari-bell",
+    "name": "Ari Bell",
+    "avatar": "a",
+    "bio": { "fr": "Communautés et documentation.", "en": "Communities and documentation." },
+    "url": "https://example.com"
+  }
+]

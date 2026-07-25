@@ -1,0 +1,107 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import avatarA from "@shared/assets/demo-friend-a.svg?url";
+import avatarB from "@shared/assets/demo-friend-b.svg?url";
+import avatarC from "@shared/assets/demo-friend-c.svg?url";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const isFrench = locale === "fr";
+const alternates = { fr: localeUrl("fr", "friends"), en: localeUrl("en", "friends") };
+
+const DEMO_AVATARS: Record<string, string> = { a: avatarA, b: avatarB, c: avatarC };
+const friends = (await getCollection("friends")).map(({ data }) => ({
+  name: data.name,
+  avatar: DEMO_AVATARS[data.avatar] ?? data.avatar,
+  bio: isFrench ? data.bio.fr : data.bio.en,
+  url: data.url ?? "https://example.com",
+}));
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.nav.friends}
+  description={isFrench ? "Communauté fictive utilisée pour la démonstration de Lisible." : "A fictional community used for the Lisible demo."}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+      {isFrench ? "Communauté de démonstration" : "Demo community"}
+    </p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">{dict.nav.friends}</h1>
+    <p class="mt-3 max-w-2xl text-muted-foreground">
+      {
+        isFrench
+          ? "Tous les noms, portraits et profils de cette page sont fictifs."
+          : "Every name, portrait and profile on this page is fictional."
+      }
+    </p>
+
+    <section class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label={dict.nav.friends}>
+      {
+        friends.map((friend, index) => (
+          <article class="friend-card rounded-lg border border-border bg-card p-5">
+            <img
+              src={friend.avatar}
+              alt={isFrench ? `Portrait fictif de ${friend.name}` : `Fictional portrait of ${friend.name}`}
+              width="160"
+              height="160"
+              class="h-16 w-16 rounded-full border border-border object-cover"
+              loading={index < 3 ? "eager" : "lazy"}
+              decoding="async"
+            />
+            <h2 class="mt-4 text-lg font-bold tracking-tight">{friend.name}</h2>
+            <p class="mt-1 text-sm leading-relaxed text-muted-foreground">{friend.bio}</p>
+            <a
+              href={friend.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={isFrench ? `Portfolio fictif de ${friend.name}` : `Fictional portfolio of ${friend.name}`}
+              class="friend-link mt-3 inline-flex min-h-11 items-center gap-1 text-sm font-medium underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+            >
+              {isFrench ? "Portfolio fictif" : "Fictional portfolio"}
+              <span class="friend-arrow" aria-hidden="true">&nearr;</span>
+            </a>
+          </article>
+        ))
+      }
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .friend-card {
+    transition: transform 180ms ease-out, border-color 180ms ease-out;
+  }
+  .friend-card:hover {
+    border-color: color-mix(in oklab, var(--color-accent) 55%, var(--color-border));
+    transform: translateY(-2px);
+  }
+  .friend-arrow {
+    display: inline-block;
+    transition: transform 180ms ease-out;
+  }
+  .friend-link:hover .friend-arrow,
+  .friend-link:focus-visible .friend-arrow {
+    transform: translate(2px, -2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .friend-card,
+    .friend-arrow {
+      transition: none;
+    }
+    .friend-card:hover {
+      transform: none;
+    }
+    .friend-link:hover .friend-arrow,
+    .friend-link:focus-visible .friend-arrow {
+      transform: none;
+    }
+  }
+</style>

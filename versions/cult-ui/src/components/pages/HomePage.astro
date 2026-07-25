@@ -67,6 +67,16 @@ const jsonLd = {
           { href: localeUrl(locale, "series"), label: dict.nav.series },
           { href: localeUrl(locale, "about"), label: dict.nav.about },
         ]}
+        shortcuts={{
+          journal: localeUrl(locale, "blog"),
+          ...(FEATURES.portfolio.enabled && FEATURES.portfolio.certifications
+            ? { projects: localeUrl(locale, "certifications") }
+            : {}),
+          ...(FEATURES.portfolio.enabled && FEATURES.portfolio.friends
+            ? { notes: localeUrl(locale, "friends") }
+            : {}),
+          contact: localeUrl(locale, "about"),
+        }}
       />
     </div>
   </section>

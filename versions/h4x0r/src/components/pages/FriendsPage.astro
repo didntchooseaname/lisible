@@ -1,0 +1,131 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { MagicCard } from "@/components/ui/magic-card";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import avatarA from "@shared/assets/demo-friend-a.svg?url";
+import avatarB from "@shared/assets/demo-friend-b.svg?url";
+import avatarC from "@shared/assets/demo-friend-c.svg?url";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const strings = dict.cyber.friends;
+const isFrench = locale === "fr";
+const alternates = { fr: localeUrl("fr", "friends"), en: localeUrl("en", "friends") };
+
+const DEMO_AVATARS: Record<string, string> = { a: avatarA, b: avatarB, c: avatarC };
+const friends = (await getCollection("friends")).map(({ data }, index) => ({
+  node: `${strings.node} ${String(index + 1).padStart(2, "0")}`,
+  name: data.name,
+  avatar: DEMO_AVATARS[data.avatar] ?? data.avatar,
+  bio: isFrench ? data.bio.fr : data.bio.en,
+  url: data.url ?? "https://example.com",
+}));
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.nav.friends}
+  description={strings.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <div class="hud-corners border border-border/70 bg-card/50 p-6 backdrop-blur-sm md:p-8">
+      <p class="terminal-line" aria-hidden="true">
+        <span class="prompt-user">operator@lisible</span>:~$ {strings.scanCmd}
+      </p>
+      <p class="section-label mt-4" aria-hidden="true">{strings.roster}</p>
+      <h1 class="font-display mt-2 text-3xl font-black uppercase tracking-[0.06em] md:text-4xl">
+        {dict.nav.friends}
+      </h1>
+      <p class="mt-2 max-w-2xl text-muted-foreground">{strings.intro}</p>
+      <p class="mt-2 font-mono text-xs uppercase tracking-[0.18em] text-accent">
+        {strings.count(friends.length)}
+      </p>
+    </div>
+
+    <section aria-label={dict.nav.friends} class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        friends.map((friend, index) => (
+          <BlurFade client:visible inView delay={0.06 * index} className="min-w-0">
+            <MagicCard
+              client:visible
+              gradientColor="var(--neon-12)"
+              gradientFrom="var(--neon-45)"
+              gradientTo="var(--neon-25)"
+              className="cyber-card h-full rounded-lg"
+            >
+              <article class="flex h-full flex-col p-5">
+                <div class="flex items-center gap-4">
+                  <span class="relative inline-flex shrink-0 overflow-hidden border border-accent/50 bg-background/60">
+                    <img
+                      src={friend.avatar}
+                      alt={friend.name}
+                      width="160"
+                      height="160"
+                      loading={index < 3 ? "eager" : "lazy"}
+                      decoding="async"
+                      class="friend-portrait h-16 w-16 object-cover"
+                    />
+                  </span>
+                  <div class="min-w-0">
+                    <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                      {friend.node}
+                    </p>
+                    <h2 class="font-display mt-0.5 truncate text-lg font-black uppercase tracking-[0.05em]">
+                      {friend.name}
+                    </h2>
+                    <p class="mt-1 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">
+                      <span class="friend-pulse" aria-hidden="true" />
+                      {strings.linkActive}
+                    </p>
+                  </div>
+                </div>
+                <p class="mt-4 text-sm leading-relaxed text-muted-foreground">{friend.bio}</p>
+                <a
+                  href={friend.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="mt-auto inline-flex min-h-11 items-center gap-2 pt-3 font-mono text-xs font-semibold uppercase tracking-wider text-accent underline-offset-4 transition-colors hover:underline"
+                >
+                  {strings.channel}
+                  <span class="sr-only">: {friend.name}</span>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </article>
+            </MagicCard>
+          </BlurFade>
+        ))
+      }
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .friend-portrait {
+    filter: saturate(0.7) contrast(1.1);
+  }
+  .friend-pulse {
+    display: inline-block;
+    width: 0.45rem;
+    height: 0.45rem;
+    background: var(--color-accent);
+    box-shadow: var(--glow-sm);
+    animation: friend-pulse 2s ease-in-out infinite;
+  }
+  @keyframes friend-pulse {
+    50% {
+      opacity: 0.35;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .friend-pulse {
+      animation: none;
+    }
+  }
+</style>

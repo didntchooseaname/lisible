@@ -1,4 +1,5 @@
 ---
+import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PostCard from "@/components/PostCard.astro";
 import { localeUrl, t, type Locale } from "@/i18n/ui";
@@ -14,49 +15,30 @@ interface Props {
 const { locale } = Astro.props;
 const dict = t(locale);
 const isFrench = locale === "fr";
-const reviews = (await getPublishedPosts(locale)).filter((post) =>
-  postSlug(post).startsWith("certification-")
-);
-const reviewBySlug = new Map(
-  reviews.map((post) => [postSlug(post).replace(/^certification-/, ""), post]),
-);
 const alternates = {
   fr: localeUrl("fr", "certifications"),
   en: localeUrl("en", "certifications"),
 };
 
-const certifications = [
-  {
-    slug: "web-foundations",
-    title: "Web Foundations",
-    issuer: "Example Academy",
-    date: "2026",
-    image: foundationsBadge,
-    description: isFrench
-      ? "Une base pratique en HTML sémantique, CSS moderne et performance."
-      : "With a practical foundation in semantic HTML, modern CSS and performance.",
-  },
-  {
-    slug: "systems-architecture",
-    title: "Systems Architecture",
-    issuer: "Demo Institute",
-    date: "2025",
-    image: systemsBadge,
-    description: isFrench
-      ? "De la conception modulaire aux observabilités et déploiements reproductibles."
-      : "From modular design to observability and repeatable deployments.",
-  },
-  {
-    slug: "inclusive-interfaces",
-    title: "Inclusive Interfaces",
-    issuer: "Open Learning Lab",
-    date: "2025",
-    image: accessibilityBadge,
-    description: isFrench
-      ? "Contrastes, navigation clavier, lecteurs d'écran et tests utilisateurs."
-      : "Covering contrast, keyboard navigation, screen readers and user testing.",
-  },
-];
+const DEMO_BADGES: Record<string, string> = {
+  foundations: foundationsBadge,
+  systems: systemsBadge,
+  accessibility: accessibilityBadge,
+};
+
+const posts = await getPublishedPosts(locale);
+const postBySlug = new Map(posts.map((post) => [postSlug(post), post]));
+const certifications = (await getCollection("certifications")).map(({ data }) => ({
+  title: data.title,
+  issuer: data.issuer,
+  date: data.year,
+  image: DEMO_BADGES[data.image] ?? data.image,
+  description: isFrench ? data.description.fr : data.description.en,
+  article: data.post ? postBySlug.get(data.post) : undefined,
+}));
+const reviews = certifications.flatMap((certification) =>
+  certification.article ? [certification.article] : [],
+);
 ---
 
 <BaseLayout
@@ -79,7 +61,7 @@ const certifications = [
   <section class="cert-grid" aria-label={dict.nav.certifications}>
     {
       certifications.map((certification, index) => {
-        const article = reviewBySlug.get(certification.slug);
+        const article = certification.article;
         return (
           <article class:list={["cert-card", index % 2 === 1 && "cert-card-alt"]}>
             <div class="cert-orbit" aria-hidden="true"></div>

@@ -27,6 +27,8 @@ const fr = {
     about: "À propos",
     archives: "Archives",
     series: "Séries",
+    certifications: "Certifications",
+    friends: "Amis",
     main: "Navigation principale",
   },
   home: {
@@ -240,6 +242,8 @@ const en: Dict = {
     about: "About",
     archives: "Archives",
     series: "Series",
+    certifications: "Certifications",
+    friends: "Friends",
     main: "Main navigation",
   },
   home: {

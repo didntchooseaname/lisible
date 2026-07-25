@@ -1,0 +1,14 @@
+---
+import CertificationsPage from "@/components/pages/CertificationsPage.astro";
+import { FEATURES } from "@/site.config";
+
+// Rest parameter route so the page can be excluded entirely when the flag is
+// off: getStaticPaths only runs for dynamic routes.
+export function getStaticPaths() {
+  return FEATURES.portfolio.enabled && FEATURES.portfolio.certifications
+    ? [{ params: { page: undefined } }]
+    : [];
+}
+---
+
+<CertificationsPage locale="fr" />

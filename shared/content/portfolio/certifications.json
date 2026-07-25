@@ -1,0 +1,38 @@
+[
+  {
+    "id": "web-foundations",
+    "title": "Web Foundations",
+    "issuer": "Example Academy",
+    "year": "2026",
+    "image": "foundations",
+    "description": {
+      "fr": "Une base pratique en HTML sémantique, CSS moderne et performance.",
+      "en": "With a practical foundation in semantic HTML, modern CSS and performance."
+    },
+    "post": "certification-web-foundations"
+  },
+  {
+    "id": "systems-architecture",
+    "title": "Systems Architecture",
+    "issuer": "Demo Institute",
+    "year": "2025",
+    "image": "systems",
+    "description": {
+      "fr": "De la conception modulaire aux observabilités et déploiements reproductibles.",
+      "en": "From modular design to observability and repeatable deployments."
+    },
+    "post": "certification-systems-architecture"
+  },
+  {
+    "id": "inclusive-interfaces",
+    "title": "Inclusive Interfaces",
+    "issuer": "Open Learning Lab",
+    "year": "2025",
+    "image": "accessibility",
+    "description": {
+      "fr": "Contrastes, navigation clavier, lecteurs d'écran et tests utilisateurs.",
+      "en": "Covering contrast, keyboard navigation, screen readers and user testing."
+    },
+    "post": "certification-inclusive-interfaces"
+  }
+]

@@ -1,0 +1,218 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, postSlug, postUrl } from "@/lib/posts";
+import foundationsBadge from "@shared/assets/demo-certificate-foundations.svg?url";
+import systemsBadge from "@shared/assets/demo-certificate-systems.svg?url";
+import accessibilityBadge from "@shared/assets/demo-certificate-accessibility.svg?url";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const isFrench = locale === "fr";
+const alternates = {
+  fr: localeUrl("fr", "certifications"),
+  en: localeUrl("en", "certifications"),
+};
+
+const DEMO_BADGES: Record<string, string> = {
+  foundations: foundationsBadge,
+  systems: systemsBadge,
+  accessibility: accessibilityBadge,
+};
+
+const posts = await getPublishedPosts(locale);
+const postBySlug = new Map(posts.map((post) => [postSlug(post), post]));
+const certifications = (await getCollection("certifications")).map(({ data }) => ({
+  title: data.title,
+  issuer: data.issuer,
+  date: data.year,
+  image: DEMO_BADGES[data.image] ?? data.image,
+  description: isFrench ? data.description.fr : data.description.en,
+  article: data.post ? postBySlug.get(data.post) : undefined,
+}));
+const reviews = certifications.flatMap((certification) =>
+  certification.article ? [certification.article] : [],
+);
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.nav.certifications}
+  description={isFrench ? "Certifications fictives et parcours de démonstration." : "Fictional certifications and a demo learning path."}
+  alternates={alternates}
+>
+  <section class="py-10 md:py-14">
+    <p class="text-xs font-semibold uppercase tracking-wider text-accent">
+      {isFrench ? "Parcours de démonstration" : "Demo learning path"}
+    </p>
+    <h1 class="cert-title mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+      {dict.nav.certifications}
+    </h1>
+    <p class="mt-4 max-w-2xl text-muted-foreground">
+      {isFrench
+        ? "Ces badges, organismes et parcours sont entièrement fictifs."
+        : "These badges, organizations and learning paths are entirely fictional."}
+    </p>
+
+    <div class="cert-grid mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list" aria-label={dict.nav.certifications}>
+      {
+        certifications.map((certification, index) => {
+          const article = certification.article;
+          return (
+            <article
+              role="listitem"
+              class="cert-card group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card p-5"
+            >
+              <span class="cert-glow" aria-hidden="true"></span>
+              <div class="cert-badge grid place-items-center rounded-lg bg-secondary/60 py-5">
+                <img
+                  src={certification.image}
+                  alt={`${certification.title}, ${certification.issuer}`}
+                  width="160"
+                  height="160"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  class="h-32 w-32 object-contain"
+                />
+              </div>
+              <p class="mt-4 inline-flex w-fit items-center rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-xs font-bold tabular-nums text-accent">
+                {certification.date}
+              </p>
+              <h2 class="mt-2 text-lg font-bold tracking-tight">{certification.title}</h2>
+              <p class="text-sm font-medium text-muted-foreground">{certification.issuer}</p>
+              <p class="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
+                {certification.description}
+              </p>
+              {article && (
+                <a
+                  href={postUrl(article)}
+                  class="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:decoration-accent"
+                >
+                  {isFrench ? "Lire l'article de démonstration" : "Read the demo article"}
+                  <span aria-hidden="true">→</span>
+                </a>
+              )}
+            </article>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  {
+    reviews.length > 0 && (
+      <section aria-labelledby="reviews-heading" class="border-t border-border py-10 md:py-14">
+        <p class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {isFrench ? "Articles en série" : "Posts in this series"}
+        </p>
+        <h2 id="reviews-heading" class="mt-1 text-xl font-bold tracking-tight">
+          {isFrench ? "Retours de démonstration" : "Demo reviews"}
+        </h2>
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          {reviews.map((post) => (
+            <div class="rounded-lg border border-border bg-card transition-colors hover:border-accent">
+              <PostCard post={post} />
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .cert-title {
+    width: fit-content;
+    background: linear-gradient(
+      100deg,
+      var(--color-foreground),
+      var(--color-accent),
+      var(--color-foreground)
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .cert-card {
+    transition: border-color 180ms ease-out, transform 180ms ease-out;
+  }
+  .cert-card:hover {
+    border-color: var(--color-accent);
+  }
+  .cert-glow {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: radial-gradient(
+      14rem circle at 20% 0%,
+      color-mix(in oklab, var(--color-accent) 14%, transparent),
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 220ms ease-out;
+    pointer-events: none;
+  }
+  .cert-card:hover .cert-glow,
+  .cert-card:focus-within .cert-glow {
+    opacity: 1;
+  }
+  .cert-card > :not(.cert-glow) {
+    position: relative;
+    z-index: 1;
+  }
+  .cert-badge img {
+    transition: transform 200ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .cert-title {
+      animation: cert-sheen 6s linear infinite;
+    }
+    .cert-card:hover {
+      transform: translateY(-3px);
+    }
+    .cert-card:hover .cert-badge img {
+      transform: scale(1.06);
+    }
+    .cert-grid > * {
+      animation: cert-rise 460ms ease-out both;
+    }
+    .cert-grid > :nth-child(2) {
+      animation-delay: 90ms;
+    }
+    .cert-grid > :nth-child(3) {
+      animation-delay: 180ms;
+    }
+  }
+
+  @keyframes cert-sheen {
+    to {
+      background-position: 200% center;
+    }
+  }
+  @keyframes cert-rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cert-card,
+    .cert-glow,
+    .cert-badge img {
+      transition: none;
+    }
+  }
+</style>

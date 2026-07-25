@@ -1,4 +1,5 @@
 ---
+import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { localeUrl, t, type Locale } from "@/i18n/ui";
 import avatarA from "@shared/assets/demo-friend-a.svg?url";
@@ -13,14 +14,14 @@ const { locale } = Astro.props;
 const dict = t(locale);
 const isFrench = locale === "fr";
 const alternates = { fr: localeUrl("fr", "friends"), en: localeUrl("en", "friends") };
-const friends = [
-  { name: "Maya Chen", avatar: avatarA, bio: isFrench ? "Recherche et design de systèmes." : "Systems research and design." },
-  { name: "Noah Rivera", avatar: avatarB, bio: isFrench ? "Interfaces inclusives et narration." : "Inclusive interfaces and storytelling." },
-  { name: "Sam Okafor", avatar: avatarC, bio: isFrench ? "Architecture web et outils ouverts." : "Web architecture and open tools." },
-  { name: "Lina Park", avatar: avatarB, bio: isFrench ? "Typographie et systèmes éditoriaux." : "Typography and editorial systems." },
-  { name: "Eli Martin", avatar: avatarC, bio: isFrench ? "Performance et qualité logicielle." : "Performance and software quality." },
-  { name: "Ari Bell", avatar: avatarA, bio: isFrench ? "Communautés et documentation." : "Communities and documentation." },
-];
+
+const DEMO_AVATARS: Record<string, string> = { a: avatarA, b: avatarB, c: avatarC };
+const friends = (await getCollection("friends")).map(({ data }) => ({
+  name: data.name,
+  avatar: DEMO_AVATARS[data.avatar] ?? data.avatar,
+  bio: isFrench ? data.bio.fr : data.bio.en,
+  url: data.url ?? "https://example.com",
+}));
 ---
 
 <BaseLayout
@@ -47,7 +48,7 @@ const friends = [
           <div>
             <h2>{friend.name}</h2>
             <p>{friend.bio}</p>
-            <a href="https://example.com" target="_blank" rel="noopener noreferrer">
+            <a href={friend.url} target="_blank" rel="noopener noreferrer">
               {isFrench ? "Portfolio fictif" : "Fictional portfolio"}
               <span aria-hidden="true">↗</span>
             </a>

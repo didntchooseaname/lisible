@@ -25,8 +25,12 @@ const navItems = [
   ...(hasSeries
     ? [{ href: localeUrl(locale, "series"), label: dict.nav.series }]
     : []),
-  { href: localeUrl(locale, "certifications"), label: dict.nav.certifications },
-  { href: localeUrl(locale, "friends"), label: dict.nav.friends },
+  ...(FEATURES.portfolio.enabled && FEATURES.portfolio.certifications
+    ? [{ href: localeUrl(locale, "certifications"), label: dict.nav.certifications }]
+    : []),
+  ...(FEATURES.portfolio.enabled && FEATURES.portfolio.friends
+    ? [{ href: localeUrl(locale, "friends"), label: dict.nav.friends }]
+    : []),
   { href: localeUrl(locale, "about"), label: dict.nav.about },
 ];
 

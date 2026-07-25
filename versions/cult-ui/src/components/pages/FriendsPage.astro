@@ -1,0 +1,100 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { GradientHeading } from "@/components/ui/gradient-heading";
+import { NeumorphEyebrow } from "@/components/ui/neumorph-eyebrow";
+import {
+  TextureCard,
+  TextureCardContent,
+} from "@/components/ui/texture-card";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import avatarA from "@shared/assets/demo-friend-a.svg?url";
+import avatarB from "@shared/assets/demo-friend-b.svg?url";
+import avatarC from "@shared/assets/demo-friend-c.svg?url";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const isFrench = locale === "fr";
+const alternates = { fr: localeUrl("fr", "friends"), en: localeUrl("en", "friends") };
+
+const DEMO_AVATARS: Record<string, string> = { a: avatarA, b: avatarB, c: avatarC };
+const friends = (await getCollection("friends")).map(({ data }) => ({
+  name: data.name,
+  avatar: DEMO_AVATARS[data.avatar] ?? data.avatar,
+  bio: isFrench ? data.bio.fr : data.bio.en,
+  url: data.url ?? "https://example.com",
+}));
+
+const eyebrowClass =
+  "border-border bg-secondary text-muted-foreground shadow-none";
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.nav.friends}
+  description={isFrench
+    ? "Communauté fictive utilisée pour la démonstration de Lisible."
+    : "A fictional community used for the Lisible demo."}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <header class="max-w-2xl">
+      <NeumorphEyebrow className={eyebrowClass}>
+        {isFrench ? "Communauté de démonstration" : "Demo community"}
+      </NeumorphEyebrow>
+      <GradientHeading as="h1" size="lg" weight="bold" className="tracking-tight">
+        {dict.nav.friends}
+      </GradientHeading>
+      <p class="mt-1 text-muted-foreground">
+        {isFrench
+          ? "Tous les noms, portraits et profils de cette page sont fictifs."
+          : "Every name, portrait and profile on this page is fictional."}
+      </p>
+    </header>
+
+    <section class="mt-8 grid gap-5 sm:grid-cols-2" aria-label={dict.nav.friends}>
+      {
+        friends.map((friend, index) => (
+          <TextureCard className="group">
+            <TextureCardContent className="h-full px-6 py-6">
+              <div class="flex h-full items-start gap-5">
+                <img
+                  src={friend.avatar}
+                  alt={isFrench
+                    ? `Portrait fictif de ${friend.name}`
+                    : `Fictional portrait of ${friend.name}`}
+                  width="160"
+                  height="160"
+                  loading={index < 2 ? "eager" : "lazy"}
+                  decoding="async"
+                  class="h-20 w-20 shrink-0 rounded-2xl border border-border bg-secondary object-cover motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:scale-[1.04]"
+                />
+                <div class="min-w-0">
+                  <h2 class="text-lg font-bold tracking-tight text-foreground">
+                    {friend.name}
+                  </h2>
+                  <p class="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    {friend.bio}
+                  </p>
+                  <a
+                    href={friend.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent hover:underline"
+                  >
+                    {isFrench ? "Portfolio fictif" : "Fictional portfolio"}
+                    <span aria-hidden="true">&#8599;</span>
+                  </a>
+                </div>
+              </div>
+            </TextureCardContent>
+          </TextureCard>
+        ))
+      }
+    </section>
+  </div>
+</BaseLayout>

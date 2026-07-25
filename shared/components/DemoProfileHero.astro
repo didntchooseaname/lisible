@@ -20,9 +20,11 @@ interface Props {
   variant: Variant;
   title: string;
   actions: Action[];
+  /** Explicit portrait shortcut targets; missing entries fall back to actions. */
+  shortcuts?: Partial<Record<"journal" | "projects" | "notes" | "contact", string>>;
 }
 
-const { locale, variant, title, actions } = Astro.props;
+const { locale, variant, title, actions, shortcuts: shortcutHrefs } = Astro.props;
 const copy =
   locale === "fr"
     ? {
@@ -51,10 +53,10 @@ const copy =
       };
 
 const shortcuts = [
-  { label: copy.journal, href: actions[0]?.href ?? "/", icon: "journal" },
-  { label: copy.projects, href: actions[1]?.href ?? actions[0]?.href ?? "/", icon: "projects" },
-  { label: copy.notes, href: actions[2]?.href ?? actions[0]?.href ?? "/", icon: "notes" },
-  { label: copy.contact, href: actions.at(-1)?.href ?? "/", icon: "contact" },
+  { label: copy.journal, href: shortcutHrefs?.journal ?? actions[0]?.href ?? "/", icon: "journal" },
+  { label: copy.projects, href: shortcutHrefs?.projects ?? actions[1]?.href ?? actions[0]?.href ?? "/", icon: "projects" },
+  { label: copy.notes, href: shortcutHrefs?.notes ?? actions[2]?.href ?? actions[0]?.href ?? "/", icon: "notes" },
+  { label: copy.contact, href: shortcutHrefs?.contact ?? actions.at(-1)?.href ?? "/", icon: "contact" },
 ];
 ---
 

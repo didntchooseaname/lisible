@@ -1,4 +1,6 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 /**
  * Single source of user configuration: lisible.config.json at the repository
@@ -44,6 +46,11 @@ const FEATURE_FLAG_SPEC = {
   archives: "boolean",
   series: "boolean",
   commandPalette: "boolean",
+  portfolio: {
+    enabled: "boolean",
+    certifications: "boolean",
+    friends: "boolean",
+  },
 } as const;
 
 /** Allowed shape of lisible.config.json, mirrored by docs/lisible.config.schema.json. */
@@ -114,11 +121,36 @@ function validate(value: unknown, spec: SpecNode, path: string, errors: string[]
   }
 }
 
+/**
+ * Vite rewrites import.meta.url to the bundled chunk location during a build,
+ * so the config file cannot be resolved relative to this module alone. Walk up
+ * from the working directory first (builds run from the variant directory,
+ * scripts from the repository root), then fall back to the module location for
+ * contexts that preserve it.
+ */
+function findConfigFile(): string | undefined {
+  const candidates: string[] = [];
+  let dir = process.cwd();
+  for (let depth = 0; depth < 6; depth += 1) {
+    candidates.push(join(dir, "lisible.config.json"));
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  try {
+    candidates.push(fileURLToPath(new URL("../lisible.config.json", import.meta.url)));
+  } catch {
+    // import.meta.url may not be a file URL in every bundling context.
+  }
+  return candidates.find((candidate) => existsSync(candidate));
+}
+
 function readUserConfig(): Record<string, unknown> {
-  const url = new URL("../lisible.config.json", import.meta.url);
+  const path = findConfigFile();
+  if (!path) return {};
   let raw: string;
   try {
-    raw = readFileSync(url, "utf8");
+    raw = readFileSync(path, "utf8");
   } catch {
     return {};
   }
@@ -254,6 +286,7 @@ const DEFAULTS = {
     archives: true,
     series: true,
     commandPalette: true,
+    portfolio: { enabled: true, certifications: true, friends: true },
   },
   integrations: {
     webmentions: { domain: "" },

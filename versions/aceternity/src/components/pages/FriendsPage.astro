@@ -1,0 +1,159 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { GridDotBackground } from "@/components/ui/grid-dot-background";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import avatarA from "@shared/assets/demo-friend-a.svg?url";
+import avatarB from "@shared/assets/demo-friend-b.svg?url";
+import avatarC from "@shared/assets/demo-friend-c.svg?url";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const isFrench = locale === "fr";
+const alternates = { fr: localeUrl("fr", "friends"), en: localeUrl("en", "friends") };
+
+const DEMO_AVATARS: Record<string, string> = { a: avatarA, b: avatarB, c: avatarC };
+const friends = (await getCollection("friends")).map(({ data }) => ({
+  name: data.name,
+  avatar: DEMO_AVATARS[data.avatar] ?? data.avatar,
+  bio: isFrench ? data.bio.fr : data.bio.en,
+  url: data.url ?? "https://example.com",
+}));
+
+// Bento rhythm on three columns: rows of [2,1], [1,2], [2,1] for six cards.
+const isWide = (index: number) => [0, 3, 4].includes(index % 6);
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.nav.friends}
+  description={isFrench
+    ? "Communauté fictive utilisée pour la démonstration de Lisible."
+    : "A fictional community used for the Lisible demo."}
+  alternates={alternates}
+>
+  <section class="relative overflow-hidden py-14 md:py-20">
+    <GridDotBackground variant="grid" />
+    <div class="relative">
+      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+        {isFrench ? "Communauté de démonstration" : "Demo community"}
+      </p>
+      <h1 class="mt-3 text-3xl font-bold tracking-tight md:text-5xl">
+        {dict.nav.friends}
+      </h1>
+      <p class="mt-4 max-w-2xl text-pretty text-muted-foreground md:text-lg">
+        {isFrench
+          ? "Tous les noms, portraits et profils de cette page sont fictifs."
+          : "Every name, portrait and profile on this page is fictional."}
+      </p>
+    </div>
+  </section>
+
+  <section
+    class="grid grid-cols-1 gap-4 pb-16 md:auto-rows-[minmax(11rem,auto)] md:grid-cols-3"
+    aria-label={dict.nav.friends}
+  >
+    {
+      friends.map((friend, index) => (
+        <article
+          class:list={[
+            "friend-card group relative flex flex-col justify-between overflow-hidden rounded-lg border border-border bg-card p-5 transition-colors duration-200 hover:border-accent",
+            isWide(index) && "md:col-span-2",
+          ]}
+        >
+          <div class="flex items-start gap-4">
+            <span class="friend-ring inline-grid shrink-0 place-items-center rounded-full">
+              <img
+                class="h-20 w-20 rounded-full object-cover"
+                src={friend.avatar}
+                alt={friend.name}
+                width="160"
+                height="160"
+                loading={index < 2 ? "eager" : "lazy"}
+                decoding="async"
+              />
+            </span>
+            <div class="min-w-0">
+              <h2 class="text-lg font-bold tracking-tight transition-colors group-hover:text-accent">
+                {friend.name}
+              </h2>
+              <p class="mt-1 text-sm leading-relaxed text-muted-foreground">{friend.bio}</p>
+            </div>
+          </div>
+          <a
+            class="relative mt-4 inline-flex min-h-11 w-fit items-center gap-1.5 text-sm font-semibold text-accent transition-colors hover:text-foreground"
+            href={friend.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${isFrench ? "Portfolio fictif de" : "Fictional portfolio of"} ${friend.name}`}
+          >
+            {isFrench ? "Portfolio fictif" : "Fictional portfolio"}
+            <span aria-hidden="true">&nearr;</span>
+          </a>
+        </article>
+      ))
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  @property --friend-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+  }
+  /* Card spotlight: a soft corner glow that brightens on hover. */
+  .friend-card::before {
+    content: "";
+    position: absolute;
+    inset: -45% auto auto -25%;
+    width: 80%;
+    height: 90%;
+    pointer-events: none;
+    background: radial-gradient(
+      50% 55% at 45% 45%,
+      color-mix(in oklab, var(--color-accent) 11%, transparent),
+      transparent 75%
+    );
+    opacity: 0.4;
+    transition: opacity 220ms ease-out;
+  }
+  .friend-card:hover::before,
+  .friend-card:focus-within::before {
+    opacity: 1;
+  }
+  /* Animated gradient ring around the avatar. */
+  .friend-ring {
+    padding: 2px;
+    background: conic-gradient(
+      from var(--friend-angle),
+      color-mix(in oklab, var(--color-accent) 75%, transparent),
+      var(--color-border) 30%,
+      var(--color-border) 60%,
+      color-mix(in oklab, var(--color-accent) 45%, transparent) 82%,
+      color-mix(in oklab, var(--color-accent) 75%, transparent)
+    );
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .friend-ring {
+      animation: friend-rotate 7s linear infinite;
+    }
+  }
+  @keyframes friend-rotate {
+    to {
+      --friend-angle: 360deg;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .friend-ring {
+      animation: none;
+    }
+    .friend-card::before {
+      transition: none;
+    }
+  }
+</style>

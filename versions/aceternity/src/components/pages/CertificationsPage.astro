@@ -1,0 +1,239 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { GridDotBackground } from "@/components/ui/grid-dot-background";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, postSlug, postUrl } from "@/lib/posts";
+import { formatDate, isoDate, readingTime } from "@/lib/utils";
+import foundationsBadge from "@shared/assets/demo-certificate-foundations.svg?url";
+import systemsBadge from "@shared/assets/demo-certificate-systems.svg?url";
+import accessibilityBadge from "@shared/assets/demo-certificate-accessibility.svg?url";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const isFrench = locale === "fr";
+const alternates = {
+  fr: localeUrl("fr", "certifications"),
+  en: localeUrl("en", "certifications"),
+};
+
+const DEMO_BADGES: Record<string, string> = {
+  foundations: foundationsBadge,
+  systems: systemsBadge,
+  accessibility: accessibilityBadge,
+};
+
+const posts = await getPublishedPosts(locale);
+const postBySlug = new Map(posts.map((post) => [postSlug(post), post]));
+const certifications = (await getCollection("certifications")).map(({ data }) => ({
+  title: data.title,
+  issuer: data.issuer,
+  date: data.year,
+  image: DEMO_BADGES[data.image] ?? data.image,
+  description: isFrench ? data.description.fr : data.description.en,
+  article: data.post ? postBySlug.get(data.post) : undefined,
+}));
+const reviews = certifications.flatMap((certification) =>
+  certification.article ? [certification.article] : [],
+);
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.nav.certifications}
+  description={isFrench
+    ? "Certifications fictives et parcours de démonstration."
+    : "Fictional certifications and a demo learning path."}
+  alternates={alternates}
+>
+  <section class="relative overflow-hidden py-14 md:py-20">
+    <GridDotBackground variant="grid" />
+    <div class="pointer-events-none absolute inset-0 hidden dark:block" aria-hidden="true">
+      <div class="cert-beam"></div>
+      <div class="cert-beam cert-beam-right"></div>
+    </div>
+    <div class="relative">
+      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+        {isFrench ? "Parcours de démonstration" : "Demo learning path"}
+      </p>
+      <h1 class="mt-3 text-3xl font-bold tracking-tight md:text-5xl">
+        {dict.nav.certifications}
+      </h1>
+      <p class="mt-4 max-w-2xl text-pretty text-muted-foreground md:text-lg">
+        {isFrench
+          ? "Ces badges, organismes et parcours sont entièrement fictifs."
+          : "These badges, organizations and learning paths are entirely fictional."}
+      </p>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 gap-5 pb-4 md:grid-cols-3" aria-label={dict.nav.certifications}>
+    {
+      certifications.map((certification, index) => {
+        const article = certification.article;
+        return (
+          <article class="cert-card">
+            <div class="cert-card-inner flex h-full flex-col p-5">
+              <div class="cert-badge relative grid place-items-center overflow-hidden rounded-md border border-border/60 py-6">
+                <GridDotBackground variant="dots" withFade={false} className="opacity-60" />
+                <img
+                  class="relative h-36 w-36 object-contain"
+                  src={certification.image}
+                  alt={`${certification.title}, ${certification.issuer}`}
+                  width="220"
+                  height="220"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+              </div>
+              <p class="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+                {certification.date}
+              </p>
+              <h2 class="mt-2 text-xl font-bold tracking-tight">{certification.title}</h2>
+              <p class="mt-1 text-sm text-muted-foreground">{certification.issuer}</p>
+              <p class="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
+                {certification.description}
+              </p>
+              {article && (
+                <a
+                  class="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent transition-colors hover:text-foreground"
+                  href={postUrl(article)}
+                >
+                  {isFrench ? "Lire l'article de démonstration" : "Read the demo article"}
+                  <span aria-hidden="true">&rarr;</span>
+                </a>
+              )}
+            </div>
+          </article>
+        );
+      })
+    }
+  </section>
+
+  {
+    reviews.length > 0 && (
+      <section class="py-12 md:py-16" aria-labelledby="reviews-heading">
+        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+          {isFrench ? "Articles en série" : "Posts in this series"}
+        </p>
+        <h2 id="reviews-heading" class="mt-2 text-2xl font-bold tracking-tight">
+          {isFrench ? "Retours de démonstration" : "Demo reviews"}
+        </h2>
+        <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {reviews.map((post) => (
+            <a
+              class="group flex flex-col rounded-lg border border-border bg-card p-5 transition-colors duration-200 hover:border-accent"
+              href={postUrl(post)}
+            >
+              <h3 class="font-bold leading-snug tracking-tight transition-colors group-hover:text-accent">
+                {post.data.title}
+              </h3>
+              <p class="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                {post.data.description}
+              </p>
+              <p class="mt-3 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                <time datetime={isoDate(post.data.pubDate)}>
+                  {formatDate(post.data.pubDate, locale)}
+                </time>
+                <span aria-hidden="true">&middot;</span>
+                <span>{dict.post.readingTime(readingTime(post.body ?? ""))}</span>
+              </p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  @property --cert-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+  }
+  /* Static beams echoing the Spotlight component, CSS only. */
+  .cert-beam {
+    position: absolute;
+    top: -14rem;
+    left: -6rem;
+    width: 32rem;
+    height: 44rem;
+    transform: rotate(-45deg);
+    background: radial-gradient(
+      42% 42% at 50% 32%,
+      color-mix(in oklab, var(--color-accent) 14%, transparent),
+      transparent 78%
+    );
+  }
+  .cert-beam-right {
+    right: -6rem;
+    left: auto;
+    transform: rotate(45deg);
+  }
+  /* Animated gradient border: a conic frame behind an opaque inner panel. */
+  .cert-card {
+    position: relative;
+    padding: 1px;
+    overflow: hidden;
+    border-radius: calc(var(--radius) + 5px);
+    background: conic-gradient(
+      from var(--cert-angle),
+      color-mix(in oklab, var(--color-accent) 70%, transparent),
+      var(--color-border) 24%,
+      var(--color-border) 52%,
+      color-mix(in oklab, var(--color-accent) 45%, transparent) 76%,
+      color-mix(in oklab, var(--color-accent) 70%, transparent)
+    );
+  }
+  .cert-card-inner {
+    position: relative;
+    overflow: hidden;
+    border-radius: calc(var(--radius) + 4px);
+    background: var(--color-card);
+  }
+  /* Card spotlight: a soft glow that brightens on hover. */
+  .cert-card-inner::before {
+    content: "";
+    position: absolute;
+    inset: -40% -20% auto;
+    height: 70%;
+    pointer-events: none;
+    background: radial-gradient(
+      55% 60% at 50% 40%,
+      color-mix(in oklab, var(--color-accent) 12%, transparent),
+      transparent 75%
+    );
+    opacity: 0.45;
+    transition: opacity 220ms ease-out;
+  }
+  .cert-card:hover .cert-card-inner::before,
+  .cert-card:focus-within .cert-card-inner::before {
+    opacity: 1;
+  }
+  .cert-badge {
+    background: color-mix(in oklab, var(--color-secondary) 55%, transparent);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .cert-card {
+      animation: cert-rotate 9s linear infinite;
+    }
+  }
+  @keyframes cert-rotate {
+    to {
+      --cert-angle: 360deg;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cert-card {
+      animation: none;
+    }
+    .cert-card-inner::before {
+      transition: none;
+    }
+  }
+</style>

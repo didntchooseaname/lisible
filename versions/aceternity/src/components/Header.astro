@@ -30,6 +30,12 @@ const items = [
   ...(hasSeries
     ? [{ name: dict.nav.series, link: localeUrl(locale, "series") }]
     : []),
+  ...(FEATURES.portfolio.enabled && FEATURES.portfolio.certifications
+    ? [{ name: dict.nav.certifications, link: localeUrl(locale, "certifications") }]
+    : []),
+  ...(FEATURES.portfolio.enabled && FEATURES.portfolio.friends
+    ? [{ name: dict.nav.friends, link: localeUrl(locale, "friends") }]
+    : []),
   { name: dict.nav.about, link: localeUrl(locale, "about") },
 ].map((item) => ({ ...item, active: isActive(item.link) }));
 

@@ -1,0 +1,210 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { BorderBeam } from "@/components/ui/border-beam";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { getPublishedPosts, postSlug, postUrl } from "@/lib/posts";
+import foundationsBadge from "@shared/assets/demo-certificate-foundations.svg?url";
+import systemsBadge from "@shared/assets/demo-certificate-systems.svg?url";
+import accessibilityBadge from "@shared/assets/demo-certificate-accessibility.svg?url";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const strings = dict.cyber.certifications;
+const isFrench = locale === "fr";
+const alternates = {
+  fr: localeUrl("fr", "certifications"),
+  en: localeUrl("en", "certifications"),
+};
+
+const DEMO_BADGES: Record<string, string> = {
+  foundations: foundationsBadge,
+  systems: systemsBadge,
+  accessibility: accessibilityBadge,
+};
+
+const posts = await getPublishedPosts(locale);
+const postBySlug = new Map(posts.map((post) => [postSlug(post), post]));
+const certifications = (await getCollection("certifications")).map(({ data }, index) => ({
+  code: `0x0${index + 1}`,
+  title: data.title,
+  issuer: data.issuer,
+  year: data.year,
+  image: DEMO_BADGES[data.image] ?? data.image,
+  description: isFrench ? data.description.fr : data.description.en,
+  article: data.post ? postBySlug.get(data.post) : undefined,
+}));
+const reviews = certifications.flatMap((certification) =>
+  certification.article ? [certification.article] : [],
+);
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.nav.certifications}
+  description={strings.description}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <div class="hud-corners border border-border/70 bg-card/50 p-6 backdrop-blur-sm md:p-8">
+      <p class="terminal-line" aria-hidden="true">
+        <span class="prompt-user">operator@lisible</span>:~$ {strings.scanCmd}
+      </p>
+      <p class="section-label mt-4" aria-hidden="true">{strings.registry}</p>
+      <h1 class="font-display mt-2 text-3xl font-black uppercase tracking-[0.06em] md:text-4xl">
+        {dict.nav.certifications}
+      </h1>
+      <p class="mt-2 max-w-2xl text-muted-foreground">{strings.intro}</p>
+      <p class="mt-2 font-mono text-xs uppercase tracking-[0.18em] text-accent">
+        {strings.count(certifications.length)}
+      </p>
+    </div>
+
+    <section aria-label={dict.nav.certifications} class="mt-8 grid gap-5">
+      {
+        certifications.map((certification, index) => (
+          <BlurFade client:visible inView delay={0.08 * index} className="min-w-0">
+            <article class="hud-corners relative overflow-hidden border border-border/70 bg-card/50 backdrop-blur-sm">
+              {index === 0 && (
+                <div class="cert-beam" aria-hidden="true">
+                  <BorderBeam
+                    client:visible
+                    size={110}
+                    duration={9}
+                    colorFrom="var(--color-accent)"
+                    colorTo="var(--neon-25)"
+                  />
+                </div>
+              )}
+              <div class="grid gap-6 p-6 md:grid-cols-[minmax(11rem,0.45fr)_minmax(0,1fr)] md:p-8">
+                <div class="cert-badge relative mx-auto w-full max-w-52 overflow-hidden border border-accent/50 bg-background/60 p-4">
+                  <img
+                    src={certification.image}
+                    alt={`${certification.title}, ${certification.issuer}`}
+                    width="220"
+                    height="220"
+                    loading={index === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                    class="h-auto w-full"
+                  />
+                  <span class="cert-scan" aria-hidden="true" />
+                  <span class="cert-corner cert-corner-tl" aria-hidden="true" />
+                  <span class="cert-corner cert-corner-br" aria-hidden="true" />
+                </div>
+                <div class="min-w-0">
+                  <p class="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                    <span class="text-accent">
+                      {strings.clearance} {certification.code}
+                    </span>
+                    <span>
+                      {strings.issued} {certification.year}
+                    </span>
+                    <span>{strings.verified}</span>
+                  </p>
+                  <h2 class="font-display mt-3 text-2xl font-black uppercase tracking-[0.05em] md:text-3xl">
+                    {certification.title}
+                  </h2>
+                  <p class="mt-1 font-mono text-xs uppercase tracking-[0.18em] text-accent">
+                    {strings.authority} :: {certification.issuer}
+                  </p>
+                  <p class="mt-4 max-w-prose leading-relaxed text-muted-foreground">
+                    {certification.description}
+                  </p>
+                  {certification.article && (
+                    <a
+                      href={postUrl(certification.article)}
+                      class="hud-corners mt-6 inline-flex min-h-11 items-center gap-2 border border-accent/70 bg-accent/10 px-5 font-mono text-xs font-semibold uppercase tracking-wider text-foreground transition-all hover:bg-accent hover:text-accent-foreground hover:shadow-[var(--glow-md)]"
+                    >
+                      {strings.report}
+                      <span aria-hidden="true">→</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </article>
+          </BlurFade>
+        ))
+      }
+    </section>
+
+    {
+      reviews.length > 0 && (
+        <section aria-labelledby="cert-reports-title" class="mt-12">
+          <BlurFade client:visible inView>
+            <p class="section-label" aria-hidden="true">
+              {strings.reportsLabel}
+            </p>
+            <h2 id="cert-reports-title" class="mt-2 font-display text-xl font-bold tracking-wide">
+              {strings.reportsTitle}
+            </h2>
+          </BlurFade>
+          <div class="mt-6 grid gap-4 sm:grid-cols-2">
+            {reviews.map((post) => (
+              <PostCard post={post} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .cert-beam {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .cert-badge img {
+    filter: saturate(0.85) contrast(1.05);
+  }
+  .cert-scan {
+    position: absolute;
+    inset-inline: 0;
+    top: -16%;
+    height: 18%;
+    border-bottom: 1px solid var(--color-accent);
+    background: linear-gradient(
+      transparent,
+      color-mix(in oklab, var(--color-accent) 16%, transparent)
+    );
+    animation: cert-scan 5.2s linear infinite;
+    pointer-events: none;
+  }
+  .cert-corner {
+    position: absolute;
+    width: 0.9rem;
+    height: 0.9rem;
+    border-color: var(--color-accent);
+    pointer-events: none;
+  }
+  .cert-corner-tl {
+    top: 0.35rem;
+    left: 0.35rem;
+    border-top: 2px solid;
+    border-left: 2px solid;
+  }
+  .cert-corner-br {
+    right: 0.35rem;
+    bottom: 0.35rem;
+    border-right: 2px solid;
+    border-bottom: 2px solid;
+  }
+  @keyframes cert-scan {
+    to {
+      transform: translateY(640%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cert-beam,
+    .cert-scan {
+      display: none;
+    }
+  }
+</style>

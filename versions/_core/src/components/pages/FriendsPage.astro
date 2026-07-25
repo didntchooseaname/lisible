@@ -1,0 +1,80 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import avatarA from "@shared/assets/demo-friend-a.svg?url";
+import avatarB from "@shared/assets/demo-friend-b.svg?url";
+import avatarC from "@shared/assets/demo-friend-c.svg?url";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+const isFrench = locale === "fr";
+
+const alternates = {
+  fr: localeUrl("fr", "friends"),
+  en: localeUrl("en", "friends"),
+};
+
+const DEMO_AVATARS: Record<string, string> = { a: avatarA, b: avatarB, c: avatarC };
+
+const friends = (await getCollection("friends")).map(({ data }) => ({
+  name: data.name,
+  avatar: DEMO_AVATARS[data.avatar] ?? data.avatar,
+  bio: isFrench ? data.bio.fr : data.bio.en,
+  url: data.url ?? "https://example.com",
+}));
+---
+
+<BaseLayout
+  locale={locale}
+  title={dict.nav.friends}
+  description={isFrench
+    ? "Communauté fictive utilisée pour la démonstration de Lisible."
+    : "A fictional community used for the Lisible demo."}
+  alternates={alternates}
+>
+  <div class="py-10 md:py-14">
+    <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{dict.nav.friends}</h1>
+    <p class="mt-4 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
+      {
+        isFrench
+          ? "Tous les noms, portraits et profils de cette page sont fictifs."
+          : "Every name, portrait and profile on this page is fictional."
+      }
+    </p>
+
+    <section aria-label={dict.nav.friends} class="mt-8 grid gap-4 sm:grid-cols-2">
+      {
+        friends.map((friend, index) => (
+          <article class="flex items-start gap-4 rounded-lg border border-border bg-card p-5">
+            <img
+              src={friend.avatar}
+              alt={friend.name}
+              width="96"
+              height="96"
+              loading={index < 2 ? "eager" : "lazy"}
+              decoding="async"
+              class="h-20 w-20 shrink-0 rounded-full border border-border object-cover"
+            />
+            <div class="min-w-0">
+              <h2 class="text-lg font-semibold leading-snug tracking-tight">{friend.name}</h2>
+              <p class="mt-1 text-sm leading-relaxed text-muted-foreground">{friend.bio}</p>
+              <a
+                href={friend.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="mt-2 inline-flex min-h-11 items-center text-sm font-medium underline decoration-accent underline-offset-4 transition-colors hover:text-accent"
+              >
+                {isFrench ? "Portfolio fictif" : "Fictional portfolio"}
+              </a>
+            </div>
+          </article>
+        ))
+      }
+    </section>
+  </div>
+</BaseLayout>

@@ -114,7 +114,17 @@
         },
         "archives": { "type": "boolean", "default": true, "description": "The archives page grouped by year." },
         "series": { "type": "boolean", "default": true, "description": "Article series with navigation between parts." },
-        "commandPalette": { "type": "boolean", "default": true, "description": "Ctrl+K or Cmd+K search palette." }
+        "commandPalette": { "type": "boolean", "default": true, "description": "Ctrl+K or Cmd+K search palette." },
+        "portfolio": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "The portfolio pages: certifications and friends, with data from shared/content/portfolio/.",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "certifications": { "type": "boolean", "default": true },
+            "friends": { "type": "boolean", "default": true }
+          }
+        }
       }
     },
     "integrations": {

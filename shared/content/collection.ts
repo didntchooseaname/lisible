@@ -1,5 +1,5 @@
 import { defineCollection, z } from "astro:content";
-import { glob } from "astro/loaders";
+import { file, glob } from "astro/loaders";
 
 const blog = defineCollection({
   loader: glob({ base: "../../shared/content/blog", pattern: "**/*.{md,mdx}" }),
@@ -25,4 +25,29 @@ const blog = defineCollection({
     }),
 });
 
-export const collections = { blog };
+// Portfolio data consumed by the certifications and friends pages. The image
+// and avatar fields hold either a demo asset key (resolved by each variant
+// page) or a URL starting with "/" or "http".
+const certifications = defineCollection({
+  loader: file("../../shared/content/portfolio/certifications.json"),
+  schema: z.object({
+    title: z.string(),
+    issuer: z.string(),
+    year: z.string(),
+    image: z.string(),
+    description: z.object({ fr: z.string(), en: z.string() }),
+    post: z.string().optional(),
+  }),
+});
+
+const friends = defineCollection({
+  loader: file("../../shared/content/portfolio/friends.json"),
+  schema: z.object({
+    name: z.string(),
+    avatar: z.string(),
+    bio: z.object({ fr: z.string(), en: z.string() }),
+    url: z.string().optional(),
+  }),
+});
+
+export const collections = { blog, certifications, friends };
