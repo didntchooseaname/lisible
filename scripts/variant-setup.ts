@@ -10,7 +10,11 @@ export function hasVariantDependencies(dir: string) {
 }
 
 export function hasRootDependencies(root: string) {
-  return existsSync(join(root, "node_modules", "sharp", "package.json"));
+  // Probe one dependency per family that joined the root manifest over time:
+  // a partially populated node_modules must not skip the install.
+  return ["sharp", "clsx", "tailwind-merge", "satori"].every((pkg) =>
+    existsSync(join(root, "node_modules", pkg, "package.json")),
+  );
 }
 
 export function installRootDependencies(root: string, { force = false }: InstallOptions = {}) {
