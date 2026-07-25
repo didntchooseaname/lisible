@@ -10,6 +10,7 @@ import {
   pageCount,
   paginate,
   postUrl,
+  slugifyTag,
   type Post,
 } from "@/lib/posts";
 import { formatDate, isoDate, readingTime } from "@/lib/utils";
@@ -45,7 +46,7 @@ function toRowData(post: Post): PostRowData {
     dateISO: isoDate(post.data.pubDate),
     description: post.data.description,
     readingLabel: dict.post.readingTime(readingTime(post.body ?? "")),
-    tags: post.data.tags.slice(0, 3).map((tag) => ({ label: tag, url: localeUrl(locale, `tags/${tag}`) })),
+    tags: post.data.tags.slice(0, 3).map((tag) => ({ label: tag, url: localeUrl(locale, `tags/${slugifyTag(tag)}`) })),
     dateLabel: formatDate(post.data.pubDate, locale, "short"),
     draftLabel: post.data.draft ? dict.post.draft : undefined,
   };

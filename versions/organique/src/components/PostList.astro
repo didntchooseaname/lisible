@@ -1,5 +1,5 @@
 ---
-import { postLocale, postUrl, type Post } from "@/lib/posts";
+import { postLocale, postUrl, slugifyTag, type Post } from "@/lib/posts";
 import { formatDate, isoDate, readingTime } from "@/lib/utils";
 import { localeUrl, t } from "@/i18n/ui";
 
@@ -38,7 +38,7 @@ const { posts } = Astro.props;
             {post.data.tags.length > 0 && (
               <span class="row-tags">
                 {post.data.tags.slice(0, 3).map((tag) => (
-                  <a href={localeUrl(locale, `tags/${tag}`)} class="row-tag">
+                  <a href={localeUrl(locale, `tags/${slugifyTag(tag)}`)} class="row-tag">
                     {tag}
                   </a>
                 ))}

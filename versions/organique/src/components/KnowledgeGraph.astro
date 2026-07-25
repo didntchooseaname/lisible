@@ -115,7 +115,7 @@ const seriesParents = [...seriesGrouped.entries()]
     <div class="c-series-layer" aria-label={dict.series.listTitle}>
       {seriesParents.map((series) => (
         <div class="c-series-parent" data-c-series={series.key}>
-          <a class="c-series-link" href={seriesUrl(locale, series.name)} draggable="false">
+          <a class="c-series-link" href={seriesUrl(locale, series.key)} draggable="false">
             <span class="c-series-kind">{dict.series.label}</span>
             <strong>{series.name}</strong>
             <small>{series.posts.length}</small>
