@@ -32,3 +32,5 @@ Thumbs.db
 coverage/
 tmp/
 .drift-baseline.json
+.lighthouseci/
+test-results/
