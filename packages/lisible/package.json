@@ -1,0 +1,28 @@
+{
+  "name": "lisible",
+  "version": "0.1.0",
+  "description": "Scaffold a Lisible blog: a minimal, fast, reading-first blog framework for Astro with six visual variants over one shared core.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "lisible": "bin.mjs"
+  },
+  "exports": {
+    ".": "./bin.mjs",
+    "./bin.mjs": "./bin.mjs"
+  },
+  "files": ["bin.mjs", "README.md"],
+  "engines": {
+    "node": ">=18"
+  },
+  "homepage": "https://github.com/didntchooseaname/lisible",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/didntchooseaname/lisible.git",
+    "directory": "packages/lisible"
+  },
+  "bugs": {
+    "url": "https://github.com/didntchooseaname/lisible/issues"
+  },
+  "keywords": ["astro", "blog", "blog-template", "static-site", "i18n", "bun", "scaffold"]
+}

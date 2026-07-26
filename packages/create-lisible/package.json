@@ -1,0 +1,27 @@
+{
+  "name": "create-lisible",
+  "version": "0.1.0",
+  "description": "Scaffold a Lisible blog with npm create lisible or bun create lisible. Thin alias of the lisible package.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-lisible": "bin.mjs"
+  },
+  "files": ["bin.mjs", "README.md"],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "lisible": "^0.1.0"
+  },
+  "homepage": "https://github.com/didntchooseaname/lisible",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/didntchooseaname/lisible.git",
+    "directory": "packages/create-lisible"
+  },
+  "bugs": {
+    "url": "https://github.com/didntchooseaname/lisible/issues"
+  },
+  "keywords": ["astro", "blog", "blog-template", "create", "scaffold"]
+}
