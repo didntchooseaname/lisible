@@ -1,7 +1,7 @@
 import { cpSync, existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { isPublicVariant, VARIANTS } from "../shared/variants";
-import { installRootDependencies, installVariantDependencies } from "./variant-setup";
+import { installRootDependencies } from "./variant-setup";
 
 const root = new URL("..", import.meta.url).pathname;
 const configPath = join(root, "lisible.config.json");
@@ -43,9 +43,6 @@ if (cmd === "build") {
   });
   if (ogCheck.exitCode !== 0) process.exit(ogCheck.exitCode);
 }
-
-const installExitCode = installVariantDependencies(variant, dir);
-if (installExitCode !== 0) process.exit(installExitCode);
 
 console.log(`[lisible] running ${cmd} for the "${variant}" variant`);
 const child = Bun.spawn(["bun", "run", cmd], {

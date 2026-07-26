@@ -1,10 +1,12 @@
 import { join } from "node:path";
 import { VARIANTS } from "../shared/variants";
-import { buildVariant, installRootDependencies, installVariantDependencies } from "./variant-setup";
+import { buildVariant, installRootDependencies } from "./variant-setup";
 
 const root = new URL("..", import.meta.url).pathname;
 
-const rootInstallExitCode = installRootDependencies(root);
+// force: preview-all is the "compare everything from scratch" command, so it
+// always refreshes the workspace install instead of trusting the sentinels.
+const rootInstallExitCode = installRootDependencies(root, { force: true });
 if (rootInstallExitCode !== 0) process.exit(rootInstallExitCode);
 
 const ogCheck = Bun.spawnSync(["bun", "scripts/sync-og-assets.ts", "--check"], {
@@ -16,11 +18,6 @@ if (ogCheck.exitCode !== 0) process.exit(ogCheck.exitCode);
 
 for (const { id: name } of VARIANTS) {
   const dir = join(root, "versions", name);
-  const installExitCode = installVariantDependencies(name, dir, {
-    force: true,
-  });
-  if (installExitCode !== 0) process.exit(installExitCode);
-
   const buildExitCode = buildVariant(name, dir);
   if (buildExitCode !== 0) process.exit(buildExitCode);
 }

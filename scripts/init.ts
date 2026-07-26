@@ -5,7 +5,7 @@ import { createInterface } from "node:readline/promises";
 import { parseArgs } from "node:util";
 import { DEMO_PROFILE, SITE_DEFAULTS } from "../shared/site.config";
 import { VARIANTS } from "../shared/variants";
-import { installRootDependencies, installVariantDependencies } from "./variant-setup";
+import { installRootDependencies } from "./variant-setup";
 
 const root = new URL("..", import.meta.url).pathname;
 const configPath = join(root, "lisible.config.json");
@@ -174,19 +174,13 @@ async function main() {
   }
 
   info(`\nPreparing the "${variant}" variant...`);
-  const rootInstallExitCode = installRootDependencies(root);
+  // force: init is a fresh start, so always refresh the workspace install,
+  // which covers the shared core and every variant in one pass.
+  const rootInstallExitCode = installRootDependencies(root, { force: true });
   if (rootInstallExitCode !== 0) {
     info("  Configuration unchanged. Fix the error, then run bun run init again.");
     closePrompt();
     exit(rootInstallExitCode);
-  }
-  const installExitCode = installVariantDependencies(variant, variantDir, {
-    force: true,
-  });
-  if (installExitCode !== 0) {
-    info("  Configuration unchanged. Fix the error, then run bun run init again.");
-    closePrompt();
-    exit(installExitCode);
   }
 
   writeConfig({

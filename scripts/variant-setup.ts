@@ -5,22 +5,22 @@ type InstallOptions = {
   force?: boolean;
 };
 
-export function hasVariantDependencies(dir: string) {
-  return existsSync(join(dir, "node_modules", ".bin", "astro"));
-}
-
-export function hasRootDependencies(root: string) {
-  // Probe one dependency per family that joined the root manifest over time:
-  // a partially populated node_modules must not skip the install.
-  return ["sharp", "clsx", "tailwind-merge", "satori"].every((pkg) =>
-    existsSync(join(root, "node_modules", pkg, "package.json")),
-  );
+export function hasWorkspaceDependencies(root: string) {
+  // One sentinel per workspace family (root tooling, shared core, variant
+  // toolchain): a partially populated install must not skip the install.
+  return [
+    join(root, "node_modules", "sharp", "package.json"),
+    join(root, "shared", "node_modules", "satori", "package.json"),
+    join(root, "versions", "_core", "node_modules", ".bin", "astro"),
+  ].every((path) => existsSync(path));
 }
 
 export function installRootDependencies(root: string, { force = false }: InstallOptions = {}) {
-  if (!force && hasRootDependencies(root)) return 0;
+  if (!force && hasWorkspaceDependencies(root)) return 0;
 
-  console.log("[lisible] root: installing tooling dependencies...");
+  // A single install at the repository root covers the whole workspace:
+  // the shared core, every variant and the published packages.
+  console.log("[lisible] workspace: installing dependencies...");
   const install = Bun.spawnSync(["bun", "install"], {
     cwd: root,
     stdout: "inherit",
@@ -29,29 +29,7 @@ export function installRootDependencies(root: string, { force = false }: Install
 
   if (install.exitCode !== 0) {
     console.error(
-      `[lisible] root: dependency installation failed (exit code ${install.exitCode}).`,
-    );
-  }
-  return install.exitCode;
-}
-
-export function installVariantDependencies(
-  name: string,
-  dir: string,
-  { force = false }: InstallOptions = {},
-) {
-  if (!force && hasVariantDependencies(dir)) return 0;
-
-  console.log(`[lisible] ${name}: installing dependencies...`);
-  const install = Bun.spawnSync(["bun", "install"], {
-    cwd: dir,
-    stdout: "inherit",
-    stderr: "inherit",
-  });
-
-  if (install.exitCode !== 0) {
-    console.error(
-      `[lisible] ${name}: dependency installation failed (exit code ${install.exitCode}).`,
+      `[lisible] workspace: dependency installation failed (exit code ${install.exitCode}).`,
     );
   }
   return install.exitCode;

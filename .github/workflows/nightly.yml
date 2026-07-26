@@ -30,11 +30,7 @@ jobs:
         with:
           bun-version-file: .bun-version
 
-      - name: Install root tooling
-        run: bun install --frozen-lockfile
-
-      - name: Install variant dependencies
-        working-directory: versions/${{ matrix.variant }}
+      - name: Install workspace dependencies
         run: bun install --frozen-lockfile
 
       - name: Typecheck, build, links, assets and Open Graph
@@ -54,13 +50,13 @@ jobs:
         with:
           bun-version-file: .bun-version
 
-      - name: Install root tooling
+      - name: Install workspace dependencies
         run: bun install --frozen-lockfile
 
       - name: Build every public variant
         run: |
           for variant in motion-primitives cult-ui aceternity reactbits organique h4x0r; do
-            (cd "versions/${variant}" && bun install --frozen-lockfile && bun run build)
+            (cd "versions/${variant}" && bun run build)
           done
 
       - name: Install chromium
@@ -79,7 +75,7 @@ jobs:
         with:
           bun-version-file: .bun-version
 
-      - name: Install root tooling
+      - name: Install workspace dependencies
         run: bun install --frozen-lockfile
 
       - name: Check the external links of the content

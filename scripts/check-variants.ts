@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { isPublicVariant, VARIANTS } from "../shared/variants";
-import { installRootDependencies, installVariantDependencies } from "./variant-setup";
+import { installRootDependencies } from "./variant-setup";
 
 /**
  * Verifies every variant, not just the one selected in lisible.config.json.
@@ -62,12 +62,6 @@ for (const variant of targets) {
   }
 
   console.log(`\n[lisible] === ${variant} ===`);
-
-  const install = installVariantDependencies(variant, dir);
-  if (install !== 0) {
-    failures.push(`${variant}: dependency installation`);
-    continue;
-  }
 
   if (!skipTypecheck && run(["bun", "run", "typecheck"], dir, `${variant}: typecheck`) !== 0) {
     failures.push(`${variant}: typecheck`);

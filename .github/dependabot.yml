@@ -1,15 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "bun"
-    directories:
-      - "/"
-      - "/versions/_core"
-      - "/versions/aceternity"
-      - "/versions/cult-ui"
-      - "/versions/h4x0r"
-      - "/versions/motion-primitives"
-      - "/versions/organique"
-      - "/versions/reactbits"
+    directory: "/"
     schedule:
       interval: "weekly"
     groups:
