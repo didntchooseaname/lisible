@@ -2,6 +2,8 @@
 
 Scaffold a [Lisible](https://github.com/didntchooseaname/lisible) blog: a minimal, fast, reading-first blog framework for Astro, with six visual variants over one shared core, French and English out of the box.
 
+Documentation and live previews of every variant: [lisible.xsec.fr](https://lisible.xsec.fr)
+
 ## Usage
 
 ```bash

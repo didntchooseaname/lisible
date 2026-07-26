@@ -1,6 +1,6 @@
 {
   "name": "create-lisible",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Scaffold a Lisible blog with npm create lisible or bun create lisible. Thin alias of the lisible package.",
   "license": "MIT",
   "type": "module",
@@ -12,7 +12,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "lisible": "^0.1.0"
+    "lisible": "^0.1.1"
   },
   "homepage": "https://github.com/didntchooseaname/lisible",
   "repository": {

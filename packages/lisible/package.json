@@ -1,6 +1,6 @@
 {
   "name": "lisible",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Scaffold a Lisible blog: a minimal, fast, reading-first blog framework for Astro with six visual variants over one shared core.",
   "license": "MIT",
   "type": "module",
