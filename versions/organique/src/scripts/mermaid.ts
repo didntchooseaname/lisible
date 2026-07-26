@@ -1,20 +1,5 @@
-import { setupPanZoom as setupSharedPanZoom } from "../../../../shared/scripts/pan-zoom";
-
-type MermaidApi = typeof import("mermaid").default;
-
-let mermaidPromise: Promise<MermaidApi> | null = null;
-let renderQueue = Promise.resolve();
-
-function loadMermaid(): Promise<MermaidApi> {
-  mermaidPromise ??= import("mermaid").then((m) => m.default);
-  return mermaidPromise;
-}
-
-function decode(encoded: string): string {
-  const binary = atob(encoded);
-  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
+import { createMermaidClient } from "../../../../shared/scripts/mermaid";
+import { setupPanZoom } from "../../../../shared/scripts/pan-zoom";
 
 let normCtx: CanvasRenderingContext2D | null = null;
 function normalizeColor(color: string): string {
@@ -74,161 +59,64 @@ function themeConfig() {
   } as const;
 }
 
-async function initMermaid(): Promise<MermaidApi> {
-  const mermaid = await loadMermaid();
-  const cfg = themeConfig();
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: cfg.theme,
-    fontFamily: "var(--font-sans)",
-    securityLevel: "loose",
-    themeVariables: cfg.themeVariables as Record<string, string>,
-  });
-  return mermaid;
-}
-
-function prepareSvg(svgEl: SVGSVGElement) {
-  const vb = svgEl.viewBox.baseVal;
-  if (vb?.width && vb?.height) {
-    svgEl.setAttribute("width", `${vb.width}`);
-    svgEl.setAttribute("height", `${vb.height}`);
-  }
-  svgEl.style.display = "block";
-  svgEl.style.maxWidth = "none";
-  svgEl.style.maxHeight = "none";
-}
-
-function setupPanZoom(container: HTMLElement) {
-  const viewport = container.querySelector<HTMLElement>("[data-mermaid-viewport]");
-  const pan = container.querySelector<HTMLElement>("[data-mermaid-pan]");
-  const level = container.querySelector<HTMLElement>("[data-mermaid-zoom-level]");
-  const hint = container.querySelector<HTMLElement>("[data-mermaid-hint]");
-  if (!viewport || !pan) return;
-
-  const controls = setupSharedPanZoom(viewport, pan, {
-    maxScale: 8,
-    zoomLevelEl: level,
-    hintEl: hint,
-    hintMode: "fade",
-    grabCursor: false,
-    fit: {
-      padding: 40,
-      cap: Number.POSITIVE_INFINITY,
-      fallback: "reset",
-      content: "svg-viewbox",
-    },
-  });
-
-  container.querySelector("[data-mermaid-zoom-in]")?.addEventListener("click", controls.zoomIn);
-  container.querySelector("[data-mermaid-zoom-out]")?.addEventListener("click", controls.zoomOut);
-  container
-    .querySelector("[data-mermaid-reset]")
-    ?.addEventListener("click", controls.fitToViewport);
-
-  requestAnimationFrame(controls.fitToViewport);
-}
-
-async function renderDiagram(container: HTMLElement) {
-  const sourceEl = container.querySelector<HTMLElement>("[data-mermaid-source]");
-  const target = container.querySelector<HTMLElement>("[data-mermaid-render]");
-  const loading = container.querySelector<HTMLElement>("[data-mermaid-loading]");
-  if (!sourceEl || !target) return;
-  const code = decode(sourceEl.getAttribute("data-mermaid-source") || "");
-  if (!code) return;
-
-  try {
-    const mermaid = await initMermaid();
-    const svgId = `${container.id}-svg`;
-    document.getElementById(svgId)?.remove();
-    const { svg } = await mermaid.render(svgId, code);
-    target.innerHTML = svg;
-    const svgEl = target.querySelector<SVGSVGElement>("svg");
-    if (svgEl) prepareSvg(svgEl);
-    if (loading) loading.style.display = "none";
-  } catch {
-    if (loading) loading.style.display = "none";
+createMermaidClient({
+  load: () => import("mermaid").then((m) => m.default),
+  selector: "[data-mermaid]",
+  config: () => {
+    const cfg = themeConfig();
+    return {
+      theme: cfg.theme,
+      fontFamily: "var(--font-sans)",
+      securityLevel: "loose",
+      themeVariables: cfg.themeVariables as Record<string, string>,
+    };
+  },
+  diagramId: (container) => container.id,
+  onError: (container) => {
     container.classList.add("diagram-error");
-    if (sourceEl) sourceEl.hidden = false;
-    return;
-  }
-
-  setupPanZoom(container);
-
-  const copyBtn = container.querySelector<HTMLElement>("[data-mermaid-copy]");
-  copyBtn?.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-      copyBtn.classList.add("is-copied");
-      window.setTimeout(() => copyBtn.classList.remove("is-copied"), 1400);
-    } catch {}
-  });
-}
-
-function queueRender(container: HTMLElement) {
-  if (container.hasAttribute("data-mermaid-rendered")) return;
-  container.setAttribute("data-mermaid-rendered", "");
-  renderQueue = renderQueue.then(() => renderDiagram(container));
-}
-
-function renderWhenVisible(container: HTMLElement) {
-  if (
-    container.hasAttribute("data-mermaid-rendered") ||
-    container.hasAttribute("data-mermaid-observed")
-  )
-    return;
-  if (!("IntersectionObserver" in window)) {
-    queueRender(container);
-    return;
-  }
-  container.setAttribute("data-mermaid-observed", "");
-  const observer = new IntersectionObserver(
-    (entries) => {
-      if (!entries.some((e) => e.isIntersecting)) return;
-      observer.disconnect();
-      container.removeAttribute("data-mermaid-observed");
-      queueRender(container);
-    },
-    { rootMargin: "300px 0px" },
-  );
-  observer.observe(container);
-}
-
-function renderAll() {
-  document.querySelectorAll<HTMLElement>("[data-mermaid]").forEach(renderWhenVisible);
-}
-
-async function reRenderAll() {
-  const containers = document.querySelectorAll<HTMLElement>(
-    "[data-mermaid][data-mermaid-rendered]",
-  );
-  for (const container of containers) {
     const sourceEl = container.querySelector<HTMLElement>("[data-mermaid-source]");
-    const target = container.querySelector<HTMLElement>("[data-mermaid-render]");
-    if (!sourceEl || !target) continue;
-    const code = decode(sourceEl.getAttribute("data-mermaid-source") || "");
-    if (!code) continue;
-    try {
-      const mermaid = await initMermaid();
-      const svgId = `${container.id}-svg`;
-      document.getElementById(svgId)?.remove();
-      const { svg } = await mermaid.render(svgId, code);
-      target.innerHTML = svg;
-      const svgEl = target.querySelector<SVGSVGElement>("svg");
-      if (svgEl) prepareSvg(svgEl);
-    } catch {}
-  }
-}
+    if (sourceEl) sourceEl.hidden = false;
+  },
+  onRendered: ({ container, code }) => {
+    const viewport = container.querySelector<HTMLElement>("[data-mermaid-viewport]");
+    const pan = container.querySelector<HTMLElement>("[data-mermaid-pan]");
+    const level = container.querySelector<HTMLElement>("[data-mermaid-zoom-level]");
+    const hint = container.querySelector<HTMLElement>("[data-mermaid-hint]");
+    if (viewport && pan) {
+      const controls = setupPanZoom(viewport, pan, {
+        maxScale: 8,
+        zoomLevelEl: level,
+        hintEl: hint,
+        hintMode: "fade",
+        grabCursor: false,
+        fit: {
+          padding: 40,
+          cap: Number.POSITIVE_INFINITY,
+          fallback: "reset",
+          content: "svg-viewbox",
+        },
+      });
 
-let themeTimer = 0;
-function scheduleReRender() {
-  window.clearTimeout(themeTimer);
-  themeTimer = window.setTimeout(reRenderAll, 120);
-}
+      container.querySelector("[data-mermaid-zoom-in]")?.addEventListener("click", controls.zoomIn);
+      container
+        .querySelector("[data-mermaid-zoom-out]")
+        ?.addEventListener("click", controls.zoomOut);
+      container
+        .querySelector("[data-mermaid-reset]")
+        ?.addEventListener("click", controls.fitToViewport);
 
-document.addEventListener("astro:page-load", renderAll);
+      requestAnimationFrame(controls.fitToViewport);
+    }
 
-const themeObserver = new MutationObserver(scheduleReRender);
-themeObserver.observe(document.documentElement, {
-  attributes: true,
-  attributeFilter: ["class", "style"],
+    const copyBtn = container.querySelector<HTMLElement>("[data-mermaid-copy]");
+    copyBtn?.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(code);
+        copyBtn.classList.add("is-copied");
+        window.setTimeout(() => copyBtn.classList.remove("is-copied"), 1400);
+      } catch {}
+    });
+  },
+  theme: { debounce: 120, attributeFilter: ["class", "style"] },
+  startup: "pageload",
 });

@@ -1,8 +1,14 @@
+// Relative path: this module is imported by astro.config.ts, which loads before
+// the @shared alias exists.
 import type { ElementContent } from "hast";
 import { h } from "hastscript";
-import type { Root } from "mdast";
-import type { Plugin, Transformer } from "unified";
-import { visit } from "unist-util-visit";
+import { STROKE_ICON_ATTRS } from "../../../../shared/markdown/remark-callouts";
+import {
+  createRemarkDrawio,
+  DIAGRAM_MAGNIFIER_PATH,
+  DIAGRAM_RESET_PATHS,
+  DIAGRAM_SPINNER_PATH,
+} from "../../../../shared/markdown/remark-diagram";
 import { type CardLocale, cardLocaleFromPath, cardStrings } from "../i18n/cards";
 
 const controlIcon = (children: ElementContent[]): ElementContent =>
@@ -13,29 +19,12 @@ const controlIcon = (children: ElementContent[]): ElementContent =>
       viewBox: "0 0 24 24",
       width: "16",
       height: "16",
-      fill: "none",
-      stroke: "currentColor",
-      "stroke-width": "2",
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "aria-hidden": "true",
+      ...STROKE_ICON_ATTRS,
     },
     children,
   );
 
 let counter = 0;
-
-interface MdNode {
-  type: string;
-  name?: string;
-  attributes?: Record<string, string | null | undefined>;
-  children?: unknown[];
-  data?: {
-    hName?: string;
-    hProperties?: Record<string, unknown>;
-    hChildren?: ElementContent[];
-  };
-}
 
 function buildToolbarAndViewport(locale: CardLocale, _id: string): ElementContent[] {
   const labels = cardStrings[locale].diagram;
@@ -59,20 +48,21 @@ function buildToolbarAndViewport(locale: CardLocale, _id: string): ElementConten
     h("div", { class: "diagram-controls" }, [
       btn("data-drawio-zoom-out", labels.zoomOut, [
         h("circle", { cx: "11", cy: "11", r: "8" }),
-        h("path", { d: "m21 21-4.3-4.3" }),
+        h("path", { d: DIAGRAM_MAGNIFIER_PATH }),
         h("path", { d: "M8 11h6" }),
       ]),
       h("span", { class: "diagram-zoom-level", "data-drawio-zoom-level": "" }, "100%"),
       btn("data-drawio-zoom-in", labels.zoomIn, [
         h("circle", { cx: "11", cy: "11", r: "8" }),
-        h("path", { d: "m21 21-4.3-4.3" }),
+        h("path", { d: DIAGRAM_MAGNIFIER_PATH }),
         h("path", { d: "M11 8v6" }),
         h("path", { d: "M8 11h6" }),
       ]),
-      btn("data-drawio-reset", labels.reset, [
-        h("path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" }),
-        h("path", { d: "M3 3v5h5" }),
-      ]),
+      btn(
+        "data-drawio-reset",
+        labels.reset,
+        DIAGRAM_RESET_PATHS.map((d) => h("path", { d })),
+      ),
     ]),
   ]);
 
@@ -97,7 +87,7 @@ function buildToolbarAndViewport(locale: CardLocale, _id: string): ElementConten
             "stroke-width": "2",
             "aria-hidden": "true",
           },
-          [h("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })],
+          [h("path", { d: DIAGRAM_SPINNER_PATH })],
         ),
         h("span", {}, labels.rendering),
       ]),
@@ -108,52 +98,49 @@ function buildToolbarAndViewport(locale: CardLocale, _id: string): ElementConten
   return [toolbar, viewport];
 }
 
-const remarkDrawio: Plugin<[], Root> = () => {
-  const transformer: Transformer<Root> = (tree, file) => {
-    const locale = cardLocaleFromPath(file?.path ?? file?.history?.[0]);
-    visit(tree, (node) => {
-      const directive = node as unknown as MdNode;
-      if (directive.type !== "containerDirective" || directive.name !== "drawio") return;
-
-      const src = directive.attributes?.src;
-      if (!src) {
-        directive.data = { hName: "div", hProperties: { style: "display:none" }, hChildren: [] };
-        directive.children = [];
-        return;
-      }
-      const title = directive.attributes?.title ?? cardStrings[locale].diagram.label;
-      const id = `drawio-${(counter++).toString(36)}`;
-
-      const fallbackChildren = directive.children ?? [];
-      const viewer: MdNode = {
-        type: "paragraph",
+export default createRemarkDrawio({
+  locale: (file) => cardLocaleFromPath(file?.path ?? file?.history?.[0]),
+  render: ({ src, title, locale, body }) => {
+    if (!src) {
+      return {
+        hName: "div",
+        hProperties: { style: "display:none" },
+        hChildren: [],
         children: [],
-        data: {
-          hName: "div",
-          hProperties: {
-            class: "diagram-wrap",
-            "data-drawio": "",
-            "data-src": src,
-            "data-title": title,
-            id,
-          },
-          hChildren: buildToolbarAndViewport(locale, id),
-        },
       };
-      const fallback: MdNode = {
-        type: "drawioFallback",
-        children: fallbackChildren,
-        data: {
-          hName: "div",
-          hProperties: { class: "diagram-fallback", "data-drawio-fallback": "" },
+    }
+
+    const label = title ?? cardStrings[locale].diagram.label;
+    const id = `drawio-${(counter++).toString(36)}`;
+
+    const viewer = {
+      type: "paragraph",
+      children: [],
+      data: {
+        hName: "div",
+        hProperties: {
+          class: "diagram-wrap",
+          "data-drawio": "",
+          "data-src": src,
+          "data-title": label,
+          id,
         },
-      };
+        hChildren: buildToolbarAndViewport(locale, id),
+      },
+    };
+    const fallback = {
+      type: "drawioFallback",
+      children: body,
+      data: {
+        hName: "div",
+        hProperties: { class: "diagram-fallback", "data-drawio-fallback": "" },
+      },
+    };
 
-      directive.children = [viewer, fallback] as unknown[];
-      directive.data = { hName: "div", hProperties: { class: "diagram-outer" } };
-    });
-  };
-  return transformer;
-};
-
-export default remarkDrawio;
+    return {
+      hName: "div",
+      hProperties: { class: "diagram-outer" },
+      children: [viewer, fallback],
+    };
+  },
+});

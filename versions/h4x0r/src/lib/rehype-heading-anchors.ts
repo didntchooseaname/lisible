@@ -1,15 +1,17 @@
-import type { Element, Root } from "hast";
+// Relative path: this module is imported by astro.config.ts, which loads before
+// the @shared alias exists.
+import type { Element } from "hast";
 import { h } from "hastscript";
-import type { Plugin, Transformer } from "unified";
-import { visit } from "unist-util-visit";
+import {
+  createRehypeHeadingAnchors,
+  HEADING_LINK_PATHS,
+} from "../../../../shared/markdown/rehype-heading-anchors";
 import { cardLocaleFromPath } from "../i18n/cards";
 
 const LABELS = {
   fr: { copy: "Copier le lien vers cette section", copied: "Lien copié" },
   en: { copy: "Copy link to this section", copied: "Link copied" },
 } as const;
-
-const HEADINGS = new Set(["h2", "h3", "h4"]);
 
 const linkIcon = (): Element =>
   h(
@@ -26,10 +28,7 @@ const linkIcon = (): Element =>
       "stroke-linejoin": "round",
       "aria-hidden": "true",
     },
-    [
-      h("path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" }),
-      h("path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" }),
-    ],
+    HEADING_LINK_PATHS.map((d) => h("path", { d })),
   );
 
 function textOf(node: Element | { type: string; value?: string; children?: unknown[] }): string {
@@ -40,47 +39,32 @@ function textOf(node: Element | { type: string; value?: string; children?: unkno
   return "";
 }
 
-const rehypeHeadingAnchors: Plugin<[], Root> = () => {
-  const transformer: Transformer<Root> = (tree, file) => {
-    const locale = cardLocaleFromPath(file?.path ?? file?.history?.[0]);
+export default createRehypeHeadingAnchors({
+  locale: (file) => cardLocaleFromPath(file?.path ?? file?.history?.[0]),
+  shouldAnchor: (node) =>
+    !node.children.some(
+      (child) =>
+        child.type === "element" &&
+        String((child as Element).properties?.className ?? "").includes("heading-anchor"),
+    ),
+  decorate: (node) => {
+    const existing = node.properties.className;
+    node.properties.className = Array.isArray(existing)
+      ? [...existing, "has-anchor"]
+      : ["has-anchor"];
+  },
+  anchor: (id, locale, node) => {
     const labels = LABELS[locale];
-
-    visit(tree, "element", (node: Element) => {
-      if (!HEADINGS.has(node.tagName)) return;
-      const id = node.properties?.id;
-      if (typeof id !== "string" || id.length === 0) return;
-      if (
-        node.children.some(
-          (child) =>
-            child.type === "element" &&
-            String((child as Element).properties?.className ?? "").includes("heading-anchor"),
-        )
-      ) {
-        return;
-      }
-
-      const heading = textOf(node).trim();
-      const existing = node.properties.className;
-      node.properties.className = Array.isArray(existing)
-        ? [...existing, "has-anchor"]
-        : ["has-anchor"];
-
-      node.children.push(
-        h(
-          "a",
-          {
-            class: "heading-anchor",
-            href: `#${id}`,
-            "aria-label": heading ? `${labels.copy}: ${heading}` : labels.copy,
-            "data-anchor-copied": labels.copied,
-          },
-          [linkIcon()],
-        ),
-      );
-    });
-  };
-
-  return transformer;
-};
-
-export default rehypeHeadingAnchors;
+    const heading = textOf(node).trim();
+    return h(
+      "a",
+      {
+        class: "heading-anchor",
+        href: `#${id}`,
+        "aria-label": heading ? `${labels.copy}: ${heading}` : labels.copy,
+        "data-anchor-copied": labels.copied,
+      },
+      [linkIcon()],
+    );
+  },
+});

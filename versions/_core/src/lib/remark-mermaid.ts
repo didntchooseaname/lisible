@@ -1,8 +1,14 @@
+// Relative path: this module is imported by astro.config.ts, which loads before
+// the @shared alias exists.
 import type { Element, ElementContent } from "hast";
 import { h } from "hastscript";
-import type { Code, Parent, Root } from "mdast";
-import type { Plugin, Transformer } from "unified";
-import { visit } from "unist-util-visit";
+import { STROKE_ICON_ATTRS } from "../../../../shared/markdown/remark-callouts";
+import {
+  createRemarkMermaid,
+  DIAGRAM_MAGNIFIER_PATH,
+  DIAGRAM_RESET_PATHS,
+  DIAGRAM_SPINNER_PATH,
+} from "../../../../shared/markdown/remark-diagram";
 import { cardLocaleFromPath, diagramStrings } from "../i18n/diagrams";
 
 const svg = (paths: ElementContent[], size = "16"): ElementContent =>
@@ -13,12 +19,7 @@ const svg = (paths: ElementContent[], size = "16"): ElementContent =>
       viewBox: "0 0 24 24",
       width: size,
       height: size,
-      fill: "none",
-      stroke: "currentColor",
-      "stroke-width": "2",
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "aria-hidden": "true",
+      ...STROKE_ICON_ATTRS,
     },
     paths,
   );
@@ -34,23 +35,19 @@ const gridIcon = () =>
 const zoomOutIcon = () =>
   svg([
     h("circle", { cx: "11", cy: "11", r: "8" }),
-    h("path", { d: "m21 21-4.3-4.3" }),
+    h("path", { d: DIAGRAM_MAGNIFIER_PATH }),
     h("path", { d: "M8 11h6" }),
   ]);
 
 const zoomInIcon = () =>
   svg([
     h("circle", { cx: "11", cy: "11", r: "8" }),
-    h("path", { d: "m21 21-4.3-4.3" }),
+    h("path", { d: DIAGRAM_MAGNIFIER_PATH }),
     h("path", { d: "M11 8v6" }),
     h("path", { d: "M8 11h6" }),
   ]);
 
-const resetIcon = () =>
-  svg([
-    h("path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" }),
-    h("path", { d: "M3 3v5h5" }),
-  ]);
+const resetIcon = () => svg(DIAGRAM_RESET_PATHS.map((d) => h("path", { d })));
 
 const copyIcon = () =>
   svg([
@@ -72,60 +69,48 @@ const spinnerIcon = () =>
       "aria-hidden": "true",
       class: "mermaid-spinner",
     },
-    [h("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })],
+    [h("path", { d: DIAGRAM_SPINNER_PATH })],
   );
 
 const ctrlButton = (attr: string, label: string, iconEl: ElementContent): Element =>
   h("button", { type: "button", class: "mermaid-btn", "aria-label": label, [attr]: "" }, [iconEl]);
 
-const remarkMermaid: Plugin<[], Root> = () => {
-  const transformer: Transformer<Root> = (tree, file) => {
-    const locale = cardLocaleFromPath(file?.path ?? file?.history?.[0]);
+export default createRemarkMermaid({
+  locale: (file) => cardLocaleFromPath(file?.path ?? file?.history?.[0]),
+  lowercaseLang: true,
+  render: ({ code, encoded, locale }) => {
     const labels = diagramStrings[locale];
 
-    visit(tree, "code", (node: Code, index: number | undefined, parent: Parent | undefined) => {
-      if ((node.lang ?? "").toLowerCase() !== "mermaid") return;
-      if (!parent || typeof index !== "number") return;
-      const code = node.value;
-      const encoded = Buffer.from(code, "utf-8").toString("base64");
-
-      const container = h("div", { class: "mermaid-block not-prose", "data-mermaid": "" }, [
-        h("div", { class: "mermaid-toolbar" }, [
-          h("span", { class: "mermaid-label" }, [gridIcon(), h("span", {}, labels.diagram)]),
-          h("div", { class: "mermaid-controls" }, [
-            ctrlButton("data-mermaid-zoom-out", labels.zoomOut, zoomOutIcon()),
-            h("span", { class: "mermaid-zoom-level", "data-mermaid-zoom-level": "" }, "100%"),
-            ctrlButton("data-mermaid-zoom-in", labels.zoomIn, zoomInIcon()),
-            ctrlButton("data-mermaid-zoom-reset", labels.zoomReset, resetIcon()),
-            ctrlButton("data-mermaid-copy", labels.copySource, copyIcon()),
-          ]),
+    const container = h("div", { class: "mermaid-block not-prose", "data-mermaid": "" }, [
+      h("div", { class: "mermaid-toolbar" }, [
+        h("span", { class: "mermaid-label" }, [gridIcon(), h("span", {}, labels.diagram)]),
+        h("div", { class: "mermaid-controls" }, [
+          ctrlButton("data-mermaid-zoom-out", labels.zoomOut, zoomOutIcon()),
+          h("span", { class: "mermaid-zoom-level", "data-mermaid-zoom-level": "" }, "100%"),
+          ctrlButton("data-mermaid-zoom-in", labels.zoomIn, zoomInIcon()),
+          ctrlButton("data-mermaid-zoom-reset", labels.zoomReset, resetIcon()),
+          ctrlButton("data-mermaid-copy", labels.copySource, copyIcon()),
         ]),
-        h("div", { class: "mermaid-viewport", "data-mermaid-viewport": "" }, [
-          h("div", { class: "mermaid-pan", "data-mermaid-pan": "" }, [
-            h("div", { class: "mermaid-render", "data-mermaid-render": "" }),
-          ]),
-          h("div", { class: "mermaid-loading", "data-mermaid-loading": "" }, [
-            spinnerIcon(),
-            h("span", {}, labels.loading),
-          ]),
+      ]),
+      h("div", { class: "mermaid-viewport", "data-mermaid-viewport": "" }, [
+        h("div", { class: "mermaid-pan", "data-mermaid-pan": "" }, [
+          h("div", { class: "mermaid-render", "data-mermaid-render": "" }),
         ]),
-        h("pre", { class: "mermaid-fallback", "data-mermaid-fallback": "", hidden: true }, code),
-        h("span", { "data-mermaid-source": encoded, hidden: true }),
-      ]);
+        h("div", { class: "mermaid-loading", "data-mermaid-loading": "" }, [
+          spinnerIcon(),
+          h("span", {}, labels.loading),
+        ]),
+      ]),
+      h("pre", { class: "mermaid-fallback", "data-mermaid-fallback": "", hidden: true }, code),
+      h("span", { "data-mermaid-source": encoded, hidden: true }),
+    ]);
 
-      const replacement = {
-        type: "mermaidBlock",
-        data: {
-          hName: "div",
-          hProperties: { class: "mermaid-wrap" },
-          hChildren: [container] as ElementContent[],
-        },
-      };
-      parent.children[index] = replacement as unknown as (typeof parent.children)[number];
-    });
-  };
-
-  return transformer;
-};
-
-export default remarkMermaid;
+    return {
+      kind: "element",
+      nodeType: "mermaidBlock",
+      hName: "div",
+      hProperties: { class: "mermaid-wrap" },
+      hChildren: [container],
+    };
+  },
+});

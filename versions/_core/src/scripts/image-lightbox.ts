@@ -229,7 +229,7 @@ class ImageLightbox {
     this.image.classList.remove("is-zoomed", "is-panning");
   }
 
-  private cleanupImages() {
+  cleanupImages() {
     for (const img of this.bound) {
       const handler = this.handlers.get(img);
       if (handler) {
@@ -245,3 +245,7 @@ class ImageLightbox {
 
 const lightbox = new ImageLightbox();
 document.addEventListener("astro:page-load", () => lightbox.init());
+document.addEventListener("astro:before-swap", () => {
+  document.body.style.overflow = "";
+  lightbox.cleanupImages();
+});

@@ -1,8 +1,15 @@
+// Relative path: this module is imported by astro.config.ts, which loads before
+// the @shared alias exists.
 import type { ElementContent } from "hast";
 import { h } from "hastscript";
-import type { Code, Root } from "mdast";
-import type { Plugin, Transformer } from "unified";
-import { visit } from "unist-util-visit";
+import { STROKE_ICON_ATTRS } from "../../../../shared/markdown/remark-callouts";
+import {
+  createRemarkMermaid,
+  DIAGRAM_COPY_PATH,
+  DIAGRAM_MAGNIFIER_PATH,
+  DIAGRAM_RESET_PATHS,
+  DIAGRAM_SPINNER_PATH,
+} from "../../../../shared/markdown/remark-diagram";
 import { type CardLocale, cardLocaleFromPath, cardStrings } from "../i18n/cards";
 
 const controlIcon = (children: ElementContent[]): ElementContent =>
@@ -13,90 +20,44 @@ const controlIcon = (children: ElementContent[]): ElementContent =>
       viewBox: "0 0 24 24",
       width: "16",
       height: "16",
-      fill: "none",
-      stroke: "currentColor",
-      "stroke-width": "2",
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "aria-hidden": "true",
+      ...STROKE_ICON_ATTRS,
     },
     children,
   );
 
 let counter = 0;
 
-function buildViewer(code: string, locale: CardLocale): ElementContent {
+function buildViewer(code: string, encoded: string, locale: CardLocale): ElementContent {
   const labels = cardStrings[locale].diagram;
   const id = `mermaid-${(counter++).toString(36)}`;
-  const encoded = Buffer.from(code, "utf-8").toString("base64");
 
-  const zoomOut = h(
-    "button",
-    {
-      type: "button",
-      class: "diagram-btn",
-      "data-mermaid-zoom-out": "",
-      "aria-label": labels.zoomOut,
-      title: labels.zoomOut,
-    },
-    [
-      controlIcon([
-        h("circle", { cx: "11", cy: "11", r: "8" }),
-        h("path", { d: "m21 21-4.3-4.3" }),
-        h("path", { d: "M8 11h6" }),
-      ]),
-    ],
+  const button = (hook: string, label: string, paths: ElementContent[]) =>
+    h(
+      "button",
+      { type: "button", class: "diagram-btn", [hook]: "", "aria-label": label, title: label },
+      [controlIcon(paths)],
+    );
+
+  const zoomOut = button("data-mermaid-zoom-out", labels.zoomOut, [
+    h("circle", { cx: "11", cy: "11", r: "8" }),
+    h("path", { d: DIAGRAM_MAGNIFIER_PATH }),
+    h("path", { d: "M8 11h6" }),
+  ]);
+  const zoomIn = button("data-mermaid-zoom-in", labels.zoomIn, [
+    h("circle", { cx: "11", cy: "11", r: "8" }),
+    h("path", { d: DIAGRAM_MAGNIFIER_PATH }),
+    h("path", { d: "M11 8v6" }),
+    h("path", { d: "M8 11h6" }),
+  ]);
+  const reset = button(
+    "data-mermaid-reset",
+    labels.reset,
+    DIAGRAM_RESET_PATHS.map((d) => h("path", { d })),
   );
-  const zoomIn = h(
-    "button",
-    {
-      type: "button",
-      class: "diagram-btn",
-      "data-mermaid-zoom-in": "",
-      "aria-label": labels.zoomIn,
-      title: labels.zoomIn,
-    },
-    [
-      controlIcon([
-        h("circle", { cx: "11", cy: "11", r: "8" }),
-        h("path", { d: "m21 21-4.3-4.3" }),
-        h("path", { d: "M11 8v6" }),
-        h("path", { d: "M8 11h6" }),
-      ]),
-    ],
-  );
-  const reset = h(
-    "button",
-    {
-      type: "button",
-      class: "diagram-btn",
-      "data-mermaid-reset": "",
-      "aria-label": labels.reset,
-      title: labels.reset,
-    },
-    [
-      controlIcon([
-        h("path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" }),
-        h("path", { d: "M3 3v5h5" }),
-      ]),
-    ],
-  );
-  const copy = h(
-    "button",
-    {
-      type: "button",
-      class: "diagram-btn",
-      "data-mermaid-copy": "",
-      "aria-label": labels.copy,
-      title: labels.copy,
-    },
-    [
-      controlIcon([
-        h("rect", { x: "9", y: "9", width: "13", height: "13", rx: "2", ry: "2" }),
-        h("path", { d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" }),
-      ]),
-    ],
-  );
+  const copy = button("data-mermaid-copy", labels.copy, [
+    h("rect", { x: "9", y: "9", width: "13", height: "13", rx: "2", ry: "2" }),
+    h("path", { d: DIAGRAM_COPY_PATH }),
+  ]);
 
   return h("div", { class: "diagram-wrap", "data-mermaid": "", id }, [
     h("div", { class: "diagram-toolbar" }, [
@@ -135,7 +96,7 @@ function buildViewer(code: string, locale: CardLocale): ElementContent {
             "stroke-width": "2",
             "aria-hidden": "true",
           },
-          [h("path", { d: "M21 12a9 9 0 1 1-6.219-8.56" })],
+          [h("path", { d: DIAGRAM_SPINNER_PATH })],
         ),
         h("span", {}, labels.rendering),
       ]),
@@ -145,19 +106,12 @@ function buildViewer(code: string, locale: CardLocale): ElementContent {
   ]);
 }
 
-const remarkMermaid: Plugin<[], Root> = () => {
-  const transformer: Transformer<Root> = (tree, file) => {
-    const locale = cardLocaleFromPath(file?.path ?? file?.history?.[0]);
-    visit(tree, "code", (node: Code) => {
-      if (node.lang !== "mermaid") return;
-      const data = (node as unknown as { data?: Record<string, unknown> }).data ?? {};
-      (node as unknown as { data: Record<string, unknown> }).data = data;
-      data.hName = "div";
-      data.hProperties = { class: "diagram-outer" };
-      data.hChildren = [buildViewer(node.value, locale)];
-    });
-  };
-  return transformer;
-};
-
-export default remarkMermaid;
+export default createRemarkMermaid({
+  locale: (file) => cardLocaleFromPath(file?.path ?? file?.history?.[0]),
+  render: ({ code, encoded, locale }) => ({
+    kind: "code-data",
+    hName: "div",
+    hProperties: { class: "diagram-outer" },
+    hChildren: [buildViewer(code, encoded, locale)],
+  }),
+});

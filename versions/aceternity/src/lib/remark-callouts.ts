@@ -1,14 +1,18 @@
-import { h, s } from "hastscript";
-import type { Root } from "mdast";
-import type { Transformer } from "unified";
-import { visit } from "unist-util-visit";
-import type { VFile } from "vfile";
+// Relative path: this module is imported by astro.config.ts, which loads before
+// the @shared alias exists.
+import type { ElementContent } from "hast";
+import { s } from "hastscript";
+import {
+  CALLOUT_BUBBLE_PATH,
+  CALLOUT_OCTAGON_PATH,
+  CALLOUT_TIP_PATHS,
+  CALLOUT_WARNING_PATHS,
+  type CalloutVariant,
+  createRemarkCallouts,
+  STROKE_ICON_ATTRS,
+} from "../../../../shared/markdown/remark-callouts";
 
-type Variant = "note" | "tip" | "warning" | "caution" | "important";
-
-const VARIANTS = new Set<Variant>(["note", "tip", "warning", "caution", "important"]);
-
-const TITLES: Record<"fr" | "en", Record<Variant, string>> = {
+const TITLES: Record<"fr" | "en", Record<CalloutVariant, string>> = {
   fr: {
     note: "Note",
     tip: "Astuce",
@@ -30,39 +34,18 @@ const ICON_ATTRS = {
   width: "20",
   height: "20",
   viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor",
-  "stroke-width": "2",
-  "stroke-linecap": "round",
-  "stroke-linejoin": "round",
-  "aria-hidden": "true",
+  ...STROKE_ICON_ATTRS,
 } as const;
 
-const ICON_PATHS: Record<Variant, string[]> = {
+const ICON_PATHS: Record<CalloutVariant, readonly string[]> = {
   note: ["M12 16v-4", "M12 8h.01"],
-  tip: [
-    "M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5",
-    "M9 18h6",
-    "M10 22h4",
-  ],
-  warning: [
-    "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z",
-    "M12 9v4",
-    "M12 17h.01",
-  ],
-  caution: [
-    "M12 16h.01",
-    "M12 8v4",
-    "M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z",
-  ],
-  important: [
-    "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
-    "M12 7v2",
-    "M12 13h.01",
-  ],
+  tip: CALLOUT_TIP_PATHS,
+  warning: CALLOUT_WARNING_PATHS,
+  caution: ["M12 16h.01", "M12 8v4", CALLOUT_OCTAGON_PATH],
+  important: [CALLOUT_BUBBLE_PATH, "M12 7v2", "M12 13h.01"],
 };
 
-function icon(variant: Variant) {
+function icon(variant: CalloutVariant): ElementContent {
   const children =
     variant === "note"
       ? [
@@ -73,56 +56,17 @@ function icon(variant: Variant) {
   return s("svg", { ...ICON_ATTRS, class: "callout__icon" }, children);
 }
 
-function fileLocale(file: VFile): "fr" | "en" {
-  const path = (file.path || file.history[0] || "").replace(/\\/g, "/");
-  return path.includes("/blog/en/") ? "en" : "fr";
-}
-
-function textOf(node: any): string {
-  if (node == null) return "";
-  if (typeof node.value === "string") return node.value;
-  if (Array.isArray(node.children)) return node.children.map(textOf).join("");
-  return "";
-}
-
-export function remarkCallouts() {
-  const transformer: Transformer<Root> = (tree, file) => {
-    const locale = fileLocale(file);
-
-    visit(tree, "containerDirective", (node: any) => {
-      const name = node.name as Variant;
-      if (!VARIANTS.has(name)) return;
-
-      const attributes = node.attributes || {};
-      const collapse = "collapse" in attributes;
-
-      let title = TITLES[locale][name];
-      const first = node.children[0];
-      if (first?.data?.directiveLabel) {
-        const custom = textOf(first).trim();
-        if (custom) title = custom;
-        node.children.shift();
-      }
-
-      const header = {
-        type: "paragraph",
-        data: {
-          hName: collapse ? "summary" : "div",
-          hProperties: { className: ["callout__title"] },
-          hChildren: [icon(name), h("span", { class: "callout__title-text" }, title)],
-        },
-        children: [],
-      };
-
-      node.children.unshift(header as any);
-
-      node.data = node.data || {};
-      node.data.hName = collapse ? "details" : "aside";
-      node.data.hProperties = {
-        className: ["callout", `callout-${name}`, ...(collapse ? ["callout-collapsible"] : [])],
-      };
-    });
-  };
-
-  return transformer;
-}
+export const remarkCallouts = createRemarkCallouts({
+  locale: (file) => {
+    const path = (file?.path || file?.history?.[0] || "").replace(/\\/g, "/");
+    return path.includes("/blog/en/") ? "en" : "fr";
+  },
+  title: (locale, variant) => TITLES[locale][variant],
+  labelMode: "deep-text",
+  markup: {
+    staticTag: "aside",
+    collapsibleClass: true,
+    headerClass: "callout__title",
+    header: { kind: "hast", icon, titleClass: "callout__title-text" },
+  },
+});

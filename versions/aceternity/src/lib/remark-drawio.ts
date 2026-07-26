@@ -1,8 +1,11 @@
+// Relative path: this module is imported by astro.config.ts, which loads before
+// the @shared alias exists.
 import { h, s } from "hastscript";
-import type { Root } from "mdast";
-import type { Transformer } from "unified";
-import { visit } from "unist-util-visit";
-import type { VFile } from "vfile";
+import { STROKE_ICON_ATTRS } from "../../../../shared/markdown/remark-callouts";
+import {
+  createRemarkDrawio,
+  DIAGRAM_RESET_PATHS,
+} from "../../../../shared/markdown/remark-diagram";
 
 const LABELS = {
   fr: { label: "Diagramme", zoomIn: "Zoomer", zoomOut: "Dézoomer", reset: "Réinitialiser la vue" },
@@ -14,12 +17,7 @@ const CTRL_ATTRS = {
   width: "16",
   height: "16",
   viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor",
-  "stroke-width": "2",
-  "stroke-linecap": "round",
-  "stroke-linejoin": "round",
-  "aria-hidden": "true",
+  ...STROKE_ICON_ATTRS,
 } as const;
 
 const svg = (children: any[]) => s("svg", { ...CTRL_ATTRS }, children);
@@ -47,106 +45,90 @@ const iconZoomIn = () =>
     s("line", { x1: "8", y1: "11", x2: "14", y2: "11" }),
   ]);
 
-const iconReset = () =>
-  svg([
-    s("path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" }),
-    s("path", { d: "M3 3v5h5" }),
-  ]);
+const iconReset = () => svg(DIAGRAM_RESET_PATHS.map((d) => s("path", { d })));
 
-function fileLocale(file: VFile): "fr" | "en" {
-  const path = (file.path || file.history[0] || "").replace(/\\/g, "/");
-  return path.includes("/blog/en/") ? "en" : "fr";
-}
+export const remarkDrawio = createRemarkDrawio({
+  locale: (file): "fr" | "en" => {
+    const path = (file?.path || file?.history?.[0] || "").replace(/\\/g, "/");
+    return path.includes("/blog/en/") ? "en" : "fr";
+  },
+  stripLabel: true,
+  render: ({ src, title, locale, body }) => {
+    const t = LABELS[locale];
+    const heading = title || t.label;
 
-export function remarkDrawio() {
-  const transformer: Transformer<Root> = (tree, file) => {
-    const t = LABELS[fileLocale(file)];
+    const toolbar = {
+      type: "paragraph",
+      data: {
+        hName: "div",
+        hProperties: { className: ["drawio-toolbar"] },
+        hChildren: [
+          h("span", { class: "drawio-toolbar__label" }, [iconLabel(), h("span", {}, heading)]),
+          h("div", { class: "drawio-toolbar__actions" }, [
+            h(
+              "button",
+              {
+                type: "button",
+                class: "drawio-btn",
+                "data-drawio-zoom-out": "",
+                "aria-label": t.zoomOut,
+              },
+              [iconZoomOut()],
+            ),
+            h(
+              "span",
+              { class: "drawio-zoom-level tabular-nums", "data-drawio-zoom-level": "" },
+              "100%",
+            ),
+            h(
+              "button",
+              {
+                type: "button",
+                class: "drawio-btn",
+                "data-drawio-zoom-in": "",
+                "aria-label": t.zoomIn,
+              },
+              [iconZoomIn()],
+            ),
+            h(
+              "button",
+              {
+                type: "button",
+                class: "drawio-btn",
+                "data-drawio-reset": "",
+                "aria-label": t.reset,
+              },
+              [iconReset()],
+            ),
+          ]),
+        ],
+      },
+      children: [],
+    };
 
-    visit(tree, "containerDirective", (node: any) => {
-      if (node.name !== "drawio") return;
+    const pan = {
+      type: "paragraph",
+      data: { hName: "div", hProperties: { className: ["drawio-pan"], "data-drawio-pan": "" } },
+      children: body,
+    };
 
-      const attributes = node.attributes || {};
-      const src: string = attributes.src || "";
-      const title: string = attributes.title || t.label;
+    const viewport = {
+      type: "paragraph",
+      data: {
+        hName: "div",
+        hProperties: { className: ["drawio-viewport"], "data-drawio-viewport": "" },
+      },
+      children: [pan],
+    };
 
-      if (node.children[0]?.data?.directiveLabel) node.children.shift();
-
-      const originalChildren = node.children;
-
-      const toolbar = {
-        type: "paragraph",
-        data: {
-          hName: "div",
-          hProperties: { className: ["drawio-toolbar"] },
-          hChildren: [
-            h("span", { class: "drawio-toolbar__label" }, [iconLabel(), h("span", {}, title)]),
-            h("div", { class: "drawio-toolbar__actions" }, [
-              h(
-                "button",
-                {
-                  type: "button",
-                  class: "drawio-btn",
-                  "data-drawio-zoom-out": "",
-                  "aria-label": t.zoomOut,
-                },
-                [iconZoomOut()],
-              ),
-              h(
-                "span",
-                { class: "drawio-zoom-level tabular-nums", "data-drawio-zoom-level": "" },
-                "100%",
-              ),
-              h(
-                "button",
-                {
-                  type: "button",
-                  class: "drawio-btn",
-                  "data-drawio-zoom-in": "",
-                  "aria-label": t.zoomIn,
-                },
-                [iconZoomIn()],
-              ),
-              h(
-                "button",
-                {
-                  type: "button",
-                  class: "drawio-btn",
-                  "data-drawio-reset": "",
-                  "aria-label": t.reset,
-                },
-                [iconReset()],
-              ),
-            ]),
-          ],
-        },
-        children: [],
-      };
-
-      const pan = {
-        type: "paragraph",
-        data: { hName: "div", hProperties: { className: ["drawio-pan"], "data-drawio-pan": "" } },
-        children: originalChildren,
-      };
-
-      const viewport = {
-        type: "paragraph",
-        data: {
-          hName: "div",
-          hProperties: { className: ["drawio-viewport"], "data-drawio-viewport": "" },
-        },
-        children: [pan],
-      };
-
-      node.children = [toolbar as any, viewport as any];
-      node.data = node.data || {};
-      node.data.hName = "figure";
-      node.data.hProperties = {
+    return {
+      hName: "figure",
+      hProperties: {
         className: ["drawio-block", "not-prose"],
         "data-drawio": "",
-        "data-drawio-src": src,
-      };
-    });
-  };
-
-  return transformer;
-}
+        "data-drawio-src": src || "",
+      },
+      children: [toolbar, viewport],
+    };
+  },
+});

@@ -1,63 +1,41 @@
+// Relative path: this module is imported by astro.config.ts, which loads before
+// the @shared alias exists.
 import type { ElementContent } from "hast";
-import type { Root, RootContent } from "mdast";
+import type { Root } from "mdast";
 import { toHast } from "mdast-util-to-hast";
-import type { Plugin, Transformer } from "unified";
-import { visit } from "unist-util-visit";
+import { createRemarkDrawio } from "../../../../shared/markdown/remark-diagram";
 import { cardLocaleFromPath } from "../i18n/cards";
 import { contentStrings } from "../i18n/content";
 import { diagramShell } from "./diagram-hast";
 
-interface DirectiveNode {
-  type: string;
-  name?: string;
-  attributes?: Record<string, string | null | undefined>;
-  children: RootContent[];
-  data?: {
-    hName?: string;
-    hProperties?: Record<string, unknown>;
-    hChildren?: ElementContent[];
-  };
-}
-
-const remarkDrawio: Plugin<[], Root> = () => {
-  const transformer: Transformer<Root> = (tree, file) => {
-    const locale = cardLocaleFromPath(file?.path ?? file?.history?.[0]);
+export default createRemarkDrawio({
+  locale: (file) => cardLocaleFromPath(file?.path ?? file?.history?.[0]),
+  render: ({ src, title, locale, body }) => {
     const strings = contentStrings[locale].diagram;
+    const source = src ?? "";
+    const label = title?.trim();
 
-    visit(tree, (node) => {
-      const directive = node as unknown as DirectiveNode;
-      if (directive.type !== "containerDirective" || directive.name !== "drawio") return;
+    if (!source) {
+      return { hName: "div", hProperties: { class: "diagram-wrap" } };
+    }
 
-      const src = directive.attributes?.src ?? "";
-      const title = directive.attributes?.title?.trim();
-      const data = directive.data ?? (directive.data = {});
+    const fallback = body.flatMap((child) => {
+      const hast = toHast({ type: "root", children: [child] } as Root);
+      return (hast?.type === "root" ? hast.children : []) as ElementContent[];
+    });
 
-      if (!src) {
-        data.hName = "div";
-        data.hProperties = { class: "diagram-wrap" };
-        return;
-      }
-
-      const fallback = directive.children.flatMap((child) => {
-        const hast = toHast({ type: "root", children: [child] } as Root);
-        return (hast?.type === "root" ? hast.children : []) as ElementContent[];
-      });
-
-      data.hName = "div";
-      data.hProperties = { class: "diagram-wrap" };
-      data.hChildren = [
+    return {
+      hName: "div",
+      hProperties: { class: "diagram-wrap" },
+      hChildren: [
         diagramShell({
           kind: "drawio",
-          label: title || strings.drawio,
+          label: label || strings.drawio,
           strings,
-          dataAttributes: { "data-diagram-src": src },
+          dataAttributes: { "data-diagram-src": source },
           fallback,
         }),
-      ];
-    });
-  };
-
-  return transformer;
-};
-
-export default remarkDrawio;
+      ],
+    };
+  },
+});

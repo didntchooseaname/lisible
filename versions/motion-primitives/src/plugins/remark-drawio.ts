@@ -1,6 +1,6 @@
-import type { Root } from "mdast";
-import type { Plugin } from "unified";
-import { visit } from "unist-util-visit";
+// Relative path: this module is imported by astro.config.ts, which loads before
+// the @shared alias exists.
+import { createRemarkDrawio } from "../../../../shared/markdown/remark-diagram";
 import { defaultLocale, type Locale, ui } from "../i18n/ui";
 
 function localeFromPath(filePath: string | undefined): Locale {
@@ -22,31 +22,17 @@ const ICONS = {
 
 let counter = 0;
 
-interface DirectiveNode {
-  type: string;
-  name?: string;
-  attributes?: Record<string, string | null | undefined>;
-  children: Array<Record<string, unknown>>;
-  data?: Record<string, unknown>;
-}
+export default createRemarkDrawio({
+  locale: (file) => localeFromPath(file?.path),
+  render: ({ src, title, locale, body }) => {
+    const dict = ui[locale].drawio;
+    const id = `drawio-${((counter += 1)).toString(36)}`;
+    const label = title || dict.label;
 
-const remarkDrawio: Plugin<[], Root> = () => {
-  return (tree, file) => {
-    const dict = ui[localeFromPath(file?.path)].drawio;
+    const btn = (attr: string, l: string, icon: string) =>
+      `<button type="button" ${attr} class="drawio-btn" title="${l}" aria-label="${l}">${svg(icon)}</button>`;
 
-    visit(tree, (node) => {
-      const directive = node as unknown as DirectiveNode;
-      if (directive.type !== "containerDirective") return;
-      if (directive.name !== "drawio") return;
-
-      const id = `drawio-${((counter += 1)).toString(36)}`;
-      const src = directive.attributes?.src ?? "";
-      const label = directive.attributes?.title || dict.label;
-
-      const btn = (attr: string, l: string, icon: string) =>
-        `<button type="button" ${attr} class="drawio-btn" title="${l}" aria-label="${l}">${svg(icon)}</button>`;
-
-      const toolbar = `<div class="drawio-toolbar">
+    const toolbar = `<div class="drawio-toolbar">
     <span class="drawio-label">${svg(ICONS.grid, 16)}<span>${label}</span></span>
     <div class="drawio-actions">
       ${btn("data-drawio-zoom-out", dict.zoomOut, ICONS.zoomOut)}
@@ -56,20 +42,17 @@ const remarkDrawio: Plugin<[], Root> = () => {
     </div>
   </div>`;
 
-      const hint = `<div class="drawio-hint" data-drawio-hint>${dict.hint}</div>`;
+    const hint = `<div class="drawio-hint" data-drawio-hint>${dict.hint}</div>`;
 
-      const body = directive.children.slice();
-
-      const data = directive.data ?? (directive.data = {});
-      data.hName = "div";
-      data.hProperties = {
+    return {
+      hName: "div",
+      hProperties: {
         class: "drawio-embed",
         id,
         "data-drawio-container": "",
-        "data-drawio-src": src,
-      };
-
-      directive.children = [
+        "data-drawio-src": src ?? "",
+      },
+      children: [
         { type: "html", value: toolbar },
         {
           type: "paragraph",
@@ -84,14 +67,12 @@ const remarkDrawio: Plugin<[], Root> = () => {
                 hName: "div",
                 hProperties: { class: "drawio-pan", "data-drawio-pan": "" },
               },
-              children: body,
+              children: body.slice(),
             },
             { type: "html", value: hint },
           ],
         },
-      ];
-    });
-  };
-};
-
-export default remarkDrawio;
+      ],
+    };
+  },
+});

@@ -1,20 +1,5 @@
+import { createMermaidClient } from "../../../../shared/scripts/mermaid";
 import { setupPanZoom } from "../../../../shared/scripts/pan-zoom";
-
-type MermaidApi = typeof import("mermaid").default;
-
-let mermaidPromise: Promise<MermaidApi> | null = null;
-let renderQueue: Promise<void> = Promise.resolve();
-
-function loadMermaid(): Promise<MermaidApi> {
-  mermaidPromise ??= import("mermaid").then((m) => m.default);
-  return mermaidPromise;
-}
-
-function decode(encoded: string): string {
-  const binary = atob(encoded);
-  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
 
 function isDark(): boolean {
   return document.documentElement.classList.contains("dark");
@@ -23,30 +8,6 @@ function isDark(): boolean {
 function accentColor(): string | undefined {
   const raw = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
   return /^(rgb|hsl|#)/.test(raw) ? raw : undefined;
-}
-
-async function initMermaid(): Promise<MermaidApi> {
-  const mermaid = await loadMermaid();
-  const accent = accentColor();
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: isDark() ? "dark" : "default",
-    fontFamily: "var(--font-sans)",
-    securityLevel: "strict",
-    themeVariables: accent ? { lineColor: accent, primaryBorderColor: accent } : {},
-  });
-  return mermaid;
-}
-
-function prepareSvg(svg: SVGSVGElement) {
-  const viewBox = svg.viewBox.baseVal;
-  if (viewBox?.width && viewBox?.height) {
-    svg.setAttribute("width", `${viewBox.width}`);
-    svg.setAttribute("height", `${viewBox.height}`);
-  }
-  svg.style.display = "block";
-  svg.style.maxWidth = "none";
-  svg.style.maxHeight = "none";
 }
 
 interface Controls {
@@ -128,109 +89,50 @@ function buildChrome(embed: HTMLElement, render: HTMLElement) {
   return { viewport, zoomLevel };
 }
 
-async function renderEmbed(embed: HTMLElement) {
-  const render = embed.querySelector<HTMLElement>("[data-mermaid-render]");
-  const fallback = embed.querySelector<HTMLElement>("[data-mermaid-fallback]");
-  if (!render) return;
-  const encoded = embed.dataset.mermaidSrc ?? "";
-  const code = decode(encoded);
-  if (!code) return;
-
-  try {
-    const mermaid = await initMermaid();
-    const id = `mmd-${Math.random().toString(36).slice(2, 9)}`;
-    const { svg } = await mermaid.render(id, code);
-    render.innerHTML = svg;
-    const svgEl = render.querySelector<SVGSVGElement>("svg");
-    if (svgEl) prepareSvg(svgEl);
-    if (fallback) fallback.hidden = true;
-    const chrome = buildChrome(embed, render);
-    requestAnimationFrame(() => {
-      (chrome.viewport as HTMLElement & { __mzControls?: Controls }).__mzControls?.fit();
-    });
-  } catch (err) {
-    console.error("Mermaid render error:", err);
-    if (fallback) {
-      fallback.hidden = false;
-      fallback.classList.add("mermaid-fallback-error");
-      const label = embed.dataset.labelError;
-      if (label) fallback.setAttribute("data-error", label);
-    }
-  }
-}
-
-async function reRenderEmbed(embed: HTMLElement) {
-  const render = embed.querySelector<HTMLElement>("[data-mermaid-render]");
-  if (!render) return;
-  const encoded = embed.dataset.mermaidSrc ?? "";
-  const code = decode(encoded);
-  if (!code) return;
-  try {
-    const mermaid = await initMermaid();
-    const id = `mmd-${Math.random().toString(36).slice(2, 9)}`;
-    const { svg } = await mermaid.render(id, code);
-    render.innerHTML = svg;
-    const svgEl = render.querySelector<SVGSVGElement>("svg");
-    if (svgEl) prepareSvg(svgEl);
-    const viewport = embed.querySelector<HTMLElement>(".mermaid-viewport");
-    (viewport as HTMLElement & { __mzControls?: Controls })?.__mzControls?.fit();
-  } catch (err) {
-    console.error("Mermaid re-render error:", err);
-  }
-}
-
-function queue(embed: HTMLElement) {
-  if (embed.hasAttribute("data-mermaid-done")) return;
-  embed.setAttribute("data-mermaid-done", "");
-  renderQueue = renderQueue.then(() => renderEmbed(embed));
-}
-
-function observe(embed: HTMLElement) {
-  if (embed.hasAttribute("data-mermaid-done") || embed.hasAttribute("data-mermaid-observed"))
-    return;
-  if (!("IntersectionObserver" in window)) {
-    queue(embed);
-    return;
-  }
-  embed.setAttribute("data-mermaid-observed", "");
-  const io = new IntersectionObserver(
-    (entries) => {
-      if (!entries.some((e) => e.isIntersecting)) return;
-      io.disconnect();
-      embed.removeAttribute("data-mermaid-observed");
-      queue(embed);
-    },
-    { rootMargin: "300px 0px" },
-  );
-  io.observe(embed);
-}
-
-function renderAll() {
-  document.querySelectorAll<HTMLElement>("[data-mermaid]").forEach((embed) => {
+createMermaidClient({
+  load: () => import("mermaid").then((m) => m.default),
+  selector: "[data-mermaid]",
+  renderedAttr: "data-mermaid-done",
+  source: (embed) => embed.dataset.mermaidSrc ?? "",
+  config: () => {
+    const accent = accentColor();
+    return {
+      theme: isDark() ? "dark" : "default",
+      fontFamily: "var(--font-sans)",
+      securityLevel: "strict",
+      themeVariables: accent ? { lineColor: accent, primaryBorderColor: accent } : {},
+    };
+  },
+  diagramId: () => `mmd-${Math.random().toString(36).slice(2, 9)}`,
+  beforeObserve: (embed) => {
     if (!embed.hasAttribute("data-mermaid-done")) {
       const fallback = embed.querySelector<HTMLElement>("[data-mermaid-fallback]");
       if (fallback) fallback.hidden = true;
     }
-    observe(embed);
-  });
-}
-
-let themeTimer: number | null = null;
-function scheduleReRender() {
-  if (themeTimer !== null) window.clearTimeout(themeTimer);
-  themeTimer = window.setTimeout(() => {
-    themeTimer = null;
-    document
-      .querySelectorAll<HTMLElement>("[data-mermaid][data-mermaid-done]")
-      .forEach((embed) => reRenderEmbed(embed));
-  }, 60);
-}
-
-renderAll();
-document.addEventListener("astro:page-load", renderAll);
-
-const themeObserver = new MutationObserver(scheduleReRender);
-themeObserver.observe(document.documentElement, {
-  attributes: true,
-  attributeFilter: ["class", "style"],
+  },
+  onSuccess: ({ container, renderTarget }) => {
+    const fallback = container.querySelector<HTMLElement>("[data-mermaid-fallback]");
+    if (fallback) fallback.hidden = true;
+    const chrome = buildChrome(container, renderTarget);
+    requestAnimationFrame(() => {
+      (chrome.viewport as HTMLElement & { __mzControls?: Controls }).__mzControls?.fit();
+    });
+  },
+  onError: (container, error) => {
+    console.error("Mermaid render error:", error);
+    const fallback = container.querySelector<HTMLElement>("[data-mermaid-fallback]");
+    if (fallback) {
+      fallback.hidden = false;
+      fallback.classList.add("mermaid-fallback-error");
+      const label = container.dataset.labelError;
+      if (label) fallback.setAttribute("data-error", label);
+    }
+  },
+  onReRendered: (container) => {
+    const viewport = container.querySelector<HTMLElement>(".mermaid-viewport");
+    (viewport as (HTMLElement & { __mzControls?: Controls }) | null)?.__mzControls?.fit();
+  },
+  onReRenderError: (error) => console.error("Mermaid re-render error:", error),
+  theme: { debounce: 60, attributeFilter: ["class", "style"] },
+  startup: "eager",
 });

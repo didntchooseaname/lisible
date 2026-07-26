@@ -1,7 +1,11 @@
-import type { Element, Root } from "hast";
+// Relative path: this module is imported by astro.config.ts, which loads before
+// the @shared alias exists.
 import { h, s } from "hastscript";
-import type { Plugin } from "unified";
-import { visit } from "unist-util-visit";
+import {
+  createRehypeHeadingAnchors,
+  HEADING_LINK_PATHS,
+} from "../../../../shared/markdown/rehype-heading-anchors";
+import { STROKE_ICON_ATTRS } from "../../../../shared/markdown/remark-callouts";
 import { defaultLocale, type Locale, ui } from "../i18n/ui";
 
 function localeFromPath(filePath: string | undefined): Locale {
@@ -9,68 +13,43 @@ function localeFromPath(filePath: string | undefined): Locale {
   return defaultLocale;
 }
 
-const HEADINGS = new Set(["h2", "h3", "h4"]);
-
 const linkIcon = () =>
   s(
     "svg",
     {
       class: "heading-anchor-icon",
       viewBox: "0 0 24 24",
-      width: 16,
-      height: 16,
-      fill: "none",
-      stroke: "currentColor",
-      "stroke-width": 2,
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "aria-hidden": "true",
+      width: "16",
+      height: "16",
+      ...STROKE_ICON_ATTRS,
     },
-    [
-      s("path", {
-        d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71",
-      }),
-      s("path", {
-        d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71",
-      }),
-    ],
+    HEADING_LINK_PATHS.map((d) => s("path", { d })),
   );
 
-const rehypeHeadingAnchors: Plugin<[], Root> = () => {
-  return (tree, file) => {
-    const dict = ui[localeFromPath(file?.path)].a11y;
-    const label = dict.headingAnchor;
-    const copied = dict.headingCopied;
-
-    visit(tree, "element", (node: Element) => {
-      if (!HEADINGS.has(node.tagName)) return;
-      const id = node.properties?.id;
-      if (typeof id !== "string" || id.length === 0) return;
-
-      node.properties.class = [
-        ...(Array.isArray(node.properties.class)
-          ? node.properties.class
-          : node.properties.class
-            ? [String(node.properties.class)]
-            : []),
-        "heading-with-anchor",
-      ];
-
-      node.children.push(
-        h(
-          "a",
-          {
-            class: "heading-anchor",
-            href: `#${id}`,
-            "aria-label": label,
-            "data-heading-anchor": "",
-            "data-copied": copied,
-          },
-          [linkIcon()],
-        ),
-      );
-    });
-  };
-};
-
-export default rehypeHeadingAnchors;
+export default createRehypeHeadingAnchors({
+  locale: (file) => localeFromPath(file?.path),
+  decorate: (node) => {
+    node.properties.class = [
+      ...(Array.isArray(node.properties.class)
+        ? node.properties.class
+        : node.properties.class
+          ? [String(node.properties.class)]
+          : []),
+      "heading-with-anchor",
+    ];
+  },
+  anchor: (id, locale) => {
+    const dict = ui[locale].a11y;
+    return h(
+      "a",
+      {
+        class: "heading-anchor",
+        href: `#${id}`,
+        "aria-label": dict.headingAnchor,
+        "data-heading-anchor": "",
+        "data-copied": dict.headingCopied,
+      },
+      [linkIcon()],
+    );
+  },
+});

@@ -1,6 +1,6 @@
-import type { Code, Html, Root } from "mdast";
-import type { Plugin } from "unified";
-import { visit } from "unist-util-visit";
+// Relative path: this module is imported by astro.config.ts, which loads before
+// the @shared alias exists.
+import { createRemarkMermaid } from "../../../../shared/markdown/remark-diagram";
 
 const LABELS = {
   fr: {
@@ -31,36 +31,28 @@ function escapeText(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-const remarkMermaid: Plugin<[], Root> = () => {
-  return (tree, file) => {
-    const locale = file.path?.includes("/blog/en/") ? "en" : "fr";
+export default createRemarkMermaid({
+  locale: (file): "fr" | "en" => (file?.path?.includes("/blog/en/") ? "en" : "fr"),
+  render: ({ code, encoded, locale }) => {
     const labels = LABELS[locale];
+    const attrs = [
+      `class="mermaid-embed not-prose"`,
+      `data-mermaid`,
+      `data-mermaid-src="${encoded}"`,
+      `data-label-diagram="${escapeAttr(labels.diagram)}"`,
+      `data-label-zoomin="${escapeAttr(labels.zoomIn)}"`,
+      `data-label-zoomout="${escapeAttr(labels.zoomOut)}"`,
+      `data-label-reset="${escapeAttr(labels.reset)}"`,
+      `data-label-error="${escapeAttr(labels.error)}"`,
+    ].join(" ");
 
-    visit(tree, "code", (node: Code) => {
-      if (node.lang !== "mermaid") return;
-      const encoded = Buffer.from(node.value, "utf-8").toString("base64");
-      const attrs = [
-        `class="mermaid-embed not-prose"`,
-        `data-mermaid`,
-        `data-mermaid-src="${encoded}"`,
-        `data-label-diagram="${escapeAttr(labels.diagram)}"`,
-        `data-label-zoomin="${escapeAttr(labels.zoomIn)}"`,
-        `data-label-zoomout="${escapeAttr(labels.zoomOut)}"`,
-        `data-label-reset="${escapeAttr(labels.reset)}"`,
-        `data-label-error="${escapeAttr(labels.error)}"`,
-      ].join(" ");
-
-      const html =
+    return {
+      kind: "html",
+      value:
         `<div ${attrs}>` +
         `<div class="mermaid-render" data-mermaid-render></div>` +
-        `<div class="mermaid-fallback" data-mermaid-fallback>${escapeText(node.value)}</div>` +
-        `</div>`;
-
-      const htmlNode = node as unknown as Html;
-      htmlNode.type = "html";
-      htmlNode.value = html;
-    });
-  };
-};
-
-export default remarkMermaid;
+        `<div class="mermaid-fallback" data-mermaid-fallback>${escapeText(code)}</div>` +
+        `</div>`,
+    };
+  },
+});

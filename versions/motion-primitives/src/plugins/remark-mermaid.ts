@@ -1,6 +1,6 @@
-import type { Code, Root } from "mdast";
-import type { Plugin } from "unified";
-import { visit } from "unist-util-visit";
+// Relative path: this module is imported by astro.config.ts, which loads before
+// the @shared alias exists.
+import { createRemarkMermaid } from "../../../../shared/markdown/remark-diagram";
 import { defaultLocale, type Locale, ui } from "../i18n/ui";
 
 function localeFromPath(filePath: string | undefined): Locale {
@@ -23,14 +23,19 @@ const ICONS = {
 
 let counter = 0;
 
-function containerHtml(code: string, locale: Locale): string {
-  const dict = ui[locale].mermaid;
-  const id = `mermaid-${((counter += 1)).toString(36)}`;
-  const encoded = Buffer.from(code, "utf-8").toString("base64");
-  const btn = (attr: string, label: string, icon: string) =>
-    `<button type="button" ${attr} class="mermaid-btn" title="${label}" aria-label="${label}">${svg(icon)}</button>`;
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
 
-  return `<div class="mermaid-embed not-prose" data-mermaid-container id="${id}">
+export default createRemarkMermaid({
+  locale: (file) => localeFromPath(file?.path),
+  render: ({ code, encoded, locale }) => {
+    const dict = ui[locale].mermaid;
+    const id = `mermaid-${((counter += 1)).toString(36)}`;
+    const btn = (attr: string, label: string, icon: string) =>
+      `<button type="button" ${attr} class="mermaid-btn" title="${label}" aria-label="${label}">${svg(icon)}</button>`;
+
+    const value = `<div class="mermaid-embed not-prose" data-mermaid-container id="${id}">
   <div class="mermaid-toolbar">
     <span class="mermaid-label">${svg(ICONS.grid, 16)}<span>${dict.label}</span></span>
     <div class="mermaid-actions">
@@ -51,25 +56,7 @@ function containerHtml(code: string, locale: Locale): string {
   <pre class="mermaid-fallback" data-mermaid-fallback hidden>${escapeHtml(code)}</pre>
   <div data-mermaid-source="${encoded}" hidden></div>
 </div>`;
-}
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-const remarkMermaid: Plugin<[], Root> = () => {
-  return (tree, file) => {
-    const locale = localeFromPath(file?.path);
-    visit(tree, "code", (node: Code) => {
-      if (node.lang !== "mermaid") return;
-      const html = containerHtml(node.value, locale);
-      const target = node as unknown as { type: string; value: string; lang?: null; meta?: null };
-      target.type = "html";
-      target.value = html;
-      target.lang = null;
-      target.meta = null;
-    });
-  };
-};
-
-export default remarkMermaid;
+    return { kind: "html", value };
+  },
+});

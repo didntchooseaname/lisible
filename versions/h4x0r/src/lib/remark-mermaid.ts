@@ -1,45 +1,30 @@
+// Relative path: this module is imported by astro.config.ts, which loads before
+// the @shared alias exists.
 import { h } from "hastscript";
-import type { Code, Paragraph, Root } from "mdast";
-import type { Plugin, Transformer } from "unified";
-import { visit } from "unist-util-visit";
+import { createRemarkMermaid } from "../../../../shared/markdown/remark-diagram";
 import { cardLocaleFromPath } from "../i18n/cards";
 import { contentStrings } from "../i18n/content";
 import { diagramShell } from "./diagram-hast";
 
-const remarkMermaid: Plugin<[], Root> = () => {
-  const transformer: Transformer<Root> = (tree, file) => {
-    const locale = cardLocaleFromPath(file?.path ?? file?.history?.[0]);
+export default createRemarkMermaid({
+  locale: (file) => cardLocaleFromPath(file?.path ?? file?.history?.[0]),
+  render: ({ code, encoded, locale }) => {
     const strings = contentStrings[locale].diagram;
 
-    visit(tree, "code", (node: Code, index, parent) => {
-      if (node.lang !== "mermaid" || parent === undefined || index === undefined) return;
-
-      const source = node.value ?? "";
-      const encoded = Buffer.from(source, "utf8").toString("base64");
-
-      const replacement = {
-        type: "paragraph",
-        children: [],
-        data: {
-          hName: "div",
-          hProperties: { class: "diagram-wrap" },
-          hChildren: [
-            diagramShell({
-              kind: "mermaid",
-              label: strings.mermaid,
-              strings,
-              dataAttributes: { "data-diagram-source": encoded },
-              fallback: [h("div", { class: "mermaid-source" }, source)],
-            }),
-          ],
-        },
-      } as unknown as Paragraph;
-
-      parent.children[index] = replacement;
-    });
-  };
-
-  return transformer;
-};
-
-export default remarkMermaid;
+    return {
+      kind: "element",
+      nodeType: "paragraph",
+      hName: "div",
+      hProperties: { class: "diagram-wrap" },
+      hChildren: [
+        diagramShell({
+          kind: "mermaid",
+          label: strings.mermaid,
+          strings,
+          dataAttributes: { "data-diagram-source": encoded },
+          fallback: [h("div", { class: "mermaid-source" }, code)],
+        }),
+      ],
+    };
+  },
+});
