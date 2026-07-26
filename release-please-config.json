@@ -1,7 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-  "release-type": "node",
-  "include-component-in-tag": false,
   "changelog-sections": [
     { "type": "feat", "section": "Features" },
     { "type": "fix", "section": "Bug fixes" },
@@ -10,8 +8,19 @@
     { "type": "docs", "section": "Documentation" },
     { "type": "chore", "section": "Maintenance" }
   ],
+  "plugins": [
+    {
+      "type": "linked-versions",
+      "groupName": "cli",
+      "components": ["lisible", "create-lisible"]
+    },
+    { "type": "node-workspace" }
+  ],
   "packages": {
     ".": {
+      "release-type": "node",
+      "component": "framework",
+      "include-component-in-tag": false,
       "extra-files": [
         "versions/_core/package.json",
         "versions/aceternity/package.json",
@@ -21,6 +30,14 @@
         "versions/organique/package.json",
         "versions/reactbits/package.json"
       ]
+    },
+    "packages/lisible": {
+      "release-type": "node",
+      "component": "lisible"
+    },
+    "packages/create-lisible": {
+      "release-type": "node",
+      "component": "create-lisible"
     }
   }
 }

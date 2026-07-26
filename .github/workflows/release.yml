@@ -11,8 +11,39 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      lisible_released: ${{ steps.release.outputs['packages/lisible--release_created'] }}
+      create_lisible_released: ${{ steps.release.outputs['packages/create-lisible--release_created'] }}
     steps:
       - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4
+        id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  publish-npm:
+    name: publish to npm
+    needs: release-please
+    if: ${{ needs.release-please.outputs.lisible_released == 'true' || needs.release-please.outputs.create_lisible_released == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Publish lisible
+        if: ${{ needs.release-please.outputs.lisible_released == 'true' }}
+        working-directory: packages/lisible
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
+
+      - name: Publish create-lisible
+        if: ${{ needs.release-please.outputs.create_lisible_released == 'true' }}
+        working-directory: packages/create-lisible
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
