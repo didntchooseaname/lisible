@@ -27,6 +27,8 @@ class ImageLightbox {
   private focusTrap: ReturnType<typeof createFocusTrap> | null = null;
   private globalSetup = false;
   private clickHandlers = new WeakMap<HTMLImageElement, (e: Event) => void>();
+  private keyHandlers = new WeakMap<HTMLImageElement, (event: KeyboardEvent) => void>();
+  private lastTrigger: HTMLElement | null = null;
 
   init() {
     this.cleanupImageHandlers();
@@ -69,6 +71,13 @@ class ImageLightbox {
 
     this.images.forEach((img, index) => {
       img.style.cursor = "zoom-in";
+      img.tabIndex = 0;
+      img.setAttribute("role", "button");
+      if (!img.getAttribute("aria-label")) {
+        const lang = document.documentElement.lang === "en" ? "en" : "fr";
+        const base = lang === "en" ? "Enlarge image" : "Agrandir l'image";
+        img.setAttribute("aria-label", img.alt ? `${base}: ${img.alt}` : base);
+      }
       const handler = (e: Event) => {
         e.preventDefault();
         e.stopPropagation();
@@ -76,6 +85,14 @@ class ImageLightbox {
       };
       this.clickHandlers.set(img, handler);
       img.addEventListener("click", handler);
+      const keyHandler = (event: KeyboardEvent) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          this.openLightbox(index);
+        }
+      };
+      this.keyHandlers.set(img, keyHandler);
+      img.addEventListener("keydown", keyHandler);
     });
 
     if (this.totalImagesEl) {
@@ -143,6 +160,7 @@ class ImageLightbox {
   }
 
   openLightbox(index: number) {
+    this.lastTrigger = this.images[index] ?? null;
     this.currentIndex = index;
     this.updateImage();
     this.lightbox?.removeAttribute("hidden");
@@ -160,6 +178,7 @@ class ImageLightbox {
     document.body.style.overflow = "";
     this.resetZoom();
     this.focusTrap?.deactivate();
+    this.lastTrigger?.focus();
   }
 
   preloadAdjacent() {
@@ -303,6 +322,14 @@ class ImageLightbox {
         img.removeEventListener("click", handler);
         this.clickHandlers.delete(img);
       }
+      const keyHandler = this.keyHandlers.get(img);
+      if (keyHandler) {
+        img.removeEventListener("keydown", keyHandler);
+        this.keyHandlers.delete(img);
+      }
+      img.removeAttribute("tabindex");
+      img.removeAttribute("role");
+      img.removeAttribute("aria-label");
       img.style.cursor = "";
     });
     this.images = [];
