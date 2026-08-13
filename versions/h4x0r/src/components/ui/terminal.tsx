@@ -278,7 +278,11 @@ export const Terminal = ({
         </div>
       </div>
       <pre className="p-4">
-        <code className="grid gap-y-1 overflow-auto">{wrappedChildren}</code>
+        {/* tabindex: the animated transcript can overflow, and a scrollable
+            region must stay reachable with the keyboard. */}
+        <code className="grid gap-y-1 overflow-auto" tabIndex={0}>
+          {wrappedChildren}
+        </code>
       </pre>
     </div>
   );
