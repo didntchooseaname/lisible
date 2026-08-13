@@ -11,3 +11,8 @@ node_modules
 !.env.example
 *.7z
 *.log
+.drift-baseline.json
+docs/previews
+e2e
+test-results
+tests
