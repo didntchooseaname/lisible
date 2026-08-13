@@ -94,7 +94,24 @@ const jsonLd = {
   ogImagePath={ogImagePath}
 >
   <JsonLd slot="head" data={jsonLd} />
-  {hasMath && <link slot="head" rel="stylesheet" href="/katex/katex.min.css" />}
+  {
+    /* Deferred: math sits below the fold, so the stylesheet must not block
+       first paint; print media loads async, then applies to all. */
+    hasMath && (
+      <link
+        slot="head"
+        rel="stylesheet"
+        href="/katex/katex.min.css"
+        media="print"
+        onload="this.media='all'"
+      />
+    )
+  }
+  {hasMath && (
+    <noscript>
+      <link slot="head" rel="stylesheet" href="/katex/katex.min.css" />
+    </noscript>
+  )}
 
   
   <div class="wave-progress" aria-hidden="true">

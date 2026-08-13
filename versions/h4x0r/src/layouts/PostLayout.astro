@@ -93,7 +93,15 @@ const jsonLd = {
 >
   <Fragment slot="head">
     <JsonLd data={jsonLd} />
-    {withMath && <link rel="stylesheet" href="/katex/katex.min.css" />}
+    {withMath && <link
+      rel="stylesheet"
+      href="/katex/katex.min.css"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="/katex/katex.min.css" />
+    </noscript>}
   </Fragment>
 
   

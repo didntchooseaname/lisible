@@ -108,7 +108,16 @@ const jsonLd = {
   <JsonLd slot="head" data={jsonLd} />
   {
     hasMath && (
-      <link slot="head" rel="stylesheet" href="/katex/katex.min.css" />
+      <link
+        slot="head"
+        rel="stylesheet"
+        href="/katex/katex.min.css"
+        media="print"
+        onload="this.media='all'"
+      />
+      <noscript>
+        <link slot="head" rel="stylesheet" href="/katex/katex.min.css" />
+      </noscript>
     )
   }
 
