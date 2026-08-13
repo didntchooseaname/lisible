@@ -71,6 +71,10 @@ const iconAttrs = {
       id="search-input"
       name="search"
       data-search-input
+      role={palette ? "combobox" : undefined}
+      aria-expanded={palette ? "true" : undefined}
+      aria-controls={palette ? "palette-listbox" : undefined}
+      aria-autocomplete={palette ? "list" : undefined}
       placeholder={palette ? p.placeholder : dict.search.placeholder}
       aria-label={palette ? p.placeholder : dict.search.title}
       autocomplete="off"
@@ -89,28 +93,34 @@ const iconAttrs = {
     </button>
   </div>
 
-  <div data-palette-results class="max-h-[60vh] overflow-y-auto p-2">
+  <div
+    id="palette-listbox"
+    data-palette-results
+    role={palette ? "listbox" : undefined}
+    aria-label={palette ? dict.search.title : undefined}
+    class="max-h-[60vh] overflow-y-auto p-2"
+  >
     {
       palette && (
         <>
-          <div data-section="actions">
-            <p data-section-title class="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div data-section="actions" role="group" aria-label={p.actionsSection}>
+            <p data-section-title aria-hidden="true" class="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {p.actionsSection}
             </p>
-            <button type="button" data-cmd-item data-action="theme" data-cmd-text={p.toggleTheme.toLowerCase()} class={itemClass}>
+            <button type="button" data-cmd-item role="option" aria-selected="false" data-action="theme" data-cmd-text={p.toggleTheme.toLowerCase()} class={itemClass}>
               <svg {...iconAttrs}>
                 <circle cx="12" cy="12" r="4" />
                 <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
               </svg>
               <span>{p.toggleTheme}</span>
             </button>
-            <a data-cmd-item href={langHref} data-cmd-text={p.changeLang.toLowerCase()} class={itemClass}>
+            <a data-cmd-item role="option" aria-selected="false" href={langHref} data-cmd-text={p.changeLang.toLowerCase()} class={itemClass}>
               <svg {...iconAttrs}>
                 <path d="M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6" />
               </svg>
               <span>{p.changeLang}</span>
             </a>
-            <button type="button" data-cmd-item data-action="accent" data-cmd-text={p.resetAccent.toLowerCase()} class={itemClass}>
+            <button type="button" data-cmd-item role="option" aria-selected="false" data-action="accent" data-cmd-text={p.resetAccent.toLowerCase()} class={itemClass}>
               <svg {...iconAttrs}>
                 <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
                 <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
@@ -120,14 +130,14 @@ const iconAttrs = {
               </svg>
               <span>{p.resetAccent}</span>
             </button>
-            <button type="button" data-cmd-item data-action="copy-url" data-cmd-text={p.copyUrl.toLowerCase()} class={itemClass}>
+            <button type="button" data-cmd-item role="option" aria-selected="false" data-action="copy-url" data-cmd-text={p.copyUrl.toLowerCase()} class={itemClass}>
               <svg {...iconAttrs}>
                 <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                 <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
               </svg>
               <span>{p.copyUrl}</span>
             </button>
-            <a data-cmd-item href={rssHref} data-cmd-text={p.openRss.toLowerCase()} class={itemClass}>
+            <a data-cmd-item role="option" aria-selected="false" href={rssHref} data-cmd-text={p.openRss.toLowerCase()} class={itemClass}>
               <svg {...iconAttrs}>
                 <path d="M4 11a9 9 0 0 1 9 9" />
                 <path d="M4 4a16 16 0 0 1 16 16" />
@@ -137,12 +147,12 @@ const iconAttrs = {
             </a>
           </div>
 
-          <div data-section="nav">
-            <p data-section-title class="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div data-section="nav" role="group" aria-label={p.navSection}>
+            <p data-section-title aria-hidden="true" class="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {p.navSection}
             </p>
             {navItems.map((item) => (
-              <a data-cmd-item href={item.href} data-cmd-text={item.label.toLowerCase()} class={itemClass}>
+              <a data-cmd-item role="option" aria-selected="false" href={item.href} data-cmd-text={item.label.toLowerCase()} class={itemClass}>
                 <svg {...iconAttrs}>
                   <path d="M5 12h14M13 6l6 6-6 6" />
                 </svg>
@@ -154,16 +164,16 @@ const iconAttrs = {
       )
     }
 
-    <div data-section="articles" hidden>
+    <div data-section="articles" role={palette ? "group" : undefined} aria-label={palette ? p.searchSection : undefined} hidden>
       {palette && (
-        <p data-section-title class="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <p data-section-title aria-hidden="true" class="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           {p.searchSection}
         </p>
       )}
-      <div data-search-results></div>
+      <div data-search-results role={palette ? "presentation" : undefined}></div>
     </div>
 
-    <p data-cmd-message class="px-3 py-6 text-center text-sm text-muted-foreground">
+    <p data-cmd-message aria-hidden="true" class="px-3 py-6 text-center text-sm text-muted-foreground">
       {palette ? p.hint : dict.search.hint}
     </p>
   </div>
@@ -194,6 +204,7 @@ const iconAttrs = {
   let pagefind: PagefindModule | null = null;
   let loadFailed = false;
   let activeIndex = -1;
+  let optionIdSeq = 0;
 
   function getModal(): HTMLDialogElement | null {
     return document.querySelector<HTMLDialogElement>("[data-search-modal]");
@@ -209,16 +220,25 @@ const iconAttrs = {
   }
   function setActive(modal: HTMLDialogElement, index: number) {
     const items = getItems(modal);
-    for (const el of modal.querySelectorAll<HTMLElement>("[data-cmd-item][data-active]")) {
+    const palette = isPalette(modal);
+    const input = modal.querySelector<HTMLInputElement>("[data-search-input]");
+    for (const el of modal.querySelectorAll<HTMLElement>("[data-cmd-item]")) {
       el.removeAttribute("data-active");
+      if (palette) el.setAttribute("aria-selected", "false");
     }
     if (items.length === 0) {
       activeIndex = -1;
+      if (palette) input?.removeAttribute("aria-activedescendant");
       return;
     }
     activeIndex = ((index % items.length) + items.length) % items.length;
     const el = items[activeIndex];
     el.setAttribute("data-active", "");
+    if (palette) {
+      el.setAttribute("aria-selected", "true");
+      if (!el.id) el.id = `palette-option-${++optionIdSeq}`;
+      input?.setAttribute("aria-activedescendant", el.id);
+    }
     el.scrollIntoView({ block: "nearest" });
   }
 
@@ -287,6 +307,10 @@ const iconAttrs = {
       const link = document.createElement("a");
       link.href = result.url;
       link.setAttribute("data-cmd-item", "");
+      if (isPalette(modal)) {
+        link.setAttribute("role", "option");
+        link.setAttribute("aria-selected", "false");
+      }
       link.dataset.cmdText = (result.meta.title ?? "").toLowerCase();
       link.className = "flex flex-col gap-0.5 rounded-md px-3 py-2 transition-colors";
       const title = document.createElement("span");

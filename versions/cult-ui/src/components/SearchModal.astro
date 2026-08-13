@@ -39,6 +39,10 @@ const dict = t(locale);
       id="search-input"
       name="search"
       data-search-input
+      role="combobox"
+      aria-expanded="true"
+      aria-controls="palette-listbox"
+      aria-autocomplete="list"
       placeholder={dict.search.placeholder}
       aria-label={dict.search.title}
       autocomplete="off"
@@ -67,7 +71,13 @@ const dict = t(locale);
       </svg>
     </button>
   </div>
-  <div data-search-results class="max-h-[50vh] overflow-y-auto p-2">
-    <p class="px-3 py-6 text-center text-sm text-muted-foreground">{dict.search.hint}</p>
+  <div
+    id="palette-listbox"
+    role="listbox"
+    aria-label={dict.search.title}
+    data-search-results
+    class="max-h-[50vh] overflow-y-auto p-2"
+  >
+    <p aria-hidden="true" class="px-3 py-6 text-center text-sm text-muted-foreground">{dict.search.hint}</p>
   </div>
 </dialog>

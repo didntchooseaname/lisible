@@ -71,6 +71,10 @@ const navCommands: Cmd[] = [
       id="search-input"
       name="search"
       data-search-input
+      role={palette ? "combobox" : undefined}
+      aria-expanded={palette ? "true" : undefined}
+      aria-controls={palette ? "palette-listbox" : undefined}
+      aria-autocomplete={palette ? "list" : undefined}
       placeholder={dict.search.placeholder}
       aria-label={dict.search.title}
       autocomplete="off"
@@ -89,21 +93,26 @@ const navCommands: Cmd[] = [
     </button>
   </div>
 
-  <div class="max-h-[55vh] overflow-y-auto p-2">
-    
-    <div data-search-results>
-      <p class="palette-empty">{dict.search.hint}</p>
+  <div
+    id="palette-listbox"
+    role={palette ? "listbox" : undefined}
+    aria-label={palette ? dict.search.title : undefined}
+    class="max-h-[55vh] overflow-y-auto p-2"
+  >
+
+    <div data-search-results role={palette ? "group" : undefined} aria-label={palette ? dict.palette.searchSection : undefined}>
+      <p class="palette-empty" aria-hidden="true">{dict.search.hint}</p>
     </div>
 
     {
       palette && (
-        <div data-palette-commands>
-          <section class="palette-section" data-palette-group>
-            <p class="palette-section__title">{dict.palette.actionsSection}</p>
-            <ul>
+        <div data-palette-commands role="presentation">
+          <section class="palette-section" data-palette-group role="group" aria-label={dict.palette.actionsSection}>
+            <p class="palette-section__title" aria-hidden="true">{dict.palette.actionsSection}</p>
+            <ul role="presentation">
               {actions.map((a) => (
-                <li>
-                  <button type="button" class="palette-item" data-palette-item data-cmd={a.cmd} data-keywords={a.keywords}>
+                <li role="presentation">
+                  <button type="button" class="palette-item" data-palette-item role="option" aria-selected="false" data-cmd={a.cmd} data-keywords={a.keywords}>
                     <span class="palette-item__icon" set:html={a.icon} />
                     <span class="palette-item__label">{a.label}</span>
                   </button>
@@ -111,12 +120,12 @@ const navCommands: Cmd[] = [
               ))}
             </ul>
           </section>
-          <section class="palette-section" data-palette-group>
-            <p class="palette-section__title">{dict.palette.navSection}</p>
-            <ul>
+          <section class="palette-section" data-palette-group role="group" aria-label={dict.palette.navSection}>
+            <p class="palette-section__title" aria-hidden="true">{dict.palette.navSection}</p>
+            <ul role="presentation">
               {navCommands.map((n) => (
-                <li>
-                  <a class="palette-item" href={n.href} data-palette-item data-cmd={n.cmd} data-keywords={n.keywords}>
+                <li role="presentation">
+                  <a class="palette-item" href={n.href} data-palette-item role="option" aria-selected="false" data-cmd={n.cmd} data-keywords={n.keywords}>
                     <span class="palette-item__icon" set:html={n.icon} />
                     <span class="palette-item__label">{n.label}</span>
                   </a>
@@ -156,6 +165,7 @@ const navCommands: Cmd[] = [
   let pagefind: PagefindModule | null = null;
   let loadFailed = false;
   let activeIndex = -1;
+  let optionIdSeq = 0;
 
   function getModal(): HTMLDialogElement | null {
     return document.querySelector<HTMLDialogElement>("[data-search-modal]");
@@ -179,6 +189,9 @@ const navCommands: Cmd[] = [
     container.innerHTML = "";
     const p = document.createElement("p");
     p.className = "palette-empty";
+    // Voiced through announce(); kept out of the a11y tree so it is never an
+    // invalid child of the results listbox in palette mode.
+    p.setAttribute("aria-hidden", "true");
     p.textContent = message;
     container.appendChild(p);
   }
@@ -191,14 +204,25 @@ const navCommands: Cmd[] = [
 
   function setActive(modal: HTMLDialogElement, index: number) {
     const items = navigable(modal);
-    items.forEach((el) => el.classList.remove("is-active"));
+    const palette = isPalette(modal);
+    const input = getInput(modal);
+    items.forEach((el) => {
+      el.classList.remove("is-active");
+      if (palette) el.setAttribute("aria-selected", "false");
+    });
     if (items.length === 0) {
       activeIndex = -1;
+      if (palette) input?.removeAttribute("aria-activedescendant");
       return;
     }
     activeIndex = ((index % items.length) + items.length) % items.length;
     const el = items[activeIndex];
     el.classList.add("is-active");
+    if (palette) {
+      el.setAttribute("aria-selected", "true");
+      if (!el.id) el.id = `palette-option-${++optionIdSeq}`;
+      input?.setAttribute("aria-activedescendant", el.id);
+    }
     el.scrollIntoView({ block: "nearest" });
   }
 
@@ -293,17 +317,24 @@ const navCommands: Cmd[] = [
     if (isPalette(modal)) {
       const title = document.createElement("p");
       title.className = "palette-section__title";
+      title.setAttribute("aria-hidden", "true");
       title.textContent = modal.dataset.searchSection ?? "";
       container.appendChild(title);
     }
 
     const list = document.createElement("ul");
+    list.setAttribute("role", "presentation");
     for (const result of results) {
       const item = document.createElement("li");
+      item.setAttribute("role", "presentation");
       const link = document.createElement("a");
       link.href = result.url;
       link.className = "palette-item palette-item--result";
       link.setAttribute("data-result", "");
+      if (isPalette(modal)) {
+        link.setAttribute("role", "option");
+        link.setAttribute("aria-selected", "false");
+      }
       const body = document.createElement("span");
       body.className = "palette-item__label";
       const title = document.createElement("span");

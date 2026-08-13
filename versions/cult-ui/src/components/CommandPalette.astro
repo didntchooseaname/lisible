@@ -119,16 +119,16 @@ const navItems = [
     class="max-h-[min(60vh,32rem)] overflow-y-auto p-2"
   >
     
-    <section data-cp-section="results" hidden>
-      <p class="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <section data-cp-section="results" role="group" aria-label={dict.palette.sectionResults} hidden>
+      <p aria-hidden="true" class="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {dict.palette.sectionResults}
       </p>
-      <div data-cp-results></div>
+      <div data-cp-results role="presentation"></div>
     </section>
 
     
-    <section data-cp-section="actions">
-      <p class="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <section data-cp-section="actions" role="group" aria-label={dict.palette.sectionActions}>
+      <p aria-hidden="true" class="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {dict.palette.sectionActions}
       </p>
       <button
@@ -182,8 +182,8 @@ const navItems = [
     </section>
 
     
-    <section data-cp-section="nav">
-      <p class="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <section data-cp-section="nav" role="group" aria-label={dict.palette.sectionNav}>
+      <p aria-hidden="true" class="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {dict.palette.sectionNav}
       </p>
       {
@@ -216,7 +216,7 @@ const navItems = [
       </a>
     </section>
 
-    <p data-cp-empty hidden class="px-3 py-6 text-center text-sm text-muted-foreground">
+    <p data-cp-empty hidden aria-hidden="true" class="px-3 py-6 text-center text-sm text-muted-foreground">
       {dict.palette.noResults}
     </p>
   </div>

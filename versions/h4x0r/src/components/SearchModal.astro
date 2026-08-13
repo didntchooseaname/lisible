@@ -117,6 +117,10 @@ const navEntries = [
       id="search-input"
       name="search"
       data-search-input
+      role={FEATURES.commandPalette ? "combobox" : undefined}
+      aria-expanded={FEATURES.commandPalette ? "true" : undefined}
+      aria-controls={FEATURES.commandPalette ? "palette-listbox" : undefined}
+      aria-autocomplete={FEATURES.commandPalette ? "list" : undefined}
       placeholder={dict.search.placeholder}
       aria-label={dict.search.title}
       autocomplete="off"
@@ -146,18 +150,25 @@ const navEntries = [
     </button>
   </div>
 
-  <div class="max-h-[60vh] overflow-y-auto">
+  <div
+    id="palette-listbox"
+    role={FEATURES.commandPalette ? "listbox" : undefined}
+    aria-label={FEATURES.commandPalette ? dict.search.title : undefined}
+    class="max-h-[60vh] overflow-y-auto"
+  >
     {
       FEATURES.commandPalette && (
-        <div data-palette class="border-b border-border/60 p-2">
+        <div data-palette role="presentation" class="border-b border-border/60 p-2">
           <p class="palette-section" data-palette-group-label aria-hidden="true">
             {palette.actions}
           </p>
-          <div data-palette-group>
+          <div data-palette-group role="group" aria-label={palette.actions}>
             {actions.map((entry) => (
               <button
                 type="button"
                 data-palette-item
+                role="option"
+                aria-selected="false"
                 data-palette-action={entry.action}
                 data-href={entry.href}
                 data-label={entry.label}
@@ -186,11 +197,13 @@ const navEntries = [
           <p class="palette-section mt-1" data-palette-group-label aria-hidden="true">
             {palette.navigation}
           </p>
-          <div data-palette-group>
+          <div data-palette-group role="group" aria-label={palette.navigation}>
             {navEntries.map((entry) => (
               <a
                 href={entry.href}
                 data-palette-item
+                role="option"
+                aria-selected="false"
                 data-label={entry.label}
                 class={itemClass}
               >
@@ -204,8 +217,8 @@ const navEntries = [
         </div>
       )
     }
-    <div data-search-results class="p-2">
-      <p class="px-3 py-6 text-center text-sm text-muted-foreground">{dict.search.hint}</p>
+    <div data-search-results role={FEATURES.commandPalette ? "group" : undefined} aria-label={FEATURES.commandPalette ? palette.results : undefined} class="p-2">
+      <p aria-hidden={FEATURES.commandPalette ? "true" : undefined} class="px-3 py-6 text-center text-sm text-muted-foreground">{dict.search.hint}</p>
     </div>
   </div>
 </dialog>
@@ -247,6 +260,9 @@ const navEntries = [
     if (!container) return;
     container.innerHTML = "";
     const p = document.createElement("p");
+    // In palette mode this container is a listbox descendant; the hint is
+    // voiced through announce(), so keep it out of the a11y tree.
+    if (__FEATURE_COMMAND_PALETTE__) p.setAttribute("aria-hidden", "true");
     p.className = "px-3 py-6 text-center text-sm text-muted-foreground";
     p.textContent = message;
     container.appendChild(p);
@@ -314,9 +330,11 @@ const navEntries = [
     announce((modal.dataset.resultsCount ?? "").replace("{n}", String(results.length)));
 
     const list = document.createElement("ul");
+    if (__FEATURE_COMMAND_PALETTE__) list.setAttribute("role", "presentation");
     list.className = "flex flex-col gap-1";
     for (const result of results) {
       const item = document.createElement("li");
+      if (__FEATURE_COMMAND_PALETTE__) item.setAttribute("role", "presentation");
       const link = document.createElement("a");
       link.href = result.url;
       link.className =
@@ -376,6 +394,7 @@ const navEntries = [
   });
 
   if (__FEATURE_COMMAND_PALETTE__) {
+    let optionIdSeq = 0;
     const normalize = (text: string): string =>
       text
         .normalize("NFD")
@@ -407,20 +426,20 @@ const navEntries = [
 
     const setActive = (modal: HTMLDialogElement, index: number): void => {
       const items = visibleItems(modal);
-      items.forEach((item, i) => item.classList.toggle("is-active", i === index));
+      const input = modal.querySelector("[data-search-input]");
+      items.forEach((item, i) => {
+        item.classList.toggle("is-active", i === index);
+        item.setAttribute("aria-selected", i === index ? "true" : "false");
+      });
       const active = items[index];
       if (active) {
         if (!active.id) {
-          active.id = `palette-item-${Math.random().toString(36).slice(2, 8)}`;
+          active.id = `palette-option-${++optionIdSeq}`;
         }
-        modal
-          .querySelector("[data-search-input]")
-          ?.setAttribute("aria-activedescendant", active.id);
+        input?.setAttribute("aria-activedescendant", active.id);
         active.scrollIntoView({ block: "nearest" });
       } else {
-        modal
-          .querySelector("[data-search-input]")
-          ?.removeAttribute("aria-activedescendant");
+        input?.removeAttribute("aria-activedescendant");
       }
     };
 
@@ -479,6 +498,8 @@ const navEntries = [
     };
     paletteDecorate = (link) => {
       link.setAttribute("data-palette-item", "");
+      link.setAttribute("role", "option");
+      link.setAttribute("aria-selected", "false");
       link.classList.add("palette-item");
     };
     paletteHeading = (modal, container) => {

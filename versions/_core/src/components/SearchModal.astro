@@ -115,6 +115,10 @@ const iconPaths: Record<string, string> = {
       id="search-input"
       name="search"
       data-search-input
+      role="combobox"
+      aria-expanded="true"
+      aria-controls="palette-listbox"
+      aria-autocomplete="list"
       placeholder={dict.search.placeholder}
       aria-label={palette ? dict.palette.title : dict.search.title}
       autocomplete="off"
@@ -144,14 +148,20 @@ const iconPaths: Record<string, string> = {
     </button>
   </div>
 
-  <div data-palette-scroll class="max-h-[60vh] overflow-y-auto p-2">
+  <div
+    id="palette-listbox"
+    role="listbox"
+    aria-label={palette ? dict.palette.title : dict.search.title}
+    data-palette-scroll
+    class="max-h-[60vh] overflow-y-auto p-2"
+  >
     {
       palette && (
-        <section data-actions-section>
-          <p class="palette-group px-3 pb-1 pt-2">{dict.palette.actionsGroup}</p>
-          <ul role="listbox" aria-label={dict.palette.actionsGroup} class="flex flex-col gap-0.5">
+        <section data-actions-section role="group" aria-label={dict.palette.actionsGroup}>
+          <p aria-hidden="true" class="palette-group px-3 pb-1 pt-2">{dict.palette.actionsGroup}</p>
+          <ul role="presentation" class="flex flex-col gap-0.5">
             {actions.map((action) => (
-              <li data-action-item>
+              <li data-action-item role="presentation">
                 {action.kind === "run" ? (
                   <button
                     type="button"
@@ -209,10 +219,10 @@ const iconPaths: Record<string, string> = {
       )
     }
 
-    <section data-results-section>
-      {palette && <p class="palette-group px-3 pb-1 pt-2" data-results-heading hidden>{dict.palette.resultsGroup}</p>}
-      <div data-search-results>
-        <p class="px-3 py-6 text-center text-sm text-muted-foreground">{dict.search.hint}</p>
+    <section data-results-section role="group" aria-label={dict.palette.resultsGroup}>
+      {palette && <p aria-hidden="true" class="palette-group px-3 pb-1 pt-2" data-results-heading hidden>{dict.palette.resultsGroup}</p>}
+      <div data-search-results role="presentation">
+        <p aria-hidden="true" class="px-3 py-6 text-center text-sm text-muted-foreground">{dict.search.hint}</p>
       </div>
     </section>
   </div>
@@ -241,6 +251,7 @@ const iconPaths: Record<string, string> = {
   let pagefind: PagefindModule | null = null;
   let loadFailed = false;
   let activeIndex = -1;
+  let optionIdSeq = 0;
 
   function getModal(): HTMLDialogElement | null {
     return document.querySelector<HTMLDialogElement>("[data-search-modal]");
@@ -259,6 +270,9 @@ const iconPaths: Record<string, string> = {
     if (!container) return;
     container.innerHTML = "";
     const p = document.createElement("p");
+    // Voiced through announce(); kept out of the a11y tree so it is never an
+    // invalid direct child of the results listbox.
+    p.setAttribute("aria-hidden", "true");
     p.className = "px-3 py-6 text-center text-sm text-muted-foreground";
     p.textContent = message;
     container.appendChild(p);
@@ -277,6 +291,7 @@ const iconPaths: Record<string, string> = {
   }
 
   function setActive(modal: HTMLDialogElement, index: number) {
+    const input = modal.querySelector<HTMLInputElement>("[data-search-input]");
     modal.querySelectorAll<HTMLElement>("[data-palette-item]").forEach((el) => {
       el.removeAttribute("data-active");
       el.setAttribute("aria-selected", "false");
@@ -284,12 +299,15 @@ const iconPaths: Record<string, string> = {
     const items = visibleItems(modal);
     if (items.length === 0) {
       activeIndex = -1;
+      input?.removeAttribute("aria-activedescendant");
       return;
     }
     activeIndex = ((index % items.length) + items.length) % items.length;
     const current = items[activeIndex];
     current.setAttribute("data-active", "");
     current.setAttribute("aria-selected", "true");
+    if (!current.id) current.id = `palette-option-${++optionIdSeq}`;
+    input?.setAttribute("aria-activedescendant", current.id);
     current.scrollIntoView({ block: "nearest" });
   }
 
@@ -335,6 +353,7 @@ const iconPaths: Record<string, string> = {
     if (container) {
       container.innerHTML = "";
       const p = document.createElement("p");
+      p.setAttribute("aria-hidden", "true");
       p.className = "px-3 py-6 text-center text-sm text-muted-foreground";
       p.textContent = modal.dataset.hint ?? "";
       container.appendChild(p);
@@ -382,9 +401,11 @@ const iconPaths: Record<string, string> = {
     }
 
     const list = document.createElement("ul");
+    list.setAttribute("role", "presentation");
     list.className = "flex flex-col gap-1";
     for (const result of results) {
       const item = document.createElement("li");
+      item.setAttribute("role", "presentation");
       const link = document.createElement("a");
       link.href = result.url;
       link.setAttribute("data-palette-item", "");

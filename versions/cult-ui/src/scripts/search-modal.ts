@@ -30,6 +30,9 @@ function renderMessage(modal: HTMLDialogElement, message: string) {
   if (!container) return;
   container.innerHTML = "";
   const p = document.createElement("p");
+  // Hints and empty states are voiced through announce(); a bare paragraph is
+  // not a valid listbox child, so keep it out of the accessibility tree.
+  p.setAttribute("aria-hidden", "true");
   p.className = "px-3 py-6 text-center text-sm text-muted-foreground";
   p.textContent = message;
   container.appendChild(p);
@@ -86,11 +89,15 @@ async function runSearch(input: HTMLInputElement): Promise<void> {
   }
 
   const list = document.createElement("ul");
+  list.setAttribute("role", "presentation");
   list.className = "flex flex-col gap-1";
   for (const result of results) {
     const item = document.createElement("li");
+    item.setAttribute("role", "presentation");
     const link = document.createElement("a");
     link.href = result.url;
+    link.setAttribute("role", "option");
+    link.setAttribute("aria-selected", "false");
     link.className =
       "block rounded-md px-3 py-2.5 transition-colors hover:bg-secondary focus-visible:bg-secondary";
     const title = document.createElement("span");

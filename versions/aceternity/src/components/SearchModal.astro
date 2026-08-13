@@ -93,7 +93,8 @@ const itemClass =
       autocomplete="off"
       role={palette ? "combobox" : undefined}
       aria-expanded={palette ? "true" : undefined}
-      aria-controls={palette ? "palette-body" : undefined}
+      aria-controls={palette ? "palette-listbox" : undefined}
+      aria-autocomplete={palette ? "list" : undefined}
       class="h-12 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground"
     />
     <button
@@ -120,22 +121,30 @@ const itemClass =
     </button>
   </div>
 
-  <div id="palette-body" data-search-results class="max-h-[50vh] overflow-y-auto p-2">
-    
-    <div data-palette-articles hidden>
-      <p class={headingClass}>{dict.palette.resultsHeading}</p>
-      <div data-palette-articles-list class="flex flex-col gap-0.5"></div>
+  <div
+    id="palette-listbox"
+    data-search-results
+    role={palette ? "listbox" : undefined}
+    aria-label={palette ? dict.search.title : undefined}
+    class="max-h-[50vh] overflow-y-auto p-2"
+  >
+
+    <div data-palette-articles role={palette ? "group" : undefined} aria-label={palette ? dict.palette.resultsHeading : undefined} hidden>
+      <p aria-hidden="true" class={headingClass}>{dict.palette.resultsHeading}</p>
+      <div data-palette-articles-list role={palette ? "presentation" : undefined} class="flex flex-col gap-0.5"></div>
     </div>
 
     {
       palette ? (
         <>
-          <div data-palette-section>
-            <p class={headingClass}>{dict.palette.actionsHeading}</p>
+          <div data-palette-section role="group" aria-label={dict.palette.actionsHeading}>
+            <p aria-hidden="true" class={headingClass}>{dict.palette.actionsHeading}</p>
             {actions.map((item) => (
               <button
                 type="button"
                 data-palette-item
+                role="option"
+                aria-selected="false"
                 data-action={item.action}
                 data-keywords={`${item.label} ${item.keywords}`.toLowerCase()}
                 class={itemClass}
@@ -148,6 +157,8 @@ const itemClass =
               <a
                 href={item.href}
                 data-palette-item
+                role="option"
+                aria-selected="false"
                 data-external={item.external ? "true" : undefined}
                 data-keywords={`${item.label} ${item.keywords}`.toLowerCase()}
                 class={itemClass}
@@ -158,12 +169,14 @@ const itemClass =
             ))}
           </div>
 
-          <div data-palette-section>
-            <p class={headingClass}>{dict.palette.navHeading}</p>
+          <div data-palette-section role="group" aria-label={dict.palette.navHeading}>
+            <p aria-hidden="true" class={headingClass}>{dict.palette.navHeading}</p>
             {navItems.map((item) => (
               <a
                 href={item.href}
                 data-palette-item
+                role="option"
+                aria-selected="false"
                 data-keywords={`${item.label} ${item.keywords}`.toLowerCase()}
                 class={itemClass}
               >
@@ -205,6 +218,7 @@ const itemClass =
   let pagefind: PagefindModule | null = null;
   let loadFailed = false;
   let activeIndex = -1;
+  let optionIdSeq = 0;
 
   function getModal(): HTMLDialogElement | null {
     return document.querySelector<HTMLDialogElement>("[data-search-modal]");
@@ -229,6 +243,9 @@ const itemClass =
     if (!notice) {
       notice = document.createElement("p");
       notice.setAttribute("data-palette-empty", "");
+      // Voiced through announce(); kept out of the a11y tree so it is never an
+      // invalid child of the results listbox in palette mode.
+      notice.setAttribute("aria-hidden", "true");
       notice.className = "px-3 py-6 text-center text-sm text-muted-foreground";
       container.appendChild(notice);
     }
@@ -244,14 +261,25 @@ const itemClass =
 
   function setActive(modal: HTMLDialogElement, index: number) {
     const items = visibleItems(modal);
-    items.forEach((el) => el.removeAttribute("data-active"));
+    const palette = isPalette(modal);
+    const input = modal.querySelector<HTMLInputElement>("[data-search-input]");
+    items.forEach((el) => {
+      el.removeAttribute("data-active");
+      if (palette) el.setAttribute("aria-selected", "false");
+    });
     if (items.length === 0) {
       activeIndex = -1;
+      if (palette) input?.removeAttribute("aria-activedescendant");
       return;
     }
     activeIndex = ((index % items.length) + items.length) % items.length;
     const el = items[activeIndex];
     el.setAttribute("data-active", "true");
+    if (palette) {
+      el.setAttribute("aria-selected", "true");
+      if (!el.id) el.id = `palette-option-${++optionIdSeq}`;
+      input?.setAttribute("aria-activedescendant", el.id);
+    }
     el.scrollIntoView({ block: "nearest" });
   }
 
@@ -322,6 +350,10 @@ const itemClass =
         const link = document.createElement("a");
         link.href = result.url;
         link.setAttribute("data-palette-item", "");
+        if (isPalette(modal)) {
+          link.setAttribute("role", "option");
+          link.setAttribute("aria-selected", "false");
+        }
         link.className =
           "block rounded-md px-3 py-2.5 transition-colors data-[active=true]:bg-secondary";
         const title = document.createElement("span");
