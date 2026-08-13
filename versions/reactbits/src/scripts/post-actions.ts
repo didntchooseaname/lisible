@@ -1,5 +1,22 @@
 const MASTODON_KEY = "mastodon-instance";
 
+// Local copy of shared/scripts/announce: inline scripts cannot import.
+let live: HTMLElement | null = null;
+function announce(message: string): void {
+  if (!live?.isConnected) {
+    live = document.createElement("p");
+    live.setAttribute("role", "status");
+    live.style.cssText =
+      "position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0";
+    document.body.append(live);
+  }
+  live.textContent = "";
+  const region = live;
+  window.setTimeout(() => {
+    region.textContent = message;
+  }, 30);
+}
+
 async function copyText(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
@@ -48,7 +65,10 @@ function init(): void {
       const source = container.querySelector<HTMLTextAreaElement>("[data-markdown-source]");
       if (source) {
         void copyText(source.value).then((ok) => {
-          if (ok) flash(mdButton, container.dataset.mdCopied ?? "");
+          if (!ok) return;
+          const copied = container.dataset.mdCopied ?? "";
+          flash(mdButton, copied);
+          if (copied) announce(copied);
         });
       }
       return;
@@ -61,6 +81,8 @@ function init(): void {
         if (!ok) return;
         copyButton.classList.add("is-copied");
         window.setTimeout(() => copyButton.classList.remove("is-copied"), 1600);
+        const copied = container.dataset.copied;
+        if (copied) announce(copied);
       });
       return;
     }

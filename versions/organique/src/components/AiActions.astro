@@ -75,6 +75,23 @@ const chatgptUrl = `https://chatgpt.com/?q=${encodeURIComponent(query)}`;
 </details>
 
 <script>
+  // Local copy of shared/scripts/announce: inline scripts cannot import.
+  let live: HTMLElement | null = null;
+  function announce(message: string): void {
+    if (!live?.isConnected) {
+      live = document.createElement("p");
+      live.setAttribute("role", "status");
+      live.style.cssText =
+        "position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0";
+      document.body.append(live);
+    }
+    live.textContent = "";
+    const region = live;
+    window.setTimeout(() => {
+      region.textContent = message;
+    }, 30);
+  }
+
   async function copyMarkdown(button: HTMLButtonElement): Promise<void> {
     const path = button.dataset.md;
     if (!path) return;
@@ -85,6 +102,7 @@ const chatgptUrl = `https://chatgpt.com/?q=${encodeURIComponent(query)}`;
       const res = await fetch(path);
       const text = await res.text();
       await navigator.clipboard.writeText(text);
+      if (copied) announce(copied);
       if (label && copied) {
         label.textContent = copied;
         window.setTimeout(() => {

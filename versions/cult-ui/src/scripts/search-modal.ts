@@ -1,3 +1,5 @@
+import { announce } from "../../../../shared/scripts/announce";
+
 // Pagefind is emitted into dist/ at build time; keep the specifier out of
 // static resolution so it is looked up at runtime only.
 const PAGEFIND_URL = "/pagefind/pagefind.js";
@@ -79,6 +81,7 @@ async function runSearch(input: HTMLInputElement): Promise<void> {
 
   if (results.length === 0) {
     renderMessage(modal, modal.dataset.noResults ?? "");
+    announce(modal.dataset.noResults ?? "");
     return;
   }
 
@@ -102,6 +105,7 @@ async function runSearch(input: HTMLInputElement): Promise<void> {
   }
   container.innerHTML = "";
   container.appendChild(list);
+  announce((modal.dataset.resultsCount ?? "").replace("{n}", String(results.length)));
 }
 
 document.addEventListener("click", (event) => {
@@ -141,5 +145,3 @@ document.addEventListener("input", (event) => {
 document.addEventListener("astro:before-swap", () => {
   getModal()?.close();
 });
-
-export {};

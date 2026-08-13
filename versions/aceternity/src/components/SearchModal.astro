@@ -48,6 +48,7 @@ const itemClass =
   aria-label={dict.search.title}
   data-hint={palette ? dict.palette.hint : dict.search.hint}
   data-no-results={dict.search.noResults}
+  data-results-count={dict.search.resultsCount}
   data-dev-notice={dict.search.devNotice}
   data-copied={dict.palette.copied}
 >
@@ -168,6 +169,8 @@ const itemClass =
 </dialog>
 
 <script>
+  import { announce } from "@shared/scripts/announce";
+
   const PAGEFIND_URL = "/pagefind/pagefind.js";
   type PagefindResult = {
     data: () => Promise<{
@@ -326,6 +329,11 @@ const itemClass =
     } else {
       modal.querySelector<HTMLElement>("[data-palette-empty]")?.remove();
     }
+    if (results.length === 0) {
+      announce(modal.dataset.noResults ?? "");
+    } else {
+      announce((modal.dataset.resultsCount ?? "").replace("{n}", String(results.length)));
+    }
     setActive(modal, 0);
   }
 
@@ -358,7 +366,11 @@ const itemClass =
     } else if (action === "copy-url") {
       void navigator.clipboard
         ?.writeText(window.location.href)
-        .then(() => flashCopied(item, modal.dataset.copied ?? ""))
+        .then(() => {
+          const copied = modal.dataset.copied ?? "";
+          flashCopied(item, copied);
+          if (copied) announce(copied);
+        })
         .catch(() => {});
     }
   }

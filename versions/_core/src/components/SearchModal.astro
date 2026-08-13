@@ -69,6 +69,7 @@ const iconPaths: Record<string, string> = {
   aria-label={palette ? dict.palette.title : dict.search.title}
   data-hint={dict.search.hint}
   data-no-results={dict.search.noResults}
+  data-results-count={dict.search.resultsCount}
   data-dev-notice={dict.search.devNotice}
   data-url-copied={dict.palette.urlCopied}
 >
@@ -198,6 +199,8 @@ const iconPaths: Record<string, string> = {
 </dialog>
 
 <script>
+  import { announce } from "@shared/scripts/announce";
+
   const PAGEFIND_URL = "/pagefind/pagefind.js";
   type PagefindResult = {
     data: () => Promise<{
@@ -353,6 +356,7 @@ const iconPaths: Record<string, string> = {
 
     if (results.length === 0) {
       renderMessage(modal, modal.dataset.noResults ?? "");
+      announce(modal.dataset.noResults ?? "");
       setActive(modal, actionsShown > 0 ? 0 : -1);
       return;
     }
@@ -381,6 +385,7 @@ const iconPaths: Record<string, string> = {
     container.appendChild(list);
     toggleResultsHeading(modal, true);
     setActive(modal, 0);
+    announce((modal.dataset.resultsCount ?? "").replace("{n}", String(results.length)));
   }
 
   function runAction(button: HTMLElement): void {
@@ -396,9 +401,11 @@ const iconPaths: Record<string, string> = {
       (window as { __applyAccent?: () => void }).__applyAccent?.();
       modal?.close();
     } else if (action === "copyurl") {
-      void navigator.clipboard?.writeText(window.location.href);
-      const label = button.querySelector<HTMLElement>("[data-run-label]");
       const copied = modal?.dataset.urlCopied ?? "";
+      void navigator.clipboard?.writeText(window.location.href).then(() => {
+        if (copied) announce(copied);
+      });
+      const label = button.querySelector<HTMLElement>("[data-run-label]");
       if (label) {
         const original = label.textContent;
         label.textContent = copied;

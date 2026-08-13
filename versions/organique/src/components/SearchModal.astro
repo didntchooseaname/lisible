@@ -70,6 +70,7 @@ function navArrowIcon(): string {
   aria-label={dict.search.title}
   data-hint={palette ? dict.palette.hint : dict.search.hint}
   data-no-results={palette ? dict.palette.empty : dict.search.noResults}
+  data-results-count={dict.search.resultsCount}
   data-dev-notice={dict.search.devNotice}
   data-url-copied={dict.palette.urlCopied}
   data-search-label={dict.palette.searchGroup}
@@ -186,6 +187,8 @@ function navArrowIcon(): string {
 </dialog>
 
 <script>
+  import { announce } from "@shared/scripts/announce";
+
   const PAGEFIND_URL = "/pagefind/pagefind.js";
   type PagefindResult = {
     data: () => Promise<{
@@ -363,9 +366,11 @@ function navArrowIcon(): string {
       if (!paletteMode || visibleItems(modal).length === 0) {
         renderMessage(modal, modal.dataset.noResults ?? "");
       }
+      announce(modal.dataset.noResults ?? "");
       setActive(modal, 0);
       return;
     }
+    announce((modal.dataset.resultsCount ?? "").replace("{n}", String(results.length)));
 
     const group = document.createElement("div");
     group.className = "palette-group";
@@ -419,7 +424,11 @@ function navArrowIcon(): string {
         modal.close();
         break;
       case "copy-url":
-        void navigator.clipboard?.writeText(location.href).then(() => flashCopied(el, modal));
+        void navigator.clipboard?.writeText(location.href).then(() => {
+          flashCopied(el, modal);
+          const copied = modal.dataset.urlCopied;
+          if (copied) announce(copied);
+        });
         break;
       default:
         break;

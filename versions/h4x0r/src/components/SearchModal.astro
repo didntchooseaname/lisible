@@ -66,6 +66,7 @@ const navEntries = [
   aria-label={dict.search.title}
   data-hint={dict.search.hint}
   data-no-results={dict.search.noResults}
+  data-results-count={dict.search.resultsCount}
   data-dev-notice={dict.search.devNotice}
   data-results-label={palette.results}
   class="relative"
@@ -199,6 +200,7 @@ const navEntries = [
 
 <script>
   import { navigate } from "astro:transitions/client";
+  import { announce } from "@shared/scripts/announce";
 
   type PagefindResult = {
     data: () => Promise<{
@@ -294,8 +296,10 @@ const navEntries = [
 
     if (results.length === 0) {
       renderMessage(modal, modal.dataset.noResults ?? "");
+      announce(modal.dataset.noResults ?? "");
       return;
     }
+    announce((modal.dataset.resultsCount ?? "").replace("{n}", String(results.length)));
 
     const list = document.createElement("ul");
     list.className = "flex flex-col gap-1";
@@ -446,7 +450,9 @@ const navEntries = [
         void navigator.clipboard
           .writeText(window.location.href)
           .then(() => {
-            if (label) label.textContent = item.dataset.copiedLabel ?? original;
+            const copied = item.dataset.copiedLabel ?? "";
+            if (label) label.textContent = copied || original;
+            if (copied) announce(copied);
             window.setTimeout(() => {
               if (label) label.textContent = original;
             }, 1500);

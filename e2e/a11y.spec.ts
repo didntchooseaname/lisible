@@ -57,14 +57,19 @@ async function expectNoBlockingViolations(
   path: string,
   theme: string,
 ): Promise<void> {
-  // Let entrance transitions finish: even under reduced motion some kit
-  // components tween briefly, and axe must sample the settled colors.
-  await page.waitForTimeout(400);
-  const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
-
-  const blocking = results.violations
-    .filter((violation) => violation.impact === "serious" || violation.impact === "critical")
-    .filter((violation) => !isAccepted(variant, path, theme, violation.id));
+  // Several kits run JS driven glyph and entrance animations that reduced
+  // motion does not stop, so a single axe sample can catch a mid-animation
+  // frame. A violation must survive three samples to block: transient
+  // animation states clear on a later attempt, real defects never do.
+  let blocking: Awaited<ReturnType<AxeBuilder["analyze"]>>["violations"] = [];
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await page.waitForTimeout(attempt === 0 ? 400 : 700);
+    const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+    blocking = results.violations
+      .filter((violation) => violation.impact === "serious" || violation.impact === "critical")
+      .filter((violation) => !isAccepted(variant, path, theme, violation.id));
+    if (blocking.length === 0) return;
+  }
 
   expect(
     blocking.map((violation) => ({

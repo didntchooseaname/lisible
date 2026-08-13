@@ -2,6 +2,23 @@ function copiedLabel(): string {
   return document.querySelector("article")?.getAttribute("data-anchor-copied") || "Copied";
 }
 
+// Local copy of shared/scripts/announce: inline scripts cannot import.
+let live: HTMLElement | null = null;
+function announce(message: string): void {
+  if (!live?.isConnected) {
+    live = document.createElement("p");
+    live.setAttribute("role", "status");
+    live.style.cssText =
+      "position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0";
+    document.body.append(live);
+  }
+  live.textContent = "";
+  const region = live;
+  window.setTimeout(() => {
+    region.textContent = message;
+  }, 30);
+}
+
 function showToast(anchor: HTMLElement, label: string) {
   const heading = anchor.closest("h2, h3, h4");
   if (!heading) return;
@@ -27,7 +44,9 @@ function onClick(event: MouseEvent) {
   const url = `${location.origin}${location.pathname}#${id}`;
 
   const done = () => {
-    showToast(anchor, copiedLabel());
+    const label = copiedLabel();
+    showToast(anchor, label);
+    announce(label);
     history.replaceState(null, "", `#${id}`);
   };
 

@@ -1,5 +1,10 @@
+import { announce } from "../../../../shared/scripts/announce";
 import { createMermaidClient } from "../../../../shared/scripts/mermaid";
 import { setupPanZoom } from "../../../../shared/scripts/pan-zoom";
+
+// The diagram markup only carries an aria-label for the copy button, so the
+// screen reader confirmation keeps its own locale pair.
+const COPY_FEEDBACK = { fr: "Copié", en: "Copied" } as const;
 
 function isDark(): boolean {
   return document.documentElement.classList.contains("dark");
@@ -90,6 +95,7 @@ createMermaidClient({
         await navigator.clipboard.writeText(code);
         copyBtn.classList.add("is-copied");
         setTimeout(() => copyBtn.classList.remove("is-copied"), 1500);
+        announce(document.documentElement.lang === "en" ? COPY_FEEDBACK.en : COPY_FEEDBACK.fr);
       } catch {}
     });
   },

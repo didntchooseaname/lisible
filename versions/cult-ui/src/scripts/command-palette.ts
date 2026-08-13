@@ -1,3 +1,5 @@
+import { announce } from "../../../../shared/scripts/announce";
+
 // Pagefind is emitted into dist/ at build time; keep the specifier out of
 // static resolution so it is looked up at runtime only.
 const PAGEFIND_URL = "/pagefind/pagefind.js";
@@ -126,7 +128,9 @@ async function runSearch(query: string) {
   container.innerHTML = "";
   if (results.length === 0) {
     section.hidden = true;
+    announce(root.dataset.noResults ?? "");
   } else {
+    announce((root.dataset.resultsCount ?? "").replace("{n}", String(results.length)));
     section.hidden = false;
     results.forEach((result, i) => {
       const link = document.createElement("a");
@@ -182,10 +186,12 @@ async function copyUrl() {
   const root = palette();
   try {
     await navigator.clipboard.writeText(window.location.href);
+    const copied = root?.dataset.copied ?? "";
+    if (copied) announce(copied);
     const label = root?.querySelector<HTMLElement>("[data-cp-copy-label]");
     if (label && root) {
       const original = label.textContent;
-      label.textContent = root.dataset.copied ?? "";
+      label.textContent = copied;
       window.setTimeout(() => {
         label.textContent = original;
       }, 1500);
@@ -296,5 +302,3 @@ document.addEventListener("astro:page-load", bind);
 document.addEventListener("astro:before-swap", () => palette()?.close());
 
 bind();
-
-export {};

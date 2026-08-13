@@ -42,6 +42,7 @@ const navCommands: Cmd[] = [
   aria-label={dict.search.title}
   data-hint={dict.search.hint}
   data-no-results={dict.search.noResults}
+  data-results-count={dict.search.resultsCount}
   data-dev-notice={dict.search.devNotice}
   data-url-copied={dict.palette.urlCopied}
   data-search-section={dict.palette.searchSection}
@@ -120,6 +121,7 @@ const navCommands: Cmd[] = [
 <script>
   const PAGEFIND_URL = "/pagefind/pagefind.js";
   import { navigate } from "astro:transitions/client";
+  import { announce } from "@shared/scripts/announce";
 
   type PagefindResult = {
     data: () => Promise<{
@@ -268,9 +270,11 @@ const navCommands: Cmd[] = [
     container.innerHTML = "";
     if (results.length === 0) {
       if (!isPalette(modal)) renderMessage(modal, modal.dataset.noResults ?? "");
+      announce(modal.dataset.noResults ?? "");
       setActive(modal, 0);
       return;
     }
+    announce((modal.dataset.resultsCount ?? "").replace("{n}", String(results.length)));
 
     if (isPalette(modal)) {
       const title = document.createElement("p");
@@ -348,10 +352,12 @@ const navCommands: Cmd[] = [
     if (cmd === "copy-url") {
       void copyText(window.location.href).then((ok) => {
         if (!ok) return;
+        const copied = modal.dataset.urlCopied ?? "";
+        if (copied) announce(copied);
         const label = item.querySelector<HTMLElement>(".palette-item__label");
         if (!label) return;
         const previous = label.textContent;
-        label.textContent = modal.dataset.urlCopied ?? "";
+        label.textContent = copied;
         item.classList.add("is-done");
         window.setTimeout(() => {
           label.textContent = previous;

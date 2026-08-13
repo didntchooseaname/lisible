@@ -45,6 +45,7 @@ const iconAttrs = {
   aria-label={palette ? p.placeholder : dict.search.title}
   data-hint={palette ? p.hint : dict.search.hint}
   data-no-results={palette ? p.noResults : dict.search.noResults}
+  data-results-count={dict.search.resultsCount}
   data-dev-notice={dict.search.devNotice}
   data-copied-url={p.copiedUrl}
 >
@@ -166,6 +167,8 @@ const iconAttrs = {
 </style>
 
 <script>
+  import { announce } from "@shared/scripts/announce";
+
   const PAGEFIND_URL = "/pagefind/pagefind.js";
   type PagefindResult = {
     data: () => Promise<{ url: string; excerpt: string; meta: { title?: string } }>;
@@ -264,8 +267,10 @@ const iconAttrs = {
     const results = await Promise.all(search.results.slice(0, 8).map((r) => r.data()));
     if (results.length === 0) {
       section.hidden = true;
+      announce(modal.dataset.noResults ?? "");
       return 0;
     }
+    announce((modal.dataset.resultsCount ?? "").replace("{n}", String(results.length)));
     for (const result of results) {
       const link = document.createElement("a");
       link.href = result.url;
@@ -330,8 +335,14 @@ const iconAttrs = {
       return;
     }
     if (action === "copy-url") {
-      void navigator.clipboard?.writeText(window.location.href).catch(() => {});
-      showMessage(modal, modal.dataset.copiedUrl ?? "");
+      const copied = modal.dataset.copiedUrl ?? "";
+      void navigator.clipboard
+        ?.writeText(window.location.href)
+        .then(() => {
+          if (copied) announce(copied);
+        })
+        .catch(() => {});
+      showMessage(modal, copied);
       return;
     }
     el.click();

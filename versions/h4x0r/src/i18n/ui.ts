@@ -78,6 +78,7 @@ const fr = {
     placeholder: "Rechercher un article...",
     hint: "Tapez pour rechercher dans les articles.",
     noResults: "Aucun résultat.",
+    resultsCount: "{n} résultat(s)",
     devNotice:
       "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
   },
@@ -299,6 +300,7 @@ const en: Dict = {
     placeholder: "Search articles...",
     hint: "Type to search the articles.",
     noResults: "No results.",
+    resultsCount: "{n} result(s)",
     devNotice: "Search is indexed at build time: run bun run build then bun run preview to try it.",
   },
   newsletter: {

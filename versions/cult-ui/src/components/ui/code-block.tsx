@@ -291,6 +291,9 @@ export function CodeBlock({
           </AnimatePresence>
         </pre>
       </div>
+      <span aria-live="polite" className="sr-only">
+        {copied ? copiedLabel : ""}
+      </span>
     </div>
   );
 }

@@ -66,6 +66,23 @@ const iconClass =
 <script>
   const MASTODON_KEY = "mastodon-instance";
 
+  // Local copy of shared/scripts/announce: inline scripts cannot import.
+  let live: HTMLElement | null = null;
+  function announce(message: string): void {
+    if (!live?.isConnected) {
+      live = document.createElement("p");
+      live.setAttribute("role", "status");
+      live.style.cssText =
+        "position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0";
+      document.body.append(live);
+    }
+    live.textContent = "";
+    const region = live;
+    window.setTimeout(() => {
+      region.textContent = message;
+    }, 30);
+  }
+
   function normalizeInstance(raw: string): string | null {
     let value = raw.trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
     if (!value) return null;
@@ -94,6 +111,8 @@ const iconClass =
       await navigator.clipboard.writeText(url);
       button.classList.add("text-accent", "border-accent");
       window.setTimeout(() => button.classList.remove("text-accent", "border-accent"), 1600);
+      const copied = root.dataset.copiedLabel;
+      if (copied) announce(copied);
     } catch {
     }
   }

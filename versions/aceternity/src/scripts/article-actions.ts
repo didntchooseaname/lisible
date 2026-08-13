@@ -1,5 +1,22 @@
 const MASTODON_KEY = "mastodon-instance";
 
+// Local copy of shared/scripts/announce: inline scripts cannot import.
+let live: HTMLElement | null = null;
+function announce(message: string): void {
+  if (!live?.isConnected) {
+    live = document.createElement("p");
+    live.setAttribute("role", "status");
+    live.style.cssText =
+      "position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0";
+    document.body.append(live);
+  }
+  live.textContent = "";
+  const region = live;
+  window.setTimeout(() => {
+    region.textContent = message;
+  }, 30);
+}
+
 function flashLabel(
   el: HTMLElement,
   labelEl: HTMLElement | null,
@@ -35,7 +52,10 @@ async function handleCopyMarkdown(button: HTMLElement) {
     const response = await fetch(url);
     const markdown = await response.text();
     const ok = await copyText(markdown);
-    if (ok) flashLabel(button, labelEl, done, idle);
+    if (ok) {
+      flashLabel(button, labelEl, done, idle);
+      if (done) announce(done);
+    }
   } catch {}
 }
 
@@ -45,6 +65,7 @@ async function handleCopyLink(button: HTMLElement) {
   const idle = button.getAttribute("data-label") ?? "";
   const ok = await copyText(url);
   if (!ok) return;
+  if (done) announce(done);
   const previous = button.getAttribute("aria-label");
   button.setAttribute("aria-label", done);
   button.setAttribute("data-done", "true");
