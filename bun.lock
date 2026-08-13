@@ -83,7 +83,7 @@
         "katex": "^0.18.4",
         "lucide-react": "^1.31.0",
         "mermaid": "^11.16.1",
-        "motion": "^12.42.2",
+        "motion": "^13.1.0",
         "open-graph-scraper": "^6.12.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
@@ -131,7 +131,7 @@
         "katex": "^0.18.4",
         "lucide-react": "^1.31.0",
         "mermaid": "^11.16.1",
-        "motion": "^12.42.2",
+        "motion": "^13.1.0",
         "open-graph-scraper": "^6.12.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
@@ -178,7 +178,7 @@
         "katex": "^0.18.4",
         "lucide-react": "^1.31.0",
         "mermaid": "^11.16.1",
-        "motion": "^12.42.2",
+        "motion": "^13.1.0",
         "open-graph-scraper": "^6.12.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
@@ -232,7 +232,7 @@
         "lucide-react": "^1.31.0",
         "mdast-util-to-hast": "^13.2.1",
         "mermaid": "^11.16.1",
-        "motion": "^12.42.2",
+        "motion": "^13.1.0",
         "open-graph-scraper": "^6.12.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
@@ -280,7 +280,7 @@
         "katex": "^0.18.4",
         "lucide-react": "^1.31.0",
         "mermaid": "^11.16.1",
-        "motion": "^12.42.2",
+        "motion": "^13.1.0",
         "open-graph-scraper": "^6.12.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
@@ -325,7 +325,7 @@
         "katex": "^0.18.4",
         "lucide-react": "^1.31.0",
         "mermaid": "^11.16.1",
-        "motion": "^12.42.2",
+        "motion": "^13.1.0",
         "open-graph-scraper": "^6.12.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
@@ -373,7 +373,7 @@
         "katex": "^0.18.4",
         "lucide-react": "^1.31.0",
         "mermaid": "^11.16.1",
-        "motion": "^12.42.2",
+        "motion": "^13.1.0",
         "open-graph-scraper": "^6.12.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
@@ -1346,7 +1346,7 @@
 
     "fontkitten": ["fontkitten@1.0.3", "", { "dependencies": { "tiny-inflate": "^1.0.3" } }, "sha512-Wp1zXWPVUPBmfoa3Cqc9ctaKuzKAV6uLstRqlR56kSjplf5uAce+qeyYym7F+PHbGTk+tCEdkCW6RD7DX/gBZw=="],
 
-    "framer-motion": ["framer-motion@12.42.2", "", { "dependencies": { "motion-dom": "^12.42.2", "motion-utils": "^12.39.0", "tslib": "^2.4.0" }, "peerDependencies": { "@emotion/is-prop-valid": "*", "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@emotion/is-prop-valid", "react", "react-dom"] }, "sha512-5XY9luDiu0oHfHBjpDthFMh0ES+122w6p/papSJBweMkO8Sn+PW2QaEgRblQBpWFnuvZS5qvarpt/hO2pjGmnw=="],
+    "framer-motion": ["framer-motion@13.1.0", "", { "dependencies": { "motion-dom": "^13.0.0", "motion-utils": "^13.0.0", "tslib": "^2.4.0" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["react", "react-dom"] }, "sha512-QSZrF0Id3QGuHJ+OL+9PSY9pk86C8ERFalwAGSchzTm65+ZoGH/RM26lmEARLljcHj2lqhv0jZOOks+EI3COOw=="],
 
     "fsevents": ["fsevents@2.3.2", "", { "os": "darwin" }, "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA=="],
 
@@ -1636,11 +1636,11 @@
 
     "micromark-util-types": ["micromark-util-types@2.0.2", "", {}, "sha512-Yw0ECSpJoViF1qTU4DC6NwtC4aWGt1EkzaQB8KPPyCRR8z9TWeV0HbEFGTO+ZY1wB22zmxnJqhPyTpOVCpeHTA=="],
 
-    "motion": ["motion@12.42.2", "", { "dependencies": { "framer-motion": "^12.42.2", "tslib": "^2.4.0" }, "peerDependencies": { "@emotion/is-prop-valid": "*", "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@emotion/is-prop-valid", "react", "react-dom"] }, "sha512-Atvv11yUKIid41cVrRBDVX5m8tF8kNpExRSlbpt6APClhDjtwQssgFHhQzejxw7/7YYbjHSPKBVbHo05BuJT5Q=="],
+    "motion": ["motion@13.1.0", "", { "dependencies": { "framer-motion": "^13.1.0", "tslib": "^2.4.0" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["react", "react-dom"] }, "sha512-qtvscq59uCPdWnNW4SdSkrxR+BS/QYsa923bx7ocA+4p+ZGNbbVQwkSnG4aukB81QWjtl3AxX36plxNyZLmHCA=="],
 
-    "motion-dom": ["motion-dom@12.42.2", "", { "dependencies": { "motion-utils": "^12.39.0" } }, "sha512-5gIMWLp/PycBtJRJWRgjxke5n8dlvkSn2DrYW+tr3XcqAZY1xZh6BJyooJXCM8wdfM7wfMjkBJNLge1CKPUIRA=="],
+    "motion-dom": ["motion-dom@13.0.0", "", { "dependencies": { "motion-utils": "^13.0.0" } }, "sha512-Xk+SJas70uMAUIApg+m3lZDShxI3LBFHq7mFGbBKoRXc2PVPDyAKmzN64Bbzt4CZdP/CItTiJxWtn4TA0v53Ng=="],
 
-    "motion-utils": ["motion-utils@12.39.0", "", {}, "sha512-8nadJAJjTtqRkmRF36FoJTrywK9nnFmnPwnSMyxaOCU7GDjN9RTMJIxx9De8ErM+vpPhMccr/6fo5WciyQLnMQ=="],
+    "motion-utils": ["motion-utils@13.0.0", "", {}, "sha512-7DnN7TmbLcYXcG4RVadXIihWlyuM9afoUww8Y5Agg431kGKiuL2/OMyP4mJ5wLz+pvN3t5ySClLOaVXJ+wekRQ=="],
 
     "mrmime": ["mrmime@2.0.1", "", {}, "sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ=="],
 
