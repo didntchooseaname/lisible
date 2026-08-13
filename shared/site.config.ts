@@ -1,3 +1,4 @@
+import rootPackage from "../package.json";
 import { CONFIG, PROFILE } from "./config";
 import type { PublicVariant } from "./variants";
 
@@ -25,6 +26,8 @@ export const SITE_DEFAULTS = {
   framework: {
     name: "Lisible",
     url: "https://github.com/didntchooseaname/lisible",
+    // Statically inlined at build time, so client bundles stay filesystem free.
+    version: rootPackage.version,
   },
   repo: {
     url: CONFIG.repo.url,

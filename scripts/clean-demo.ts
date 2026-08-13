@@ -2,6 +2,7 @@ import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { exit, stdin, stdout } from "node:process";
 import { createInterface } from "node:readline/promises";
+import { DEMO_SLUGS } from "./demo-content";
 
 /**
  * Removes the demonstration content a fresh blog should not publish: the demo
@@ -18,19 +19,6 @@ const root = new URL("..", import.meta.url).pathname;
 const contentDir = join(root, "shared/content/blog");
 const portfolioDir = join(root, "shared/content/portfolio");
 const configPath = join(root, "lisible.config.json");
-
-const DEMO_SLUGS = [
-  "bienvenue",
-  "brouillon-exemple",
-  "certification-inclusive-interfaces",
-  "certification-systems-architecture",
-  "certification-web-foundations",
-  "demo-fonctionnalites",
-  "guide-astro-islands",
-  "performance-web",
-  "theming-dark-first",
-  "typographie-editoriale",
-];
 
 const args = process.argv.slice(2);
 const assumeYes = args.includes("--yes");

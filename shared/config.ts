@@ -57,6 +57,7 @@ const FEATURE_FLAG_SPEC = {
 /** Allowed shape of lisible.config.json, mirrored by docs/lisible.config.schema.json. */
 const SPEC = {
   $schema: "string",
+  lisibleVersion: "string",
   variant: [...PUBLIC_VARIANT_IDS] as readonly string[],
   site: {
     title: "string",
@@ -244,6 +245,7 @@ export const PROFILE = {
 } as const;
 
 const DEFAULTS = {
+  lisibleVersion: "",
   variant: "organique",
   site: {
     title: "Lisible",

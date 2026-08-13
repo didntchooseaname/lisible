@@ -30,6 +30,7 @@
     "init": "bun scripts/init.ts",
     "new-post": "bun scripts/new-post.ts",
     "clean-demo": "bun scripts/clean-demo.ts",
+    "doctor": "bun scripts/doctor.ts",
     "dev": "bun scripts/run.ts dev",
     "build": "bun scripts/run.ts build",
     "preview": "bun scripts/run.ts preview",

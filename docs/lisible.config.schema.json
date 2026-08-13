@@ -5,15 +5,28 @@
   "description": "User configuration for a Lisible blog. Everything is optional except variant: absent fields fall back to the framework defaults.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["variant"],
+  "required": [
+    "variant"
+  ],
   "properties": {
     "$schema": {
       "type": "string"
     },
+    "lisibleVersion": {
+      "type": "string",
+      "description": "Version of the framework that scaffolded this blog, written by bun run init and read by bun run doctor."
+    },
     "variant": {
       "description": "The active visual variant, built and served by dev, build and preview.",
       "type": "string",
-      "enum": ["motion-primitives", "cult-ui", "aceternity", "reactbits", "organique", "h4x0r"]
+      "enum": [
+        "motion-primitives",
+        "cult-ui",
+        "aceternity",
+        "reactbits",
+        "organique",
+        "h4x0r"
+      ]
     },
     "site": {
       "description": "Identity of the site.",
@@ -54,7 +67,10 @@
         "coverPosition": {
           "description": "Vertical alignment of post cover images.",
           "type": "string",
-          "enum": ["up", "down"],
+          "enum": [
+            "up",
+            "down"
+          ],
           "default": "down"
         }
       }
@@ -64,11 +80,22 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "github": { "type": "string" },
-        "bluesky": { "type": "string" },
-        "mastodon": { "type": "string" },
-        "linkedin": { "type": "string" },
-        "email": { "type": "string", "description": "A mailto: link." }
+        "github": {
+          "type": "string"
+        },
+        "bluesky": {
+          "type": "string"
+        },
+        "mastodon": {
+          "type": "string"
+        },
+        "linkedin": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "description": "A mailto: link."
+        }
       }
     },
     "features": {
@@ -186,8 +213,14 @@
           "additionalProperties": false,
           "description": "Pagination of the blog listing.",
           "properties": {
-            "enabled": { "type": "boolean", "default": true },
-            "pageSize": { "type": "number", "default": 6 }
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "pageSize": {
+              "type": "number",
+              "default": 6
+            }
           }
         },
         "archives": {
@@ -210,9 +243,18 @@
           "additionalProperties": false,
           "description": "The portfolio pages: certifications and friends, with data from shared/content/portfolio/.",
           "properties": {
-            "enabled": { "type": "boolean", "default": true },
-            "certifications": { "type": "boolean", "default": true },
-            "friends": { "type": "boolean", "default": true }
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "certifications": {
+              "type": "boolean",
+              "default": true
+            },
+            "friends": {
+              "type": "boolean",
+              "default": true
+            }
           }
         }
       }
@@ -255,7 +297,10 @@
           "properties": {
             "provider": {
               "type": "string",
-              "enum": ["giscus", "bluesky"],
+              "enum": [
+                "giscus",
+                "bluesky"
+              ],
               "default": "giscus"
             },
             "giscus": {
@@ -263,13 +308,30 @@
               "additionalProperties": false,
               "description": "Values generated at https://giscus.app.",
               "properties": {
-                "repo": { "type": "string", "default": "" },
-                "repoId": { "type": "string", "default": "" },
-                "category": { "type": "string", "default": "" },
-                "categoryId": { "type": "string", "default": "" },
+                "repo": {
+                  "type": "string",
+                  "default": ""
+                },
+                "repoId": {
+                  "type": "string",
+                  "default": ""
+                },
+                "category": {
+                  "type": "string",
+                  "default": ""
+                },
+                "categoryId": {
+                  "type": "string",
+                  "default": ""
+                },
                 "mapping": {
                   "type": "string",
-                  "enum": ["pathname", "url", "title", "og:title"],
+                  "enum": [
+                    "pathname",
+                    "url",
+                    "title",
+                    "og:title"
+                  ],
                   "default": "pathname"
                 }
               }
@@ -299,7 +361,10 @@
           "default": "",
           "description": "Repository URL. Empty disables Edit on GitHub."
         },
-        "branch": { "type": "string", "default": "main" }
+        "branch": {
+          "type": "string",
+          "default": "main"
+        }
       }
     }
   }

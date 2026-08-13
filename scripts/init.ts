@@ -275,6 +275,7 @@ function writeConfig(vals: {
     }
   }
   json.$schema ??= "./docs/lisible.config.schema.json";
+  json.lisibleVersion = SITE_DEFAULTS.framework.version;
   json.variant = vals.variant;
   json.site = { ...json.site, title: vals.title, url: vals.url };
   if (vals.author !== undefined) json.site.author = vals.author;
