@@ -21,6 +21,11 @@ const { values: flags } = parseArgs({
     author: { type: "string" },
     accent: { type: "string" },
     repo: { type: "string" },
+    github: { type: "string" },
+    bluesky: { type: "string" },
+    mastodon: { type: "string" },
+    linkedin: { type: "string" },
+    email: { type: "string" },
     yes: { type: "boolean", default: false },
   },
   allowPositionals: true,
@@ -129,8 +134,17 @@ async function main() {
   }
 
   // Flags imply detailed mode for the values they carry, in both modes.
+  const socialFlagged =
+    flags.github !== undefined ||
+    flags.bluesky !== undefined ||
+    flags.mastodon !== undefined ||
+    flags.linkedin !== undefined ||
+    flags.email !== undefined;
   const flagged =
-    flags.author !== undefined || flags.accent !== undefined || flags.repo !== undefined;
+    flags.author !== undefined ||
+    flags.accent !== undefined ||
+    flags.repo !== undefined ||
+    socialFlagged;
   let detailed = flagged;
   if (!assumeYes && !flagged) {
     const mode = (await ask("\nSetup mode: (q)uick or (d)etailed", "q")).toLowerCase();
@@ -142,6 +156,13 @@ async function main() {
   let author = flags.author ?? DEMO_PROFILE.name;
   let accent = flags.accent ?? SITE_DEFAULTS.accent;
   let repoUrl = flags.repo ?? "";
+  const social = {
+    github: flags.github ?? "",
+    bluesky: flags.bluesky ?? "",
+    mastodon: flags.mastodon ?? "",
+    linkedin: flags.linkedin ?? "",
+    email: flags.email ?? "",
+  };
   if (detailed && !assumeYes) {
     author = await ask("Author name (also replaces the demo profile)", author);
     while (true) {
@@ -153,6 +174,15 @@ async function main() {
       info("  Expected a hex color like #22C55E.");
     }
     repoUrl = await ask('Blog repository URL for "Edit on GitHub" (optional)', repoUrl);
+    info("\nSocial links, shown in the footer and metadata. Leave empty to hide one.");
+    social.github = await ask("  GitHub profile URL", social.github);
+    social.bluesky = await ask("  Bluesky profile URL", social.bluesky);
+    social.mastodon = await ask("  Mastodon profile URL", social.mastodon);
+    social.linkedin = await ask("  LinkedIn profile URL", social.linkedin);
+    social.email = await ask("  Contact email (mailto: added if missing)", social.email);
+  }
+  if (social.email && !social.email.startsWith("mailto:")) {
+    social.email = `mailto:${social.email}`;
   }
 
   info("\nSummary");
@@ -163,6 +193,10 @@ async function main() {
     info(`  author  : ${author}`);
     info(`  accent  : ${accent}`);
     info(`  repo    : ${repoUrl || "(none)"}`);
+    const links = Object.entries(social)
+      .filter(([, value]) => value)
+      .map(([key]) => key);
+    info(`  social  : ${links.length > 0 ? links.join(", ") : "(none)"}`);
   }
   if (!assumeYes) {
     const ok = (await ask("\nApply this configuration? (y/n)", "y")).toLowerCase().startsWith("y");
@@ -190,6 +224,7 @@ async function main() {
     author: detailed ? author : undefined,
     accent: detailed ? accent : undefined,
     repoUrl: detailed ? repoUrl : undefined,
+    social: detailed || socialFlagged ? social : undefined,
   });
 
   const syncOg = Bun.spawnSync(["bun", "scripts/sync-og-assets.ts"], {
@@ -229,6 +264,7 @@ function writeConfig(vals: {
   author?: string;
   accent?: string;
   repoUrl?: string;
+  social?: Record<string, string>;
 }) {
   let json: any = {};
   if (existsSync(configPath)) {
@@ -244,6 +280,12 @@ function writeConfig(vals: {
   if (vals.author !== undefined) json.site.author = vals.author;
   if (vals.accent !== undefined) json.site.accent = vals.accent;
   if (vals.repoUrl) json.repo = { ...json.repo, url: vals.repoUrl };
+  if (vals.social) {
+    // Only write filled links: absent keys fall back to the defaults, and the
+    // defaults are empty, so untouched entries simply stay hidden.
+    const entries = Object.entries(vals.social).filter(([, value]) => value);
+    if (entries.length > 0) json.social = { ...json.social, ...Object.fromEntries(entries) };
+  }
   writeFileSync(configPath, `${JSON.stringify(json, null, 2)}\n`);
 }
 
