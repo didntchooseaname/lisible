@@ -4,7 +4,14 @@ interface Props {
 }
 
 const { data } = Astro.props;
-const json = JSON.stringify({ "@context": "https://schema.org", ...data });
+// Escape sequences that would break out of the inline script context. `<`
+// neutralises `</script>` and `<!--`, and U+2028/U+2029 are JS line terminators
+// that are legal, unescaped, inside JSON strings. JSON.parse restores each one,
+// so the parsed data is unchanged.
+const json = JSON.stringify({ "@context": "https://schema.org", ...data })
+  .replace(/</g, "\\u003c")
+  .replace(new RegExp(String.fromCharCode(0x2028), "g"), "\\u2028")
+  .replace(new RegExp(String.fromCharCode(0x2029), "g"), "\\u2029");
 ---
 
 <script type="application/ld+json" set:html={json} is:inline />
