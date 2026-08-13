@@ -1,4 +1,5 @@
 ---
+import NewsletterCTA from "@/components/NewsletterCTA.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import JsonLd from "@/components/JsonLd.astro";
 import DemoProfileHero from "@shared/components/DemoProfileHero.astro";
@@ -137,6 +138,13 @@ const jsonLd = {
           <HoverEffect client:visible items={latestItems} />
         </div>
       </section>
+    )
+  }
+  {
+    FEATURES.newsletter && (
+      <div class="pb-14">
+        <NewsletterCTA locale={locale} />
+      </div>
     )
   }
 </BaseLayout>

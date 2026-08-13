@@ -13,6 +13,8 @@ type NewsletterCtaProps = {
   buttonLabel: string;
   doneLabel: string;
   note: string;
+  /** Form action URL of the newsletter provider. */
+  action: string;
 };
 
 export function NewsletterCta({
@@ -23,6 +25,7 @@ export function NewsletterCta({
   buttonLabel,
   doneLabel,
   note,
+  action,
 }: NewsletterCtaProps) {
   const reduced = useReducedMotion();
   const [done, setDone] = useState(false);
@@ -68,12 +71,19 @@ export function NewsletterCta({
           <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">
             {description}
           </p>
-          <div className="mt-5 flex w-full max-w-md flex-col gap-2 sm:flex-row">
+          <form
+            method="post"
+            action={action}
+            onSubmit={handleSubscribe}
+            className="mt-5 flex w-full max-w-md flex-col gap-2 sm:flex-row"
+          >
             <label htmlFor="newsletter-email" className="sr-only">
               {emailLabel}
             </label>
             <input
               id="newsletter-email"
+              name="email"
+              required
               type="email"
               inputMode="email"
               placeholder={placeholder}
@@ -91,15 +101,14 @@ export function NewsletterCta({
                 />
               )}
               <button
-                type="button"
-                onClick={handleSubscribe}
+                type="submit"
                 aria-live="polite"
                 className="relative inline-flex h-11 w-full items-center justify-center rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 sm:w-auto"
               >
                 <TextMorph as="span">{done ? doneLabel : buttonLabel}</TextMorph>
               </button>
             </div>
-          </div>
+          </form>
           <p className="mt-3 text-xs text-muted-foreground">{note}</p>
         </section>
       </InView>

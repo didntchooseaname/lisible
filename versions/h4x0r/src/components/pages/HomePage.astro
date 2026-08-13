@@ -302,9 +302,13 @@ const jsonLd = {
   }
 
   
-  <div class="py-10">
-    <BlurFade client:visible inView>
-      <NewsletterCTA locale={locale} />
-    </BlurFade>
-  </div>
+  {
+    FEATURES.newsletter && (
+      <div class="py-10">
+        <BlurFade client:visible inView>
+          <NewsletterCTA locale={locale} />
+        </BlurFade>
+      </div>
+    )
+  }
 </BaseLayout>

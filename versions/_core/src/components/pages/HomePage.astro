@@ -51,9 +51,13 @@ const jsonLd = {
     <p class="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
       {dict.site.tagline}
     </p>
-    <div class="mt-10">
-      <NewsletterCTA locale={locale} />
-    </div>
+    {
+      FEATURES.newsletter && (
+        <div class="mt-10">
+          <NewsletterCTA locale={locale} />
+        </div>
+      )
+    }
   </section>
 
   {

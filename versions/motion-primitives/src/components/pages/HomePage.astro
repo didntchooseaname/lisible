@@ -1,9 +1,10 @@
 ---
+import { NewsletterCta } from "@/components/react/NewsletterCta";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import JsonLd from "@/components/JsonLd.astro";
 import { PostCardsGrid, type PostCardData } from "@/components/react/PostCardsGrid";
 import DemoProfileHero from "@shared/components/DemoProfileHero.astro";
-import { SITE, FEATURES } from "@/site.config";
+import { SITE, FEATURES, NEWSLETTER } from "@/site.config";
 import { localeUrl, t, type Locale } from "@/i18n/ui";
 import {
   getFeaturedPosts,
@@ -127,6 +128,23 @@ const jsonLd = {
         </div>
         <PostCardsGrid client:visible posts={latestCards} />
       </section>
+    )
+  }
+  {
+    FEATURES.newsletter && (
+      <div class="pb-14">
+        <NewsletterCta
+          client:visible
+          title={dict.newsletter.title}
+          description={dict.newsletter.description}
+          emailLabel={dict.newsletter.emailLabel}
+          placeholder={dict.newsletter.placeholder}
+          buttonLabel={dict.newsletter.button}
+          doneLabel={dict.newsletter.done}
+          note={dict.newsletter.note}
+          action={NEWSLETTER.action}
+        />
+      </div>
     )
   }
 </BaseLayout>

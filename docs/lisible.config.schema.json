@@ -136,6 +136,11 @@
           "default": true,
           "description": "Share buttons on articles."
         },
+        "newsletter": {
+          "type": "boolean",
+          "default": false,
+          "description": "Subscribe block wired to integrations.newsletter.action; hidden while off."
+        },
         "styledRss": {
           "type": "boolean",
           "default": true,
@@ -213,7 +218,7 @@
       }
     },
     "integrations": {
-      "description": "Third party integrations backing the webmentions and comments flags.",
+      "description": "Third party integrations backing the webmentions, newsletter and comments flags.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -225,6 +230,22 @@
               "type": "string",
               "default": "",
               "description": "The domain verified on webmention.io."
+            }
+          }
+        },
+        "newsletter": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "provider": {
+              "type": "string",
+              "default": "",
+              "description": "Free label of the provider (for example buttondown), informational."
+            },
+            "action": {
+              "type": "string",
+              "default": "",
+              "description": "Form action URL the subscribe block posts the email field to."
             }
           }
         },

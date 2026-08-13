@@ -130,7 +130,7 @@ const fr = {
     emailLabel: "Adresse email",
     placeholder: "vous@exemple.fr",
     button: "S'abonner",
-    note: "Composant de démonstration: aucune inscription n'est réellement envoyée.",
+    note: "Pas de spam. Désinscription en un clic.",
   },
   notFound: {
     title: "Page introuvable",
@@ -364,7 +364,7 @@ const en: Dict = {
     emailLabel: "Email address",
     placeholder: "you@example.com",
     button: "Subscribe",
-    note: "Demo component: no signup is actually sent.",
+    note: "No spam. One click unsubscribe.",
   },
   notFound: {
     title: "Page not found",

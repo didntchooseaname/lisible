@@ -94,7 +94,7 @@ const fr = {
     placeholders: ["vous@exemple.fr", "prenom.nom@exemple.fr", "Recevoir les nouveaux articles"],
     button: "S'abonner",
     submit: "Envoyer l'adresse email",
-    note: "Composant de démonstration: aucune inscription n'est réellement envoyée.",
+    note: "Pas de spam. Désinscription en un clic.",
   },
   notFound: {
     title: "Page introuvable",
@@ -330,7 +330,7 @@ const en: Dict = {
     placeholders: ["you@example.com", "first.last@example.com", "Get new posts by email"],
     button: "Subscribe",
     submit: "Submit email address",
-    note: "Demo component: no signup is actually sent.",
+    note: "No spam. One click unsubscribe.",
   },
   notFound: {
     title: "Page not found",

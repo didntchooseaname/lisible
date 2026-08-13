@@ -34,6 +34,7 @@ const FEATURE_FLAG_SPEC = {
   llmsTxt: "boolean",
   aiButtons: "boolean",
   socialShare: "boolean",
+  newsletter: "boolean",
   styledRss: "boolean",
   webmentions: "boolean",
   comments: "boolean",
@@ -76,6 +77,7 @@ const SPEC = {
   features: FEATURE_FLAG_SPEC,
   integrations: {
     webmentions: { domain: "string" },
+    newsletter: { provider: "string", action: "string" },
     comments: {
       provider: ["giscus", "bluesky"] as readonly string[],
       giscus: {
@@ -272,6 +274,7 @@ const DEFAULTS = {
     llmsTxt: true,
     aiButtons: true,
     socialShare: true,
+    newsletter: false,
     styledRss: true,
     webmentions: false,
     comments: false,
@@ -288,6 +291,7 @@ const DEFAULTS = {
   },
   integrations: {
     webmentions: { domain: "" },
+    newsletter: { provider: "", action: "" },
     comments: {
       provider: "giscus" as "giscus" | "bluesky",
       giscus: {

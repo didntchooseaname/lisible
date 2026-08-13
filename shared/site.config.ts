@@ -66,14 +66,33 @@ export const COMMENTS_CONFIG = {
 } as const;
 
 /**
+ * The subscribe block posts to any provider accepting a plain form submit
+ * (Buttondown, Listmonk, ConvertKit and friends); provider is a free label
+ * kept for documentation purposes.
+ */
+export const NEWSLETTER_CONFIG = {
+  provider: INTEGRATIONS.newsletter.provider,
+  action: INTEGRATIONS.newsletter.action,
+} as const;
+
+/**
  * Fails the build when a feature flag is on but the integration it needs is not
  * configured, instead of shipping a silently broken widget.
  */
 export function assertIntegrationsConfig(features: {
   webmentions: boolean;
   comments: boolean;
+  newsletter: boolean;
 }): void {
   const errors: string[] = [];
+
+  if (features.newsletter && !NEWSLETTER_CONFIG.action.trim()) {
+    errors.push(
+      "features.newsletter is enabled but integrations.newsletter.action is empty. " +
+        "Set the form action URL of your newsletter provider in lisible.config.json, " +
+        "or set features.newsletter to false.",
+    );
+  }
 
   if (features.webmentions && !WEBMENTIONS_CONFIG.domain.trim()) {
     errors.push(

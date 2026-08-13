@@ -181,7 +181,7 @@ const fr = {
     button: "S'abonner",
     successTitle: "Merci !",
     successMessage: "Inscription enregistrée. À bientôt dans votre boîte mail.",
-    note: "Composant de démonstration: aucune inscription n'est réellement envoyée.",
+    note: "Pas de spam. Désinscription en un clic.",
   },
   notFound: {
     title: "Page introuvable",
@@ -395,7 +395,7 @@ const en: Dict = {
     button: "Subscribe",
     successTitle: "Thank you!",
     successMessage: "Signup recorded. See you in your inbox soon.",
-    note: "Demo component: no signup is actually sent.",
+    note: "No spam. One click unsubscribe.",
   },
   notFound: {
     title: "Page not found",
