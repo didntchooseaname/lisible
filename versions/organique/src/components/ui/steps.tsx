@@ -25,7 +25,7 @@ function Step({ title, className, children, ...props }: StepProps) {
     <li data-slot="step" className={cn("mdx-step", className)} {...props}>
       <span className="mdx-step-marker" aria-hidden="true" />
       <div className="mdx-step-content">
-        <h4 className="mdx-step-title">{title}</h4>
+        <p className="mdx-step-title">{title}</p>
         {children ? <div className="mdx-step-body">{children}</div> : null}
       </div>
     </li>
