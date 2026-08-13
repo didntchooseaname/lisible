@@ -6,7 +6,6 @@ dist/
 .astro/
 .output/
 
-.link-card-cache.json
 versions/*/public/og/
 *.log
 

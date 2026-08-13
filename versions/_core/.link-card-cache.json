@@ -1,0 +1,31 @@
+{
+  "https://astro.build/": {
+    "success": true,
+    "ogTitle": "Astro",
+    "ogType": "website",
+    "ogUrl": "https://astro.build/",
+    "ogLocale": "en",
+    "ogDescription": "Astro builds fast content sites, powerful web applications, dynamic server APIs, and everything in-between.",
+    "ogSiteName": "Astro",
+    "twitterCard": "summary_large_image",
+    "twitterSite": "astrodotbuild",
+    "twitterTitle": "Astro",
+    "twitterDescription": "Astro builds fast content sites, powerful web applications, dynamic server APIs, and everything in-between.",
+    "ogImage": [
+      {
+        "url": "https://astro.build/og/astro.jpg",
+        "alt": "Astro - Build the web you want.",
+        "type": "jpg"
+      }
+    ],
+    "twitterImage": [
+      {
+        "alt": "Astro - Build the web you want.",
+        "url": "https://astro.build/og/astro.jpg"
+      }
+    ],
+    "favicon": "/favicon.svg",
+    "charset": "utf-8",
+    "requestUrl": "https://astro.build/"
+  }
+}
