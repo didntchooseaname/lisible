@@ -1,0 +1,33 @@
+{
+  "$comment": "Accepted axe violations. Every serious or critical violation must either be fixed or declared here with a reason; an undeclared one fails the e2e run. Keys: variant (project name), path, theme (dark|light|any), ruleId, reason.",
+  "issues": [
+    {
+      "variant": "aceternity",
+      "path": "/blog/",
+      "theme": "any",
+      "ruleId": "color-contrast",
+      "reason": "Disabled pagination edge: the arrow is intentionally dimmed to read as unavailable, the state is also conveyed non visually and the element is not interactive."
+    },
+    {
+      "variant": "reactbits",
+      "path": "/blog/",
+      "theme": "any",
+      "ruleId": "color-contrast",
+      "reason": "Disabled pagination edge: the arrow is intentionally dimmed to read as unavailable, the state is also conveyed non visually and the element is not interactive."
+    },
+    {
+      "variant": "organique",
+      "path": "/blog/",
+      "theme": "any",
+      "ruleId": "color-contrast",
+      "reason": "Disabled pagination edge: the arrow is intentionally dimmed to read as unavailable, the state is also conveyed non visually and the element is not interactive."
+    },
+    {
+      "variant": "h4x0r",
+      "path": "/blog/",
+      "theme": "any",
+      "ruleId": "color-contrast",
+      "reason": "Velocity banner: a decorative aria-hidden glyph marquee rendered at 10 to 15 percent opacity by design; it carries no information and duplicates nothing readable."
+    }
+  ]
+}
