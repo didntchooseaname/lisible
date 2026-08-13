@@ -5,6 +5,7 @@ import {
   type ReactNode,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -26,6 +27,7 @@ interface TreeProps {
   sort?: TreeSortMode;
   className?: string;
   dir?: "ltr" | "rtl";
+  locale?: "fr" | "en";
   children?: ReactNode;
 }
 
@@ -249,6 +251,14 @@ function Branch({
   );
 }
 
+/** Site default locale, kept in sync with the socle i18n `defaultLocale` ("fr"). */
+const DEFAULT_LOCALE = "fr" as const;
+
+/** Collapses a `lang` value such as `fr-FR` down to a supported locale. */
+function normalizeLocale(value: string | null | undefined): "fr" | "en" {
+  return typeof value === "string" && value.toLowerCase().startsWith("fr") ? "fr" : "en";
+}
+
 function Tree({
   elements = [],
   initialExpandedItems = [],
@@ -257,13 +267,17 @@ function Tree({
   sort = "default",
   className = "",
   dir = "ltr",
+  locale,
   children,
 }: TreeProps) {
   const sorted = useMemo(() => sortElements(elements, sort), [elements, sort]);
   const allFolders = useMemo(() => folderIds(sorted), [sorted]);
   const [expandedItems, setExpandedItems] = useState<string[]>(initialExpandedItems);
   const [selectedId, setSelectedId] = useState<string | undefined>(initialSelectedId);
-  const [language, setLanguage] = useState<"fr" | "en">("en");
+  const [language, setLanguage] = useState<"fr" | "en">(
+    locale === undefined ? DEFAULT_LOCALE : normalizeLocale(locale),
+  );
+  const rootRef = useRef<HTMLDivElement>(null);
   const expanded = useMemo(() => new Set(expandedItems), [expandedItems]);
   const allOpen = allFolders.length > 0 && allFolders.every((id) => expanded.has(id));
   const labels =
@@ -282,7 +296,8 @@ function Tree({
         };
 
   useEffect(() => {
-    setLanguage(document.documentElement.lang === "fr" ? "fr" : "en");
+    const ancestor = rootRef.current?.parentElement?.closest<HTMLElement>("[lang]");
+    setLanguage(normalizeLocale(ancestor?.lang ?? document.documentElement.lang));
   }, []);
 
   const onExpand = (id: string) => {
@@ -293,7 +308,9 @@ function Tree({
 
   return (
     <div
+      ref={rootRef}
       dir={dir}
+      lang={language}
       className={`not-prose my-6 overflow-hidden border border-border bg-card/80 shadow-sm ${className}`}
       style={{
         borderRadius: "1.7rem 1.1rem 1.6rem 1.2rem / 1.15rem 1.7rem 1.1rem 1.6rem",
