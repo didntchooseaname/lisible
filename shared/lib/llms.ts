@@ -8,8 +8,10 @@ import { getPublishedPosts, type Post, postLocale, postSlug } from "./posts";
  */
 export interface LlmsOptions {
   siteTitle: string;
-  tagline: string;
-  description: string;
+  /** Site tagline and description per locale, default locale first: both
+   * files are single site-wide documents, so the header speaks every
+   * language the articles come in. */
+  intro: ReadonlyArray<{ locale: Locale; tagline: string; description: string }>;
   siteUrl: string;
   locales: readonly Locale[];
   /** Absolute URL of a post, used for the human-readable link. */
@@ -50,7 +52,10 @@ export function postToMarkdown(post: Post, siteUrl: string, url: string): string
 }
 
 export async function buildLlmsIndex(options: LlmsOptions): Promise<string> {
-  const lines = [`# ${options.siteTitle}`, "", `> ${options.tagline}`, "", options.description, ""];
+  const lines = [`# ${options.siteTitle}`, ""];
+  for (const { tagline, description } of options.intro) {
+    lines.push(`> ${tagline}`, "", description, "");
+  }
 
   for (const locale of options.locales) {
     const posts = await getPublishedPosts(locale);
@@ -66,7 +71,10 @@ export async function buildLlmsIndex(options: LlmsOptions): Promise<string> {
 }
 
 export async function buildLlmsFull(options: LlmsOptions): Promise<string> {
-  const blocks = [`# ${options.siteTitle}`, "", `> ${options.tagline}`, ""];
+  const blocks = [`# ${options.siteTitle}`, ""];
+  for (const { tagline } of options.intro) {
+    blocks.push(`> ${tagline}`, "");
+  }
   for (const locale of options.locales) {
     for (const post of await getPublishedPosts(locale)) {
       blocks.push(postToMarkdown(post, options.siteUrl, options.postUrl(post)), "", "---", "");

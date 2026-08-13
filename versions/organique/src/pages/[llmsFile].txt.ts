@@ -10,8 +10,11 @@ export const getStaticPaths: GetStaticPaths = () =>
 export const GET: APIRoute = async ({ params, site }) => {
   const options = {
     siteTitle: SITE.title,
-    tagline: t("fr").site.tagline,
-    description: t("fr").site.description,
+    intro: locales.map((locale) => ({
+      locale,
+      tagline: t(locale).site.tagline,
+      description: t(locale).site.description,
+    })),
     siteUrl: site?.toString() ?? SITE.url,
     locales,
     postUrl,

@@ -20,12 +20,13 @@ function makeContext(site: URL | undefined): Context {
   return { site } as unknown as Context;
 }
 
-function makeOptions(overrides: { styled?: boolean } = {}) {
+function makeOptions(overrides: { styled?: boolean; author?: string } = {}) {
   return {
     title: "Lisible (flux)",
     description: "Flux de test.",
     siteUrl: SITE_URL,
     styled: overrides.styled ?? true,
+    author: overrides.author ?? "Ada Test & co",
     postUrl,
   };
 }
@@ -87,6 +88,34 @@ describe("localeRss", () => {
     expect(en).toContain("<language>en</language>");
     expect(en.split("<item>").length - 1).toBe(2);
     expect(en).toContain(`<link>${SITE_URL}/en/blog/post-a.mdx/</link>`);
+  });
+
+  it("emits categories from the post tags", async () => {
+    const xml = await (
+      await rssLib.localeRss(makeContext(new URL(SITE_URL)), "fr", makeOptions())
+    ).text();
+    expect(xml).toContain("<category>Astro</category>");
+    expect(xml).toContain("<category>Performance</category>");
+    expect(xml).toContain("<category>Accessibilité</category>");
+  });
+
+  it("credits the author on every item through dc:creator", async () => {
+    const xml = await (
+      await rssLib.localeRss(makeContext(new URL(SITE_URL)), "fr", makeOptions())
+    ).text();
+    expect(xml).toContain('xmlns:dc="http://purl.org/dc/elements/1.1/"');
+    expect(xml.split("<dc:creator>Ada Test &amp; co</dc:creator>").length - 1).toBe(5);
+  });
+
+  it("omits dc entirely without an author", async () => {
+    const xml = await (
+      await rssLib.localeRss(makeContext(new URL(SITE_URL)), "fr", {
+        ...makeOptions(),
+        author: "  ",
+      })
+    ).text();
+    expect(xml).not.toContain("dc:creator");
+    expect(xml).not.toContain("xmlns:dc");
   });
 
   it("references the stylesheet only when styled", async () => {

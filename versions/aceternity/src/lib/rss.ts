@@ -10,6 +10,7 @@ export function localeRss(context: APIContext, locale: Locale) {
     description: t(locale).site.description,
     siteUrl: SITE.url,
     styled: FEATURES.styledRss,
+    author: SITE.author,
     postUrl,
   });
 }

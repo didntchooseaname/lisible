@@ -16,10 +16,20 @@ function postUrl(post: Post): string {
   return `${prefix}/blog/${postSlug(post)}/`;
 }
 
-const OPTIONS = {
-  siteTitle: "Lisible",
+const INTRO_FR = {
+  locale: "fr" as const,
   tagline: "Un framework de blog minimaliste et rapide, pensé pour la lecture.",
   description: "Description du site de test.",
+};
+const INTRO_EN = {
+  locale: "en" as const,
+  tagline: "A minimal, fast blog framework, built for reading.",
+  description: "Test site description.",
+};
+
+const OPTIONS = {
+  siteTitle: "Lisible",
+  intro: [INTRO_FR, INTRO_EN],
   siteUrl: SITE_URL,
   locales: ["fr", "en"] as const,
   postUrl,
@@ -66,9 +76,14 @@ describe("postToMarkdown", () => {
 });
 
 describe("buildLlmsIndex", () => {
-  it("opens with the site title, tagline and description", async () => {
+  it("opens with the site title and one tagline block per locale", async () => {
     const index = await llms.buildLlmsIndex(OPTIONS);
-    expect(index.startsWith(`# Lisible\n\n> ${OPTIONS.tagline}\n\n${OPTIONS.description}`)).toBe(
+    expect(
+      index.startsWith(
+        `# Lisible\n\n> ${INTRO_FR.tagline}\n\n${INTRO_FR.description}\n\n` +
+          `> ${INTRO_EN.tagline}\n\n${INTRO_EN.description}`,
+      ),
+    ).toBe(
       true,
     );
   });
@@ -100,7 +115,9 @@ describe("buildLlmsFull", () => {
   it("concatenates every post as Markdown, separated by rules", async () => {
     const full = await llms.buildLlmsFull(OPTIONS);
 
-    expect(full.startsWith(`# Lisible\n\n> ${OPTIONS.tagline}\n`)).toBe(true);
+    expect(full.startsWith(`# Lisible\n\n> ${INTRO_FR.tagline}\n\n> ${INTRO_EN.tagline}\n`)).toBe(
+      true,
+    );
     expect(full).toContain("# Premier article");
     expect(full).toContain("# First post");
     expect(full).toContain(fixtureById("post-a.mdx").body);
