@@ -108,6 +108,37 @@ describe("new-post", () => {
   });
 });
 
+describe("clean-demo", () => {
+  it("removes the demo set, empties the portfolio and scaffolds a welcome draft", () => {
+    const { code, out } = run(["scripts/clean-demo.ts", "--yes"]);
+    expect(out).toContain("Removed");
+    expect(code).toBe(0);
+
+    expect(existsSync(join(sandbox, "shared/content/blog/fr/demo-fonctionnalites.mdx"))).toBe(
+      false,
+    );
+    expect(existsSync(join(sandbox, "shared/content/blog/en/guide-astro-islands.mdx"))).toBe(false);
+    expect(readFileSync(join(sandbox, "shared/content/portfolio/friends.json"), "utf8")).toBe(
+      "[]\n",
+    );
+
+    const config = JSON.parse(readFileSync(join(sandbox, "lisible.config.json"), "utf8"));
+    expect(config.features.portfolio.enabled).toBe(false);
+
+    const welcome = readFileSync(join(sandbox, "shared/content/blog/fr/bienvenue.mdx"), "utf8");
+    expect(welcome).toContain('title: "Bienvenue"');
+    expect(readFileSync(join(sandbox, "shared/content/blog/en/bienvenue.mdx"), "utf8")).toContain(
+      'title: "Welcome"',
+    );
+  });
+
+  it("is a no-op once the demo content is gone", () => {
+    const { code, out } = run(["scripts/clean-demo.ts", "--yes", "--keep-demo-post"]);
+    expect(code).toBe(0);
+    expect(out).toContain("Nothing to clean");
+  });
+});
+
 describe("init", () => {
   it("rejects an invalid accent before touching anything", () => {
     const { code, out } = run([
