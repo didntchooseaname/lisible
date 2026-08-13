@@ -56,9 +56,18 @@ powershell -c "irm bun.sh/bun/install.ps1 | iex"
 npm install -g bun
 ```
 
+> Windows note: the shared routes are checked out as git symlinks. Enable Developer Mode (or run `git config --global core.symlinks true`) before cloning, otherwise the build fails on plain text files where Astro expects pages. `bun run doctor` detects a broken checkout.
+
 **Get the code**
 
-Pick the path that matches what you are doing:
+The fastest path is the published scaffolder; it clones, detaches the history and runs the guided setup in one command:
+
+```bash
+bunx lisible my-blog        # or: bun create lisible my-blog
+cd my-blog
+```
+
+Prefer doing it by hand? Pick the path that matches what you are doing:
 
 1. **Starting your own blog (recommended): use the template.** Click ["Use this template"](https://github.com/didntchooseaname/lisible/generate) on GitHub. You get your own repository, with a clean history and no ties to this one, then:
 
@@ -142,6 +151,28 @@ Import the repository at its root and deploy: every configuration builds the var
 - Only the compiled site and its Caddy runtime are copied into the final image.
 
 The generated image serves static routes directly, compresses responses, caches fingerprinted Astro assets for one year, and renders the project 404 page for unknown routes. No deployment environment variable is required.
+
+Step by step, whatever the platform:
+
+1. Set `site.url` in `lisible.config.json` to the final address (custom domain included); it feeds the sitemap, the feeds and every canonical URL.
+2. Import the repository at its root on Vercel or Netlify (buttons above), or point Railpack, Nixpacks or the provided `Dockerfile` at it (`docker build -t my-blog . && docker run -p 8080:80 my-blog`).
+3. To deploy another variant than the one committed in `lisible.config.json`, set the `LISIBLE_VARIANT` environment variable on the platform; no code change needed.
+4. When the domain changes, update `site.url` and redeploy: everything else follows.
+
+## Update your blog
+
+Your content and configuration are yours; the framework wants to keep improving underneath. The boundary is simple: `lisible.config.json`, `shared/content/` and the theme copy in `versions/<your-variant>/src/i18n/ui.ts` belong to you; everything else can be updated from upstream.
+
+```bash
+# Once, if the remote does not exist yet:
+git remote add upstream https://github.com/didntchooseaname/lisible
+
+# Then, whenever you want the latest framework:
+git fetch upstream
+git merge upstream/main
+```
+
+Conflicts, if any, concentrate in the files you customized. `bun run doctor` tells you when a newer release exists, and the [changelog](https://github.com/didntchooseaname/lisible/blob/main/CHANGELOG.md) lists what changed. Blogs created through degit or the template have no upstream remote by default; add it with the command above.
 
 ## How it works
 
