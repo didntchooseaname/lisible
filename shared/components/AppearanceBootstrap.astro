@@ -43,7 +43,7 @@ const { accent } = Astro.props;
       let rgb = [(value >> 16) & 255, (value >> 8) & 255, value & 255];
       const dark = root.classList.contains("dark");
       for (let index = 0; index < 60; index += 1) {
-        if (dark ? contrast(luminance(rgb), 0) >= 3 : contrast(luminance(rgb), 1) >= 4.5) break;
+        if (dark ? contrast(luminance(rgb), 0) >= 4.5 : contrast(luminance(rgb), 1) >= 4.5) break;
         rgb = rgb.map((channel) => dark
           ? Math.min(255, Math.round(channel + (255 - channel) * 0.06) + 1)
           : Math.max(0, Math.round(channel * 0.94) - 1));
