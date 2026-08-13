@@ -1,6 +1,8 @@
 ---
 import interWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import monoWoff2 from "@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url";
+import interExtWoff2 from "@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2?url";
+import monoExtWoff2 from "@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-ext-wght-normal.woff2?url";
 import appCssUrl from "@/styles/app.css?url";
 import { ClientRouter } from "astro:transitions";
 import ExpressiveCodeLabelSpacing from "@shared/components/ExpressiveCodeLabelSpacing.astro";
@@ -13,6 +15,8 @@ import { SITE } from "@/site.config";
 import { ensureTrailingSlash, localeUrl, ogLocales, otherLocale, t, type Locale } from "@/i18n/ui";
 
 interface Props {
+  /** Preload the mono font: only article layouts need it above the fold. */
+  preloadMono?: boolean;
   locale: Locale;
   title: string;
   description: string;
@@ -34,6 +38,7 @@ const {
   ogImage: ogImageProp,
   prevUrl,
   nextUrl,
+  preloadMono = false,
 } = Astro.props;
 
 const dict = t(locale);
@@ -46,6 +51,21 @@ const ogImage = ogImageProp
 const rssPath = localeUrl(locale, "rss.xml");
 const hasBothAlternates = Boolean(alternates?.fr && alternates?.en);
 const other = otherLocale(locale);
+
+// Only the latin and latin-ext subsets ship: the fontsource index css pulls
+// six scripts nobody renders here, and these two cover FR and EN entirely.
+const fontFaces = [
+  ["Inter Variable", "100 900", interExtWoff2, "U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF"],
+  ["Inter Variable", "100 900", interWoff2, "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"],
+  ["JetBrains Mono Variable", "100 800", monoExtWoff2, "U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF"],
+  ["JetBrains Mono Variable", "100 800", monoWoff2, "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"],
+]
+  .map(
+    ([family, weight, url, range]) =>
+      `@font-face{font-family:'${family}';font-style:normal;font-display:swap;font-weight:${weight};src:url(${url}) format('woff2-variations');unicode-range:${range}}`,
+  )
+  .join("");
+
 ---
 
 <html lang={locale}>
@@ -72,7 +92,10 @@ const other = otherLocale(locale);
     />
 
     <link rel="preload" href={interWoff2} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={monoWoff2} as="font" type="font/woff2" crossorigin />
+    {preloadMono && (
+      <link rel="preload" href={monoWoff2} as="font" type="font/woff2" crossorigin />
+    )}
+    <style set:html={fontFaces}></style>
 
 
     {
