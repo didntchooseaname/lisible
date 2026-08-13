@@ -53,11 +53,15 @@ export default defineConfig({
   })),
   // Same invocation as scripts/preview-all.ts: `bunx astro preview --port N`
   // from the variant directory, serving the prebuilt dist/.
+  // ASTRO_PREVIEW_BACKGROUND keeps the server in the foreground: since Astro
+  // 7.2 the CLI daemonizes itself inside agentic shells, and a webServer
+  // command that exits early fails the whole run.
   webServer: selected.map(({ id, port }) => ({
     command: `bunx astro preview --port ${port}`,
     cwd: `${rootDir}versions/${id}`,
     url: `http://localhost:${port}`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
+    env: { ASTRO_PREVIEW_BACKGROUND: "1" },
   })),
 });

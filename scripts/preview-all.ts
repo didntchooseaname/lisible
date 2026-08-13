@@ -25,10 +25,14 @@ for (const { id: name } of VARIANTS) {
 const children: { name: string; proc: ReturnType<typeof Bun.spawn> }[] = [];
 for (const { id: name, port } of VARIANTS) {
   const dir = join(root, "versions", name);
+  // ASTRO_PREVIEW_BACKGROUND keeps the server attached to this process: since
+  // Astro 7.2 the CLI daemonizes itself inside agentic shells, which would
+  // detach the children from the Ctrl+C lifecycle below.
   const proc = Bun.spawn(["bunx", "astro", "preview", "--port", String(port)], {
     cwd: dir,
     stdout: "ignore",
     stderr: "ignore",
+    env: { ...process.env, ASTRO_PREVIEW_BACKGROUND: "1" },
   });
   children.push({ name, proc });
   console.log(`${name}: http://localhost:${port}`);
