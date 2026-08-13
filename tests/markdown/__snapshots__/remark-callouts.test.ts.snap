@@ -1,0 +1,3 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`createRemarkCallouts matches the historical _core markup byte for byte 1`] = `"<div class="callout callout-tip" data-callout="tip"><div class="callout-header"><span class="callout-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="icon-tip"></path></svg></span><span class="callout-title">Bien joué</span></div><div class="callout-body"><p>Corps.</p></div></div>"`;
