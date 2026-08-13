@@ -36,6 +36,18 @@ const navLinks = [
     label: dict.series.listTitle,
     keywords: "series serie dossiers",
   },
+  FEATURES.portfolio.enabled &&
+    FEATURES.portfolio.certifications && {
+      href: localeUrl(locale, "certifications"),
+      label: dict.nav.certifications,
+      keywords: "certifications diplomes badges parcours",
+    },
+  FEATURES.portfolio.enabled &&
+    FEATURES.portfolio.friends && {
+      href: localeUrl(locale, "friends"),
+      label: dict.nav.friends,
+      keywords: "amis friends liens blogroll",
+    },
   { href: localeUrl(locale, "about"), label: dict.palette.goAbout, keywords: "about a propos" },
   { href: localeUrl(locale, "rss.xml"), label: dict.palette.openRss, keywords: "rss feed flux abonnement" },
 ].filter(Boolean) as { href: string; label: string; keywords: string }[];

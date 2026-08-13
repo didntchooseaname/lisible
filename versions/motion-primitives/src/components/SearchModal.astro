@@ -2,6 +2,7 @@
 // Pagefind is emitted into dist/ at build time; keep the specifier
 // out of static resolution so it is looked up at runtime only.
 import { FEATURES } from "@/site.config";
+import { getPublishedPosts } from "@/lib/posts";
 import { localeUrl, t, type Locale } from "@/i18n/ui";
 
 interface Props {
@@ -13,12 +14,22 @@ interface Props {
 
 const { locale, palette = false, langHref = localeUrl(locale), rssHref = localeUrl(locale, "rss.xml") } = Astro.props;
 const dict = t(locale);
+const hasSeries =
+  FEATURES.series &&
+  (await getPublishedPosts(locale)).some((post) => Boolean(post.data.series));
 const p = dict.palette;
 
 const navItems = [
   { href: localeUrl(locale, "blog"), label: p.goBlog },
   { href: localeUrl(locale, "tags"), label: p.goTags },
   ...(FEATURES.archives ? [{ href: localeUrl(locale, "archives"), label: p.goArchives }] : []),
+  ...(hasSeries ? [{ href: localeUrl(locale, "series"), label: dict.nav.series }] : []),
+  ...(FEATURES.portfolio.enabled && FEATURES.portfolio.certifications
+    ? [{ href: localeUrl(locale, "certifications"), label: dict.nav.certifications }]
+    : []),
+  ...(FEATURES.portfolio.enabled && FEATURES.portfolio.friends
+    ? [{ href: localeUrl(locale, "friends"), label: dict.nav.friends }]
+    : []),
   { href: localeUrl(locale, "about"), label: p.goAbout },
 ];
 
@@ -37,6 +48,7 @@ const iconAttrs = {
   "aria-hidden": "true",
   class: "shrink-0 text-muted-foreground",
 } as const;
+
 ---
 
 <dialog

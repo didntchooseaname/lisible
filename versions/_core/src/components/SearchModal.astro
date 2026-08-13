@@ -2,6 +2,7 @@
 // Pagefind is emitted into dist/ at build time; keep the specifier
 // out of static resolution so it is looked up at runtime only.
 import { FEATURES } from "@/site.config";
+import { getPublishedPosts } from "@/lib/posts";
 import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
 
 interface Props {
@@ -11,6 +12,9 @@ interface Props {
 
 const { locale, alternates } = Astro.props;
 const dict = t(locale);
+const hasSeries =
+  FEATURES.series &&
+  (await getPublishedPosts(locale)).some((post) => Boolean(post.data.series));
 const palette = FEATURES.commandPalette;
 
 const PaletteStyles = __FEATURE_COMMAND_PALETTE__
@@ -34,6 +38,15 @@ const actions: Action[] = palette
       ...(FEATURES.archives
         ? [{ kind: "link", href: localeUrl(locale, "archives"), icon: "archives", label: dict.palette.goArchives } as Action]
         : []),
+      ...(hasSeries
+        ? [{ kind: "link", href: localeUrl(locale, "series"), icon: "series", label: dict.nav.series } as Action]
+        : []),
+      ...(FEATURES.portfolio.enabled && FEATURES.portfolio.certifications
+        ? [{ kind: "link", href: localeUrl(locale, "certifications"), icon: "certifications", label: dict.nav.certifications } as Action]
+        : []),
+      ...(FEATURES.portfolio.enabled && FEATURES.portfolio.friends
+        ? [{ kind: "link", href: localeUrl(locale, "friends"), icon: "friends", label: dict.nav.friends } as Action]
+        : []),
       { kind: "link", href: localeUrl(locale, "about"), icon: "about", label: dict.palette.goAbout },
       { kind: "link", href: localeUrl(locale, "rss.xml"), icon: "rss", label: dict.palette.openRss },
     ]
@@ -54,11 +67,18 @@ const iconPaths: Record<string, string> = {
     '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
   archives:
     '<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
+  series:
+    '<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
+  certifications:
+    '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
+  friends:
+    '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
   about:
     '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
   rss:
     '<path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>',
 };
+
 ---
 
 {PaletteStyles && <PaletteStyles />}
