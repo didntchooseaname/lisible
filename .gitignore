@@ -31,6 +31,5 @@ Thumbs.db
 .netlify
 coverage/
 tmp/
-.drift-baseline.json
 .lighthouseci/
 test-results/

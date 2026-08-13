@@ -16,6 +16,7 @@ import { join, relative } from "node:path";
 const root = new URL("..", import.meta.url).pathname;
 const baselinePath = join(root, ".drift-baseline.json");
 const save = process.argv.includes("--save");
+const force = process.argv.includes("--force");
 
 const TARGETS = [
   "_core",
@@ -80,7 +81,43 @@ function snapshot(): Record<string, Record<string, string>> {
 
 const current = snapshot();
 
+function compare(baseline: Record<string, Record<string, string>>): string[] {
+  const drifts: string[] = [];
+  for (const target of TARGETS) {
+    const before = baseline[target] ?? {};
+    const after = current[target] ?? {};
+    for (const page of Object.keys(before)) {
+      if (!(page in after)) drifts.push(`${target}/${page}: page removed`);
+      else if (before[page] !== after[page]) drifts.push(`${target}/${page}: content changed`);
+    }
+    for (const page of Object.keys(after)) {
+      if (!(page in before)) drifts.push(`${target}/${page}: page added`);
+    }
+  }
+  return drifts;
+}
+
+function printDrifts(drifts: string[]): void {
+  console.error(`[lisible] check-drift: ${drifts.length} difference(s) against the baseline:`);
+  for (const drift of drifts.slice(0, 60)) console.error(`  - ${drift}`);
+  if (drifts.length > 60) console.error(`  ... and ${drifts.length - 60} more`);
+}
+
 if (save) {
+  // The baseline is versioned, so a save that changes it must be a decision,
+  // not a reflex: refuse to overwrite a diverging baseline without --force,
+  // and show what would change so the overwrite is reviewed, not blind.
+  if (existsSync(baselinePath) && !force) {
+    const drifts = compare(JSON.parse(readFileSync(baselinePath, "utf8")));
+    if (drifts.length > 0) {
+      printDrifts(drifts);
+      console.error(
+        "[lisible] check-drift: the current build diverges from the saved baseline. " +
+          "Review the list above, then rerun with --force to accept it.",
+      );
+      process.exit(1);
+    }
+  }
   writeFileSync(baselinePath, JSON.stringify(current, null, 1));
   const total = Object.values(current).reduce((n, pages) => n + Object.keys(pages).length, 0);
   console.log(
@@ -94,27 +131,10 @@ if (!existsSync(baselinePath)) {
   process.exit(1);
 }
 
-const baseline: Record<string, Record<string, string>> = JSON.parse(
-  readFileSync(baselinePath, "utf8"),
-);
-const drifts: string[] = [];
-
-for (const target of TARGETS) {
-  const before = baseline[target] ?? {};
-  const after = current[target] ?? {};
-  for (const page of Object.keys(before)) {
-    if (!(page in after)) drifts.push(`${target}/${page}: page removed`);
-    else if (before[page] !== after[page]) drifts.push(`${target}/${page}: content changed`);
-  }
-  for (const page of Object.keys(after)) {
-    if (!(page in before)) drifts.push(`${target}/${page}: page added`);
-  }
-}
+const drifts = compare(JSON.parse(readFileSync(baselinePath, "utf8")));
 
 if (drifts.length > 0) {
-  console.error(`[lisible] check-drift: ${drifts.length} difference(s) against the baseline:`);
-  for (const drift of drifts.slice(0, 60)) console.error(`  - ${drift}`);
-  if (drifts.length > 60) console.error(`  ... and ${drifts.length - 60} more`);
+  printDrifts(drifts);
   process.exit(1);
 }
 
