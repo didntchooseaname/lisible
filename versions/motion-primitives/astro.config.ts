@@ -65,6 +65,10 @@ for (const locale of ["fr", "en"] as const) {
 }
 
 export default defineConfig({
+  build: {
+    // One less render blocking request; the stylesheets are small.
+    inlineStylesheets: "always",
+  },
   ...previewAstroConfig(),
   devToolbar: { enabled: false },
   site: SITE.url,

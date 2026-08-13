@@ -29,6 +29,8 @@ const rawHeight = 630;
         width={rawWidth}
         height={rawHeight}
         loading={variant === "head" ? "eager" : "lazy"}
+        fetchpriority={variant === "head" ? "high" : "auto"}
+        fetchpriority={variant === "head" ? "high" : "auto"}
         decoding="async"
       />
     ) : (

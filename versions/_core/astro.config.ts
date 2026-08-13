@@ -65,6 +65,10 @@ const copyIconSvg =
 const copyIcon = `url("data:image/svg+xml,${encodeURIComponent(copyIconSvg)}")`;
 
 export default defineConfig({
+  build: {
+    // One less render blocking request; the stylesheets are small.
+    inlineStylesheets: "always",
+  },
   devToolbar: { enabled: false },
   site: SITE.url,
   output: "static",

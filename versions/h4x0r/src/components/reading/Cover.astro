@@ -36,6 +36,7 @@ const isPublicPath = typeof cover === "string";
       width={fallbackWidth}
       height={fallbackHeight}
       loading={loading}
+      fetchpriority={loading === "eager" ? "high" : "auto"}
       decoding="async"
       class={className}
     />
@@ -46,6 +47,7 @@ const isPublicPath = typeof cover === "string";
       alt={alt}
       width={width}
       loading={loading}
+      fetchpriority={loading === "eager" ? "high" : "auto"}
       decoding="async"
       class={className}
       sizes={sizes}
