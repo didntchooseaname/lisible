@@ -14,6 +14,9 @@ const dict = t(locale);
   data-theme-toggle
   transition:persist="theme-toggle"
   aria-label={dict.a11y.toggleTheme}
+  data-announce-light={dict.a11y.themeLightOn}
+  data-announce-dark={dict.a11y.themeDarkOn}
+  data-announce-system={dict.a11y.themeSystemOn}
   class="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
 >
   
@@ -28,7 +31,7 @@ const dict = t(locale);
     stroke-linecap="round"
     stroke-linejoin="round"
     aria-hidden="true"
-    class="hidden dark:block"
+    class="tt-sun"
   >
     <circle cx="12" cy="12" r="4"></circle>
     <path d="M12 2v2"></path>
@@ -52,13 +55,32 @@ const dict = t(locale);
     stroke-linecap="round"
     stroke-linejoin="round"
     aria-hidden="true"
-    class="block dark:hidden"
+    class="tt-moon"
   >
     <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+  </svg>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    class="tt-monitor"
+  >
+    <rect width="20" height="14" x="2" y="3" rx="2"></rect>
+    <line x1="8" x2="16" y1="21" y2="21"></line>
+    <line x1="12" x2="12" y1="17" y2="21"></line>
   </svg>
 </button>
 
 <script>
+  import { announce } from "@shared/scripts/announce";
+  import { cyclePreference } from "@shared/scripts/theme-cycle";
   type ViewTransitionLike = {
     ready: Promise<void>;
     finished: Promise<void>;
@@ -69,11 +91,12 @@ const dict = t(locale);
 
   const TOGGLE_DURATION = 500;
 
-  function applyThemeToggle() {
-    const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
-    document.documentElement.classList.toggle("dark", next === "dark");
-    localStorage.setItem("theme", next);
-    (window as { __applyAccent?: () => void }).__applyAccent?.();
+  function applyThemeToggle(button: HTMLElement) {
+    const next = cyclePreference();
+    const label = button.dataset[
+      next === "light" ? "announceLight" : next === "dark" ? "announceDark" : "announceSystem"
+    ];
+    if (label) announce(label);
   }
 
   function animatedToggle(button: HTMLElement) {
@@ -81,7 +104,7 @@ const dict = t(locale);
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (typeof doc.startViewTransition !== "function" || prefersReduced) {
-      applyThemeToggle();
+      applyThemeToggle(button);
       return;
     }
 
@@ -108,7 +131,7 @@ const dict = t(locale);
     };
 
     const transition = doc.startViewTransition(() => {
-      applyThemeToggle();
+      applyThemeToggle(button);
     });
 
     transition.finished.finally(cleanup);
@@ -133,3 +156,24 @@ const dict = t(locale);
     animatedToggle(button);
   });
 </script>
+
+<style is:global>
+  /* The icon previews the next state in the light, dark, system cycle; the
+     bootstrap stamps html[data-theme], and without JS the moon fallback
+     matches the light default. */
+  [data-theme-toggle] .tt-sun,
+  [data-theme-toggle] .tt-moon,
+  [data-theme-toggle] .tt-monitor {
+    display: none;
+  }
+  html[data-theme="light"] [data-theme-toggle] .tt-moon,
+  html:not([data-theme]) [data-theme-toggle] .tt-moon {
+    display: block;
+  }
+  html[data-theme="dark"] [data-theme-toggle] .tt-monitor {
+    display: block;
+  }
+  html[data-theme="system"] [data-theme-toggle] .tt-sun {
+    display: block;
+  }
+</style>

@@ -1,10 +1,15 @@
-import { Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
+import { announce } from "@shared/scripts/announce";
+import { cyclePreference } from "@shared/scripts/theme-cycle";
 import { useCallback, useRef } from "react";
 import { flushSync } from "react-dom";
 import { TextureButton } from "@/components/ui/texture-button";
 
 interface ThemeToggleIslandProps {
   label: string;
+  themeLightOn: string;
+  themeDarkOn: string;
+  themeSystemOn: string;
 }
 
 const DURATION = 500;
@@ -14,15 +19,18 @@ type StartViewTransition = (callback: () => void) => {
   finished: Promise<void>;
 };
 
-export function ThemeToggleIsland({ label }: ThemeToggleIslandProps) {
+export function ThemeToggleIsland({
+  label,
+  themeLightOn,
+  themeDarkOn,
+  themeSystemOn,
+}: ThemeToggleIslandProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const applyTheme = useCallback(() => {
-    const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
-    document.documentElement.classList.toggle("dark", next === "dark");
-    localStorage.setItem("theme", next);
-    window.__applyAccent?.();
-  }, []);
+    const next = cyclePreference();
+    announce(next === "light" ? themeLightOn : next === "dark" ? themeDarkOn : themeSystemOn);
+  }, [themeLightOn, themeDarkOn, themeSystemOn]);
 
   const toggle = useCallback(() => {
     const button = buttonRef.current;
@@ -78,11 +86,13 @@ export function ThemeToggleIsland({ label }: ThemeToggleIslandProps) {
       variant="icon"
       size="icon"
       aria-label={label}
+      data-theme-toggle
       onClick={toggle}
       className="h-11 w-11"
     >
-      <Sun size={20} aria-hidden="true" className="hidden text-foreground dark:block" />
-      <Moon size={20} aria-hidden="true" className="block text-foreground dark:hidden" />
+      <Sun size={20} aria-hidden="true" className="tt-sun text-foreground" />
+      <Moon size={20} aria-hidden="true" className="tt-moon text-foreground" />
+      <Monitor size={20} aria-hidden="true" className="tt-monitor text-foreground" />
     </TextureButton>
   );
 }

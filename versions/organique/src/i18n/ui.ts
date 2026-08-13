@@ -215,6 +215,9 @@ const fr = {
   a11y: {
     skipToContent: "Aller au contenu principal",
     toggleTheme: "Changer de thème",
+    themeLightOn: "Thème clair activé",
+    themeDarkOn: "Thème sombre activé",
+    themeSystemOn: "Thème système activé (suit vos préférences)",
     openSearch: "Ouvrir la recherche (Ctrl+K)",
     closeSearch: "Fermer la recherche",
     backToTop: "Retour en haut de page",
@@ -421,6 +424,9 @@ const en: Dict = {
   a11y: {
     skipToContent: "Skip to main content",
     toggleTheme: "Toggle theme",
+    themeLightOn: "Light theme on",
+    themeDarkOn: "Dark theme on",
+    themeSystemOn: "System theme on (follows your device)",
     openSearch: "Open search (Ctrl+K)",
     closeSearch: "Close search",
     backToTop: "Back to top",

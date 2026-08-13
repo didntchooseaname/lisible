@@ -1153,3 +1153,22 @@ dialog[data-search-modal]::backdrop {
   background: none;
   cursor: inherit;
 }
+
+/* Theme toggle icon states: the icon previews the next step of the light,
+   dark, system cycle; without JS the moon fallback matches the light
+   default. */
+[data-theme-toggle] .tt-sun,
+[data-theme-toggle] .tt-moon,
+[data-theme-toggle] .tt-monitor {
+  display: none;
+}
+html[data-theme="light"] [data-theme-toggle] .tt-moon,
+html:not([data-theme]) [data-theme-toggle] .tt-moon {
+  display: block;
+}
+html[data-theme="dark"] [data-theme-toggle] .tt-monitor {
+  display: block;
+}
+html[data-theme="system"] [data-theme-toggle] .tt-sun {
+  display: block;
+}

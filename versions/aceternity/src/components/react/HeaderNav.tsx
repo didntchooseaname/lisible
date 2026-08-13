@@ -1,5 +1,7 @@
 "use client";
-import { Moon, Search, Sun } from "lucide-react";
+import { announce } from "@shared/scripts/announce";
+import { cyclePreference } from "@shared/scripts/theme-cycle";
+import { Monitor, Moon, Search, Sun } from "lucide-react";
 import { useRef, useState } from "react";
 import AccentPicker, { type AccentPickerLabels } from "@/components/react/AccentPicker";
 import {
@@ -21,6 +23,9 @@ export interface HeaderNavProps {
   items: { name: string; link: string; active?: boolean }[];
   searchLabel: string;
   themeLabel: string;
+  themeLightOn: string;
+  themeDarkOn: string;
+  themeSystemOn: string;
   accentLabels: AccentPickerLabels;
   defaultAccent: string;
   langLabel: string;
@@ -35,13 +40,13 @@ export interface HeaderNavProps {
   menuCloseLabel: string;
 }
 
-function applyThemeToggle() {
-  const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
-  document.documentElement.classList.toggle("dark", next === "dark");
-  try {
-    localStorage.setItem("theme", next);
-  } catch {}
-  window.applyAccent?.();
+function applyThemeToggle(button: HTMLButtonElement | null) {
+  const next = cyclePreference();
+  const label =
+    button?.dataset[
+      next === "light" ? "announceLight" : next === "dark" ? "announceDark" : "announceSystem"
+    ];
+  if (label) announce(label);
 }
 
 function toggleThemeAnimated(button: HTMLButtonElement | null) {
@@ -50,7 +55,7 @@ function toggleThemeAnimated(button: HTMLButtonElement | null) {
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   if (!button || typeof document.startViewTransition !== "function" || prefersReducedMotion) {
-    applyThemeToggle();
+    applyThemeToggle(button);
     return;
   }
 
@@ -77,7 +82,7 @@ function toggleThemeAnimated(button: HTMLButtonElement | null) {
   };
 
   const transition = document.startViewTransition(() => {
-    applyThemeToggle();
+    applyThemeToggle(button);
   });
 
   if (typeof transition?.finished?.finally === "function") {
@@ -101,18 +106,29 @@ function toggleThemeAnimated(button: HTMLButtonElement | null) {
     .catch(() => {});
 }
 
-const ThemeToggleButton = ({ label }: { label: string }) => {
+const ThemeToggleButton = ({
+  label,
+  announceLabels,
+}: {
+  label: string;
+  announceLabels: { light: string; dark: string; system: string };
+}) => {
   const ref = useRef<HTMLButtonElement>(null);
   return (
     <button
       type="button"
       ref={ref}
+      data-theme-toggle
+      data-announce-light={announceLabels.light}
+      data-announce-dark={announceLabels.dark}
+      data-announce-system={announceLabels.system}
       onClick={() => toggleThemeAnimated(ref.current)}
       aria-label={label}
       className="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
     >
-      <Sun className="hidden h-5 w-5 dark:block" aria-hidden="true" />
-      <Moon className="block h-5 w-5 dark:hidden" aria-hidden="true" />
+      <Sun className="tt-sun h-5 w-5" aria-hidden="true" />
+      <Moon className="tt-moon h-5 w-5" aria-hidden="true" />
+      <Monitor className="tt-monitor h-5 w-5" aria-hidden="true" />
     </button>
   );
 };
@@ -173,6 +189,9 @@ export default function HeaderNav({
   items,
   searchLabel,
   themeLabel,
+  themeLightOn,
+  themeDarkOn,
+  themeSystemOn,
   accentLabels,
   defaultAccent,
   langLabel,
@@ -193,7 +212,10 @@ export default function HeaderNav({
           <SearchButton label={searchLabel} />
           <LanguageSwitcher label={langLabel} items={langItems} />
           <AccentPicker labels={accentLabels} defaultAccent={defaultAccent} />
-          <ThemeToggleButton label={themeLabel} />
+          <ThemeToggleButton
+            label={themeLabel}
+            announceLabels={{ light: themeLightOn, dark: themeDarkOn, system: themeSystemOn }}
+          />
         </div>
       </NavBody>
 
@@ -204,7 +226,10 @@ export default function HeaderNav({
           <div className="flex items-center gap-1">
             <SearchButton label={searchLabel} />
             <AccentPicker labels={accentLabels} defaultAccent={defaultAccent} />
-            <ThemeToggleButton label={themeLabel} />
+            <ThemeToggleButton
+              label={themeLabel}
+              announceLabels={{ light: themeLightOn, dark: themeDarkOn, system: themeSystemOn }}
+            />
             <MobileNavToggle
               isOpen={isMenuOpen}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
