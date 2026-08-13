@@ -1,5 +1,7 @@
 /// <reference types="astro/client" />
 
+declare const __MDX_COMPONENTS_ENABLED__: boolean;
+
 declare const __FEATURE_IMAGE_ZOOM__: boolean;
 declare const __FEATURE_COMMAND_PALETTE__: boolean;
 declare const __FEATURE_MERMAID__: boolean;

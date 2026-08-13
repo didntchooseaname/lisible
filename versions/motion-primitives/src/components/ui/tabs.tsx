@@ -17,6 +17,9 @@ type TabsProps = {
 };
 
 export function Tabs({ tabs, label, children }: TabsProps) {
+  if (!__MDX_COMPONENTS_ENABLED__) {
+    return <div className="my-6">{children}</div>;
+  }
   const [active, setActive] = useState(0);
   const panelsRef = useRef<HTMLDivElement>(null);
   const baseId = useId().replace(/[:]/g, "");

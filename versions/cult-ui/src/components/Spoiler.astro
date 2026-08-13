@@ -1,10 +1,20 @@
 ---
-
+import { FEATURES } from "@/site.config";
 ---
 
-<span class="spoiler" data-spoiler role="button" tabindex="0" aria-expanded="false">
-  <span class="spoiler-content"><slot /></span>
-</span>
+{
+  FEATURES.mdxComponents ? (
+    <span class="spoiler" data-spoiler role="button" tabindex="0" aria-expanded="false">
+      <span class="spoiler-content">
+        <slot />
+      </span>
+    </span>
+  ) : (
+    <span>
+      <slot />
+    </span>
+  )
+}
 
 <script>
   function reveal(el: HTMLElement) {

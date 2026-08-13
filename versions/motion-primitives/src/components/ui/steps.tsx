@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 
 export function Steps({ children }: { children?: ReactNode }) {
+  if (!__MDX_COMPONENTS_ENABLED__) {
+    return <ol className="my-6 list-decimal pl-6">{children}</ol>;
+  }
   return <div className="mdx-steps">{children}</div>;
 }
 

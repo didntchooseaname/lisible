@@ -8,6 +8,9 @@ interface TabsProps {
 }
 
 export function Tabs({ tabs, label, children }: TabsProps) {
+  if (!__MDX_COMPONENTS_ENABLED__) {
+    return <div className="my-6">{children}</div>;
+  }
   const [active, setActive] = useState(0);
   const baseId = useId();
   const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);

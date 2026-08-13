@@ -24,6 +24,9 @@ export function Tabs({
   listLabel?: string;
   children?: React.ReactNode;
 }) {
+  if (!__MDX_COMPONENTS_ENABLED__) {
+    return <div className="my-6">{children}</div>;
+  }
   const [active, setActive] = useState(0);
   const baseId = useId();
   const panelsRef = useRef<HTMLDivElement>(null);

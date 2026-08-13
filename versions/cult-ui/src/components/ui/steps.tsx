@@ -24,6 +24,9 @@ export function Step({ title, children }: StepProps) {
 }
 
 export function Steps({ children }: { children: ReactNode }) {
+  if (!__MDX_COMPONENTS_ENABLED__) {
+    return <ol className="my-6 list-decimal pl-6">{children}</ol>;
+  }
   const steps = Children.toArray(children).filter((child) => isValidElement(child));
   return <ol className="steps-list not-prose my-6 list-none pl-0">{steps}</ol>;
 }

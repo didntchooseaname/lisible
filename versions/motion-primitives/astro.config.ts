@@ -164,6 +164,7 @@ export default defineConfig({
       ],
     },
     define: {
+      __MDX_COMPONENTS_ENABLED__: JSON.stringify(FEATURES.mdxComponents),
       __FEATURE_IMAGE_ZOOM__: JSON.stringify(FEATURES.imageZoom),
       __FEATURE_MERMAID__: JSON.stringify(FEATURES.mermaid),
       __FEATURE_DRAWIO__: JSON.stringify(FEATURES.drawio),
