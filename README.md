@@ -161,7 +161,7 @@ bun run dev           # start the dev server
 bun run build         # build the static site (the variant's dist/)
 bun run preview       # serve the build locally
 bun run variant       # print the active variant
-bun run preview:all   # install, build and compare every variant (ports 4321-4326)
+bun run preview:all   # install, build and compare every variant (ports 43211-43216)
 ```
 
 </details>
@@ -175,7 +175,7 @@ npm run dev           # start the dev server
 npm run build         # build the static site (the variant's dist/)
 npm run preview       # serve the build locally
 npm run variant       # print the active variant
-npm run preview:all   # install, build and compare every variant (ports 4321-4326)
+npm run preview:all   # install, build and compare every variant (ports 43211-43216)
 ```
 
 </details>
@@ -189,7 +189,7 @@ pnpm run dev          # start the dev server
 pnpm run build        # build the static site (the variant's dist/)
 pnpm run preview      # serve the build locally
 pnpm run variant      # print the active variant
-pnpm run preview:all  # install, build and compare every variant (ports 4321-4326)
+pnpm run preview:all  # install, build and compare every variant (ports 43211-43216)
 ```
 
 </details>
