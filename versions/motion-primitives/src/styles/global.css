@@ -1258,3 +1258,10 @@ dialog[data-search-modal]::backdrop {
   outline: 2px solid var(--color-ring);
   outline-offset: 2px;
 }
+
+/* Light mode legibility: callout titles sit on a surface tinted with their
+   own hue, which drags the accent and destructive colors under 4.5:1 there;
+   mixing toward the foreground restores the ratio. */
+html:not(.dark) .prose .callout-title {
+  color: color-mix(in oklab, var(--callout-color) 60%, var(--color-foreground));
+}
