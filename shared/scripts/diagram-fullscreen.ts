@@ -42,6 +42,11 @@ const BUTTON_SELECTOR = "[data-diagram-fullscreen]";
 const STYLE_ID = "lisible-diagram-fullscreen-styles";
 const zoomControllers = new WeakMap<HTMLElement, ZoomController>();
 
+const supportsInert = typeof HTMLElement !== "undefined" && "inert" in HTMLElement.prototype;
+let fallbackTrigger: HTMLElement | null = null;
+let fallbackInerted: HTMLElement[] = [];
+let fallbackKeydown: ((event: KeyboardEvent) => void) | null = null;
+
 const expandIcon = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5"/></svg>`;
 const collapseIcon = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v5H3M16 3v5h5M8 21v-5H3M21 16h-5v5"/></svg>`;
 const zoomOutIcon = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3M8 11h6"/></svg>`;
@@ -62,6 +67,7 @@ function copy() {
         zoomIn: "Agrandir le diagramme",
         zoomOut: "Réduire le diagramme",
         fit: "Ajuster le diagramme à l’écran",
+        dialog: "Diagramme en plein écran",
       }
     : {
         enter: "View diagram in full screen",
@@ -69,6 +75,7 @@ function copy() {
         zoomIn: "Zoom in",
         zoomOut: "Zoom out",
         fit: "Fit diagram to screen",
+        dialog: "Diagram in full screen",
       };
 }
 
@@ -91,19 +98,115 @@ function update() {
   });
 }
 
-function closeFallback() {
-  document.querySelectorAll<HTMLElement>("[data-diagram-fullscreen-fallback]").forEach((frame) => {
-    frame.removeAttribute("data-diagram-fullscreen-fallback");
-  });
-  document.documentElement.classList.remove("diagram-fullscreen-open");
-  update();
+function focusableWithin(container: HTMLElement): HTMLElement[] {
+  const selectors = [
+    "a[href]",
+    "button:not([disabled])",
+    "input:not([disabled])",
+    "select:not([disabled])",
+    "textarea:not([disabled])",
+    '[tabindex]:not([tabindex="-1"])',
+  ].join(",");
+  return Array.from(container.querySelectorAll<HTMLElement>(selectors)).filter(
+    (element) => element.offsetParent !== null && getComputedStyle(element).visibility !== "hidden",
+  );
 }
 
+/** Hides everything outside the overlay from pointer, tab order and assistive tech. */
+function inertSiblings(frame: HTMLElement): HTMLElement[] {
+  const affected: HTMLElement[] = [];
+  let node: HTMLElement | null = frame;
+  while (node && node !== document.body) {
+    const parent = node.parentElement;
+    if (!parent) break;
+    for (const sibling of Array.from(parent.children)) {
+      if (sibling === node || !(sibling instanceof HTMLElement)) continue;
+      if (supportsInert) {
+        if (sibling.inert) continue;
+        sibling.inert = true;
+      } else {
+        if (sibling.getAttribute("aria-hidden") === "true") continue;
+        sibling.setAttribute("aria-hidden", "true");
+      }
+      affected.push(sibling);
+    }
+    node = parent;
+  }
+  return affected;
+}
+
+function releaseInert() {
+  for (const element of fallbackInerted) {
+    if (supportsInert) element.inert = false;
+    else element.removeAttribute("aria-hidden");
+  }
+  fallbackInerted = [];
+}
+
+function closeFallback() {
+  document.querySelectorAll<HTMLElement>("[data-diagram-fullscreen-fallback]").forEach((frame) => {
+    if (fallbackKeydown) frame.removeEventListener("keydown", fallbackKeydown);
+    frame.removeAttribute("data-diagram-fullscreen-fallback");
+    frame.removeAttribute("role");
+    frame.removeAttribute("aria-modal");
+    frame.removeAttribute("aria-label");
+    frame.removeAttribute("tabindex");
+  });
+  fallbackKeydown = null;
+  releaseInert();
+  document.documentElement.classList.remove("diagram-fullscreen-open");
+  const trigger = fallbackTrigger;
+  fallbackTrigger = null;
+  update();
+  if (trigger?.isConnected) trigger.focus();
+}
+
+/**
+ * Fallback used when the native Fullscreen API is unavailable or rejects. The
+ * frame becomes a fixed overlay, so it also needs the modal semantics the
+ * browser would otherwise supply: a labelled dialog, the rest of the page made
+ * inert, a contained Tab loop and focus returned to the trigger on close.
+ */
 function openFallback(frame: HTMLElement) {
+  const trigger = document.activeElement;
   closeFallback();
+  fallbackTrigger = trigger instanceof HTMLElement ? trigger : null;
+
   frame.setAttribute("data-diagram-fullscreen-fallback", "");
   document.documentElement.classList.add("diagram-fullscreen-open");
+  frame.setAttribute("role", "dialog");
+  frame.setAttribute("aria-modal", "true");
+  frame.setAttribute("aria-label", copy().dialog);
+  frame.setAttribute("tabindex", "-1");
+  fallbackInerted = inertSiblings(frame);
+
+  const keydown = (event: KeyboardEvent) => {
+    if (event.key !== "Tab") return;
+    const focusables = focusableWithin(frame);
+    const active = document.activeElement;
+    if (focusables.length === 0) {
+      event.preventDefault();
+      frame.focus();
+      return;
+    }
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (event.shiftKey) {
+      if (active === first || !frame.contains(active)) {
+        event.preventDefault();
+        last.focus();
+      }
+    } else if (active === last || !frame.contains(active)) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+  frame.addEventListener("keydown", keydown);
+  fallbackKeydown = keydown;
+
   update();
+  const closeButton = frame.querySelector<HTMLElement>(BUTTON_SELECTOR);
+  (closeButton ?? frame).focus();
 }
 
 async function toggleFullscreen(frame: FullscreenFrame) {
