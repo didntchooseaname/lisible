@@ -248,7 +248,15 @@ bun run new-post my-first-post            # French MDX post (default)
 bun run new-post my-first-post --locale en # English post
 bun run new-post my-first-post --translate # create both fr and en at once
 bun run new-post my-first-post --markdown  # opt into plain Markdown
+
+# Frontmatter straight from the command line:
+bun run new-post my-first-post --translate \
+  --title "Mon article" --title-en "My post" \
+  --tags "astro,performance" --series "Ma série" \
+  --cover /images/cover.jpg --featured
 ```
+
+Every optional frontmatter field the schema supports is listed as a comment in the generated file, ready to uncomment.
 
 Then open the generated `.mdx` file under `shared/content/blog/`, write your content, and set `draft: false` when you are ready. MDX is the global default: it supports all regular Markdown plus the shared `Tabs`, `Steps` and `Spoiler` components. Every variant reads that same file, so it appears on the home page, the blog list, the search index and the RSS feed automatically.
 

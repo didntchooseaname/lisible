@@ -75,6 +75,37 @@ describe("new-post", () => {
     const { code } = run(["scripts/new-post.ts"]);
     expect(code).not.toBe(0);
   });
+
+  it("honors tags, series, cover, featured and the english title", () => {
+    const { code } = run([
+      "scripts/new-post.ts",
+      "riche",
+      "--translate",
+      "--title",
+      "Titre FR",
+      "--title-en",
+      "EN title",
+      "--tags",
+      "astro, performance",
+      "--series",
+      "Ma série",
+      "--cover",
+      "/images/cover.jpg",
+      "--featured",
+    ]);
+    expect(code).toBe(0);
+
+    const fr = readFileSync(join(sandbox, "shared/content/blog/fr/riche.mdx"), "utf8");
+    const en = readFileSync(join(sandbox, "shared/content/blog/en/riche.mdx"), "utf8");
+    expect(fr).toContain('title: "Titre FR"');
+    expect(en).toContain('title: "EN title"');
+    expect(fr).toContain('tags: ["astro", "performance"]');
+    expect(fr).toContain('series: "Ma série"');
+    expect(fr).toContain("seriesOrder: 1");
+    expect(fr).toContain('cover: "/images/cover.jpg"');
+    expect(fr).toContain("featured: true");
+    expect(fr).toContain("# updatedDate:");
+  });
 });
 
 describe("init", () => {
