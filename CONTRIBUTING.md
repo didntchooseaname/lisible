@@ -26,6 +26,10 @@ bun run dev
 
 Create a focused branch from `main`, keep unrelated changes out of the pull request, and do not rewrite files outside the feature you are changing.
 
+The repository is a Bun workspace: one `bun install` at the root installs the tooling, the shared core and all seven build targets at once. Never run `bun install` inside a `versions/<variant>/` directory; the root lockfile is the only one.
+
+TypeScript stays on the 6.x line for now: `astro check` relies on a compiler API that the native TypeScript 7 compiler does not expose yet (see the Astro roadmap discussion linked from the error message if you try). Do not bump it until `@astrojs/check` supports 7.
+
 ## Ownership rules
 
 - `shared/content/blog/<locale>/` owns articles. MDX is the default format.
@@ -57,14 +61,34 @@ Use `bun run preview:all` to build and compare every public variant. Check the f
 
 ## Validation
 
-Run the project checks before opening a pull request:
+Run the project checks before opening a pull request. CI runs all of them, so running them locally first saves a round trip:
 
 ```bash
-bun run check:all
-bun run preview:all
+bun x biome ci .          # lint and format, zero diagnostics expected
+bun test                  # unit tests, including the markdown transformer suite
+bun scripts/check-style.ts # editorial rules (no long dashes, no AI mentions)
+bun run check:all         # per target: typecheck, build, links, assets, Open Graph
+bun run preview:all       # build and compare every public variant by hand
 ```
 
 For a shared or variant-level change, also build every affected package. A pull request is ready when links and assets resolve, all builds pass, the FR/EN pair is complete, and no generated or ignored files are staged.
+
+### Conformance
+
+`bun run check-conformance` verifies that the seven build targets stay structurally aligned: same routes, same content imports, same feature flag wiring. Any deliberate deviation must be declared in `conformance-exceptions.json` with a reason; an undeclared one fails CI.
+
+### Rendering drift
+
+`.drift-baseline.json` is a committed snapshot of the normalized HTML hashes of every page in every target. It is the safety net for refactors that must not change the rendered output:
+
+1. Build the seven targets, then run `bun run check-drift`. Green means your change did not alter a single rendered byte.
+2. If your change legitimately alters the output (content edit, new feature, dependency bump), rerun with `bun run check-drift --save`: it refuses to overwrite a diverging baseline and prints the differing pages first. Review that list, confirm it matches exactly what your change is supposed to touch, then accept it with `--save --force` and commit the updated baseline together with the change.
+
+A drift list wider than the scope of your change is a regression, not a formality.
+
+## Commit style
+
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org) (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `ci:`, `refactor:`); releases are cut automatically from them by release-please, so the prefix decides the version bump. Keep titles short, factual and in the imperative mood.
 
 ## Pull request checklist
 

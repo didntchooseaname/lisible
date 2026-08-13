@@ -18,7 +18,7 @@ One audited core, six visual variants. Bilingual, dark by default, fast, SEO-rea
 <a href="https://app.netlify.com/start/deploy?repository=https%3A%2F%2Fgithub.com%2Fdidntchooseaname%2Flisible"><img alt="Deploy to Netlify" src="https://www.netlify.com/img/deploy/button.svg" height="32"></a>
 </p>
 
-[Quick start](#quick-start) · [Deployment](#deployment) · [Variants](#variants) · [Configuration](#configuration) · [Features](#features) · [License](#license)
+[Documentation](https://lisible.xsec.fr) · [Quick start](#quick-start) · [Deployment](#deployment) · [Variants](#variants) · [Configuration](#configuration) · [Features](#features) · [License](#license)
 
 </div>
 
@@ -28,81 +28,16 @@ One audited core, six visual variants. Bilingual, dark by default, fast, SEO-rea
 
 Six skins over the exact same core. Same features, same content, same theme tokens: only the experience changes.
 
-<table>
-<tr>
-<td width="33%" align="center">
-<img src="docs/previews/motion-primitives-blog-dark.jpeg" alt="motion-primitives variant" width="100%"><br>
-<b>motion-primitives</b><br>
-<sub>Swiss minimalism, typographic micro-interactions</sub>
-</td>
-<td width="33%" align="center">
-<img src="docs/previews/cult-ui-blog-dark.jpeg" alt="cult-ui variant" width="100%"><br>
-<b>cult-ui</b><br>
-<sub>Editorial, gradient headings, textured controls</sub>
-</td>
-<td width="33%" align="center">
-<img src="docs/previews/aceternity-blog-dark.jpeg" alt="aceternity variant" width="100%"><br>
-<b>aceternity</b><br>
-<sub>Spotlight, bento grid, tracing beam</sub>
-</td>
-</tr>
-<tr>
-<td width="33%" align="center">
-<img src="docs/previews/reactbits-blog-dark.jpeg" alt="reactbits variant" width="100%"><br>
-<b>reactbits</b><br>
-<sub>Dense animated components, pill nav</sub>
-</td>
-<td width="33%" align="center">
-<img src="docs/previews/organique-blog-dark.jpeg" alt="organique variant" width="100%"><br>
-<b>organique</b><br>
-<sub>Draggable node constellation, live link states, floating dock</sub>
-</td>
-<td width="33%" align="center">
-<img src="docs/previews/h4x0r-blog-dark.jpeg" alt="H4X0R variant" width="100%"><br>
-<b>H4X0R</b><br>
-<sub>Immersive terminal HUD, interactive background</sub>
-</td>
-</tr>
-</table>
+| Variant | Feel |
+| --- | --- |
+| **motion-primitives** | Swiss minimalism, typographic micro-interactions |
+| **cult-ui** | Editorial, gradient headings, textured controls |
+| **aceternity** | Spotlight, bento grid, tracing beam |
+| **reactbits** | Dense animated components, pill nav |
+| **organique** | Draggable node constellation, live link states, floating dock |
+| **H4X0R** | Immersive terminal HUD, interactive background |
 
-<div align="center"><sub>Each variant ships light and dark. More previews in <a href="docs/previews/"><code>docs/previews/</code></a>.</sub></div>
-
-### The same post, six ways
-
-Full-page captures of the demonstration post, so you can compare how each variant renders the same content end to end (prose, code blocks, callouts, diagrams, cards).
-
-<table>
-<tr>
-<td width="33%" align="center">
-<a href="docs/previews/motion-primitives-article-dark.jpeg"><img src="docs/previews/motion-primitives-article-dark.jpeg" alt="motion-primitives demo post" width="100%"></a><br>
-<b>motion-primitives</b>
-</td>
-<td width="33%" align="center">
-<a href="docs/previews/cult-ui-article-dark.jpeg"><img src="docs/previews/cult-ui-article-dark.jpeg" alt="cult-ui demo post" width="100%"></a><br>
-<b>cult-ui</b>
-</td>
-<td width="33%" align="center">
-<a href="docs/previews/aceternity-article-dark.jpeg"><img src="docs/previews/aceternity-article-dark.jpeg" alt="aceternity demo post" width="100%"></a><br>
-<b>aceternity</b>
-</td>
-</tr>
-<tr>
-<td width="33%" align="center">
-<a href="docs/previews/reactbits-article-dark.jpeg"><img src="docs/previews/reactbits-article-dark.jpeg" alt="reactbits demo post" width="100%"></a><br>
-<b>reactbits</b>
-</td>
-<td width="33%" align="center">
-<a href="docs/previews/organique-article-dark.jpeg"><img src="docs/previews/organique-article-dark.jpeg" alt="organique demo post" width="100%"></a><br>
-<b>organique</b>
-</td>
-<td width="33%" align="center">
-<a href="docs/previews/h4x0r-article-dark.jpeg"><img src="docs/previews/h4x0r-article-dark.jpeg" alt="H4X0R demo post" width="100%"></a><br>
-<b>H4X0R</b>
-</td>
-</tr>
-</table>
-
-<div align="center"><sub>Click any image to open it full size.</sub></div>
+Do not pick from a table: browse the variants live in the [documentation previewer](https://lisible.xsec.fr), or locally with `bun run preview:all`, which builds and serves all six side by side.
 
 ## Quick start
 
@@ -355,7 +290,7 @@ lisible/
 │  ├─ routes/              # identical locale, blog, tag, RSS and robots routes
 │  ├─ markdown/            # shared Markdown pipeline helpers
 │  └─ public/              # common favicon, KaTeX and fallback OG asset
-├─ docs/previews/          # variant screenshots
+├─ docs/previews/          # screenshots consumed by the documentation site
 └─ versions/
    ├─ _core/               # reference implementation
    ├─ motion-primitives/   # visual implementation and thin adapters
