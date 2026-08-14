@@ -83,9 +83,7 @@ describe("buildLlmsIndex", () => {
         `# Lisible\n\n> ${INTRO_FR.tagline}\n\n${INTRO_FR.description}\n\n` +
           `> ${INTRO_EN.tagline}\n\n${INTRO_EN.description}`,
       ),
-    ).toBe(
-      true,
-    );
+    ).toBe(true);
   });
 
   it("lists both locales in order with one section each", async () => {

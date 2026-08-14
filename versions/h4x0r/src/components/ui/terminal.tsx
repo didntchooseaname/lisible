@@ -278,8 +278,7 @@ export const Terminal = ({
         </div>
       </div>
       <pre className="p-4">
-        {/* tabindex: the animated transcript can overflow, and a scrollable
-            region must stay reachable with the keyboard. */}
+        {/* biome-ignore lint/a11y/noNoninteractiveTabindex: the animated transcript can overflow, and a scrollable region must stay reachable with the keyboard */}
         <code className="grid gap-y-1 overflow-auto" tabIndex={0}>
           {wrappedChildren}
         </code>

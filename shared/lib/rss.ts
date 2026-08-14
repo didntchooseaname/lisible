@@ -7,10 +7,7 @@ import { getPublishedPosts, type Post } from "./posts";
 export const RSS_STYLESHEET_PATH = "/rss/feed.xsl";
 
 const escapeXml = (value: string): string =>
-  value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
+  value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
 /**
  * Builds one locale's feed. The stylesheet is locale-agnostic: it branches on

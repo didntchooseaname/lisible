@@ -1,6 +1,6 @@
-import { Monitor, Moon, Sun } from "lucide-react";
 import { announce } from "@shared/scripts/announce";
 import { cyclePreference } from "@shared/scripts/theme-cycle";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { useCallback, useRef } from "react";
 import { flushSync } from "react-dom";
 import { TextureButton } from "@/components/ui/texture-button";

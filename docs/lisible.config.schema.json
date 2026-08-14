@@ -5,9 +5,7 @@
   "description": "User configuration for a Lisible blog. Everything is optional except variant: absent fields fall back to the framework defaults.",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "variant"
-  ],
+  "required": ["variant"],
   "properties": {
     "$schema": {
       "type": "string"
@@ -19,14 +17,7 @@
     "variant": {
       "description": "The active visual variant, built and served by dev, build and preview.",
       "type": "string",
-      "enum": [
-        "motion-primitives",
-        "cult-ui",
-        "aceternity",
-        "reactbits",
-        "organique",
-        "h4x0r"
-      ]
+      "enum": ["motion-primitives", "cult-ui", "aceternity", "reactbits", "organique", "h4x0r"]
     },
     "site": {
       "description": "Identity of the site.",
@@ -67,10 +58,7 @@
         "coverPosition": {
           "description": "Vertical alignment of post cover images.",
           "type": "string",
-          "enum": [
-            "up",
-            "down"
-          ],
+          "enum": ["up", "down"],
           "default": "down"
         }
       }
@@ -297,10 +285,7 @@
           "properties": {
             "provider": {
               "type": "string",
-              "enum": [
-                "giscus",
-                "bluesky"
-              ],
+              "enum": ["giscus", "bluesky"],
               "default": "giscus"
             },
             "giscus": {
@@ -326,12 +311,7 @@
                 },
                 "mapping": {
                   "type": "string",
-                  "enum": [
-                    "pathname",
-                    "url",
-                    "title",
-                    "og:title"
-                  ],
+                  "enum": ["pathname", "url", "title", "og:title"],
                   "default": "pathname"
                 }
               }
