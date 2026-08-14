@@ -6,7 +6,7 @@ import { FEATURES } from "@/site.config";
 // off: getStaticPaths only runs for dynamic routes.
 export function getStaticPaths() {
   return FEATURES.portfolio.enabled && FEATURES.portfolio.certifications
-    ? [{ params: { page: undefined } }]
+    ? [{ params: { page: undefined }, props: {} }]
     : [];
 }
 ---
