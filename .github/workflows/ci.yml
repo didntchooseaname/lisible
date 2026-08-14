@@ -20,13 +20,9 @@ jobs:
     outputs:
       shared: ${{ steps.filter.outputs.shared }}
       packages: ${{ steps.filter.outputs.packages }}
-      _core: ${{ steps.filter.outputs._core }}
-      motion-primitives: ${{ steps.filter.outputs.motion-primitives }}
-      cult-ui: ${{ steps.filter.outputs.cult-ui }}
-      aceternity: ${{ steps.filter.outputs.aceternity }}
-      reactbits: ${{ steps.filter.outputs.reactbits }}
       organique: ${{ steps.filter.outputs.organique }}
       h4x0r: ${{ steps.filter.outputs.h4x0r }}
+      variants: ${{ steps.variants.outputs.variants }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
@@ -53,6 +49,23 @@ jobs:
               - 'versions/organique/**'
             h4x0r:
               - 'versions/h4x0r/**'
+
+      - name: Compute the variant matrix
+        # The matrix context is not available in a job-level if, so the list
+        # of variants to build is precomputed here and consumed as a dynamic
+        # matrix by the variant job.
+        id: variants
+        env:
+          CHANGES: ${{ steps.filter.outputs.changes }}
+          SHARED: ${{ steps.filter.outputs.shared }}
+        run: |
+          all='["_core","motion-primitives","cult-ui","aceternity","reactbits","organique","h4x0r"]'
+          if [ "$SHARED" = "true" ]; then
+            list="$all"
+          else
+            list="$(jq -c --argjson all "$all" '[.[] | select(IN($all[]))]' <<<"$CHANGES")"
+          fi
+          echo "variants=$list" >> "$GITHUB_OUTPUT"
 
   quality:
     name: lint, tests and style
@@ -81,20 +94,15 @@ jobs:
   variant:
     name: ${{ matrix.variant }}
     needs: changes
-    if: ${{ needs.changes.outputs.shared == 'true' || needs.changes.outputs[matrix.variant] == 'true' }}
+    # A matrix must not expand empty, so the job is skipped outright when no
+    # variant is affected.
+    if: ${{ needs.changes.outputs.variants != '[]' }}
     runs-on: ubuntu-latest
     strategy:
       # One failing variant must not hide the state of the others.
       fail-fast: false
       matrix:
-        variant:
-          - _core
-          - motion-primitives
-          - cult-ui
-          - aceternity
-          - reactbits
-          - organique
-          - h4x0r
+        variant: ${{ fromJSON(needs.changes.outputs.variants) }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
