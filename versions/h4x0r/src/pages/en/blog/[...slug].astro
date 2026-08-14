@@ -1,1 +1,6 @@
-../../../../../../shared/routes/en/blog/[...slug].astro
+---
+import SharedRoute from "@shared/routes/en/blog/[...slug].astro";
+export { getStaticPaths } from "@shared/routes/en/blog/[...slug].astro";
+---
+
+<SharedRoute {...Astro.props} />

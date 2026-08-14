@@ -18,10 +18,25 @@
   ],
   "identicalAcrossVariants": [
     "src/lib/rss.ts",
+    "src/pages/about.astro",
+    "src/pages/blog/[...slug].astro",
+    "src/pages/blog/[slug].md.ts",
+    "src/pages/blog/index.astro",
+    "src/pages/certifications/[...page].astro",
+    "src/pages/en/about.astro",
+    "src/pages/en/blog/[...slug].astro",
+    "src/pages/en/blog/index.astro",
+    "src/pages/en/certifications/[...page].astro",
+    "src/pages/en/friends/[...page].astro",
+    "src/pages/en/index.astro",
+    "src/pages/en/rss.xml.ts",
+    "src/pages/en/tags/index.astro",
+    "src/pages/friends/[...page].astro",
+    "src/pages/index.astro",
     "src/pages/robots.txt.ts",
     "src/pages/rss.xml.ts",
     "src/pages/rss/[style].xsl.ts",
-    "src/pages/blog/[slug].md.ts",
+    "src/pages/tags/index.astro",
     "tsconfig.json"
   ]
 }
