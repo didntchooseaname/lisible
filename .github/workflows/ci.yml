@@ -209,6 +209,11 @@ jobs:
         with:
           bun-version-file: .bun-version
 
+      - name: Install workspace dependencies
+        # create-lisible reaches lisible/bin.mjs through the workspace link,
+        # so even the help output needs node_modules in place.
+        run: bun install --frozen-lockfile
+
       - name: Help output of both binaries
         run: |
           node packages/lisible/bin.mjs --help
@@ -252,7 +257,16 @@ jobs:
           done
 
       - name: Compare against the committed baseline
-        run: bun scripts/check-drift.ts
+        # The drifting pages are surfaced as annotations: they are readable
+        # from the run page and the public API, while raw logs are not.
+        run: |
+          status=0
+          bun scripts/check-drift.ts >drift.log 2>&1 || status=$?
+          cat drift.log
+          if [ "$status" -ne 0 ]; then
+            grep -E "^  - " drift.log | head -10 | sed 's/^  - /::error title=drift::/'
+          fi
+          exit "$status"
 
   dependencies:
     name: dependencies up to date
