@@ -41,6 +41,9 @@ function normalize(html: string): string {
       .replace(/\bid="(mermaid|drawio)-\d+"/g, 'id="$1-X"')
       .replace(/\baria-describedby="(mermaid|drawio)-\d+/g, 'aria-describedby="$1-X')
       .replace(/\bdata-diagram-id="(mermaid|drawio)-\d+"/g, 'data-diagram-id="$1-X"')
+      // The React renderer numbers every island's useId prefix from a
+      // build-wide counter, so it depends on page build order as well.
+      .replace(/\bprefix="r\d+"/g, 'prefix="rX"')
   );
 }
 
