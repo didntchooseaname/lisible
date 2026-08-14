@@ -17,9 +17,6 @@ type TabsProps = {
 };
 
 export function Tabs({ tabs, label, children }: TabsProps) {
-  if (!__MDX_COMPONENTS_ENABLED__) {
-    return <div className="my-6">{children}</div>;
-  }
   const [active, setActive] = useState(0);
   const panelsRef = useRef<HTMLDivElement>(null);
   const baseId = useId().replace(/[:]/g, "");
@@ -35,6 +32,10 @@ export function Tabs({ tabs, label, children }: TabsProps) {
       panel.setAttribute("aria-labelledby", `${baseId}-tab-${i}`);
     });
   }, [active, baseId]);
+
+  if (!__MDX_COMPONENTS_ENABLED__) {
+    return <div className="my-6">{children}</div>;
+  }
 
   const focusTab = (index: number) => {
     setActive(index);
