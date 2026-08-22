@@ -54,8 +54,8 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
-    "@biomejs/biome": "^2.5.8",
-    "@happy-dom/global-registrator": "^20.11.2",
+    "@biomejs/biome": "^2.5.9",
+    "@happy-dom/global-registrator": "^20.11.3",
     "@playwright/test": "^1.62.1",
     "hastscript": "^9.0.1",
     "rehype-stringify": "^10.0.1",
