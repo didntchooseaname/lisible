@@ -11,7 +11,7 @@
     "github-slugger": "^2.0.0",
     "hastscript": "^9.0.1",
     "open-graph-scraper": "^6.12.0",
-    "satori": "^0.29.0",
+    "satori": "^0.29.1",
     "tailwind-merge": "^3.6.0",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0"
