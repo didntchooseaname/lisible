@@ -54,16 +54,16 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
-    "@biomejs/biome": "^2.5.8",
-    "@happy-dom/global-registrator": "^20.11.2",
-    "@playwright/test": "^1.62.1",
+    "@biomejs/biome": "^2.5.14",
+    "@happy-dom/global-registrator": "^20.14.5",
+    "@playwright/test": "^1.63.0",
     "hastscript": "^9.0.1",
     "rehype-stringify": "^10.0.1",
     "remark-directive": "^4.0.0",
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
-    "sharp": "^0.35.3",
+    "sharp": "^0.35.4",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0"
   }
