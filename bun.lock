@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "lisible",
+      "name": "lisible-workspace",
       "devDependencies": {
         "@axe-core/playwright": "^4.13.0",
         "@biomejs/biome": "^2.5.15",
