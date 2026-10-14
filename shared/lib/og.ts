@@ -98,6 +98,7 @@ export async function renderOgImage(content: OgContent, theme: OgTheme): Promise
       flexDirection: "column",
       width: `${OG_WIDTH}px`,
       height: `${OG_HEIGHT}px`,
+      boxSizing: "border-box",
       backgroundColor: theme.background,
       padding: "96px",
       justifyContent: "center",
