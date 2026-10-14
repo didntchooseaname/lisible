@@ -35,8 +35,10 @@ function accessibleAccent(hex: string, dark: boolean) {
     return 0.2126 * linear[0]! + 0.7152 * linear[1]! + 0.0722 * linear[2]!;
   };
   const contrast = (a: number, b: number) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  // Mirrors AppearanceBootstrap: tuned against the --muted surfaces.
+  const surface = dark ? 0.205 ** 3 : 0.97 ** 3;
   for (let index = 0; index < 60; index += 1) {
-    if (dark ? contrast(luminance(rgb), 0) >= 3 : contrast(luminance(rgb), 1) >= 4.5) break;
+    if (contrast(luminance(rgb), surface) >= 4.5) break;
     rgb = rgb.map((channel) =>
       dark
         ? Math.min(255, Math.round(channel + (255 - channel) * 0.06) + 1)
