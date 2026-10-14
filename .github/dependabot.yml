@@ -9,6 +9,12 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # @astrojs/check only peers TypeScript 5 and 6, so astro check cannot
+      # run on 7 until it widens that range.
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
