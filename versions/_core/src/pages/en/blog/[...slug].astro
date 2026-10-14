@@ -1,6 +1,9 @@
 ---
+import type { ComponentProps } from "astro/types";
 import SharedRoute from "@shared/routes/en/blog/[...slug].astro";
 export { getStaticPaths } from "@shared/routes/en/blog/[...slug].astro";
+
+type Props = ComponentProps<typeof SharedRoute>;
 ---
 
 <SharedRoute {...Astro.props} />
