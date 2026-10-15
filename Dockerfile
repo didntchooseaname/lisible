@@ -1,7 +1,7 @@
 # Build the variant selected in lisible.config.json, or the one passed as a
 # build argument: docker build --build-arg LISIBLE_VARIANT=organique .
 # Versions are pinned to match .bun-version and nixpacks.toml.
-FROM oven/bun:1.3.11 AS build
+FROM oven/bun:1.4.2 AS build
 WORKDIR /app
 COPY . .
 RUN bun install --frozen-lockfile

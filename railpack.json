@@ -11,7 +11,7 @@
     "build": {
       "commands": [
         {
-          "image": "oven/bun:1.3.11",
+          "image": "oven/bun:1.4.2",
           "src": "/usr/local/bin/bun",
           "dest": "/usr/local/bin/bun"
         },
