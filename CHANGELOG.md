@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Releases are managed with release-please: entries below the Unreleased heading are generated from Conventional Commits.
 
+## [0.2.1](https://github.com/didntchooseaname/lisible/compare/v0.2.0...v0.2.1) (2026-10-15)
+
+
+### Bug fixes
+
+* **deploy:** move every pinned bun to 1.4.2 ([559df3f](https://github.com/didntchooseaname/lisible/commit/559df3f5ad33ca21cbd859c75ff561170aa4972e))
+* **release:** open a separate pull request per component ([444e718](https://github.com/didntchooseaname/lisible/commit/444e7185473f04d65e62fc47abaaf2abf335ad7d))
+
 ## [0.2.0](https://github.com/didntchooseaname/lisible/compare/v0.1.0...v0.2.0) (2026-10-14)
 
 
