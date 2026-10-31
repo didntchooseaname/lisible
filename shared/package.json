@@ -11,10 +11,10 @@
     "github-slugger": "^2.0.0",
     "hastscript": "^9.0.1",
     "open-graph-scraper": "^6.12.0",
-    "satori": "^0.57.2",
+    "satori": "^0.63.2",
     "tailwind-merge": "^3.7.0",
     "unified": "^11.0.5",
-    "unist-util-visit": "^5.1.0"
+    "unist-util-visit": "^5.2.0"
   },
   "devDependencies": {
     "@types/hast": "^3.0.5",
