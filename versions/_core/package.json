@@ -35,7 +35,7 @@
     "github-slugger": "^2.0.0",
     "hastscript": "^9.0.3",
     "katex": "^0.19.1",
-    "lucide-react": "^1.75.0",
+    "lucide-react": "^1.77.0",
     "mermaid": "^12.3.0",
     "motion": "^14.14.0",
     "open-graph-scraper": "^6.13.0",
@@ -45,7 +45,7 @@
     "remark-directive": "^4.0.0",
     "remark-math": "^6.0.0",
     "satori": "^0.63.2",
-    "tailwind-merge": "^3.7.0",
+    "tailwind-merge": "^3.7.1",
     "tailwindcss": "^4.3.3",
     "unist-util-visit": "^5.2.0"
   },
