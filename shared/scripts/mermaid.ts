@@ -176,24 +176,30 @@ export function createMermaidClient(options: MermaidClientOptions): void {
     });
   }
 
-  async function reRenderAll() {
-    const containers = document.querySelectorAll<HTMLElement>(
-      `${options.selector}[${renderedAttr}]`,
-    );
-    for (const container of containers) {
-      const renderTarget = container.querySelector<HTMLElement>("[data-mermaid-render]");
-      if (!renderTarget) continue;
-      const encoded = getSource(container);
-      if (encoded == null) continue;
-      const code = decode(encoded);
-      if (!code) continue;
-      try {
-        await renderInto(container, renderTarget, code);
-        options.onReRendered?.(container);
-      } catch (error) {
-        options.onReRenderError?.(error);
+  // A re render goes through the same queue as the first ones: containers carry
+  // the rendered attribute before their first pass completes, so a theme
+  // mutation during that pass would otherwise run two mermaid.render calls on
+  // the same id, fail one of them and leave the block flagged as broken.
+  function reRenderAll() {
+    renderQueue = renderQueue.then(async () => {
+      const containers = document.querySelectorAll<HTMLElement>(
+        `${options.selector}[${renderedAttr}]`,
+      );
+      for (const container of containers) {
+        const renderTarget = container.querySelector<HTMLElement>("[data-mermaid-render]");
+        if (!renderTarget) continue;
+        const encoded = getSource(container);
+        if (encoded == null) continue;
+        const code = decode(encoded);
+        if (!code) continue;
+        try {
+          await renderInto(container, renderTarget, code);
+          options.onReRendered?.(container);
+        } catch (error) {
+          options.onReRenderError?.(error);
+        }
       }
-    }
+    });
   }
 
   function isDark(): boolean {
@@ -213,10 +219,10 @@ export function createMermaidClient(options: MermaidClientOptions): void {
       if (themeTimer !== null) window.clearTimeout(themeTimer);
       themeTimer = window.setTimeout(() => {
         themeTimer = null;
-        void reRenderAll();
+        reRenderAll();
       }, themeOptions.debounce);
     } else {
-      void reRenderAll();
+      reRenderAll();
     }
   }
 
