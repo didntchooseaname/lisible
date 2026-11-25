@@ -19,3 +19,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      # init writes the configuration file analyze reads, so both actions must
+      # move in the same pull request or the analysis fails on the version.
+      codeql-action:
+        patterns:
+          - "github/codeql-action/*"
