@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Releases are managed with release-please: entries below the Unreleased heading are generated from Conventional Commits.
 
+## [0.2.3](https://github.com/didntchooseaname/lisible/compare/v0.2.2...v0.2.3) (2026-11-25)
+
+
+### Bug fixes
+
+* **diagrams:** queue the theme re renders behind the first render ([6d3698e](https://github.com/didntchooseaname/lisible/commit/6d3698ec1abd76915ef42f6b5ca94c90af536333))
+* **diagrams:** queue the theme re renders behind the first render ([d0d706e](https://github.com/didntchooseaname/lisible/commit/d0d706e48d150c0bc3e74cafa28491c4f49dc552))
+
 ## [0.2.2](https://github.com/didntchooseaname/lisible/compare/v0.2.1...v0.2.2) (2026-11-25)
 
 ### Maintenance
