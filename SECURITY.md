@@ -4,10 +4,10 @@
 
 Lisible is pre 1.0. Only the latest release on the `main` branch receives security fixes.
 
-| Version | Supported |
-| --- | --- |
-| latest release | yes |
-| older releases | no |
+| Version        | Supported |
+| -------------- | --------- |
+| latest release | yes       |
+| older releases | no        |
 
 ## Scope
 

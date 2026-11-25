@@ -28,14 +28,14 @@ One audited core, six visual variants. Bilingual, dark by default, fast, SEO-rea
 
 Six skins over the exact same core. Same features, same content, same theme tokens: only the experience changes.
 
-| Variant | Feel |
-| --- | --- |
-| **motion-primitives** | Swiss minimalism, typographic micro-interactions |
-| **cult-ui** | Editorial, gradient headings, textured controls |
-| **aceternity** | Spotlight, bento grid, tracing beam |
-| **reactbits** | Dense animated components, pill nav |
-| **organique** | Draggable node constellation, live link states, floating dock |
-| **H4X0R** | Immersive terminal HUD, interactive background |
+| Variant               | Feel                                                          |
+| --------------------- | ------------------------------------------------------------- |
+| **motion-primitives** | Swiss minimalism, typographic micro-interactions              |
+| **cult-ui**           | Editorial, gradient headings, textured controls               |
+| **aceternity**        | Spotlight, bento grid, tracing beam                           |
+| **reactbits**         | Dense animated components, pill nav                           |
+| **organique**         | Draggable node constellation, live link states, floating dock |
+| **H4X0R**             | Immersive terminal HUD, interactive background                |
 
 Do not pick from a table: browse the variants live in the [documentation previewer](https://lisible.xsec.fr), or locally with `bun run preview:all`, which builds and serves all six side by side.
 
@@ -245,6 +245,7 @@ Fresh clones render local discussion placeholders on every article. Configure `i
 Everything below is built in and shared by all six variants.
 
 **Reading**
+
 - Full-text search (Pagefind), <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>K</kbd>
 - Table of contents with scroll spy, reading time, prev/next, reading progress
 - Full-screen image viewer with zoom and pan
@@ -253,21 +254,25 @@ Everything below is built in and shared by all six variants.
 - GitHub repository cards and OpenGraph link previews from the content
 
 **Theme**
+
 - Dark by default (true black), light (pure white), no flash on load
 - Animated theme toggle (circular reveal), state preserved across navigation
 - Reader-customizable accent color, contrast guaranteed in both modes
 
 **International and SEO**
+
 - Native FR/EN routing (`/` and `/en/`), translated content, hreflang, per-locale RSS
 - Per-post OpenGraph images, JSON-LD, sitemap, robots.txt, `llms.txt`
 - No full page reloads: view transitions with hover prefetch
 
 **Authoring**
+
 - `bun run new-post` scaffolding, drafts hidden in production
 - Covers, pinned posts and tags; Archives in the top navbar; Series shown there only when published series content exists
 - Link checking and asset budgets in the build
 
 **Accessibility**
+
 - Full keyboard navigation, visible focus, AA contrast, reduced motion respected
 
 ## Create a post in 30 seconds
@@ -298,7 +303,7 @@ Prefer to do it by hand? Create a `.mdx` file under `shared/content/blog/fr/` (o
 title: "My post"
 description: "In one sentence, what it is about."
 pubDate: 2026-07-18
-updatedDate: 2026-07-18   # optional
+updatedDate: 2026-07-18 # optional
 tags: ["astro", "performance"]
 cover: "/images/cover.jpg" # optional
 draft: false
@@ -350,13 +355,13 @@ It stands on the work of others. Each dependency keeps its own license; the term
 
 **UI component kits.** Components are adapted and copied into each variant per each kit's license.
 
-| Kit | Link | License |
-| --- | --- | --- |
-| motion-primitives | https://motion-primitives.com | MIT |
-| cult/ui | https://www.cult-ui.com | MIT |
-| Aceternity UI | https://ui.aceternity.com | MIT (free components) |
-| ReactBits | https://reactbits.dev | MIT |
-| Magic UI | https://magicui.design | MIT |
+| Kit               | Link                          | License               |
+| ----------------- | ----------------------------- | --------------------- |
+| motion-primitives | https://motion-primitives.com | MIT                   |
+| cult/ui           | https://www.cult-ui.com       | MIT                   |
+| Aceternity UI     | https://ui.aceternity.com     | MIT (free components) |
+| ReactBits         | https://reactbits.dev         | MIT                   |
+| Magic UI          | https://magicui.design        | MIT                   |
 
 **Core libraries.** [Astro](https://astro.build), [Tailwind CSS](https://tailwindcss.com), [Expressive Code](https://expressive-code.com), [Pagefind](https://pagefind.app), [Motion](https://motion.dev), [GSAP](https://gsap.com), [Lucide](https://lucide.dev), [KaTeX](https://katex.org) and [Mermaid](https://mermaid.js.org), each under its own license (MIT for most, OFL or Apache for some). Package manager: [Bun](https://bun.sh).
 
